@@ -13,7 +13,7 @@ import { optionalFunctions } from './gse-plugins.js';
 import { updateCountryDisplay } from './gse-brand.js';
 import { updateCounters } from './gse-counters.js';
 import { updateBrandAndProductFromText } from './gse-parser.js';
-import { debounce } from '../../utils/common-utils.js';
+import { debounce } from '../../utils/utils-debounce.js';
 
 /**
  * Головна функція, яка робить ТІЛЬКИ перерахунок SEO-полів.

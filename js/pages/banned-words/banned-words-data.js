@@ -10,8 +10,8 @@
  */
 
 import { bannedWordsState } from './banned-words-state.js';
-import { callSheetsAPI } from '../../utils/api-client.js';
-import { checkTextForBannedWords as checkText, getTextFragment as getFragment } from '../../utils/text-utils.js';
+import { callSheetsAPI } from '../../utils/utils-api-client.js';
+import { checkTextForBannedWords as checkText, getTextFragment as getFragment } from '../../utils/utils-text.js';
 import { TEXTS_SPREADSHEET_ID, MAIN_SPREADSHEET_ID as BANNED_SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
 
 // Re-export text utilities for backward compatibility
@@ -100,7 +100,7 @@ export async function loadBannedWords() {
     }
 }
 
-// callSheetsAPI імпортується з '../../utils/api-client.js'
+// callSheetsAPI імпортується з '../../utils/utils-api-client.js'
 
 /**
  * Отримати список назв аркушів з таблиці текстів
@@ -464,7 +464,7 @@ export async function updateProductStatus(sheetName, productId, columnName, stat
     }
 }
 
-// checkTextForBannedWords and getTextFragment moved to utils/text-utils.js and re-exported above
+// checkTextForBannedWords and getTextFragment moved to utils/utils-text.js and re-exported above
 
 /**
  * Отримати заголовки аркуша (для динамічного завантаження полів)

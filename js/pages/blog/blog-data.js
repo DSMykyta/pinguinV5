@@ -9,9 +9,9 @@
  */
 
 import { blogState } from './blog-state.js';
-import { callSheetsAPI } from '../../utils/api-client.js';
+import { callSheetsAPI } from '../../utils/utils-api-client.js';
 import { PRODUCTS_SPREADSHEET_ID as SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
-import { generateNextId } from '../../utils/common-utils.js';
+import { generateNextId } from '../../utils/utils-id.js';
 
 const SHEET_NAME = 'Blog';
 const SHEET_GID = '908847151';

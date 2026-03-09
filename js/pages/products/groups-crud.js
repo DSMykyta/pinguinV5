@@ -21,9 +21,9 @@ import { getBrandById } from '../brands/brands-data.js';
 import { getBrandLineById } from '../brands/lines-data.js';
 import { showModal, closeModal, showConfirmModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { escapeHtml } from '../../utils/text-utils.js';
+import { escapeHtml } from '../../utils/utils-text.js';
 import { populateSelect } from '../../components/forms/select.js';
-import { SORTABLE_CONFIG } from '../../utils/common-utils.js';
+import { SORTABLE_CONFIG } from '../../utils/utils-sortable-config.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // HELPERS

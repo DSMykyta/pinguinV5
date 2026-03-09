@@ -17,7 +17,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { escapeHtml } from '../../utils/text-utils.js';
+import { escapeHtml } from '../../utils/utils-text.js';
 
 /**
  * Плагін чекбоксів

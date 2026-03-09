@@ -10,7 +10,7 @@
  */
 
 import { mapperState } from './mapper-state.js';
-import { callSheetsAPI } from '../../utils/api-client.js';
+import { callSheetsAPI } from '../../utils/utils-api-client.js';
 import { pausePolling, resumePolling } from './mapper-polling.js';
 import {
     SHEETS,

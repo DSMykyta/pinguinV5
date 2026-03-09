@@ -15,7 +15,7 @@
  */
 
 import { markPluginLoaded, registerHook, runHook } from './avatar-state.js';
-import { capitalizeFirst } from '../../utils/common-utils.js';
+import { capitalizeFirst } from '../../utils/utils-text.js';
 import {
     AVATAR_BASE_PATH,
     AVAILABLE_ANIMALS,

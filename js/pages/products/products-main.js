@@ -32,7 +32,9 @@
  * ║  ├── variants-table.js              — Таблиця варіантів (сторінка)       ║
  * ║  ├── variants-events.js             — Обробники подій варіантів          ║
  * ║  ├── groups-table.js                — Таблиця груп (сторінка)            ║
- * ║  └── groups-crud.js                 — CRUD операції для груп             ║
+ * ║  ├── groups-crud.js                 — CRUD операції для груп             ║
+ * ║  ├── products-plugin-tabs.js        — Перемикання табів                  ║
+ * ║  └── products-plugin-fab.js         — FAB меню (aside)                  ║
  * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
@@ -41,11 +43,10 @@ import { productsState } from './products-state.js';
 import { loadProducts } from './products-data.js';
 import { loadProductVariants } from './variants-data.js';
 import { loadProductGroups } from './groups-data.js';
-import { loadCategories, getCategories, loadOptions, getOptions } from '../mapper/mapper-data-own.js';
+import { loadCategories, getCategories } from '../mapper/mapper-data-own.js';
 import { getBrands, loadBrands } from '../brands/brands-data.js';
-import { runHook, runHookAsync } from './products-plugins.js';
+import { runHookAsync } from './products-plugins.js';
 import { initTooltips } from '../../components/feedback/tooltip.js';
-import { registerAsideInitializer } from '../../layout/layout-main.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -65,6 +66,8 @@ const PLUGINS = [
     './products-crud-variant-weight.js',
     './products-crud-article.js',
     './products-plugin-brand-status.js',
+    './products-plugin-tabs.js',
+    './products-plugin-fab.js',
 ];
 
 /**
@@ -98,9 +101,6 @@ export async function initProducts() {
 
     // Завантажити плагіни
     await loadPlugins();
-
-    // Ініціалізувати перемикання табів
-    initTabSwitching();
 
     // Перевірити авторизацію та завантажити дані
     await checkAuthAndLoadData();
@@ -159,69 +159,6 @@ async function checkAuthAndLoadData() {
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// TAB SWITCHING
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Ініціалізувати перемикання табів
- */
-function initTabSwitching() {
-    const tabButtons = document.querySelectorAll('[data-tab-target]');
-    const tabContents = document.querySelectorAll('[data-tab-content]');
-
-    tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const targetTab = button.dataset.tabTarget;
-
-            // Оновити активну кнопку
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-
-            // Оновити видимий контент
-            tabContents.forEach(content => {
-                if (content.dataset.tabContent === targetTab) {
-                    content.classList.add('active');
-                } else {
-                    content.classList.remove('active');
-                }
-            });
-
-            // Оновити стан
-            const tabName = targetTab.replace('tab-', '');
-            productsState.activeTab = tabName;
-
-            // Charm pagination — deactivate/activate при tab switch
-            const productsContainer = document.getElementById('products-table-container');
-            const variantsContainer = document.getElementById('variants-table-container');
-            const groupsContainer = document.getElementById('groups-table-container');
-
-            // Деактивувати всі
-            productsContainer?._paginationCharm?.deactivate();
-            variantsContainer?._paginationCharm?.deactivate();
-            groupsContainer?._paginationCharm?.deactivate();
-
-            if (tabName === 'variants') {
-                variantsContainer?._paginationCharm?.activate();
-                import('./variants-table.js').then(({ renderVariantsTable }) => {
-                    renderVariantsTable();
-                }).catch(() => {});
-            } else if (tabName === 'groups') {
-                groupsContainer?._paginationCharm?.activate();
-                import('./groups-table.js').then(({ renderGroupsTable }) => {
-                    renderGroupsTable();
-                }).catch(() => {});
-            } else {
-                productsContainer?._paginationCharm?.activate();
-            }
-
-            // Запустити хук
-            runHook('onTabChange', tabName);
-            runHook('onRender');
-        });
-    });
-}
-
 /**
  * Відрендерити стан "Потрібна авторизація"
  */
@@ -256,34 +193,3 @@ function renderErrorState() {
     });
 }
 
-registerAsideInitializer('aside-products', () => {
-    const fabMenu = document.getElementById('fab-products-aside');
-    if (!fabMenu) return;
-
-    fabMenu.addEventListener('click', async (e) => {
-        if (e.target.closest('.fab-menu-trigger')) {
-            fabMenu.classList.toggle('open');
-            return;
-        }
-        const item = e.target.closest('.fab-menu-item');
-        if (!item) return;
-
-        fabMenu.classList.remove('open');
-
-        if (item.id === 'btn-wizard-product-aside') {
-            const { showAddProductModal } = await import('./products-crud.js');
-            const { setPendingWizardMode } = await import('./products-crud-wizard.js');
-            setPendingWizardMode();
-            await showAddProductModal();
-        } else if (item.id === 'btn-add-variant-aside') {
-            // TODO: створити варіант
-        } else if (item.id === 'btn-add-group-aside') {
-            const { showAddGroupModal } = await import('./groups-crud.js');
-            showAddGroupModal();
-        }
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!fabMenu.contains(e.target)) fabMenu.classList.remove('open');
-    });
-});

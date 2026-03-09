@@ -11,7 +11,7 @@ import { bannedWordsState, invalidateCheckCache } from './banned-words-state.js'
 import { TEXTS_SPREADSHEET_ID, BANNED_SPREADSHEET_ID } from './banned-words-data.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { createBatchActionsBar, getBatchBar } from '../../components/actions/actions-batch.js';
-import { batchUpdate } from '../../utils/google-sheets-batch.js';
+import { batchUpdate } from '../../utils/utils-google-sheets-batch.js';
 
 /**
  * Ініціалізувати batch actions bar для табу

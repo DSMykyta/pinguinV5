@@ -58,38 +58,13 @@
  */
 
 import { productsState } from './products-state.js';
-import { callSheetsAPI } from '../../utils/api-client.js';
+import { callSheetsAPI } from '../../utils/utils-api-client.js';
 import { PRODUCTS_SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
-import { generateNextId } from '../../utils/common-utils.js';
+import { generateNextId } from '../../utils/utils-id.js';
+import { safeJsonParse } from '../../utils/utils-json.js';
 
 const SHEET_NAME = 'Products';
 const SHEET_GID = '0';
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ДОПОМІЖНІ ФУНКЦІЇ ДЛЯ JSON ПАРСИНГУ
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Безпечний парсинг JSON
- * @param {string} value - Значення для парсингу
- * @param {*} defaultValue - Значення за замовчуванням
- * @returns {*} Розпарсене значення або default
- */
-function safeJsonParse(value, defaultValue = null) {
-    if (!value || typeof value !== 'string') return defaultValue;
-
-    const trimmed = value.trim();
-    if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
-        try {
-            return JSON.parse(trimmed);
-        } catch (e) {
-            console.warn('[products-data] JSON parse error:', e.message);
-            return defaultValue;
-        }
-    }
-
-    return defaultValue;
-}
 
 /**
  * Серіалізувати JSON для збереження

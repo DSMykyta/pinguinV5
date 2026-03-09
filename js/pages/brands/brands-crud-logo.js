@@ -11,7 +11,9 @@
 
 import { showConfirmModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { uploadBrandLogoFile, uploadBrandLogoUrl } from '../../utils/api-client.js';
+import { uploadBrandLogoFile, uploadBrandLogoUrl } from '../../utils/utils-api-client.js';
+import { normalizeName } from '../../utils/utils-text.js';
+import { formatFileSize, extractFileName, extractExtension } from '../../utils/utils-file.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INIT
@@ -226,42 +228,3 @@ export function handleRemoveLogo() {
     });
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// UTILS
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Нормалізувати назву для імені файлу
- */
-export function normalizeName(name) {
-    return name.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_\-]/g, '');
-}
-
-/**
- * Форматувати розмір файлу
- */
-function formatFileSize(bytes) {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-/**
- * Витягти ім'я файлу з URL
- */
-function extractFileName(url) {
-    try {
-        const pathname = new URL(url).pathname;
-        return pathname.split('/').pop() || 'logo.webp';
-    } catch {
-        return 'logo.webp';
-    }
-}
-
-/**
- * Витягти розширення з імені файлу
- */
-function extractExtension(name) {
-    const dot = name.lastIndexOf('.');
-    return dot > 0 ? name.slice(dot + 1).toUpperCase() : '';
-}

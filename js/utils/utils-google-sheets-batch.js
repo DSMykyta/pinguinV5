@@ -1,4 +1,4 @@
-// js/utils/google-sheets-batch.js
+// js/utils/utils-google-sheets-batch.js
 
 /*
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -13,7 +13,7 @@ import { TEXTS_SPREADSHEET_ID, MAIN_SPREADSHEET_ID, getSpreadsheetType } from '.
 /**
  * ВИКОРИСТАННЯ:
  *
- * import { batchUpdate, batchGet } from '../utils/google-sheets-batch.js';
+ * import { batchUpdate, batchGet } from '../utils/utils-google-sheets-batch.js';
  *
  * // Замість 100 запитів:
  * for (let i = 0; i < 100; i++) {

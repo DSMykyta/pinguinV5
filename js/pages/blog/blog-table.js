@@ -16,7 +16,7 @@ import {
 } from '../../components/actions/actions-main.js';
 import { registerBlogPlugin } from './blog-plugins.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
-import { escapeHtml } from '../../utils/text-utils.js';
+import { escapeHtml } from '../../utils/utils-text.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ACTION HANDLERS

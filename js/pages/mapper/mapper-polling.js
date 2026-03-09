@@ -7,9 +7,9 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { createPolling } from '../../utils/polling.js';
+import { createPolling } from '../../utils/utils-polling.js';
 import { mapperState } from './mapper-state.js';
-import { callSheetsAPI } from '../../utils/api-client.js';
+import { callSheetsAPI } from '../../utils/utils-api-client.js';
 
 // ── Fetch helper ──
 

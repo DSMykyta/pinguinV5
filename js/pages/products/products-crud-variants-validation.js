@@ -9,6 +9,7 @@
 
 import { getVariantsByProductId } from './variants-data.js';
 import { getPendingVariants } from './products-crud-variant-pending.js';
+import { safeJsonParse } from '../../utils/utils-json.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // HELPERS
@@ -27,11 +28,6 @@ function normalizeNameJson(name) {
         return acc;
     }, {});
     return JSON.stringify(sorted);
-}
-
-function safeJsonParse(value) {
-    if (!value || typeof value !== 'string') return null;
-    try { return JSON.parse(value.trim()); } catch { return null; }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

@@ -10,9 +10,9 @@
  */
 
 import { keywordsState } from './keywords-state.js';
-import { callSheetsAPI } from '../../utils/api-client.js';
+import { callSheetsAPI } from '../../utils/utils-api-client.js';
 import { MAIN_SPREADSHEET_ID as SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
-import { generateNextId } from '../../utils/common-utils.js';
+import { generateNextId } from '../../utils/utils-id.js';
 
 const SHEET_NAME = 'Glossary';
 const SHEET_GID = '90240383'; // GID для Glossary
@@ -60,7 +60,7 @@ export async function loadKeywords() {
     }
 }
 
-// callSheetsAPI імпортується з '../../utils/api-client.js'
+// callSheetsAPI імпортується з '../../utils/utils-api-client.js'
 
 export function getKeywords() {
     return keywordsState.keywords || [];

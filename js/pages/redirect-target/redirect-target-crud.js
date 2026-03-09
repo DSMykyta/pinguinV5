@@ -11,7 +11,7 @@ import { redirectTargetState } from './redirect-target-state.js';
 import { initCustomSelects } from '../../components/forms/select.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { showConfirmModal } from '../../components/modal/modal-main.js';
-import { escapeHtml } from '../../utils/text-utils.js';
+import { escapeHtml } from '../../utils/utils-text.js';
 
 const DEFAULT_REDIRECT_TARGET_OPTIONS = ['f-s'];
 

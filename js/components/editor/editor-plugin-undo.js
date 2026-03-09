@@ -11,7 +11,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { debounce } from '../../utils/common-utils.js';
+import { debounce } from '../../utils/utils-debounce.js';
 
 const MAX_UNDO_STACK = 50;
 

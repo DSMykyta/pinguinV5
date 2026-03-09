@@ -19,8 +19,8 @@
  */
 
 import { getAvatarPath } from '../../components/avatar/avatar-user.js';
-import { formatDate } from '../../utils/common-utils.js';
-import { callSheetsAPI } from '../../utils/api-client.js';
+import { formatDate } from '../../utils/utils-date.js';
+import { callSheetsAPI } from '../../utils/utils-api-client.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // USERS CACHE

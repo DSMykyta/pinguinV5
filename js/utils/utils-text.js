@@ -1,4 +1,4 @@
-// js/utils/text-utils.js
+// js/utils/utils-text.js
 
 /*
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -293,6 +293,42 @@ export function extractContextWithHighlight(text, bannedWord, contextLength = 40
 }
 
 /**
+ * Капіталізує першу літеру рядка
+ * @param {string} str - Вхідний рядок
+ * @returns {string} Рядок з великою першою літерою
+ */
+export function capitalizeFirst(str) {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ТРАНСЛІТЕРАЦІЯ
+// ═══════════════════════════════════════════════════════════════════════════
+
+const TRANSLIT_MAP = {
+    'а':'a','б':'b','в':'v','г':'h','ґ':'g','д':'d','е':'e','є':'ye',
+    'ж':'zh','з':'z','и':'y','і':'i','ї':'yi','й':'y','к':'k','л':'l',
+    'м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u',
+    'ф':'f','х':'kh','ц':'ts','ч':'ch','ш':'sh','щ':'shch','ь':'',
+    'ю':'yu','я':'ya','ё':'yo','ы':'y','э':'e',
+};
+
+/**
+ * Транслітерація + slug для URL: "Optimum Nutrition 100% Whey" → "optimum-nutrition-100-whey"
+ * @param {string} text - Текст для slugify
+ * @returns {string} URL-safe slug
+ */
+export function slugify(text) {
+    if (!text) return '';
+    let result = text.toLowerCase();
+    result = result.replace(/./g, ch => TRANSLIT_MAP[ch] || ch);
+    result = result.replace(/[^a-z0-9]+/g, '-');
+    result = result.replace(/^-+|-+$/g, '');
+    return result;
+}
+
+/**
  * Нормалізувати назву для файлів: транслітерація UA→EN, lowercase, пробіли→_
  * @param {string} name - Назва для нормалізації
  * @returns {string} Нормалізована назва латиницею
@@ -300,18 +336,10 @@ export function extractContextWithHighlight(text, bannedWord, contextLength = 40
  * normalizeName('Крем для рук') // → 'krem_dlya_ruk'
  */
 export function normalizeName(name) {
-    return name.trim()
-        .toLowerCase()
-        .replace(/\s+/g, '_')
-        .replace(/[^a-z0-9_\-а-яієїґ]/gi, '')
-        .replace(/[а-яієїґ]+/gi, (match) => {
-            const map = {
-                'а': 'a', 'б': 'b', 'в': 'v', 'г': 'h', 'ґ': 'g', 'д': 'd', 'е': 'e',
-                'є': 'ye', 'ж': 'zh', 'з': 'z', 'и': 'y', 'і': 'i', 'ї': 'yi', 'й': 'y',
-                'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r',
-                'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch',
-                'ш': 'sh', 'щ': 'shch', 'ь': '', 'ю': 'yu', 'я': 'ya',
-            };
-            return match.split('').map(c => map[c.toLowerCase()] || c).join('');
-        });
+    if (!name) return '';
+    let result = name.trim().toLowerCase();
+    result = result.replace(/./g, ch => TRANSLIT_MAP[ch] || ch);
+    result = result.replace(/\s+/g, '_');
+    result = result.replace(/[^a-z0-9_\-]/g, '');
+    return result;
 }

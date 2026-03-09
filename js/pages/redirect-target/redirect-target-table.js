@@ -14,7 +14,7 @@ import { createManagedTable, col } from '../../components/table/table-main.js';
 import { renderRedirectEditRow, handleRedirectExpand, handleRedirectSave, handleRedirectDelete } from './redirect-target-crud.js';
 import { registerRedirectPlugin } from './redirect-target-plugins.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
-import { escapeHtml } from '../../utils/text-utils.js';
+import { escapeHtml } from '../../utils/utils-text.js';
 
 let _redirectsManagedTable = null;
 

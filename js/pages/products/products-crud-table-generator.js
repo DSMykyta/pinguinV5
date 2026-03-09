@@ -14,7 +14,7 @@
  * "Код складу" та "1 порція" (замість копіювання в буфер).
  */
 
-import { loadHTML } from '../../utils/html-loader.js';
+import { loadHTML } from '../../utils/utils-html-loader.js';
 import { showToast } from '../../components/feedback/toast.js';
 
 let _initialized = false;

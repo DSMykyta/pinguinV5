@@ -12,10 +12,11 @@
  * Drag-and-drop для зміни порядку (перше фото = головне)
  */
 
-import { uploadProductPhotoFile } from '../../utils/api-client.js';
-import { escapeHtml, normalizeName } from '../../utils/text-utils.js';
+import { uploadProductPhotoFile } from '../../utils/utils-api-client.js';
+import { escapeHtml, normalizeName } from '../../utils/utils-text.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { SORTABLE_CONFIG, fetchImageAsFile } from '../../utils/common-utils.js';
+import { SORTABLE_CONFIG } from '../../utils/utils-sortable-config.js';
+import { fetchImageAsFile, extractExtension } from '../../utils/utils-file.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -363,8 +364,4 @@ function buildPhotoName() {
     return name || 'product';
 }
 
-function extractExtension(name) {
-    const dot = name.lastIndexOf('.');
-    return dot > 0 ? name.slice(dot + 1).toUpperCase() : '';
-}
 

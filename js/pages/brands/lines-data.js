@@ -14,8 +14,8 @@
  */
 
 import { brandsState } from './brands-state.js';
-import { callSheetsAPI } from '../../utils/api-client.js';
-import { generateNextId } from '../../utils/common-utils.js';
+import { callSheetsAPI } from '../../utils/utils-api-client.js';
+import { generateNextId } from '../../utils/utils-id.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONSTANTS

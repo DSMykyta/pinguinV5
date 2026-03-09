@@ -28,7 +28,8 @@ import { initSectionNav, destroySectionNav } from '../../layout/layout-plugin-na
 // Секції модала
 import { initAltNamesHandlers, getAltNames, setAltNames } from './brands-crud-alt-names.js';
 import { initLinksHandlers, getLinks, setLinks } from './brands-crud-links.js';
-import { initLogoHandlers, setLogoPreview, handleRemoveLogo, normalizeName } from './brands-crud-logo.js';
+import { initLogoHandlers, setLogoPreview, handleRemoveLogo } from './brands-crud-logo.js';
+import { normalizeName } from '../../utils/utils-text.js';
 import { initBrandLinesSection, populateBrandLines, commitPendingLineChanges, discardPendingLineChanges } from './brands-crud-lines.js';
 import { showDeleteBrandConfirm } from './brands-delete.js';
 

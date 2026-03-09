@@ -15,7 +15,7 @@
  */
 
 import { getBrandLinesByBrandId, updateBrandLine } from './lines-data.js';
-import { createDraftManager } from '../../utils/draft-manager.js';
+import { createDraftManager } from '../../utils/utils-draft-manager.js';
 import { showConfirmModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';

@@ -10,11 +10,12 @@
  * Логіка ідентична модалу варіанту (drag, Sortable, назви файлів).
  */
 
-import { uploadProductPhotoFile } from '../../utils/api-client.js';
-import { escapeHtml, normalizeName } from '../../utils/text-utils.js';
+import { uploadProductPhotoFile } from '../../utils/utils-api-client.js';
+import { escapeHtml, normalizeName } from '../../utils/utils-text.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { registerProductsPlugin } from './products-plugins.js';
-import { SORTABLE_CONFIG, fetchImageAsFile } from '../../utils/common-utils.js';
+import { SORTABLE_CONFIG } from '../../utils/utils-sortable-config.js';
+import { fetchImageAsFile } from '../../utils/utils-file.js';
 
 const MAX_PHOTOS = 10;
 

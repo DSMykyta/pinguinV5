@@ -9,7 +9,7 @@
  */
 
 import { redirectTargetState } from './redirect-target-state.js';
-import { callSheetsAPI } from '../../utils/api-client.js';
+import { callSheetsAPI } from '../../utils/utils-api-client.js';
 import { PRODUCTS_SPREADSHEET_ID as SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
 
 const SHEET_NAME = 'RedirectTarget';

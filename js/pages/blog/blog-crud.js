@@ -10,7 +10,7 @@ import { getBlogPosts, addBlogPost, updateBlogPost, deleteBlogPost } from './blo
 import { initCustomSelects } from '../../components/forms/select.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { showConfirmModal, showModal, closeModal } from '../../components/modal/modal-main.js';
-import { escapeHtml } from '../../utils/text-utils.js';
+import { escapeHtml } from '../../utils/utils-text.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
 import { initSectionNav } from '../../layout/layout-plugin-nav-sections.js';
 import { runHook } from './blog-plugins.js';

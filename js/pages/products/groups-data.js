@@ -15,8 +15,9 @@
  */
 
 import { productsState } from './products-state.js';
-import { callSheetsAPI } from '../../utils/api-client.js';
-import { generateNextId } from '../../utils/common-utils.js';
+import { callSheetsAPI } from '../../utils/utils-api-client.js';
+import { generateNextId } from '../../utils/utils-id.js';
+import { safeJsonParse } from '../../utils/utils-json.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONSTANTS
@@ -94,22 +95,6 @@ export async function loadProductGroups() {
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// JSON HELPERS
-// ═══════════════════════════════════════════════════════════════════════════
-
-function safeJsonParse(value, defaultValue = null) {
-    if (!value || typeof value !== 'string') return defaultValue;
-    const trimmed = value.trim();
-    if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
-        try {
-            return JSON.parse(trimmed);
-        } catch (e) {
-            return defaultValue;
-        }
-    }
-    return defaultValue;
-}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CRUD OPERATIONS

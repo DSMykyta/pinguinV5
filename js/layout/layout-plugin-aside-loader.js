@@ -26,7 +26,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { loadHTML } from '../utils/html-loader.js';
+import { loadHTML } from '../utils/utils-html-loader.js';
 import { initDropdowns } from '../components/forms/dropdown.js';
 
 // ═══════════════════════════════════════════════════════════════════════════

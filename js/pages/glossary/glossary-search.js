@@ -8,7 +8,7 @@
  */
 
 import { renderAvatarState, getRandomMessage } from '../../components/avatar/avatar-ui-states.js';
-import { escapeHtml } from '../../utils/text-utils.js';
+import { escapeHtml } from '../../utils/utils-text.js';
 
 /**
  * Ініціалізує пошук по секціях глосарію

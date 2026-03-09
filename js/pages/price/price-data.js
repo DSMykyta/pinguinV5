@@ -10,9 +10,9 @@
  */
 
 import { priceState } from './price-state.js';
-import { callSheetsAPI } from '../../utils/api-client.js';
+import { callSheetsAPI } from '../../utils/utils-api-client.js';
 import { PRICE_SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
-import { formatDate } from '../../utils/common-utils.js';
+import { formatDate } from '../../utils/utils-date.js';
 
 const PRICE_SHEET_NAME = 'Price';
 const PRICE_START_ROW = 1; // Рядок 1 = заголовки, рядок 2+ = дані

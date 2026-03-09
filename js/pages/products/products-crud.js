@@ -31,7 +31,9 @@ import { populateSelect, reinitializeCustomSelect } from '../../components/forms
 import { getCharacteristicsData } from './products-crud-characteristics.js';
 import { initSectionNav } from '../../layout/layout-plugin-nav-sections.js';
 import { initNameGenerationListeners, updateGeneratedNames, buildShortName, buildFullName, buildVariantFullName } from './products-crud-names.js';
-import { slugify, isProductUrlUnique } from './products-crud-url.js';
+import { slugify } from '../../utils/utils-text.js';
+import { isProductUrlUnique } from './products-crud-url.js';
+import { safeJsonParseArray } from '../../utils/utils-json.js';
 import { resetSeoState, fetchSeoData, updateSeoForCreate, initSeoTriggers, destroySeoTriggers } from './products-crud-seo.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -692,25 +694,7 @@ function _onNameFieldChange() {
 
 // Re-export name builders for external consumers
 export { buildShortName, buildFullName, buildVariantFullName };
-export { slugify, isProductUrlUnique };
-
-// ═══════════════════════════════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════════════════════════════
-
-function safeJsonParseArray(val) {
-    if (!val) return [];
-    if (Array.isArray(val)) return val;
-    if (typeof val === 'string') {
-        const trimmed = val.trim();
-        if (trimmed.startsWith('[')) {
-            try { return JSON.parse(trimmed); } catch { /* ignore */ }
-        }
-        // Одне URL — як масив з одного елемента
-        if (trimmed.startsWith('http')) return [trimmed];
-    }
-    return [];
-}
+export { isProductUrlUnique };
 
 // ═══════════════════════════════════════════════════════════════════════════
 // HANDLERS

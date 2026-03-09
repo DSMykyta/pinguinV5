@@ -23,7 +23,7 @@
 
 import { registerAsideInitializer } from '../../layout/layout-main.js';
 import { getTableDOM, resetDomCache } from './gt-dom.js';
-import { SORTABLE_CONFIG } from '../../utils/common-utils.js';
+import { SORTABLE_CONFIG } from '../../utils/utils-sortable-config.js';
 import { setInitialized, getLoadedPlugins, resetState } from './gt-state.js';
 
 // ============================================================================

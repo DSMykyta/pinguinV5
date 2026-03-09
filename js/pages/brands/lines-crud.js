@@ -18,7 +18,8 @@ import { showModal, closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { showDeleteLineConfirm } from './lines-delete.js';
 import { populateSelect, initCustomSelects } from '../../components/forms/select.js';
-import { initLineLogoHandlers, setLineLogoPreview, handleRemoveLineLogo, normalizeName } from './lines-crud-logo.js';
+import { initLineLogoHandlers, setLineLogoPreview, handleRemoveLineLogo } from './lines-crud-logo.js';
+import { normalizeName } from '../../utils/utils-text.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE

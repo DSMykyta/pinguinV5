@@ -8,7 +8,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { debounce } from '../../utils/common-utils.js';
+import { debounce } from '../../utils/utils-debounce.js';
 import { showToast } from '../../components/feedback/toast.js';
 
 /**

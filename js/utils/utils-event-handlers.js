@@ -1,4 +1,4 @@
-// js/utils/event-handlers.js
+// js/utils/utils-event-handlers.js
 
 /*
  * ╔══════════════════════════════════════════════════════════════════════════╗

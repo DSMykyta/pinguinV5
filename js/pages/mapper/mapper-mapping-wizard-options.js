@@ -19,7 +19,7 @@ import {
 import { showModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { renderCurrentTab } from './mapper-table.js';
-import { escapeHtml } from '../../utils/text-utils.js';
+import { escapeHtml } from '../../utils/utils-text.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // HELPERS

@@ -43,39 +43,13 @@
  */
 
 import { brandsState } from './brands-state.js';
-import { callSheetsAPI } from '../../utils/api-client.js';
+import { callSheetsAPI } from '../../utils/utils-api-client.js';
 import { MAIN_SPREADSHEET_ID as SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
-import { generateNextId } from '../../utils/common-utils.js';
+import { generateNextId } from '../../utils/utils-id.js';
+import { safeJsonParse } from '../../utils/utils-json.js';
 
 const SHEET_NAME = 'Brands';
 const SHEET_GID = '653695455';
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ДОПОМІЖНІ ФУНКЦІЇ ДЛЯ JSON ПАРСИНГУ
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Безпечний парсинг JSON
- * @param {string} value - Значення для парсингу
- * @param {*} defaultValue - Значення за замовчуванням
- * @returns {*} Розпарсене значення або default
- */
-function safeJsonParse(value, defaultValue = null) {
-    if (!value || typeof value !== 'string') return defaultValue;
-
-    // Якщо виглядає як JSON (починається з [ або {)
-    const trimmed = value.trim();
-    if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
-        try {
-            return JSON.parse(trimmed);
-        } catch (e) {
-            console.warn('[brands-data] JSON parse error:', e.message);
-            return defaultValue;
-        }
-    }
-
-    return defaultValue;
-}
 
 /**
  * Парсинг names_alt - може бути JSON масивом або текстом через кому

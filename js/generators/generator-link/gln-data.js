@@ -19,30 +19,13 @@
  */
 
 import { MAIN_SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
+import { safeJsonParse } from '../../utils/utils-json.js';
 
 let linksData = [];
 let countriesData = {};
 
 export function getLinksData() { return linksData; }
 export function getCountriesData() { return countriesData; }
-
-/**
- * Безпечний парсинг JSON
- */
-function safeJsonParse(value, defaultValue = null) {
-    if (!value || typeof value !== 'string') return defaultValue;
-
-    const trimmed = value.trim();
-    if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
-        try {
-            return JSON.parse(trimmed);
-        } catch (e) {
-            return defaultValue;
-        }
-    }
-
-    return defaultValue;
-}
 
 /**
  * Завантажити дані посилань з Google Sheets

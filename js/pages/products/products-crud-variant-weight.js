@@ -18,7 +18,7 @@ import { getBrandById } from '../brands/brands-data.js';
 import { getBrandLineById } from '../brands/lines-data.js';
 import { buildShortName, buildFullName } from './products-crud-names.js';
 import { registerProductsPlugin } from './products-plugins.js';
-import { escapeHtml } from '../../utils/text-utils.js';
+import { escapeHtml } from '../../utils/utils-text.js';
 
 /**
  * Форматування ваги: число грамів → "500 грам" / "500 грамм"

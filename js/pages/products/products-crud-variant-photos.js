@@ -14,11 +14,12 @@
  * Ідентичний products-crud-photos.js, але з variant- префіксами.
  */
 
-import { uploadProductPhotoFile } from '../../utils/api-client.js';
-import { escapeHtml } from '../../utils/text-utils.js';
+import { uploadProductPhotoFile } from '../../utils/utils-api-client.js';
+import { escapeHtml } from '../../utils/utils-text.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { SORTABLE_CONFIG, fetchImageAsFile } from '../../utils/common-utils.js';
-import { normalizeName } from '../../utils/text-utils.js';
+import { SORTABLE_CONFIG } from '../../utils/utils-sortable-config.js';
+import { fetchImageAsFile, extractExtension } from '../../utils/utils-file.js';
+import { normalizeName } from '../../utils/utils-text.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -377,7 +378,3 @@ function buildPhotoName() {
     return name || 'variant';
 }
 
-function extractExtension(name) {
-    const dot = name.lastIndexOf('.');
-    return dot > 0 ? name.slice(dot + 1).toUpperCase() : '';
-}

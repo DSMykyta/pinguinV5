@@ -12,7 +12,7 @@ import { initLayout }               from './layout/layout-main.js';
 import { initDropdowns }            from './components/forms/dropdown.js';
 import { initModals }               from './components/modal/modal-main.js';
 import { initAvatarSystem }         from './components/avatar/avatar-main.js';
-import { initEventHandlers }        from './utils/event-handlers.js';
+import { initEventHandlers }        from './utils/utils-event-handlers.js';
 import { initCustomAuth }           from './auth/auth-google.js';
 import { initTooltips }             from './components/feedback/tooltip.js';
 import { initImageShow }            from './components/feedback/image-show.js';

@@ -27,7 +27,7 @@ import {
     initAllMapperTables, ensureTabManagedTable, switchMapperTab
 } from './mapper-table.js';
 import { initMapperEvents } from './mapper-events.js';
-import { createLazyLoader } from '../../utils/lazy-load.js';
+import { createLazyLoader } from '../../utils/utils-lazy-load.js';
 import { initTooltips } from '../../components/feedback/tooltip.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { registerAsideInitializer } from '../../layout/layout-main.js';

@@ -9,7 +9,7 @@
  */
 
 import { imagesState } from './images-state.js';
-import { listDriveImages } from '../../utils/api-client.js';
+import { listDriveImages } from '../../utils/utils-api-client.js';
 
 function formatBytes(bytes) {
     const num = Number(bytes);

@@ -8,7 +8,7 @@
  * Секція посилань у модалі бренду.
  */
 
-import { escapeHtml } from '../../utils/text-utils.js';
+import { escapeHtml } from '../../utils/utils-text.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 
