@@ -193,6 +193,11 @@ export async function renderCharacteristicsForCategory(categoryId, savedValues =
         initParentChildListeners(container);
     }
 
+    // Кнопка авто-заповнення з таблиці складу (блок 2)
+    if (blocks['2']) {
+        import('./products-crud-autofill.js').then(m => m.injectNutritionAutofillButton());
+    }
+
     return renderedBlocks;
 }
 
