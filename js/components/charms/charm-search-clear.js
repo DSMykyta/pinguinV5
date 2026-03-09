@@ -8,8 +8,7 @@
  * ║                                                                        ║
  * ║  HTML:                                                                 ║
  * ║  <input type="text" id="search-keywords">                             ║
- * ║  <button data-clear-for="search-keywords" class="btn-icon"            ║
- * ║          style="visibility:hidden;pointer-events:none">              ║
+ * ║  <button data-clear-for="search-keywords" class="btn-icon u-invisible">║
  * ║    <span class="material-symbols-outlined">close</span>               ║
  * ║  </button>                                                             ║
  * ║                                                                        ║
@@ -29,8 +28,7 @@ export function initSearchClearCharm() {
         if (!input) return;
 
         input.value = '';
-        btn.style.visibility = 'hidden';
-        btn.style.pointerEvents = 'none';
+        btn.classList.add('u-invisible');
         input.focus();
         input.dispatchEvent(new Event('input', { bubbles: true }));
     });
@@ -40,9 +38,7 @@ export function initSearchClearCharm() {
         if (!e.target.id) return;
         const btn = document.querySelector(`[data-clear-for="${e.target.id}"]`);
         if (btn) {
-            const hasValue = e.target.value.trim();
-            btn.style.visibility = hasValue ? '' : 'hidden';
-            btn.style.pointerEvents = hasValue ? '' : 'none';
+            btn.classList.toggle('u-invisible', !e.target.value.trim());
         }
     });
 }

@@ -125,7 +125,7 @@ registerActionHandlers('product-variants', {
 function _ensureTable(data) {
     const container = document.getElementById('product-variants-container');
     if (!container) return;
-    container.style.display = '';
+    container.classList.remove('u-hidden');
 
     if (_variantsManagedTable) {
         _variantsManagedTable.updateData(data);

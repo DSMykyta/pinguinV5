@@ -293,12 +293,10 @@
                         <div class="grid">
 
                             <!-- Головне фото (прев'ю) -->
-                            <div class="group column col-8" style="align-self: stretch;">
+                            <div class="group column col-8 photo-main-preview-wrapper">
                                 <label class="label-l">Головне фото</label>
-                                <div class="content-bloc" id="product-photo-main-preview"
-                                    style="flex: 1; display: flex; align-items: center; justify-content: center;">
-                                    <img id="product-photo-main-img" src="" alt="Головне фото" show
-                                        style="display:none; max-height: 480px; max-width: 100%; object-fit: contain;">
+                                <div class="content-bloc photo-main-preview" id="product-photo-main-preview">
+                                    <img id="product-photo-main-img" class="photo-main-img u-hidden" src="" alt="Головне фото" show>
                                     <span class="body-s" id="product-photo-main-empty">Немає фото</span>
                                 </div>
                             </div>
@@ -355,11 +353,11 @@
                     </div>
 
                     <!-- Table mode: existing products -->
-                    <div id="product-variants-container" class="pseudo-table-container" pagination columns
-                        search="Пошук варіантів..." style="display:none;">
+                    <div id="product-variants-container" class="pseudo-table-container u-hidden" pagination columns
+                        search="Пошук варіантів...">
                     </div>
                     <!-- Accordion mode: new products (pending variants) -->
-                    <div id="product-variants-accordion" class="pseudo-table-container" style="display:none;">
+                    <div id="product-variants-accordion" class="pseudo-table-container u-hidden">
                     </div>
                 </section>
 
@@ -583,7 +581,7 @@
                                 <div class="content-line panel">
                                     <span class="material-symbols-outlined">search</span>
                                     <input type="text" id="product-search-triger" placeholder="Пошук тригера...">
-                                    <button data-clear-for="product-search-triger" class="btn-icon" style="visibility:hidden;pointer-events:none" aria-label="Очистити пошук">
+                                    <button data-clear-for="product-search-triger" class="btn-icon u-invisible" aria-label="Очистити пошук">
                                         <span class="material-symbols-outlined">close</span>
                                     </button>
                                 </div>

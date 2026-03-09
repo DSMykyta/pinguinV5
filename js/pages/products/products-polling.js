@@ -55,7 +55,7 @@ async function fetchProducts() {
 
 async function fetchVariants() {
     const result = await callSheetsAPI('get', {
-        range: `${VARIANTS_SHEET}!A:Q`,
+        range: `${VARIANTS_SHEET}!A:X`,
         spreadsheetType: 'products',
     });
 
@@ -66,8 +66,8 @@ async function fetchVariants() {
         product_id: row[1] || '',
         article: row[2] || '',
         name_ua: row[3] || '',
-        price: row[9] || '',         // J: price (shifted +4)
-        status: row[15] || 'active', // P: status (shifted +4)
+        price: row[9] || '',          // J: price
+        status: row[22] || 'active',  // W: status
         _rowIndex: i + 2,
     }));
 }

@@ -117,7 +117,7 @@ export function filterChildOptions(childSelect, parentOptionId) {
         const nativeOpt = Array.from(childSelect.options).find(o => o.value === optEl.dataset.value);
         if (nativeOpt?.dataset.parentOptionId) {
             const show = !parentOptionId || nativeOpt.dataset.parentOptionId === parentOptionId;
-            optEl.style.display = show ? '' : 'none';
+            optEl.classList.toggle('u-hidden', !show);
         }
     });
 
@@ -126,10 +126,10 @@ export function filterChildOptions(childSelect, parentOptionId) {
         let hasVisible = false;
         let next = label.nextElementSibling;
         while (next && next.classList.contains('custom-select-option-grouped')) {
-            if (next.style.display !== 'none') hasVisible = true;
+            if (!next.classList.contains('u-hidden')) hasVisible = true;
             next = next.nextElementSibling;
         }
-        label.style.display = hasVisible ? '' : 'none';
+        label.classList.toggle('u-hidden', !hasVisible);
     });
 
     // Якщо обраний варіант не з цієї групи → очистити

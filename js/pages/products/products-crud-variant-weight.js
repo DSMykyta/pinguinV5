@@ -29,7 +29,7 @@ import { escapeHtml } from '../../utils/utils-text.js';
 function formatWeight(raw, lang) {
     const num = parseFloat(raw);
     if (isNaN(num) || num <= 0) return '';
-    const display = Number.isInteger(num) ? String(num) : String(num);
+    const display = String(num);
     return `${display} ${lang === 'ru' ? 'грамм' : 'грам'}`;
 }
 

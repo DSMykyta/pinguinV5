@@ -104,3 +104,21 @@
     flex-direction: column;
     gap: 8px;
 }
+
+/* Photo main preview — головне фото товару */
+.photo-main-preview-wrapper {
+    align-self: stretch;
+}
+
+.photo-main-preview {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.photo-main-img {
+    max-height: 480px;
+    max-width: 100%;
+    object-fit: contain;
+}

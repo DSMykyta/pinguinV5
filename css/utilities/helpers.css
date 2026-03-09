@@ -47,6 +47,16 @@
 }
 
 /**
+ * Ховає елемент візуально, але зберігає місце в layout (visibility: hidden)
+ * Використовується для кнопок очищення пошуку та подібних елементів
+ * JS: element.classList.toggle('u-invisible', !hasValue)
+ */
+.u-invisible {
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+/**
  * Плавне розкриття блоку (висота 0 → auto через CSS grid)
  * JS: element.classList.toggle('is-open', true/false)
  * HTML: <div class="u-reveal"><div>...content...</div></div>
