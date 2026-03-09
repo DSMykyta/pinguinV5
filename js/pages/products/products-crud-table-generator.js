@@ -78,15 +78,11 @@ async function handleInsert() {
     const htmlResult = generateHtmlTable();
     const brResult = generateBrText();
 
-    // Код складу → UA + RU editors
-    const codeUa = document.querySelector('#product-composition-code-ua-editor [contenteditable]');
-    if (codeUa && htmlResult) codeUa.innerHTML = htmlResult;
+    // Код складу → RU editor
     const codeRu = document.querySelector('#product-composition-code-ru-editor [contenteditable]');
     if (codeRu && htmlResult) codeRu.innerHTML = htmlResult;
 
-    // 1 порція → UA + RU editors
-    const notesUa = document.querySelector('#product-composition-notes-ua-editor [contenteditable]');
-    if (notesUa && brResult) notesUa.innerHTML = brResult;
+    // 1 порція → RU editor
     const notesRu = document.querySelector('#product-composition-notes-ru-editor [contenteditable]');
     if (notesRu && brResult) notesRu.innerHTML = brResult;
 
