@@ -112,7 +112,10 @@
 }
 
 /* Коли один рядок розкритий — решта приглушені й неактивні */
-.pseudo-table-container:has(.u-reveal.is-open) .pseudo-table-row:not(:has(.u-reveal.is-open)) {
+.pseudo-table-container:has(.u-reveal.is-open) .pseudo-table-row:not(:has(.u-reveal.is-open)),
+.modal-body:has(.u-reveal.is-open) > .nav.column,
+.modal-body:has(.u-reveal.is-open) > .modal-aside,
+.modal-body:has(.u-reveal.is-open) ~ .modal-footer {
     filter: blur(1px);
     opacity: 0.2;
     pointer-events: none;
