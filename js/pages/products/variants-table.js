@@ -19,6 +19,7 @@ import {
     actionButton
 } from '../../components/actions/actions-main.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
+import { createBatchActionsBar } from '../../components/actions/actions-batch.js';
 import { displayName } from './products-crud-variant-names.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -33,6 +34,7 @@ registerActionHandlers('variants-page', {
 });
 
 let _variantsPageManagedTable = null;
+let _variantsBatchBar = null;
 let _actionCleanup = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -43,7 +45,7 @@ function getColumns() {
     return [
         col('variant_id', 'ID', 'tag', { span: 1 }),
         col('product_name', 'Товар', 'text', { span: 2 }),
-        col('article', 'Артикул', 'text', { span: 2 }),
+        col('article', 'Артикул', 'code', { span: 2, class: 'u-max-80', align: 'center' }),
         col('image_url', 'Фото', 'photo', { span: 1 }),
         col('name_ua', 'Назва', 'name'),
         col('price', 'Ціна', 'tag', { span: 1, align: 'center', class: 'u-max-80', color: 'c-secondary' }),
@@ -102,6 +104,9 @@ function initVariantsPageTable() {
                     filterColumns: [
                         { id: 'status', label: 'Статус', filterType: 'values' }
                     ]
+                },
+                checkboxes: {
+                    batchBar: () => _variantsBatchBar
                 }
             }
         },
@@ -132,6 +137,35 @@ function initVariantsPageTable() {
         preFilter: null,
         pageSize: null,
         checkboxPrefix: 'variants-page'
+    });
+
+    // Batch actions bar
+    _variantsBatchBar = createBatchActionsBar({
+        tabId: 'variants-page',
+        actions: [
+            {
+                id: 'delete',
+                label: 'Видалити',
+                icon: 'delete',
+                dangerous: true,
+                handler: async (selectedIds) => {
+                    const { deleteProductVariant } = await import('./variants-data.js');
+                    const { showToast } = await import('../../components/feedback/toast.js');
+                    if (!confirm(`Видалити ${selectedIds.length} варіант(ів)?`)) return;
+                    try {
+                        for (const id of selectedIds) {
+                            await deleteProductVariant(id);
+                        }
+                        _variantsBatchBar.deselectAll();
+                        renderVariantsTable();
+                        showToast(`Видалено ${selectedIds.length} варіант(ів)`, 'success');
+                    } catch (error) {
+                        console.error('Batch delete error:', error);
+                        showToast('Помилка видалення', 'error');
+                    }
+                }
+            }
+        ]
     });
 
     initColumnsCharm();

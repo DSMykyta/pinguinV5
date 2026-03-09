@@ -41,7 +41,7 @@ let _productsBatchBar = null;
 export function getColumns() {
     return [
         col('product_id', 'ID', 'tag', { span: 1 }),
-        col('article', 'Артикул', 'text', { span: 1 }),
+        col('article', 'Артикул', 'code', { span: 1, class: 'u-max-80', align: 'center' }),
         col('image_url', ' ', 'photo'),
         col('category_name', 'Категорія', 'text', { span: 2, filterable: true }),
         col('brand_name', 'Бренд', 'text', { span: 2, filterable: true }),

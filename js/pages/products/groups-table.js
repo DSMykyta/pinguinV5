@@ -19,6 +19,7 @@ import {
     actionButton
 } from '../../components/actions/actions-main.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
+import { createBatchActionsBar } from '../../components/actions/actions-batch.js';
 import { getTypeLabel } from './groups-crud.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -33,6 +34,7 @@ registerActionHandlers('groups-page', {
 });
 
 let _groupsPageManagedTable = null;
+let _groupsBatchBar = null;
 let _actionCleanup = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -86,6 +88,9 @@ function initGroupsPageTable() {
                         product_type_label: 'string',
                         products_count: 'binding-chip',
                     }
+                },
+                checkboxes: {
+                    batchBar: () => _groupsBatchBar
                 }
             }
         },
@@ -112,6 +117,35 @@ function initGroupsPageTable() {
         preFilter: null,
         pageSize: null,
         checkboxPrefix: 'groups-page'
+    });
+
+    // Batch actions bar
+    _groupsBatchBar = createBatchActionsBar({
+        tabId: 'groups-page',
+        actions: [
+            {
+                id: 'delete',
+                label: 'Видалити',
+                icon: 'delete',
+                dangerous: true,
+                handler: async (selectedIds) => {
+                    const { deleteProductGroup } = await import('./groups-data.js');
+                    const { showToast } = await import('../../components/feedback/toast.js');
+                    if (!confirm(`Видалити ${selectedIds.length} груп(у)?`)) return;
+                    try {
+                        for (const id of selectedIds) {
+                            await deleteProductGroup(id);
+                        }
+                        _groupsBatchBar.deselectAll();
+                        renderGroupsTable();
+                        showToast(`Видалено ${selectedIds.length} груп(у)`, 'success');
+                    } catch (error) {
+                        console.error('Batch delete error:', error);
+                        showToast('Помилка видалення', 'error');
+                    }
+                }
+            }
+        ]
     });
 
     initColumnsCharm();
