@@ -160,6 +160,20 @@ function initProductsTable() {
         tabId: 'products',
         actions: [
             {
+                id: 'copy',
+                label: 'Копіювати',
+                icon: 'content_copy',
+                singleOnly: true,
+                handler: async (selectedIds) => {
+                    const { copyProduct } = await import('./products-copy.js');
+                    const newId = await copyProduct(selectedIds[0]);
+                    if (newId) {
+                        _productsBatchBar.deselectAll();
+                        renderProductsTable();
+                    }
+                }
+            },
+            {
                 id: 'delete',
                 label: 'Видалити',
                 icon: 'delete',

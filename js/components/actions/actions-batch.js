@@ -313,6 +313,14 @@ function updateVisibility(tabId) {
         countEl.textContent = count;
     }
 
+    // Показати/приховати singleOnly кнопки
+    data.config.actions?.forEach(action => {
+        if (action.singleOnly) {
+            const btn = data.bar.querySelector(`[data-action="${action.id || action.label}"]`);
+            if (btn) btn.classList.toggle('u-hidden', count !== 1);
+        }
+    });
+
     // Показати/приховати панель
     if (count > 0) {
         showBatchBar(tabId);
