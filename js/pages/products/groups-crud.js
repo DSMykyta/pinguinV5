@@ -23,6 +23,18 @@ import { escapeHtml } from '../../utils/text-utils.js';
 import { populateSelect } from '../../components/forms/select.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
+
+function getFirstImageUrl(raw) {
+    if (!raw) return '';
+    if (raw.startsWith('[')) {
+        try { const arr = JSON.parse(raw); return arr[0] || ''; } catch { return ''; }
+    }
+    return raw.startsWith('http') ? raw : '';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -185,6 +197,10 @@ function renderGroupProductsList() {
     container.innerHTML = _groupProductIds.map((id, index) => {
         const p = productMap[id];
         const name = p ? escapeHtml(p.generated_short_ua || p.name_ua || id) : escapeHtml(id);
+        const thumbUrl = getFirstImageUrl(p?.image_url);
+        const photoHtml = thumbUrl
+            ? `<img src="${escapeHtml(thumbUrl)}" alt="" class="product-thumb">`
+            : `<div class="product-thumb product-thumb-empty"><span class="material-symbols-outlined">image</span></div>`;
 
         return `
             <div class="content-bloc" data-group-product-id="${escapeHtml(id)}" data-group-index="${index}">
@@ -192,6 +208,7 @@ function renderGroupProductsList() {
                     <button class="btn-icon ghost drag" tabindex="-1">
                         <span class="material-symbols-outlined">expand_all</span>
                     </button>
+                    ${photoHtml}
                     <div class="content-line-info">
                         <span class="content-line-name">${name}</span>
                         <span class="content-line-label">${escapeHtml(id)}</span>

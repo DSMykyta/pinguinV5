@@ -234,7 +234,7 @@ function findFooter(el) {
 // PAGINATION LOGIC
 // ═══════════════════════════════════════════════════════════════════════════
 
-const SKIP_SELECTORS = '.pseudo-table-header, .pseudo-table-empty, .empty-state, .loading-state';
+const SKIP_SELECTORS = '.pseudo-table-header, .pseudo-table-empty, .empty-state, .loading-state, .table-state';
 
 /**
  * Отримати "data-дітей" — пропускає header, empty state тощо
