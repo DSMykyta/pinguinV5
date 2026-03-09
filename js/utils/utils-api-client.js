@@ -4,7 +4,25 @@
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║                   API CLIENT — UNIFIED DATA LAYER                        ║
  * ╠══════════════════════════════════════════════════════════════════════════╣
- * ║  🔒 ЯДРО — Єдина точка для всіх операцій з Google Sheets та Drive        ║
+ * ║                                                                          ║
+ * ║  🔒 ЯДРО — Єдина точка для всіх операцій з Google Sheets та Drive.       ║
+ * ║  Всі CRUD, batch, upload запити проходять через цей файл.               ║
+ * ║                                                                          ║
+ * ║  📋 Sheets API:                                                          ║
+ * ║  ├── callSheetsAPI(action, params) — універсальний виклик                ║
+ * ║  ├── sheetsGet / sheetsUpdate / sheetsAppend — одиничні операції          ║
+ * ║  ├── sheetsBatchGet / sheetsBatchUpdate — пакетні операції               ║
+ * ║  └── sheetsBatchUpdateSpreadsheet — структурні зміни (delete row)        ║
+ * ║                                                                          ║
+ * ║  📋 Drive API:                                                           ║
+ * ║  ├── uploadBrandLogoFile / uploadBrandLogoUrl — логотипи брендів          ║
+ * ║  ├── uploadProductPhotoFile — фото товарів                               ║
+ * ║  ├── uploadReferenceFile / listReferenceFiles / deleteReferenceFile       ║
+ * ║  └── listDriveImages — список зображень з папки                          ║
+ * ║                                                                          ║
+ * ║  🎯 Використання:                                                        ║
+ * ║  import { callSheetsAPI } from '../utils/utils-api-client.js';           ║
+ * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 

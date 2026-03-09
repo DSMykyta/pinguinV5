@@ -1,11 +1,25 @@
 // js/pages/products/products-crud-variant-pending.js
 
 /**
- * PRODUCTS CRUD — PENDING ВАРІАНТИ
- *
- * In-memory дані для варіантів нового (ще не збереженого) товару.
- * Рендеринг — через ту саму managed table в products-crud-variants.js.
- * Редагування — inline (expandable) або через variant-edit модал.
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║        PRODUCTS CRUD — PENDING ВАРІАНТИ                                 ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                          ║
+ * ║  In-memory дані для варіантів нового (ще не збереженого) товару.         ║
+ * ║  Рендеринг — через managed table в products-crud-variants.js.           ║
+ * ║  Редагування — inline (expandable) або через variant-edit модал.        ║
+ * ║                                                                          ║
+ * ║  📋 Експорти:                                                            ║
+ * ║  ├── addPendingVariant(data) — додати pending варіант                    ║
+ * ║  ├── updatePendingVariant(id, data) — оновити pending варіант            ║
+ * ║  ├── removePendingVariant(id) — видалити pending варіант                 ║
+ * ║  ├── getPendingVariantById(id) — знайти по ID                            ║
+ * ║  ├── getPendingVariants() — всі pending варіанти                         ║
+ * ║  ├── getPendingTableData() — дані для managed table                      ║
+ * ║  ├── commitPendingVariantChanges(productId, data, cb) — зберегти в API   ║
+ * ║  └── discardPendingVariantChanges() — скинути всі pending               ║
+ * ║                                                                          ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
 import { addProductVariant } from './variants-data.js';

@@ -2,7 +2,19 @@
 
 /*
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                    JSON UTILS — БЕЗПЕЧНИЙ ПАРСИНГ                      ║
+ * ║                    JSON UTILS — БЕЗПЕЧНИЙ ПАРСИНГ                       ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                          ║
+ * ║  Чисті функції для безпечного парсингу JSON без виключень.               ║
+ * ║                                                                          ║
+ * ║  📋 Експорти:                                                            ║
+ * ║  ├── safeJsonParse(value, default) — JSON.parse з fallback               ║
+ * ║  ├── safeJsonParseArray(value) — парсинг JSON масиву або URL             ║
+ * ║  └── parseSpecJson(raw) — парсинг spec JSON (характеристики варіантів)   ║
+ * ║                                                                          ║
+ * ║  🎯 Використання:                                                        ║
+ * ║  import { safeJsonParse, parseSpecJson } from '../utils/utils-json.js';  ║
+ * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -27,20 +39,6 @@ export function safeJsonParse(value, defaultValue = null) {
  * @param {*} value - Значення для парсингу
  * @returns {Array} Масив або порожній масив
  */
-/**
- * Parse spec JSON — backward-compatible with legacy single string
- * @param {*} raw - JSON рядок або порожнє значення
- * @returns {Object} { char_id: "value", ... }
- */
-export function parseSpecJson(raw) {
-    if (!raw) return {};
-    try {
-        const parsed = JSON.parse(raw);
-        if (typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
-    } catch { /* not JSON */ }
-    return {};
-}
-
 export function safeJsonParseArray(value) {
     if (!value) return [];
     if (Array.isArray(value)) return value;
@@ -52,4 +50,18 @@ export function safeJsonParseArray(value) {
         if (trimmed.startsWith('http')) return [trimmed];
     }
     return [];
+}
+
+/**
+ * Parse spec JSON — backward-compatible з legacy single string
+ * @param {*} raw - JSON рядок або порожнє значення
+ * @returns {Object} { char_id: "value", ... }
+ */
+export function parseSpecJson(raw) {
+    if (!raw) return {};
+    try {
+        const parsed = JSON.parse(raw);
+        if (typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
+    } catch { /* not JSON */ }
+    return {};
 }
