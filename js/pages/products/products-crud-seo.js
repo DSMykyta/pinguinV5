@@ -112,23 +112,111 @@ function matchProductTriggers(productName) {
 }
 
 /**
- * Показати badge-и з matched triggers
+ * Показати badge-и з matched triggers в tulips контейнері
  */
 function renderSeoChips(activeTulips) {
-    const container = document.getElementById('product-seo-triggers');
+    const container = document.getElementById('product-trigger-titles-container');
     if (!container) return;
     container.innerHTML = '';
     if (!activeTulips.length) return;
 
     const triggersData = getTriggersData();
     activeTulips.forEach(title => {
-        const triggerData = triggersData.find(t => t.title === title);
-        const badge = document.createElement('div');
-        badge.className = 'badge c-main';
-        badge.textContent = title;
-        if (triggerData?.keywords?.length) {
-            badge.title = triggerData.keywords.join(', ');
-        }
-        container.appendChild(badge);
+        addTulip(title, true);
     });
+}
+
+/**
+ * Додати tulip (badge) в контейнер активних тригерів
+ */
+function addTulip(title, isActive = true) {
+    const container = document.getElementById('product-trigger-titles-container');
+    if (!container) return;
+    if (container.querySelector(`[data-title="${title}"]`)) return;
+
+    const triggerData = getTriggersData().find(t => t.title === title);
+    if (!triggerData) return;
+
+    const tulip = document.createElement('div');
+    tulip.className = isActive ? 'badge c-main' : 'badge';
+    tulip.textContent = title;
+    tulip.dataset.title = title;
+    if (triggerData.keywords?.length) {
+        tulip.title = triggerData.keywords.join(', ');
+    }
+    container.appendChild(tulip);
+}
+
+/**
+ * Отримати активні tulips для генерації keywords
+ */
+export function getActiveTulips() {
+    const container = document.getElementById('product-trigger-titles-container');
+    if (!container) return [];
+    return Array.from(container.querySelectorAll('.badge.c-main'))
+        .map(t => t.dataset.title);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ASIDE TRIGGERS (пошук + кнопки — як в index SEO)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Ініціалізація aside тригерів при відкритті модалу
+ */
+export function initSeoTriggers() {
+    const triggersData = getTriggersData();
+    const buttonsContainer = document.getElementById('product-triger-buttons-container');
+    const searchInput = document.getElementById('product-search-triger');
+    const tulipsContainer = document.getElementById('product-trigger-titles-container');
+
+    if (!buttonsContainer) return;
+
+    // Рендер кнопок-тригерів
+    buttonsContainer.innerHTML = '';
+    triggersData.forEach(trigger => {
+        const button = document.createElement('button');
+        button.className = 'badge';
+        button.textContent = trigger.title;
+        button.dataset.title = trigger.title;
+        buttonsContainer.appendChild(button);
+    });
+
+    // Пошук тригерів
+    if (searchInput) {
+        searchInput.value = '';
+        searchInput.addEventListener('input', e => {
+            const term = e.target.value.toLowerCase();
+            buttonsContainer.querySelectorAll('.badge').forEach(btn => {
+                btn.classList.toggle('u-hidden', !btn.textContent.toLowerCase().includes(term));
+            });
+        });
+    }
+
+    // Клік на кнопку тригера → додати tulip
+    buttonsContainer.addEventListener('click', e => {
+        if (e.target.tagName === 'BUTTON' && e.target.classList.contains('badge')) {
+            addTulip(e.target.dataset.title, true);
+        }
+    });
+
+    // Клік на tulip → toggle active
+    if (tulipsContainer) {
+        tulipsContainer.addEventListener('click', e => {
+            const target = e.target;
+            if (target.dataset.title && target.classList.contains('badge')) {
+                target.classList.toggle('c-main');
+            }
+        });
+    }
+}
+
+/**
+ * Очистити aside тригери при закритті модалу
+ */
+export function destroySeoTriggers() {
+    const buttonsContainer = document.getElementById('product-triger-buttons-container');
+    const tulipsContainer = document.getElementById('product-trigger-titles-container');
+    if (buttonsContainer) buttonsContainer.innerHTML = '';
+    if (tulipsContainer) tulipsContainer.innerHTML = '';
 }

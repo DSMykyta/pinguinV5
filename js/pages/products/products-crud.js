@@ -32,7 +32,7 @@ import { getCharacteristicsData } from './products-crud-characteristics.js';
 import { initSectionNav } from '../../layout/layout-plugin-nav-sections.js';
 import { initNameGenerationListeners, updateGeneratedNames, buildShortName, buildFullName, buildVariantFullName } from './products-crud-names.js';
 import { slugify, isProductUrlUnique } from './products-crud-url.js';
-import { resetSeoState, fetchSeoData, updateSeoForCreate } from './products-crud-seo.js';
+import { resetSeoState, fetchSeoData, updateSeoForCreate, initSeoTriggers, destroySeoTriggers } from './products-crud-seo.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -66,7 +66,8 @@ export async function showAddProductModal() {
 
     clearProductForm();
     resetSeoState();
-    fetchSeoData();
+    await fetchSeoData();
+    initSeoTriggers();
     await initModalComponents();
 
     runHook('onModalOpen', null);
@@ -103,6 +104,8 @@ export async function showEditProductModal(productId) {
         };
     }
 
+    await fetchSeoData();
+    initSeoTriggers();
     await initModalComponents();
     fillProductForm(product);
 
@@ -913,6 +916,8 @@ function cleanupProductModal() {
     if (compNotesEditorRu) { compNotesEditorRu.destroy(); compNotesEditorRu = null; }
     if (textEditorUa) { textEditorUa.destroy(); textEditorUa = null; }
     if (textEditorRu) { textEditorRu.destroy(); textEditorRu = null; }
+
+    destroySeoTriggers();
 
     try {
         import('./products-crud-variant-pending.js').then(({ discardPendingVariantChanges }) => {
