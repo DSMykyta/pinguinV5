@@ -19,6 +19,7 @@ import {
     actionButton
 } from '../../components/actions/actions-main.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
+import { createBatchActionsBar } from '../../components/actions/actions-batch.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ
@@ -32,6 +33,7 @@ registerActionHandlers('brand-lines', {
 });
 
 let _actionCleanup = null;
+let _linesBatchBar = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COLUMNS CONFIGURATION
@@ -101,6 +103,9 @@ function initLinesTable() {
                         brand_name: 'string',
                         name_uk: 'string'
                     }
+                },
+                checkboxes: {
+                    batchBar: () => _linesBatchBar
                 }
             }
         },
@@ -109,6 +114,37 @@ function initLinesTable() {
         preFilter: null,
         pageSize: null,
         checkboxPrefix: 'lines'
+    });
+
+    // Batch actions bar
+    _linesBatchBar = createBatchActionsBar({
+        tabId: 'lines',
+        actions: [
+            {
+                id: 'delete',
+                label: 'Видалити',
+                icon: 'delete',
+                dangerous: true,
+                handler: async (selectedIds) => {
+                    const { deleteBrandLine } = await import('./lines-data.js');
+                    const { showToast } = await import('../../components/feedback/toast.js');
+                    const { showConfirmModal } = await import('../../components/modal/modal-main.js');
+                    const confirmed = await showConfirmModal({ action: 'видалити', entity: `${selectedIds.length} лінійок(у)` });
+                    if (!confirmed) return;
+                    try {
+                        for (const id of selectedIds) {
+                            await deleteBrandLine(id);
+                        }
+                        _linesBatchBar.deselectAll();
+                        renderLinesTable();
+                        showToast(`Видалено ${selectedIds.length} лінійок(у)`, 'success');
+                    } catch (error) {
+                        console.error('Batch delete error:', error);
+                        showToast('Помилка видалення', 'error');
+                    }
+                }
+            }
+        ]
     });
 
     initColumnsCharm();

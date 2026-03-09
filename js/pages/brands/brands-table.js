@@ -18,6 +18,7 @@ import {
     actionButton
 } from '../../components/actions/actions-main.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
+import { createBatchActionsBar } from '../../components/actions/actions-batch.js';
 import { getOptions } from '../mapper/mapper-data-own.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -32,6 +33,7 @@ registerActionHandlers('brands', {
 });
 
 let _actionCleanup = null;
+let _brandsBatchBar = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COLUMNS CONFIGURATION
@@ -106,6 +108,9 @@ function initBrandsTable() {
                         { id: 'country_option_id', label: 'Країна', filterType: 'values' },
                         { id: 'brand_status', label: 'Статус', filterType: 'values' }
                     ]
+                },
+                checkboxes: {
+                    batchBar: () => _brandsBatchBar
                 }
             }
         },
@@ -130,6 +135,57 @@ function initBrandsTable() {
 
     // Зберігаємо tableAPI в state для сумісності
     brandsState.tableAPI = brandsState.brandsManagedTable.tableAPI;
+
+    // Batch actions bar
+    _brandsBatchBar = createBatchActionsBar({
+        tabId: 'brands',
+        actions: [
+            {
+                id: 'deactivate',
+                label: 'Не активні',
+                icon: 'visibility_off',
+                handler: async (selectedIds) => {
+                    const { updateBrand } = await import('./brands-data.js');
+                    const { showToast } = await import('../../components/feedback/toast.js');
+                    try {
+                        for (const id of selectedIds) {
+                            await updateBrand(id, { brand_status: 'draft' });
+                        }
+                        _brandsBatchBar.deselectAll();
+                        renderBrandsTable();
+                        showToast(`${selectedIds.length} бренд(ів) деактивовано`, 'success');
+                    } catch (error) {
+                        console.error('Batch deactivate error:', error);
+                        showToast('Помилка деактивації', 'error');
+                    }
+                }
+            },
+            {
+                id: 'delete',
+                label: 'Видалити',
+                icon: 'delete',
+                dangerous: true,
+                handler: async (selectedIds) => {
+                    const { deleteBrand } = await import('./brands-data.js');
+                    const { showToast } = await import('../../components/feedback/toast.js');
+                    const { showConfirmModal } = await import('../../components/modal/modal-main.js');
+                    const confirmed = await showConfirmModal({ action: 'видалити', entity: `${selectedIds.length} бренд(ів)` });
+                    if (!confirmed) return;
+                    try {
+                        for (const id of selectedIds) {
+                            await deleteBrand(id);
+                        }
+                        _brandsBatchBar.deselectAll();
+                        renderBrandsTable();
+                        showToast(`Видалено ${selectedIds.length} бренд(ів)`, 'success');
+                    } catch (error) {
+                        console.error('Batch delete error:', error);
+                        showToast('Помилка видалення', 'error');
+                    }
+                }
+            }
+        ]
+    });
 
     initColumnsCharm();
 }
