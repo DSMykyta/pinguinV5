@@ -43,7 +43,7 @@ function getFirstImageUrl(raw) {
 
 let _currentGroupId = null;
 let _groupProductIds = [];
-let _groupProductType = 'label';
+let _groupProductType = 'variant';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PRODUCT TYPE LABELS
@@ -52,7 +52,7 @@ let _groupProductType = 'label';
 const TYPE_LABELS = {
     label: 'Ознака',
     detail: 'Деталь',
-    variant: 'Варіант'
+    variant: 'Варіація'
 };
 
 export function getTypeLabel(type) {
@@ -66,7 +66,7 @@ export function getTypeLabel(type) {
 export async function showAddGroupModal() {
     _currentGroupId = null;
     _groupProductIds = [];
-    _groupProductType = 'label';
+    _groupProductType = 'variant';
 
     await showModal('group-edit', null);
 
@@ -114,7 +114,7 @@ function setTypeSwitch(type) {
 
 function getTypeSwitch() {
     const checked = document.querySelector('#group-type-switch input[name="group-type"]:checked');
-    return checked?.value || 'label';
+    return checked?.value || 'variant';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
