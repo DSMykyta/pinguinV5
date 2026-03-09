@@ -121,9 +121,8 @@ function formatHtml(html) {
     return html
         .replace(/>\s+</g, '><')
         .trim()
-        // Newline before opening block tags
-        .replace(/<(p|h[1-6]|ul|ol|li|table|tr|thead|tbody|div|blockquote)[\s>]/g, '\n<$1 ')
-        .replace(/<(p|h[1-6]|ul|ol|li|table|tr|thead|tbody|div|blockquote)>/g, '\n<$1>')
+        // Newline before opening block tags (preserve attributes and closing bracket)
+        .replace(/<(p|h[1-6]|ul|ol|li|table|tr|thead|tbody|div|blockquote)([\s>])/g, '\n<$1$2')
         // Newline after closing block tags
         .replace(/<\/(p|h[1-6]|li|ul|ol|table|tr|th|td|thead|tbody|div|blockquote)>/g, '\n</$1>\n')
         // Clean up multiple newlines
