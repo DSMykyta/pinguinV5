@@ -18,33 +18,50 @@ let _footer = null;
 let _main = null;
 let _dotsContainer = null;
 let _originalFooter = '';
+let _options = {};
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PUBLIC
 // ═══════════════════════════════════════════════════════════════════════════
 
-export function initWizard(container) {
+/**
+ * @param {HTMLElement} container
+ * @param {Object} [options]
+ * @param {Function} [options.filterSection] — (sec) => boolean, true = include
+ * @param {Function} [options.sortSections]  — (sections[]) => sections[], reorder
+ */
+export function initWizard(container, options = {}) {
     if (_active) destroyWizard(_container);
     if (!container) { console.warn('[Wizard] no container'); return; }
 
     _container = container;
     _footer = container.querySelector('.modal-footer');
     _main = container.querySelector('.modal-body > main');
+    _options = options;
 
     if (!_main) { console.warn('[Wizard] no <main>'); return; }
 
     // Зберегти оригінал footer
     _originalFooter = _footer?.innerHTML ?? '';
 
-    // Зібрати всі секції (блок 6 "Куди це?" пропускається)
+    // Зібрати секції з фільтром
     const allSections = Array.from(
         _main.querySelectorAll(':scope > section, :scope > div > section')
     );
-    _sections = allSections.filter(sec => sec.id !== 'section-product-block-6');
+
+    const filter = _options.filterSection;
+    _sections = filter ? allSections.filter(filter) : [...allSections];
 
     // Сховати виключені секції
-    allSections.filter(sec => sec.id === 'section-product-block-6')
-        .forEach(sec => sec.classList.add('u-hidden'));
+    if (filter) {
+        allSections.filter(sec => !filter(sec))
+            .forEach(sec => sec.classList.add('u-hidden'));
+    }
+
+    // Сортувати секції
+    if (_options.sortSections) {
+        _sections = _options.sortSections(_sections);
+    }
 
     if (_sections.length === 0) { console.warn('[Wizard] no sections'); return; }
 
@@ -75,12 +92,21 @@ export function refreshWizard() {
         if (header) header.style.display = '';
     });
 
-    // Зібрати всі секції (блок 6 "Куди це?" пропускається)
-    _sections = Array.from(all).filter(sec => sec.id !== 'section-product-block-6');
+    // Зібрати секції з фільтром
+    const allArr = Array.from(all);
+    const filter = _options.filterSection;
+    _sections = filter ? allArr.filter(filter) : [...allArr];
 
     // Сховати виключені секції
-    Array.from(all).filter(sec => sec.id === 'section-product-block-6')
-        .forEach(sec => sec.classList.add('u-hidden'));
+    if (filter) {
+        allArr.filter(sec => !filter(sec))
+            .forEach(sec => sec.classList.add('u-hidden'));
+    }
+
+    // Сортувати секції
+    if (_options.sortSections) {
+        _sections = _options.sortSections(_sections);
+    }
 
     if (_sections.length === 0) return;
     if (_currentStep >= _sections.length) _currentStep = _sections.length - 1;
@@ -121,6 +147,7 @@ export function destroyWizard(container) {
     _footer = null;
     _main = null;
     _dotsContainer = null;
+    _options = {};
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

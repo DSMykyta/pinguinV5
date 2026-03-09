@@ -2,17 +2,27 @@
 /* Плаваюча панель для масових операцій */
 
 .batch-actions-bar {
+    /* Positioning */
     position: fixed;
-    bottom: 12px;
-    left: 24%;
+    bottom: 16px;
+    left: 16%;
     z-index: 100;
+
+    /* Display */
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 8px 20px;    
-    background-color: var(--color-surface-c-low);
-    border-radius: var(--radius-full);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+    /* Box Model */
+    height: 56px;
+    padding: 8px 20px;
+    border: none;
+    border-radius: 16px;
+
+    /* Visual */
+    background: var(--color-main-c);
+    color: var(--color-main);
+    box-shadow: var(--shadow-2);
 
     /* Animation */
     opacity: 0;

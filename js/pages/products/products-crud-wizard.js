@@ -20,6 +20,29 @@ let _pendingWizardMode = false;
 let _observer = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
+// PRODUCT-SPECIFIC WIZARD OPTIONS
+// ═══════════════════════════════════════════════════════════════════════════
+
+const EXCLUDED_SECTIONS = ['section-product-block-6'];
+const LAST_SECTIONS = ['section-product-variants'];
+
+const productWizardOptions = {
+    filterSection: (sec) => !EXCLUDED_SECTIONS.includes(sec.id),
+    sortSections: (sections) => {
+        const last = [];
+        const rest = [];
+        for (const sec of sections) {
+            if (LAST_SECTIONS.includes(sec.id)) {
+                last.push(sec);
+            } else {
+                rest.push(sec);
+            }
+        }
+        return [...rest, ...last];
+    }
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
 // PUBLIC
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -74,7 +97,7 @@ function onProductModalOpened(e) {
             const c = ev.target.closest('.modal-container');
             if (!c) return;
             if (ev.target.value === 'wizard') {
-                initWizard(c);
+                initWizard(c, productWizardOptions);
                 _startObserver();
             } else {
                 _stopObserver();
@@ -87,7 +110,7 @@ function onProductModalOpened(e) {
     if (_pendingWizardMode && container) {
         _pendingWizardMode = false;
         if (modeSwitch) modeSwitch.classList.remove('u-hidden');
-        initWizard(container);
+        initWizard(container, productWizardOptions);
         _startObserver();
         const radio = overlay.querySelector('#product-mode-wizard');
         if (radio) radio.checked = true;
