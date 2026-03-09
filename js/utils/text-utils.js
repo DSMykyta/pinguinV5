@@ -291,3 +291,27 @@ export function extractContextWithHighlight(text, bannedWord, contextLength = 40
 
     return prefix + fragment + suffix;
 }
+
+/**
+ * Нормалізувати назву для файлів: транслітерація UA→EN, lowercase, пробіли→_
+ * @param {string} name - Назва для нормалізації
+ * @returns {string} Нормалізована назва латиницею
+ * @example
+ * normalizeName('Крем для рук') // → 'krem_dlya_ruk'
+ */
+export function normalizeName(name) {
+    return name.trim()
+        .toLowerCase()
+        .replace(/\s+/g, '_')
+        .replace(/[^a-z0-9_\-а-яієїґ]/gi, '')
+        .replace(/[а-яієїґ]+/gi, (match) => {
+            const map = {
+                'а': 'a', 'б': 'b', 'в': 'v', 'г': 'h', 'ґ': 'g', 'д': 'd', 'е': 'e',
+                'є': 'ye', 'ж': 'zh', 'з': 'z', 'и': 'y', 'і': 'i', 'ї': 'yi', 'й': 'y',
+                'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r',
+                'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch',
+                'ш': 'sh', 'щ': 'shch', 'ь': '', 'ю': 'yu', 'я': 'ya',
+            };
+            return match.split('').map(c => map[c.toLowerCase()] || c).join('');
+        });
+}

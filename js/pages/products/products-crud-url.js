@@ -10,6 +10,7 @@
  */
 
 import { getProducts } from './products-data.js';
+import { registerProductsPlugin } from './products-plugins.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TRANSLITERATION MAP
@@ -66,6 +67,11 @@ export function isProductUrlUnique(url, excludeProductId) {
  * @param {string} shortNameUa - Коротка назва UA для slug
  * @param {string|null} currentProductId - null для нового товару
  */
+// Підписка на хук — реагуємо на зміну назви
+registerProductsPlugin('onNameUpdate', ({ shortNameUa, currentProductId }) => {
+    updateUrlField(shortNameUa, currentProductId);
+});
+
 export function updateUrlField(shortNameUa, currentProductId) {
     const urlField = document.getElementById('product-url');
     const urlBloc = document.getElementById('product-url-bloc');

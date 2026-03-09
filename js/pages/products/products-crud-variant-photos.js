@@ -17,8 +17,8 @@
 import { uploadProductPhotoFile } from '../../utils/api-client.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { SORTABLE_CONFIG } from '../../utils/common-utils.js';
-import { normalizeName } from './products-crud-photos.js';
+import { SORTABLE_CONFIG, fetchImageAsFile } from '../../utils/common-utils.js';
+import { normalizeName } from '../../utils/text-utils.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -51,7 +51,7 @@ export function initVariantPhotoSection() {
         fileInput.click();
     });
 
-    // [data-dz-upload] → додати URL (charm тригерить через Enter / клік)
+    // [data-dz-upload] → скачати фото з URL і завантажити на Drive
     uploadBtn?.addEventListener('click', () => {
         const url = urlField?.value.trim();
         if (!url) return;
@@ -59,12 +59,9 @@ export function initVariantPhotoSection() {
             showToast(`Максимум ${MAX_PHOTOS} фото`, 'warning');
             return;
         }
-        _photoUrls.push(url);
         urlField.value = '';
         urlField.dispatchEvent(new Event('input', { bubbles: true }));
-        syncHiddenField();
-        renderPhotoGrid();
-        updateMainPreview();
+        handleUploadFromUrl(url);
     });
 
     // Вибір файлів
@@ -130,6 +127,20 @@ export function initVariantPhotoSection() {
 // ═══════════════════════════════════════════════════════════════════════════
 // UPLOAD
 // ═══════════════════════════════════════════════════════════════════════════
+
+async function handleUploadFromUrl(url) {
+    const dropzone = document.getElementById('variant-photo-dropzone');
+    dropzone?.classList.add('loading');
+    try {
+        const file = await fetchImageAsFile(url);
+        dropzone?.classList.remove('loading');
+        await handleUploadPhoto(file);
+    } catch (error) {
+        console.error('Помилка завантаження з URL:', error);
+        dropzone?.classList.remove('loading');
+        showToast('Не вдалося завантажити зображення з URL', 'error');
+    }
+}
 
 async function handleUploadPhoto(file) {
     if (_photoUrls.length >= MAX_PHOTOS) return;
@@ -251,12 +262,12 @@ function updateMainPreview() {
 
     if (_photoUrls.length > 0) {
         mainImg.src = _photoUrls[0];
-        mainImg.style.display = '';
-        if (mainEmpty) mainEmpty.style.display = 'none';
+        mainImg.classList.remove('u-hidden');
+        if (mainEmpty) mainEmpty.classList.add('u-hidden');
     } else {
         mainImg.src = '';
-        mainImg.style.display = 'none';
-        if (mainEmpty) mainEmpty.style.display = '';
+        mainImg.classList.add('u-hidden');
+        if (mainEmpty) mainEmpty.classList.remove('u-hidden');
     }
 }
 

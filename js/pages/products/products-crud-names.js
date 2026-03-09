@@ -10,7 +10,7 @@
  * Повна:   [Текст перед / Категорія] [Коротка] [Текст після]
  */
 
-import { updateUrlField } from './products-crud-url.js';
+import { runHook } from './products-plugins.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // NAME FIELDS
@@ -132,6 +132,6 @@ export function updateGeneratedNames(currentProductId) {
     if (fullUa) fullUa.value = buildFullName(prefixUa, shortUaVal, v('product-text-after-ua'));
     if (fullRu) fullRu.value = buildFullName(prefixRu, shortRuVal, v('product-text-after-ru'));
 
-    // URL slug — тільки для нових товарів
-    updateUrlField(shortUaVal, currentProductId);
+    // URL slug — через хук, щоб url-плагін міг реагувати
+    runHook('onNameUpdate', { shortNameUa: shortUaVal, currentProductId });
 }

@@ -18,7 +18,7 @@
  *   products-delete.js               — видалення товару
  */
 
-import { registerProductsPlugin, runHook, applyFilter } from './products-plugins.js';
+import { registerProductsPlugin, runHook, applyFilter, registerOptionalFunction } from './products-plugins.js';
 import { productsState } from './products-state.js';
 import { addProduct, updateProduct, getProductById } from './products-data.js';
 import { showModal, closeModal } from '../../components/modal/modal-main.js';
@@ -889,6 +889,10 @@ export function getCompNotesEditorRu() { return compNotesEditorRu; }
 export function getCurrentProductId() {
     return currentProductId;
 }
+
+// Реєструємо getters через optionalFunctions — інші плагіни не імпортують напряму
+registerOptionalFunction('getCompCodeEditorRu', () => compCodeEditorRu);
+registerOptionalFunction('getCurrentProductId', () => currentProductId);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PLUGIN REGISTRATION

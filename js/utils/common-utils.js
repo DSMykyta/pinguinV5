@@ -87,6 +87,21 @@ export function formatDate(date) {
 }
 
 /**
+ * Скачати зображення з URL і повернути як File об'єкт.
+ * @param {string} url - URL зображення
+ * @returns {Promise<File>} File готовий для upload
+ * @throws {Error} Якщо URL недоступний або не є зображенням
+ */
+export async function fetchImageAsFile(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const blob = await res.blob();
+    if (!blob.type.startsWith('image/')) throw new Error('URL не є зображенням');
+    const ext = blob.type.split('/')[1] || 'jpg';
+    return new File([blob], `photo.${ext}`, { type: blob.type });
+}
+
+/**
  * Конфігурація для бібліотеки Sortable.js
  */
 export const SORTABLE_CONFIG = {

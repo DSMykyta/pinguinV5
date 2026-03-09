@@ -17,6 +17,7 @@
 import { getBrandById } from '../brands/brands-data.js';
 import { reinitializeCustomSelect } from '../../components/forms/select.js';
 import { showToast } from '../../components/feedback/toast.js';
+import { optionalFunctions } from './products-plugins.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // RULES
@@ -193,8 +194,8 @@ function findMatchingChar(nutrientKey, chars) {
  * Автозаповнити Decimal-характеристики з таблиці харчової цінності
  */
 export async function autofillFromNutritionTable() {
-    const { getCompCodeEditorRu } = await import('./products-crud.js');
-    const editor = getCompCodeEditorRu();
+    const getEditor = optionalFunctions.getCompCodeEditorRu;
+    const editor = getEditor?.();
     const html = editor?.getValue() || '';
 
     if (!html || !html.includes('<table')) {

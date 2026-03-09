@@ -28,6 +28,7 @@ const hooks = {
     onVariantModalOpen: [],  // Після відкриття модалу варіанту
     onCharsRender: [],       // Після рендеру характеристик варіанту (container, savedValues)
     onModalClose: [],        // Після закриття модалу
+    onNameUpdate: [],        // Після оновлення згенерованих назв ({shortNameUa, currentProductId})
 };
 
 /**
@@ -77,13 +78,14 @@ export async function runHookAsync(hookName, ...args) {
         return;
     }
 
-    for (const { callback } of hooks[hookName]) {
-        try {
-            await callback(...args);
-        } catch (err) {
-            console.error(`[Products Plugin Error] ${hookName}:`, err);
+    const results = await Promise.allSettled(
+        hooks[hookName].map(({ callback }) => callback(...args))
+    );
+    results.forEach((result, i) => {
+        if (result.status === 'rejected') {
+            console.error(`[Products Plugin Error] ${hookName}:`, result.reason);
         }
-    }
+    });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

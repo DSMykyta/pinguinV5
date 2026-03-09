@@ -11,11 +11,10 @@
  */
 
 import { uploadProductPhotoFile } from '../../utils/api-client.js';
-import { escapeHtml } from '../../utils/text-utils.js';
+import { escapeHtml, normalizeName } from '../../utils/text-utils.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { registerProductsPlugin } from './products-plugins.js';
-import { normalizeName } from './products-crud-photos.js';
-import { SORTABLE_CONFIG } from '../../utils/common-utils.js';
+import { SORTABLE_CONFIG, fetchImageAsFile } from '../../utils/common-utils.js';
 
 const MAX_PHOTOS = 10;
 
@@ -54,7 +53,7 @@ export function initInlinePhotos(rowId, imageUrl) {
         fileInput.click();
     });
 
-    // Upload URL
+    // Upload URL → скачати і завантажити на Drive
     uploadBtn?.addEventListener('click', () => {
         const url = urlField?.value.trim();
         if (!url) return;
@@ -62,10 +61,9 @@ export function initInlinePhotos(rowId, imageUrl) {
             showToast(`Максимум ${MAX_PHOTOS} фото`, 'warning');
             return;
         }
-        getPhotos(rowId).push(url);
         urlField.value = '';
         urlField.dispatchEvent(new Event('input', { bubbles: true }));
-        renderGrid(rowId);
+        handleUploadFromUrl(rowId, url);
     });
 
     // File input change
@@ -142,6 +140,20 @@ export function getInlinePhotoUrls(rowId) {
 function getPhotos(rowId) {
     if (!_rowPhotos.has(rowId)) _rowPhotos.set(rowId, []);
     return _rowPhotos.get(rowId);
+}
+
+async function handleUploadFromUrl(rowId, url) {
+    const dropzone = document.getElementById(`${rowId}-photo-dropzone`);
+    dropzone?.classList.add('loading');
+    try {
+        const file = await fetchImageAsFile(url);
+        dropzone?.classList.remove('loading');
+        await handleUpload(rowId, file);
+    } catch (error) {
+        console.error('Помилка завантаження з URL:', error);
+        dropzone?.classList.remove('loading');
+        showToast('Не вдалося завантажити зображення з URL', 'error');
+    }
 }
 
 async function handleUpload(rowId, file) {
