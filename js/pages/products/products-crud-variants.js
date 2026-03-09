@@ -10,9 +10,10 @@
  * Повноцінний модал variant-edit для редагування варіантів.
  *
  * Суб-модулі:
- *   products-crud-variant-names.js   — резолвінг назв варіантів
- *   products-crud-variant-chars.js   — характеристики блоку 8 + spec
- *   products-crud-variant-pending.js — pending варіанти (accordion)
+ *   products-crud-variant-names.js       — резолвінг назв варіантів
+ *   products-crud-variant-chars.js       — характеристики блоку 8 + spec
+ *   products-crud-variant-pending.js     — pending варіанти (accordion)
+ *   products-crud-variants-validation.js — валідація унікальності варіантів
  */
 
 import { getVariantsByProductId, getVariantById, addProductVariant, updateProductVariant, deleteProductVariant } from './variants-data.js';
@@ -35,6 +36,7 @@ import { resolveVariantName, resolveNameFromCharsAndSpecs, computeVariantGenerat
 import { renderVariantCharacteristics, getVariantCharsData, buildExpandContent, onVariantExpand, readRowFormValues, getVariantColumns, renderExistingVariantCharacteristics } from './products-crud-variant-chars.js';
 import { addPendingVariant, updatePendingVariant, removePendingVariant, getPendingVariantById, getPendingTableData, commitPendingVariantChanges, discardPendingVariantChanges } from './products-crud-variant-pending.js';
 import { renderPendingVariantCharacteristics as _renderPendingChars } from './products-crud-variant-chars.js';
+import { validateVariantUniqueness } from './products-crud-variants-validation.js';
 
 // Re-exports (used by products-crud.js)
 export { commitPendingVariantChanges, discardPendingVariantChanges, populateProductVariants };
@@ -246,6 +248,14 @@ async function _handleRowSave(rowEl) {
     const resolved = resolveNameFromCharsAndSpecs(formData.variant_chars, formData.spec_ua, formData.spec_ru);
     formData.name_ua = resolved.ua;
     formData.name_ru = resolved.ru;
+
+    // Валідація унікальності назви
+    const productId_ = _getCurrentProductId?.();
+    const check = validateVariantUniqueness(formData.name_ua, productId_, variantId);
+    if (!check.valid) {
+        showToast(check.message, 'warning');
+        return;
+    }
 
     // ── Pending variant ──
     if (variantId.startsWith('pending-')) {
@@ -611,6 +621,15 @@ async function handleSaveVariant(shouldClose = true) {
     const autoName = resolveVariantName();
     formData.name_ua = autoName.ua;
     formData.name_ru = autoName.ru;
+
+    // Валідація унікальності назви
+    const productId_ = _getCurrentProductId?.() || formData.product_id;
+    const excludeId = _pendingMode ? _pendingEditId : _currentVariantId;
+    const check = validateVariantUniqueness(formData.name_ua, productId_, excludeId);
+    if (!check.valid) {
+        showToast(check.message, 'warning');
+        return;
+    }
 
     // ── Pending mode ──
     if (_pendingMode) {
