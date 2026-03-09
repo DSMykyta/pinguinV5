@@ -1,5 +1,5 @@
 <div class="modal-overlay" data-modal-id="group-edit">
-    <div class="modal-container">
+    <div class="modal-container modal-small">
         <!-- Header -->
         <div class="modal-header">
             <h2><span id="group-modal-title">Нова група</span></h2>
@@ -12,6 +12,37 @@
                     <input type="radio" id="group-type-variant" name="group-type" value="variant">
                     <label for="group-type-variant" class="switch-label">Варіант</label>
                 </div>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+
+            <!-- 1. Інпут — список згрупованих ID (можна вписати вручну) -->
+            <div class="group column">
+                <label class="label-l" for="group-products-input">Товари (ID)</label>
+                <input type="text" id="group-products-input" class="input-main" placeholder="prod-000001, prod-000002...">
+            </div>
+
+            <!-- 2. Селект — вибір товару зі списку -->
+            <div class="group column">
+                <label for="group-product-select" class="label-l">Додати товар</label>
+                <select id="group-product-select" data-custom-select>
+                    <option value="">— Оберіть товар —</option>
+                </select>
+            </div>
+
+            <!-- 3. Draggable список згрупованих товарів -->
+            <div class="group column">
+                <label class="label-l">Товари в групі</label>
+                <div class="content-bloc-container" id="group-products-list"></div>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+            <div class="modal-right">
                 <button id="btn-save-group" class="btn-icon" aria-label="Зберегти">
                     <span class="material-symbols-outlined">save</span>
                 </button>
@@ -20,31 +51,5 @@
                 </button>
             </div>
         </div>
-
-        <!-- Body -->
-        <div class="modal-body">
-            <div class="grid">
-
-                <!-- Вибір товару через custom select -->
-                <div class="group column col-12">
-                    <label for="group-product-select" class="label-l">Додати товар</label>
-                    <select id="group-product-select" data-custom-select>
-                        <option value="">— Оберіть товар —</option>
-                    </select>
-                </div>
-
-                <!-- Список товарів групи (draggable) -->
-                <div class="group column col-12">
-                    <label class="label-l">Товари в групі</label>
-                    <div class="content-bloc-container" id="group-products-list">
-                        <!-- Динамічно: картки товарів з drag -->
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="modal-footer"></div>
     </div>
 </div>

@@ -9,9 +9,10 @@
  *
  * Модал:
  * ├── Switcher в хедері: Ознака / Деталь / Варіант (product_type)
- * ├── Custom select для вибору товарів
+ * ├── Інпут зі списком ID (можна вписати вручну)
+ * ├── Custom select для вибору товарів (додає в інпут + список)
  * ├── Draggable список товарів (порядок = порядок в product_ids)
- * └── Зберігання: group_id, product_type, product_ids
+ * └── Footer: зберегти + закрити (поки не натиснути — нічого не зберігається)
  */
 
 import { getProductGroups, addProductGroup, updateProductGroup, deleteProductGroup } from './groups-data.js';
@@ -58,6 +59,7 @@ export async function showAddGroupModal() {
     if (title) title.textContent = 'Нова група';
 
     setTypeSwitch(_groupProductType);
+    syncProductsInput();
     populateProductSelect();
     renderGroupProductsList();
     initModalHandlers();
@@ -80,6 +82,7 @@ export async function showEditGroupModal(groupId) {
     if (title) title.textContent = `Група ${groupId}`;
 
     setTypeSwitch(_groupProductType);
+    syncProductsInput();
     populateProductSelect();
     renderGroupProductsList();
     initModalHandlers();
@@ -100,7 +103,36 @@ function getTypeSwitch() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// CUSTOM SELECT — PRODUCT PICKER
+// PRODUCTS INPUT (група 1 — текстовий інпут зі списком ID)
+// ═══════════════════════════════════════════════════════════════════════════
+
+function syncProductsInput() {
+    const input = document.getElementById('group-products-input');
+    if (input) input.value = _groupProductIds.join(', ');
+}
+
+function initProductsInputHandler() {
+    const input = document.getElementById('group-products-input');
+    if (!input) return;
+
+    input.addEventListener('change', () => {
+        const raw = input.value;
+        const ids = raw.split(',')
+            .map(s => s.trim())
+            .filter(s => s.length > 0);
+
+        // Deduplicate
+        const unique = [...new Set(ids)];
+        _groupProductIds = unique;
+
+        syncProductsInput();
+        populateProductSelect();
+        renderGroupProductsList();
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CUSTOM SELECT — PRODUCT PICKER (група 2)
 // ═══════════════════════════════════════════════════════════════════════════
 
 function populateProductSelect() {
@@ -127,13 +159,14 @@ function initProductSelectHandler() {
         if (!val || _groupProductIds.includes(val)) return;
 
         _groupProductIds.push(val);
+        syncProductsInput();
         renderGroupProductsList();
         populateProductSelect();
     });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// GROUP PRODUCTS LIST (DRAGGABLE)
+// GROUP PRODUCTS LIST — DRAGGABLE (група 3)
 // ═══════════════════════════════════════════════════════════════════════════
 
 function renderGroupProductsList() {
@@ -176,6 +209,7 @@ function renderGroupProductsList() {
         btn.onclick = () => {
             const removeId = btn.dataset.removeProduct;
             _groupProductIds = _groupProductIds.filter(id => id !== removeId);
+            syncProductsInput();
             renderGroupProductsList();
             populateProductSelect();
         };
@@ -187,12 +221,12 @@ function renderGroupProductsList() {
             handle: '.btn-icon.drag',
             animation: 150,
             onEnd: () => {
-                // Синхронізуємо масив з DOM-порядком
                 const newOrder = [];
                 container.querySelectorAll('[data-group-product-id]').forEach(el => {
                     newOrder.push(el.dataset.groupProductId);
                 });
                 _groupProductIds = newOrder;
+                syncProductsInput();
             }
         });
     }
@@ -203,6 +237,7 @@ function renderGroupProductsList() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function initModalHandlers() {
+    initProductsInputHandler();
     initProductSelectHandler();
 
     const saveBtn = document.getElementById('btn-save-group');

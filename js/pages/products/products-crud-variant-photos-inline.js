@@ -239,6 +239,8 @@ function renderGrid(rowId) {
 
 registerProductsPlugin('onCharsRender', (container) => {
     if (!container) return;
+    // Тільки для expandable рядків, НЕ для модалу (де є окрема секція "Фото")
+    if (container.id === 'variant-characteristics-container') return;
     const rowId = container.id?.replace('-chars-container', '');
     if (!rowId) return;
     // Не дублювати

@@ -163,9 +163,11 @@ body.modal-open {
 .modal-body {
     flex: 1;
     display: flex;
-    overflow: hidden;
+    flex-direction: column;
+    overflow-y: auto;
     min-height: 0;
-    justify-content: center;
+    padding: var(--space-s);
+    gap: var(--space-s);
 }
 
 /* Main — scrollable content */
@@ -345,12 +347,6 @@ body.modal-open {
     max-height: none;
 }
 
-.modal-small .modal-body {
-    flex-direction: column;
-    overflow-y: auto;
-    padding: var(--space-l);
-    gap: var(--space-m);
-}
 
 .modal-full .modal-container {
     width: 95vw;
@@ -358,4 +354,11 @@ body.modal-open {
     height: 95dvh;
     max-height: 95dvh;
     border-radius: 28px;
+}
+
+.modal-full .modal-body {
+    flex-direction: row;
+    overflow: hidden;
+    padding: 0;
+    gap: 0;
 }

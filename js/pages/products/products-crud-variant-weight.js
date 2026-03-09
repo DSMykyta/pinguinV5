@@ -58,7 +58,9 @@ export function init(state) {
         `;
 
         // Перше поле в характеристиках — і в модалі, і в акордіоні
-        container.prepend(weightField);
+        // Вставляємо в .grid (якщо є), інакше в сам контейнер
+        const grid = container.querySelector('.grid');
+        (grid || container).prepend(weightField);
     });
 
     // Перед збереженням: char-000022 → окрема колонка weight
