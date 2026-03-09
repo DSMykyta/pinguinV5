@@ -18,12 +18,11 @@ import { resetRowCounter } from './gt-state.js';
 import { clearSession, autoSaveSession } from './gt-session-manager.js';
 import { ROW_CLASSES } from './gt-config.js';
 
-const dom = getTableDOM();
-
 /**
  * Створює новий рядок і додає його в кінець контейнера.
  */
 export async function createAndAppendRow() {
+    const dom = getTableDOM();
     const newRow = await renderNewRow();
     dom.rowsContainer.appendChild(newRow);
     initDropdowns();
@@ -36,6 +35,7 @@ export async function createAndAppendRow() {
  * @param {HTMLElement} row - Рядок для видалення.
  */
 export function deleteRow(row) {
+    const dom = getTableDOM();
     if (dom.rowsContainer.querySelectorAll('.content-bloc').length > 1) {
         row.remove();
         autoSaveSession();
@@ -70,6 +70,7 @@ export async function insertRowBelow(referenceRow) {
  * Створює і налаштовує найперший рядок "Пищевая ценность".
  */
 export async function initializeFirstRow() {
+    const dom = getTableDOM();
     if (dom.rowsContainer.children.length > 0) return;
     const firstRow = await createAndAppendRow();
     firstRow.classList.remove(ROW_CLASSES.TD);
@@ -92,6 +93,7 @@ export async function initializeEmptyRow() {
  * Повністю очищує секцію таблиць і повертає її до початкового стану.
  */
 export function resetTableSection() {
+    const dom = getTableDOM();
     dom.rowsContainer.innerHTML = '';
     resetRowCounter();
     clearSession();

@@ -12,13 +12,12 @@ import { getTableDOM } from './gt-dom.js';
 import { ROW_CLASSES, SELECTORS } from './gt-config.js';
 import { sanitizeText } from './gt-utils.js';
 
-const dom = getTableDOM();
-
 /**
  * Генерує повний HTML-код таблиці(-ць) з усіх рядків.
  * @returns {string} - Готовий для копіювання HTML-код.
  */
 export function generateHtmlTable() {
+    const dom = getTableDOM();
     let tableHTML = '';
     let isTableOpen = false;
 

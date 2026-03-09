@@ -12,13 +12,12 @@ import { getTableDOM } from './gt-dom.js';
 import { ROW_CLASSES, SELECTORS } from './gt-config.js';
 import { sanitizeText } from './gt-utils.js';
 
-const dom = getTableDOM();
-
 /**
  * Генерує текст з тегами <br> з усіх рядків.
  * @returns {string} - Готовий для копіювання текст.
  */
 export function generateBrText() {
+    const dom = getTableDOM();
     let textHTML = '';
     dom.rowsContainer.querySelectorAll(SELECTORS.INPUTS_BLOC).forEach(row => {
         if (row.classList.contains(ROW_CLASSES.NEW_TABLE)) {
