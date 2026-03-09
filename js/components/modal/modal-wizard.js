@@ -106,17 +106,21 @@ export function destroyWizard(container) {
 
     if (_container) _container.classList.remove('wizard-mode');
 
-    // Повернути кнопки секцій на місце перед видаленням wizard елементів
-    if (_footer) {
-        _footer.querySelectorAll('[data-wizard-source]').forEach(btn => {
+    // Повернути кнопки секцій на місце (вони в headerLeft)
+    if (_headerLeft) {
+        _headerLeft.querySelectorAll('[data-wizard-source]').forEach(btn => {
             const sourceId = btn.dataset.wizardSource;
             const source = _container?.querySelector(`#${CSS.escape(sourceId)} .section-header .group`);
             if (source) {
                 delete btn.dataset.wizardSource;
+                btn.classList.remove('touch');
                 source.appendChild(btn);
             }
         });
-        // Видалити wizard елементи, показати оригінальні
+    }
+
+    // Видалити wizard елементи з footer, показати оригінальні
+    if (_footer) {
         _footer.querySelectorAll('[data-wizard]').forEach(el => el.remove());
         _footer.querySelectorAll('[data-wizard-original]').forEach(el => {
             delete el.dataset.wizardOriginal;
@@ -336,19 +340,19 @@ function _buildDots() {
 }
 
 /**
- * Переносить кнопки з section-header .group поточної секції у wizard footer left.
- * При зміні кроку — повертає назад.
+ * Переносить кнопки з section-header .group поточної секції в header (поряд з h1).
+ * При зміні кроку — повертає назад, прибирає touch.
  */
 function _updateSectionActions() {
-    const left = _footer?.querySelector('[data-wizard="left"]');
-    if (!left) return;
+    if (!_headerLeft) return;
 
     // Повернути попередні кнопки на місце
-    left.querySelectorAll('[data-wizard-source]').forEach(btn => {
+    _headerLeft.querySelectorAll('[data-wizard-source]').forEach(btn => {
         const sourceId = btn.dataset.wizardSource;
         const source = _container?.querySelector(`#${CSS.escape(sourceId)} .section-header .group`);
         if (source) {
             delete btn.dataset.wizardSource;
+            btn.classList.remove('touch');
             source.appendChild(btn);
         }
     });
@@ -361,7 +365,8 @@ function _updateSectionActions() {
 
     Array.from(headerGroup.children).forEach(btn => {
         btn.dataset.wizardSource = section.id;
-        left.appendChild(btn);
+        btn.classList.add('touch');
+        _headerLeft.appendChild(btn);
     });
 }
 
