@@ -799,7 +799,7 @@ async function handleSaveProduct(shouldClose = true) {
 /**
  * Оновити форму модала свіжими даними зі стейту
  */
-export function refreshProductModal(isManual = false) {
+export async function refreshProductModal(isManual = false) {
     if (!currentProductId) return;
     const product = getProductById(currentProductId);
     if (!product) return;
@@ -809,7 +809,20 @@ export function refreshProductModal(isManual = false) {
     fillProductForm(product);
 
     if (!isManual) {
-        showToast('Дані оновлено іншим користувачем', 'info', {
+        // Визначити хто змінив
+        let who = '';
+        if (product.updated_by && product.updated_by !== window.currentUser?.username) {
+            try {
+                const { resolveUser } = await import('./products-crud-info.js');
+                const user = await resolveUser(product.updated_by);
+                who = user?.display_name || product.updated_by;
+            } catch { /* fallback */ }
+        }
+        const msg = who
+            ? `Товар змінено — ${who}`
+            : 'Дані оновлено іншим користувачем';
+
+        showToast(msg, 'info', {
             duration: 8000,
             action: {
                 label: 'Відмінити',

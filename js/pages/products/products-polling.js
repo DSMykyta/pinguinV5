@@ -27,8 +27,8 @@ const PRODUCTS_GID = '0';
 const VARIANTS_SHEET = 'ProductVariants';
 
 async function fetchProducts() {
-    const csvUrl = `https://docs.google.com/spreadsheets/d/${PRODUCTS_SPREADSHEET_ID}/export?format=csv&gid=${PRODUCTS_GID}`;
-    const response = await fetch(csvUrl);
+    const csvUrl = `https://docs.google.com/spreadsheets/d/${PRODUCTS_SPREADSHEET_ID}/export?format=csv&gid=${PRODUCTS_GID}&_t=${Date.now()}`;
+    const response = await fetch(csvUrl, { cache: 'no-store' });
     if (!response.ok) return [];
 
     const csvText = await response.text();
@@ -179,6 +179,12 @@ const polling = createPolling({
     async onChanged() {
         console.log('🔄 Polling: виявлено зміни в товарах/варіантах');
         await refreshData();
+
+        // Оновити відкритий модал, якщо є
+        const { refreshProductModal, getCurrentProductId } = await import('./products-crud.js');
+        if (getCurrentProductId()) {
+            refreshProductModal();
+        }
     },
 });
 

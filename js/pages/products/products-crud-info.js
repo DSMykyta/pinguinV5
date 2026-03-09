@@ -79,7 +79,7 @@ async function loadUsersCache() {
 // RESOLVE USER
 // ═══════════════════════════════════════════════════════════════════════════
 
-async function resolveUser(username) {
+export async function resolveUser(username) {
     if (!username) return null;
 
     // 1. window.currentUser
