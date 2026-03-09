@@ -14,28 +14,15 @@
 import { getProductById } from './products-data.js';
 import { getCharacteristics, getOptions, loadCharacteristics, loadOptions } from '../mapper/mapper-data-own.js';
 import { escapeHtml } from '../../utils/utils-text.js';
+import { parseSpecJson } from '../../utils/utils-json.js';
 import { initCustomSelects } from '../../components/forms/select.js';
 import { buildParentChildMap, initParentChildListeners, filterChildOptions } from './products-crud-hierarchy.js';
 import { displayName, resolveNameFromCharsAndSpecs } from './products-crud-variant-names.js';
 import { initInlinePhotos, getInlinePhotoUrls } from './products-crud-variant-photos-inline.js';
 import { runHook } from './products-plugins.js';
 
-// ═══════════════════════════════════════════════════════════════════════════
-// SPEC JSON PARSER
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Parse spec JSON — backward-compatible with legacy single string
- * @returns {Object} { char_id: "value", ... }
- */
-export function parseSpecJson(raw) {
-    if (!raw) return {};
-    try {
-        const parsed = JSON.parse(raw);
-        if (typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
-    } catch { /* not JSON */ }
-    return {};
-}
+// Re-export для зворотної сумісності
+export { parseSpecJson };
 
 // ═══════════════════════════════════════════════════════════════════════════
 // RENDER VARIANT CHARACTERISTICS (block 8)

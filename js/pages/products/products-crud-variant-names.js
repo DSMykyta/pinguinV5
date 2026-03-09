@@ -13,7 +13,7 @@
 import { getCharacteristics, getOptions } from '../mapper/mapper-data-own.js';
 import { getProductById } from './products-data.js';
 import { buildParentChildMap } from './products-crud-hierarchy.js';
-import { parseSpecJson } from './products-crud-variant-chars.js';
+import { parseSpecJson } from '../../utils/utils-json.js';
 import { applyFilter } from './products-plugins.js';
 /**
  * Утиліта: перетворити name_ua/name_ru (JSON або рядок) на текст для відображення.

@@ -245,7 +245,8 @@ function initBrandChangeHandler() {
 
     brandSelect.addEventListener('change', () => {
         populateLineSelect(brandSelect.value);
-        reinitializeCustomSelect(document.getElementById('product-line'));
+        const lineSelect = document.getElementById('product-line');
+        if (lineSelect) reinitializeCustomSelect(lineSelect);
     });
 
     brandSelect.dataset.changeInited = '1';
@@ -422,19 +423,15 @@ async function updateCharacteristicsNav(blockNumbers) {
 /**
  * Отримати дані з форми
  */
-function getProductFormData() {
+async function getProductFormData() {
     const characteristics = getCharacteristicsData();
 
-    // Фото — JSON array
+    // Фото — JSON array (import getPhotoUrls from photos plugin)
     let imageUrl = '';
     try {
-        const photosGrid = document.getElementById('product-photos-grid');
-        if (photosGrid && photosGrid._getPhotoUrls) {
-            const urls = photosGrid._getPhotoUrls();
-            imageUrl = urls.length > 0 ? JSON.stringify(urls) : '';
-        } else {
-            imageUrl = document.getElementById('product-image-url')?.value.trim() || '';
-        }
+        const { getPhotoUrls } = await import('./products-crud-photos.js');
+        const urls = getPhotoUrls();
+        imageUrl = urls.length > 0 ? JSON.stringify(urls) : '';
     } catch {
         imageUrl = document.getElementById('product-image-url')?.value.trim() || '';
     }
@@ -583,7 +580,6 @@ function fillProductForm(product) {
     updateGeneratedNames(currentProductId);
 
     // Інформація (метадані)
-    // Інформація (метадані)
     try {
         import('./products-crud-info.js').then(({ fillInfoSection }) => {
             fillInfoSection(product);
@@ -704,7 +700,7 @@ export { isProductUrlUnique };
  * Обробник збереження товару
  */
 async function handleSaveProduct(shouldClose = true) {
-    const productData = getProductFormData();
+    const productData = await getProductFormData();
     const isNew = !currentProductId;
 
     // Фільтр перед збереженням (плагіни: article, тощо)
@@ -788,7 +784,7 @@ export async function refreshProductModal(isManual = false) {
     const product = getProductById(currentProductId);
     if (!product) return;
 
-    const snapshot = getProductFormData();
+    const snapshot = await getProductFormData();
 
     fillProductForm(product);
 
