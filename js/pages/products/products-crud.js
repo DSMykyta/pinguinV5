@@ -679,6 +679,15 @@ function _onNameFieldChange() {
         () => textEditorUa?.getPlainText() || '',
         () => textEditorRu?.getPlainText() || ''
     );
+
+    // Динамічно оновити заголовок модалу
+    const titleEl = document.getElementById('product-modal-title');
+    if (titleEl) {
+        const shortName = document.getElementById('product-generated-short-ua')?.value?.trim();
+        const text = shortName || 'Новий товар';
+        titleEl.textContent = text;
+        titleEl.title = text;
+    }
 }
 
 // Re-export name builders for external consumers

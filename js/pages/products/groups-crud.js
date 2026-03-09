@@ -15,7 +15,7 @@
  * └── Footer: зберегти + закрити (поки не натиснути — нічого не зберігається)
  */
 
-import { getProductGroups, addProductGroup, updateProductGroup, deleteProductGroup } from './groups-data.js';
+import { getProductGroups, getGroupById, addProductGroup, updateProductGroup, deleteProductGroup } from './groups-data.js';
 import { getProducts, getProductById } from './products-data.js';
 import { getBrandById } from '../brands/brands-data.js';
 import { getBrandLineById } from '../brands/lines-data.js';
@@ -318,17 +318,20 @@ async function handleSaveGroup() {
 }
 
 export async function handleDeleteGroup(groupId) {
+    const group = getGroupById(groupId);
+    const groupName = group?.name || groupId;
+
     const confirmed = await showConfirmModal({
         action: 'видалити',
         entity: 'групу',
-        name: groupId,
+        name: groupName,
     });
     if (!confirmed) return;
 
     try {
         await deleteProductGroup(groupId);
         closeModal();
-        showToast(`Групу ${groupId} видалено`, 'success');
+        showToast(`Групу «${groupName}» видалено`, 'success');
         const { renderGroupsTable } = await import('./groups-table.js');
         renderGroupsTable();
     } catch (error) {
