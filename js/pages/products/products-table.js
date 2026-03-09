@@ -177,6 +177,7 @@ function initProductsTable() {
                 id: 'delete',
                 label: 'Видалити',
                 icon: 'delete',
+                dangerous: true,
                 handler: async (selectedIds) => {
                     const { deleteProduct } = await import('./products-data.js');
                     const { showToast } = await import('../../components/feedback/toast.js');

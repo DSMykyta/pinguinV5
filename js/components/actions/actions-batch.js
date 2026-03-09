@@ -53,8 +53,9 @@ export function createBatchActionsBar(config) {
     // Створити HTML кнопок
     const actionsHTML = actions.map(action => {
         const btnClass = action.primary ? 'btn-primary' : 'btn-ghost';
+        const extra = action.dangerous ? ' danger' : '';
         return `
-            <button class="${btnClass}" data-action="${action.id || action.label}">
+            <button class="${btnClass}${extra}" data-action="${action.id || action.label}">
                 <span class="material-symbols-outlined">${action.icon}</span>
                 ${action.label}
             </button>
