@@ -89,8 +89,6 @@ export async function renderVariantCharacteristics(productId, savedValues, varia
 
     let html = `
         <div class="grid">
-            <div class="group column col-12">
-            </div>
     `;
 
     // Build parent-child map для ієрархічних опцій
@@ -130,7 +128,7 @@ export async function renderVariantCharacteristics(productId, savedValues, varia
     container.innerHTML = html;
 
     // Хук: плагіни можуть додати свої поля (наприклад, вага)
-    runHook('onCharsRender', container, savedValues);
+    runHook('onCharsRender', container, savedValues, variantData);
 
     initCustomSelects(container);
 
@@ -660,7 +658,7 @@ export async function renderPendingVariantCharacteristics(categoryId, pendingVar
         html += '</div>';
         container.innerHTML = html;
 
-        runHook('onCharsRender', container, savedValues);
+        runHook('onCharsRender', container, savedValues, pv);
 
         initCustomSelects(container);
         if (parentChildMap.size > 0) {
@@ -723,7 +721,7 @@ export async function renderExistingVariantCharacteristics(categoryId, variants)
         html += '</div>';
         container.innerHTML = html;
 
-        runHook('onCharsRender', container, savedValues);
+        runHook('onCharsRender', container, savedValues, v);
 
         initCustomSelects(container);
         if (parentChildMap.size > 0) {

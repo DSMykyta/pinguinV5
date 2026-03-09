@@ -252,7 +252,7 @@ async function _handleRowSave(rowEl) {
         const productId = _getCurrentProductId?.();
         if (productId) {
             // Існуючий товар — зберегти в API одразу
-            const genNames = computeVariantGeneratedNames(productId, resolved.ua, resolved.ru, formData.variant_chars);
+            const genNames = computeVariantGeneratedNames(productId, resolved.ua, resolved.ru, formData.variant_chars, formData.weight);
             Object.assign(formData, genNames);
             try {
                 await addProductVariant({ product_id: productId, ...formData });
@@ -275,7 +275,7 @@ async function _handleRowSave(rowEl) {
     // ── Existing variant: API ──
     const productId = _getCurrentProductId?.();
     if (productId) {
-        const genNames = computeVariantGeneratedNames(productId, resolved.ua, resolved.ru, formData.variant_chars);
+        const genNames = computeVariantGeneratedNames(productId, resolved.ua, resolved.ru, formData.variant_chars, formData.weight);
         Object.assign(formData, genNames);
     }
 
@@ -618,7 +618,7 @@ async function handleSaveVariant(shouldClose = true) {
 
         if (existingProductId) {
             // Існуючий товар — зберігаємо pending одразу в API
-            const genNames = computeVariantGeneratedNames(existingProductId, formData.name_ua, formData.name_ru, formData.variant_chars);
+            const genNames = computeVariantGeneratedNames(existingProductId, formData.name_ua, formData.name_ru, formData.variant_chars, formData.weight);
             Object.assign(formData, genNames);
             formData.product_id = existingProductId;
             try {
@@ -652,7 +652,7 @@ async function handleSaveVariant(shouldClose = true) {
     const productId = formData.product_id;
 
     // Обчислити згенеровані назви (variant_chars для плагіна ваги)
-    const genNames = computeVariantGeneratedNames(productId, formData.name_ua, formData.name_ru, formData.variant_chars);
+    const genNames = computeVariantGeneratedNames(productId, formData.name_ua, formData.name_ru, formData.variant_chars, formData.weight);
     Object.assign(formData, genNames);
 
     try {

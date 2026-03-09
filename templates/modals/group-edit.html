@@ -2,8 +2,11 @@
     <div class="modal-container">
         <!-- Header -->
         <div class="modal-header">
-            <h2><span id="group-modal-title">Нова група</span></h2>
-            <div class="group">
+            <div class="modal-left">
+                <h2><span id="group-modal-title">Нова група</span></h2>
+            </div>
+            <div class="modal-center"></div>
+            <div class="modal-right">
                 <div class="switch switch-fit" id="group-type-switch">
                     <input type="radio" id="group-type-label" name="group-type" value="label" checked>
                     <label for="group-type-label" class="switch-label">Ознака</label>
@@ -45,6 +48,9 @@
 
         <!-- Footer -->
         <div class="modal-footer">
+            <button type="button" class="btn-icon touch danger u-hidden" id="btn-delete-group" data-tooltip="Видалити" data-tooltip-always aria-label="Видалити">
+                <span class="material-symbols-outlined">delete</span>
+            </button>
             <div class="modal-left"></div>
             <div class="modal-center"></div>
             <div class="modal-right"></div>

@@ -171,7 +171,7 @@ export function resolveVariantName() {
  * @param {string} variantNameUa
  * @param {string} variantNameRu
  */
-export function computeVariantGeneratedNames(productId, variantNameUa, variantNameRu, variantChars = {}) {
+export function computeVariantGeneratedNames(productId, variantNameUa, variantNameRu, variantChars = {}, weight = '') {
     const product = getProductById(productId);
     if (!product) return { generated_short_ua: '', generated_short_ru: '', generated_full_ua: '', generated_full_ru: '' };
 
@@ -200,6 +200,7 @@ export function computeVariantGeneratedNames(productId, variantNameUa, variantNa
     return applyFilter('onComputeVariantNames', defaultNames, {
         product,
         variantChars,
+        weight,
         nameUaDisplay,
         nameRuDisplay
     });

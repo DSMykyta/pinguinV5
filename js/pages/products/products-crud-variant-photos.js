@@ -17,6 +17,7 @@
 import { uploadProductPhotoFile } from '../../utils/api-client.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 import { showToast } from '../../components/feedback/toast.js';
+import { SORTABLE_CONFIG } from '../../utils/common-utils.js';
 import { normalizeName } from './products-crud-photos.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -109,8 +110,7 @@ export function initVariantPhotoSection() {
         // Sortable.js для drag reorder
         if (typeof Sortable !== 'undefined') {
             new Sortable(grid, {
-                handle: '.btn-icon.drag',
-                animation: 150,
+                ...SORTABLE_CONFIG,
                 onEnd: () => {
                     const newOrder = [];
                     grid.querySelectorAll('[data-photo-index]').forEach((el, i) => {

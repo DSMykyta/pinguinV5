@@ -21,6 +21,7 @@ import { showModal, closeModal, showConfirmModal } from '../../components/modal/
 import { showToast } from '../../components/feedback/toast.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 import { populateSelect } from '../../components/forms/select.js';
+import { SORTABLE_CONFIG } from '../../utils/common-utils.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // HELPERS
@@ -232,11 +233,10 @@ function renderGroupProductsList() {
         };
     });
 
-    // Sortable.js для drag reorder (handle: .btn-icon.drag)
+    // Sortable.js для drag reorder
     if (typeof Sortable !== 'undefined') {
         new Sortable(container, {
-            handle: '.btn-icon.drag',
-            animation: 150,
+            ...SORTABLE_CONFIG,
             onEnd: () => {
                 const newOrder = [];
                 container.querySelectorAll('[data-group-product-id]').forEach(el => {
@@ -259,6 +259,18 @@ function initModalHandlers() {
 
     const saveBtn = document.getElementById('btn-save-group');
     if (saveBtn) saveBtn.onclick = () => handleSaveGroup();
+
+    const deleteBtn = document.getElementById('btn-delete-group');
+    if (deleteBtn) {
+        if (_currentGroupId) {
+            deleteBtn.classList.remove('u-hidden');
+            deleteBtn.onclick = () => {
+                handleDeleteGroup(_currentGroupId);
+            };
+        } else {
+            deleteBtn.classList.add('u-hidden');
+        }
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

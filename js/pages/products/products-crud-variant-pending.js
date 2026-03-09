@@ -94,7 +94,7 @@ export async function commitPendingVariantChanges(productId, productData, popula
         const resolved = pv.name_ua
             ? { ua: pv.name_ua, ru: pv.name_ru }
             : resolveNameFromCharsAndSpecs(pv.variant_chars, pv.spec_ua, pv.spec_ru);
-        const genNames = computeVariantGeneratedNames(productId, resolved.ua, resolved.ru, pv.variant_chars);
+        const genNames = computeVariantGeneratedNames(productId, resolved.ua, resolved.ru, pv.variant_chars, pv.weight);
 
         await addProductVariant({
             product_id: productId,

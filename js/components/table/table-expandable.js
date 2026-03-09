@@ -123,7 +123,7 @@ class ExpandablePlugin {
             // Кінцева action-комірка для close кнопки (видима завжди, кнопка — по стану)
             if (!rowEl.querySelector('[data-expand-close-cell]')) {
                 const closeCell = document.createElement('div');
-                closeCell.className = 'pseudo-table-cell col-1';
+                closeCell.className = 'pseudo-table-cell cell-align-center col-1';
                 closeCell.setAttribute('data-expand-close-cell', '');
 
                 const customContent = this.config.renderCloseCellContent
@@ -132,7 +132,7 @@ class ExpandablePlugin {
 
                 closeCell.innerHTML = `
                     ${customContent}
-                    <button class="btn-icon u-hidden" data-action="expand-close" data-tooltip="Згорнути">
+                    <button class="btn-icon c-secondary u-hidden" data-action="expand-close" data-tooltip="Згорнути">
                         <span class="material-symbols-outlined">close</span>
                     </button>`;
                 rowEl.appendChild(closeCell);
@@ -282,7 +282,7 @@ class ExpandablePlugin {
 
         if (!header.querySelector('[data-expand-close-header]')) {
             const endHeader = document.createElement('div');
-            endHeader.className = 'pseudo-table-cell col-1';
+            endHeader.className = 'pseudo-table-cell cell-align-center col-1';
             endHeader.setAttribute('data-expand-close-header', '');
 
             if (this.config.closeCellHeader) {

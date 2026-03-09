@@ -32,12 +32,6 @@ export const SELECTORS = {
     INPUT_TAG: '.tag',
 };
 
-// Конфігурація для бібліотеки Sortable.js
-export const SORTABLE_CONFIG = {
-    handle: '.btn-icon.drag',
-    animation: 150
-};
-
 // Регулярні вирази для пошуку нутрієнтів
 export const NUTRITION_PATTERNS = {
     SERVING: /Пищевая ценность|Харчова цінність/gi,

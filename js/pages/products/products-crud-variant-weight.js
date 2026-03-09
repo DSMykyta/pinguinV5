@@ -36,12 +36,12 @@ function formatWeight(raw, lang) {
 const WEIGHT_CHAR_ID = 'char-000022';
 
 export function init(state) {
-    registerProductsPlugin('onCharsRender', (container, savedValues) => {
+    registerProductsPlugin('onCharsRender', (container, savedValues, variantData) => {
         if (!container) return;
         // Не дублювати
         if (container.querySelector(`[data-vchar-id="${WEIGHT_CHAR_ID}"]`)) return;
 
-        const saved = savedValues?.[WEIGHT_CHAR_ID] || '';
+        const saved = variantData?.weight || '';
 
         const weightField = document.createElement('div');
         weightField.className = 'group column col-2';
@@ -63,17 +63,22 @@ export function init(state) {
         (grid || container).prepend(weightField);
     });
 
-    // Перед збереженням: char-000022 → окрема колонка weight
+    // Перед збереженням: поле ваги → колонка weight (не в variant_chars)
     state.registerFilter('onBeforeVariantSave', (formData) => {
-        const weightVal = formData.variant_chars?.[WEIGHT_CHAR_ID]?.trim();
-        formData.weight = weightVal || '';
+        const weightInput = document.querySelector(`[data-vchar-id="${WEIGHT_CHAR_ID}"]`);
+        const weightVal = weightInput?.value?.trim() || '';
+        formData.weight = weightVal;
+        // Видаляємо з variant_chars — вага живе тільки в колонці weight
+        if (formData.variant_chars) {
+            delete formData.variant_chars[WEIGHT_CHAR_ID];
+        }
         return formData;
     }, { plugin: 'variant-weight' });
 
     // Фільтр для генерації назви: якщо variant_chars містить char-000022 (вагу),
     // збираємо назву заново з частин товару, замінюючи variation на форматовану вагу
     state.registerFilter('onComputeVariantNames', (names, ctx) => {
-        const raw = ctx.variantChars?.[WEIGHT_CHAR_ID]?.trim();
+        const raw = (ctx.weight || ctx.variantChars?.[WEIGHT_CHAR_ID] || '').toString().trim();
         if (!raw) return names;
 
         const weightUa = formatWeight(raw, 'ua');

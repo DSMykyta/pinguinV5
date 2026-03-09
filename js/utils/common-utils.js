@@ -85,3 +85,11 @@ export function formatDate(date) {
     const year = String(date.getFullYear()).slice(-2);
     return `${day}.${month}.${year}`;
 }
+
+/**
+ * Конфігурація для бібліотеки Sortable.js
+ */
+export const SORTABLE_CONFIG = {
+    handle: '.btn-icon.drag',
+    animation: 150
+};
