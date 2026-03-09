@@ -10,8 +10,8 @@
  * CRUD операції для груп товарів через Google Sheets API.
  * Група = набір пов'язаних товарів (різна вага, дозування тощо).
  *
- * СТРУКТУРА КОЛОНОК (Google Sheets - ProductGroups):  A:C (3 колонки)
- * A: group_id | B: product_type | C: product_ids (JSON масив)
+ * СТРУКТУРА КОЛОНОК (Google Sheets - ProductGroups):  A:D (4 колонки)
+ * A: group_id | B: name | C: product_type | D: product_ids (JSON масив)
  */
 
 import { productsState } from './products-state.js';
@@ -67,7 +67,7 @@ export function getGroupByProductId(productId) {
 export async function loadProductGroups() {
     try {
         const result = await callSheetsAPI('get', {
-            range: `${SHEET_NAME}!A:C`,
+            range: `${SHEET_NAME}!A:D`,
             spreadsheetType: 'products'
         });
 
@@ -80,8 +80,9 @@ export async function loadProductGroups() {
 
         productsState.productGroups = dataRows.map((row, index) => ({
             group_id: row[0] || '',
-            product_type: row[1] || 'label',
-            product_ids: safeJsonParse(row[2], []),
+            name: row[1] || '',
+            product_type: row[2] || 'label',
+            product_ids: safeJsonParse(row[3], []),
             _rowIndex: index + 2
         }));
 
@@ -128,14 +129,15 @@ export async function addProductGroup(productType, productIds) {
 
         const newGroup = {
             group_id: newId,
+            name: '',
             product_type: productType || 'label',
             product_ids: productIds || [],
             _rowIndex: (productsState.productGroups || []).length + 2
         };
 
         await callSheetsAPI('append', {
-            range: `${SHEET_NAME}!A:C`,
-            values: [[newGroup.group_id, newGroup.product_type, JSON.stringify(newGroup.product_ids)]],
+            range: `${SHEET_NAME}!A:D`,
+            values: [[newGroup.group_id, newGroup.name, newGroup.product_type, JSON.stringify(newGroup.product_ids)]],
             spreadsheetType: 'products'
         });
 
@@ -167,11 +169,11 @@ export async function updateProductGroup(groupId, productType, productIds) {
             throw new Error(`Групу ${groupId} не знайдено`);
         }
 
-        const range = `${SHEET_NAME}!A${group._rowIndex}:C${group._rowIndex}`;
+        const range = `${SHEET_NAME}!A${group._rowIndex}:D${group._rowIndex}`;
 
         await callSheetsAPI('update', {
             range: range,
-            values: [[group.group_id, productType, JSON.stringify(productIds)]],
+            values: [[group.group_id, group.name, productType, JSON.stringify(productIds)]],
             spreadsheetType: 'products'
         });
 

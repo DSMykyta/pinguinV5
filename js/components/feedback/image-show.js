@@ -28,40 +28,13 @@ function onMouseOver(e) {
         clearTimers();
         currentImg = img;
         showTimer = setTimeout(() => showPopup(img, e), 1000);
-        return;
-    }
-
-    // Якщо миша зайшла на popup — скасувати приховування
-    if (popup && popup.contains(e.target)) {
-        clearTimeout(hideTimer);
-        hideTimer = null;
     }
 }
 
 function onMouseOut(e) {
     const img = e.target.closest('img[show]');
     if (img && img === currentImg) {
-        const to = e.relatedTarget;
-
-        // Якщо переходимо на popup — не ховати одразу
-        if (popup && (popup === to || popup.contains(to))) {
-            return;
-        }
-
         scheduleHide();
-        return;
-    }
-
-    // Якщо миша виходить з popup
-    if (popup && popup.contains(e.target)) {
-        const to = e.relatedTarget;
-
-        // Якщо повертаємось на тригер img — не ховати
-        if (to && to.closest('img[show]') === currentImg) {
-            return;
-        }
-
-        hidePopup();
     }
 }
 

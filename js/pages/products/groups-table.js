@@ -30,10 +30,6 @@ registerActionHandlers('groups-page', {
         const { showEditGroupModal } = await import('./groups-crud.js');
         await showEditGroupModal(rowId);
     },
-    delete: async (rowId) => {
-        const { handleDeleteGroup } = await import('./groups-crud.js');
-        await handleDeleteGroup(rowId);
-    },
 });
 
 let _groupsPageManagedTable = null;
@@ -47,8 +43,8 @@ function getColumns() {
     return [
         col('group_id', 'ID', 'tag', { span: 2 }),
         col('products_list', 'Товари', 'text', { span: 6 }),
-        col('product_type_label', 'Тип', 'text', { span: 2 }),
-        col('products_count', 'Кількість', 'text', { span: 1, align: 'right' }),
+        col('product_type_label', 'Тип', 'tag', { span: 2 }),
+        col('products_count', 'Кількість', 'binding-chip', { span: 1 }),
     ];
 }
 
@@ -74,7 +70,6 @@ function initGroupsPageTable() {
             rowActionsHeader: ' ',
             rowActions: (row) => `
                 ${actionButton({ action: 'edit', rowId: row.group_id, context: 'groups-page' })}
-                ${actionButton({ action: 'delete', rowId: row.group_id, context: 'groups-page', icon: 'close' })}
             `,
             getRowId: (row) => row.group_id,
             emptyState: { message: 'Групи не знайдено' },
@@ -89,7 +84,7 @@ function initGroupsPageTable() {
                         group_id: 'id-text',
                         products_list: 'string',
                         product_type_label: 'string',
-                        products_count: 'number',
+                        products_count: 'binding-chip',
                     }
                 }
             }
@@ -101,14 +96,18 @@ function initGroupsPageTable() {
                 productMap[p.product_id] = p.generated_short_ua || p.name_ua || p.product_id;
             });
 
-            return data.map(g => ({
-                ...g,
-                products_list: g.product_ids
-                    .map(id => productMap[id] || id)
-                    .join(', '),
-                product_type_label: getTypeLabel(g.product_type),
-                products_count: g.product_ids.length,
-            }));
+            return data.map(g => {
+                const productNames = g.product_ids.map(id => productMap[id] || id);
+                return {
+                    ...g,
+                    products_list: g.name || productNames.join(', '),
+                    product_type_label: getTypeLabel(g.product_type),
+                    products_count: {
+                        count: g.product_ids.length,
+                        tooltip: productNames.join('\n')
+                    }
+                };
+            });
         },
         preFilter: null,
         pageSize: null,
