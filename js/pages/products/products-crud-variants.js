@@ -242,7 +242,10 @@ async function _handleRowSave(rowEl) {
     const variantId = rowEl.dataset.rowId;
     if (!variantId) return;
 
-    const formData = readRowFormValues(rowEl);
+    let formData = readRowFormValues(rowEl);
+
+    // Плагін ваги: char-000022 → weight
+    formData = applyFilter('onBeforeVariantSave', formData);
 
     // Resolve variant name from chars + per-char specs
     const resolved = resolveNameFromCharsAndSpecs(formData.variant_chars, formData.spec_ua, formData.spec_ru);

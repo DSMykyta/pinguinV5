@@ -120,7 +120,7 @@ function safeJsonParse(value, defaultValue = null) {
  * @param {Array<string>} productIds - Масив ID товарів
  * @returns {Promise<Object>} Додана група
  */
-export async function addProductGroup(productType, productIds) {
+export async function addProductGroup(productType, productIds, name = '') {
     const { pausePolling, resumePolling } = await import('./products-polling.js');
     pausePolling();
 
@@ -129,7 +129,7 @@ export async function addProductGroup(productType, productIds) {
 
         const newGroup = {
             group_id: newId,
-            name: '',
+            name,
             product_type: productType || 'label',
             product_ids: productIds || [],
             _rowIndex: (productsState.productGroups || []).length + 2
@@ -159,7 +159,7 @@ export async function addProductGroup(productType, productIds) {
  * @param {Array<string>} productIds - Новий масив ID товарів
  * @returns {Promise<Object>} Оновлена група
  */
-export async function updateProductGroup(groupId, productType, productIds) {
+export async function updateProductGroup(groupId, productType, productIds, name) {
     const { pausePolling, resumePolling } = await import('./products-polling.js');
     pausePolling();
 
@@ -170,6 +170,8 @@ export async function updateProductGroup(groupId, productType, productIds) {
         }
 
         const range = `${SHEET_NAME}!A${group._rowIndex}:D${group._rowIndex}`;
+
+        if (name !== undefined) group.name = name;
 
         await callSheetsAPI('update', {
             range: range,

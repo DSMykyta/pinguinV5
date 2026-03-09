@@ -41,7 +41,7 @@ export function init(state) {
         // Не дублювати
         if (container.querySelector(`[data-vchar-id="${WEIGHT_CHAR_ID}"]`)) return;
 
-        const saved = variantData?.weight || '';
+        const saved = variantData?.weight || variantData?.variant_chars?.[WEIGHT_CHAR_ID] || '';
 
         const weightField = document.createElement('div');
         weightField.className = 'group column col-3';

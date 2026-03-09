@@ -16,7 +16,9 @@
  */
 
 import { getProductGroups, addProductGroup, updateProductGroup, deleteProductGroup } from './groups-data.js';
-import { getProducts } from './products-data.js';
+import { getProducts, getProductById } from './products-data.js';
+import { getBrandById } from '../brands/brands-data.js';
+import { getBrandLineById } from '../brands/lines-data.js';
 import { showModal, closeModal, showConfirmModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { escapeHtml } from '../../utils/text-utils.js';
@@ -277,6 +279,17 @@ function initModalHandlers() {
 // SAVE / DELETE
 // ═══════════════════════════════════════════════════════════════════════════
 
+function resolveGroupName(productIds) {
+    if (!productIds.length) return '';
+    const product = getProductById(productIds[0]);
+    if (!product) return '';
+
+    const brand = product.brand_id ? getBrandById(product.brand_id) : null;
+    const line = product.line_id ? getBrandLineById(product.line_id) : null;
+
+    return [brand?.name, line?.name, product.name_ua].filter(Boolean).join(' ');
+}
+
 async function handleSaveGroup() {
     if (_groupProductIds.length < 2) {
         showToast('Група повинна мати мінімум 2 товари', 'warning');
@@ -284,13 +297,14 @@ async function handleSaveGroup() {
     }
 
     const productType = getTypeSwitch();
+    const name = resolveGroupName(_groupProductIds);
 
     try {
         if (_currentGroupId) {
-            await updateProductGroup(_currentGroupId, productType, _groupProductIds);
+            await updateProductGroup(_currentGroupId, productType, _groupProductIds, name);
             showToast('Групу оновлено', 'success');
         } else {
-            await addProductGroup(productType, _groupProductIds);
+            await addProductGroup(productType, _groupProductIds, name);
             showToast('Групу створено', 'success');
         }
 
@@ -313,6 +327,7 @@ export async function handleDeleteGroup(groupId) {
 
     try {
         await deleteProductGroup(groupId);
+        closeModal();
         showToast(`Групу ${groupId} видалено`, 'success');
         const { renderGroupsTable } = await import('./groups-table.js');
         renderGroupsTable();
