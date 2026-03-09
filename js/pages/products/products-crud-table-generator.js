@@ -78,13 +78,17 @@ async function handleInsert() {
     const htmlResult = generateHtmlTable();
     const brResult = generateBrText();
 
-    // Код складу → UA editor
+    // Код складу → UA + RU editors
     const codeUa = document.querySelector('#product-composition-code-ua-editor [contenteditable]');
     if (codeUa && htmlResult) codeUa.innerHTML = htmlResult;
+    const codeRu = document.querySelector('#product-composition-code-ru-editor [contenteditable]');
+    if (codeRu && htmlResult) codeRu.innerHTML = htmlResult;
 
-    // 1 порція → UA editor
+    // 1 порція → UA + RU editors
     const notesUa = document.querySelector('#product-composition-notes-ua-editor [contenteditable]');
     if (notesUa && brResult) notesUa.innerHTML = brResult;
+    const notesRu = document.querySelector('#product-composition-notes-ru-editor [contenteditable]');
+    if (notesRu && brResult) notesRu.innerHTML = brResult;
 
     showToast('Склад додано в секції', 'success');
 }
