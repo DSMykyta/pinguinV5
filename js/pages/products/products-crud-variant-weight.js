@@ -44,7 +44,7 @@ export function init(state) {
         const saved = variantData?.weight || '';
 
         const weightField = document.createElement('div');
-        weightField.className = 'group column col-2';
+        weightField.className = 'group column col-3';
         weightField.innerHTML = `
             <label for="variant-char-${WEIGHT_CHAR_ID}" class="label-l">Вага</label>
             <div class="content-bloc"><div class="content-line"><div class="input-box">
