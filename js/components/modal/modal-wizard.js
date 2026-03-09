@@ -97,8 +97,17 @@ export function destroyWizard(container) {
 
     if (_container) _container.classList.remove('wizard-mode');
 
-    // Повернути footer: видалити wizard елементи, показати оригінальні
+    // Повернути кнопки секцій на місце перед видаленням wizard елементів
     if (_footer) {
+        _footer.querySelectorAll('[data-wizard-source]').forEach(btn => {
+            const sourceId = btn.dataset.wizardSource;
+            const source = _container?.querySelector(`#${CSS.escape(sourceId)} .section-header .group`);
+            if (source) {
+                delete btn.dataset.wizardSource;
+                source.appendChild(btn);
+            }
+        });
+        // Видалити wizard елементи, показати оригінальні
         _footer.querySelectorAll('[data-wizard]').forEach(el => el.remove());
         _footer.querySelectorAll('[data-wizard-original]').forEach(el => {
             delete el.dataset.wizardOriginal;
@@ -224,6 +233,9 @@ function _updateUI() {
         if (h1) h1.textContent = name;
     }
 
+    // Section actions → wizard footer left
+    _updateSectionActions();
+
     // Dots
     _updateDots();
 }
@@ -310,6 +322,36 @@ function _buildDots() {
     });
 
     _headerCenter.appendChild(_dotsContainer);
+}
+
+/**
+ * Переносить кнопки з section-header .group поточної секції у wizard footer left.
+ * При зміні кроку — повертає назад.
+ */
+function _updateSectionActions() {
+    const left = _footer?.querySelector('[data-wizard="left"]');
+    if (!left) return;
+
+    // Повернути попередні кнопки на місце
+    left.querySelectorAll('[data-wizard-source]').forEach(btn => {
+        const sourceId = btn.dataset.wizardSource;
+        const source = _container?.querySelector(`#${CSS.escape(sourceId)} .section-header .group`);
+        if (source) {
+            delete btn.dataset.wizardSource;
+            source.appendChild(btn);
+        }
+    });
+
+    // Забрати кнопки з поточної секції
+    const section = _sections[_currentStep];
+    if (!section) return;
+    const headerGroup = section.querySelector('.section-header .group');
+    if (!headerGroup) return;
+
+    Array.from(headerGroup.children).forEach(btn => {
+        btn.dataset.wizardSource = section.id;
+        left.appendChild(btn);
+    });
 }
 
 function _updateDots() {
