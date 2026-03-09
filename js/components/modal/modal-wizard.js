@@ -45,9 +45,14 @@ export function initWizard(container) {
     _originalLeft = _headerLeft?.innerHTML ?? '';
 
     // Зібрати всі секції (блок 6 "Куди це?" пропускається)
-    _sections = Array.from(
+    const allSections = Array.from(
         _main.querySelectorAll(':scope > section, :scope > div > section')
-    ).filter(sec => sec.id !== 'section-product-block-6');
+    );
+    _sections = allSections.filter(sec => sec.id !== 'section-product-block-6');
+
+    // Сховати виключені секції
+    allSections.filter(sec => sec.id === 'section-product-block-6')
+        .forEach(sec => sec.classList.add('u-hidden'));
 
     if (_sections.length === 0) { console.warn('[Wizard] no sections'); return; }
 
@@ -81,6 +86,10 @@ export function refreshWizard() {
 
     // Зібрати всі секції (блок 6 "Куди це?" пропускається)
     _sections = Array.from(all).filter(sec => sec.id !== 'section-product-block-6');
+
+    // Сховати виключені секції
+    Array.from(all).filter(sec => sec.id === 'section-product-block-6')
+        .forEach(sec => sec.classList.add('u-hidden'));
 
     if (_sections.length === 0) return;
     if (_currentStep >= _sections.length) _currentStep = _sections.length - 1;
@@ -119,13 +128,15 @@ export function destroyWizard(container) {
     if (_headerCenter) _headerCenter.innerHTML = _originalCenter;
     if (_headerLeft) _headerLeft.innerHTML = _originalLeft;
 
-    // Показати всі секції, прибрати inline стилі
-    _sections.forEach(sec => {
-        sec.classList.remove('u-hidden');
-        sec.style.cssText = '';
-        const header = sec.querySelector('.section-header');
-        if (header) header.style.display = '';
-    });
+    // Показати всі секції (включно з виключеними), прибрати inline стилі
+    if (_main) {
+        _main.querySelectorAll(':scope > section, :scope > div > section').forEach(sec => {
+            sec.classList.remove('u-hidden');
+            sec.style.cssText = '';
+            const header = sec.querySelector('.section-header');
+            if (header) header.style.display = '';
+        });
+    }
 
     _sections = [];
     _container = null;
