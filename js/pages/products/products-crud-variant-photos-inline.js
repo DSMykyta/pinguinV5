@@ -7,13 +7,15 @@
  *
  * Per-row photo management для expandable рядків таблиці варіантів.
  * Кожен рядок має свій окремий стан (Map<rowId, urls[]>).
- * Без головного прев'ю — тільки dropzone + photo grid.
+ * Логіка ідентична модалу варіанту (drag, Sortable, назви файлів).
  */
 
 import { uploadProductPhotoFile } from '../../utils/api-client.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { registerProductsPlugin } from './products-plugins.js';
+import { normalizeName } from './products-crud-photos.js';
+import { SORTABLE_CONFIG } from '../../utils/common-utils.js';
 
 const MAX_PHOTOS = 10;
 
@@ -96,7 +98,7 @@ export function initInlinePhotos(rowId, imageUrl) {
         }
     });
 
-    // Grid: remove + drag
+    // Grid: remove
     if (grid) {
         grid.addEventListener('click', (e) => {
             const removeBtn = e.target.closest('[data-photo-remove]');
@@ -104,6 +106,23 @@ export function initInlinePhotos(rowId, imageUrl) {
             const index = parseInt(removeBtn.dataset.photoRemove);
             if (!isNaN(index)) removePhoto(rowId, index);
         });
+
+        // Sortable
+        if (typeof Sortable !== 'undefined') {
+            new Sortable(grid, {
+                ...SORTABLE_CONFIG,
+                onEnd: () => {
+                    const photos = getPhotos(rowId);
+                    const newOrder = [];
+                    grid.querySelectorAll('[data-photo-index]').forEach(el => {
+                        const idx = parseInt(el.dataset.photoIndex);
+                        if (!isNaN(idx) && photos[idx]) newOrder.push(photos[idx]);
+                    });
+                    _rowPhotos.set(rowId, newOrder);
+                    renderGrid(rowId);
+                },
+            });
+        }
     }
 }
 
@@ -146,16 +165,21 @@ async function handleUpload(rowId, file) {
         const productId = document.getElementById('product-id')?.value.trim() || '';
         const photoIndex = photos.length + 1;
 
-        if (!brandId) {
+        const brandName = document.getElementById('product-brand')?.selectedOptions?.[0]?.textContent?.trim() || '';
+        if (!brandId && !brandName) {
             showToast('Оберіть бренд перед завантаженням фото', 'warning');
             dropzone?.classList.remove('loading');
             return;
         }
 
-        const result = await uploadProductPhotoFile(file, brandId, productId, photoIndex, {
-            brandName: document.getElementById('product-brand')?.selectedOptions?.[0]?.textContent?.trim() || '',
-            productName: rowId,
-        });
+        const productName = buildPhotoName(rowId);
+        if (!productId && !productName) {
+            showToast('Введіть назву товару перед завантаженням фото', 'warning');
+            dropzone?.classList.remove('loading');
+            return;
+        }
+
+        const result = await uploadProductPhotoFile(file, brandId, productId, photoIndex, { brandName, productName });
 
         dropzone?.classList.remove('loading');
 
@@ -207,18 +231,26 @@ function renderGrid(rowId) {
         return;
     }
 
+    const photoBaseName = buildPhotoName(rowId);
+
     let html = '';
     photos.forEach((url, index) => {
-        const ext = url.match(/\.(\w{3,4})(?:[?#]|$)/)?.[1]?.toUpperCase() || 'IMG';
+        const urlExt = url.match(/\.(\w{3,4})(?:[?#]|$)/)?.[1] || 'jpg';
+        const fileName = `${photoBaseName}_${index + 1}.${urlExt}`;
+        const ext = urlExt.toUpperCase();
+        const isMain = index === 0;
         html += `
-            <div class="content-bloc" data-photo-index="${index}">
-                <div class="content-line">
+            <div class="content-bloc" draggable="true" data-photo-index="${index}">
+                <div class="content-line${isMain ? ' main' : ''}">
+                    <button class="btn-icon ghost drag" tabindex="-1">
+                        <span class="material-symbols-outlined">expand_all</span>
+                    </button>
                     <div class="content-line-photo">
                         <img src="${escapeHtml(url)}" alt="Фото ${index + 1}" show
                              onload="this.closest('.content-line').querySelector('.content-line-label').textContent = this.naturalWidth + '×' + this.naturalHeight">
                     </div>
                     <div class="content-line-info">
-                        <span class="content-line-name" title="${escapeHtml(url)}">Фото ${index + 1}</span>
+                        <span class="content-line-name" title="${fileName}">${fileName}</span>
                         <span class="content-line-label"></span>
                     </div>
                     <span class="tag c-tertiary">${ext}</span>
@@ -231,6 +263,25 @@ function renderGrid(rowId) {
     });
 
     grid.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
+
+function buildPhotoName(rowId) {
+    // Шукаємо variant_display з розкритого рядка
+    const nameField = document.getElementById(`${rowId}-variant-display`)
+        || document.querySelector(`[data-row-id="${rowId}"] [data-field="variant_display"]`);
+    const variantName = nameField?.value?.trim() || nameField?.textContent?.trim() || '';
+    const productId = document.getElementById('product-id')?.value.trim() || '';
+
+    const name = [productId, variantName]
+        .map(p => normalizeName(p))
+        .filter(Boolean)
+        .join('-');
+
+    return name || 'variant';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

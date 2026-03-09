@@ -144,3 +144,11 @@ export function setInitialized() {
 export function isInitialized() {
     return state.isInitialized;
 }
+
+/**
+ * Скидає state (для re-init в іншому контексті).
+ */
+export function resetState() {
+    state.rowCounter = 1;
+    state.isInitialized = false;
+}

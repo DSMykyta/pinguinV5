@@ -367,7 +367,7 @@
                 <!-- ═══════════════════════════════════════════════════════════════ -->
                 <!-- СЕКЦІЯ: ГЕНЕРАТОР ТАБЛИЦЬ (тільки wizard mode) -->
                 <!-- ═══════════════════════════════════════════════════════════════ -->
-                <section id="section-product-table-generator" class="wizard-only-section u-hidden">
+                <section id="section-product-table-generator" class="wizard-only-section u-hidden" refresh>
                     <div class="section-header">
                         <div class="section-name-block">
                             <div class="section-name">
@@ -377,7 +377,10 @@
                         </div>
                     </div>
 
-                    <div class="section-content"></div>
+                    <div class="section-content grid">
+                        <div class="col-8" id="rows-container"></div>
+                        <div class="col-4" id="wizard-table-aside"></div>
+                    </div>
                 </section>
 
                 <!-- ═══════════════════════════════════════════════════════════════ -->

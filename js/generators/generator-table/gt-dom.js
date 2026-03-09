@@ -63,3 +63,10 @@ export function resetRowsContainer() {
         domCache.rowsContainer = document.getElementById('rows-container');
     }
 }
+
+/**
+ * Скидає кеш DOM-елементів (для re-init в іншому контексті).
+ */
+export function resetDomCache() {
+    domCache = null;
+}

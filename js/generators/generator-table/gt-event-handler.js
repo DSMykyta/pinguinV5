@@ -25,11 +25,13 @@ import { copyToClipboard, debounce } from './gt-utils.js';
 import { autoSaveSession } from './gt-session-manager.js';
 import { addSampleList, addSampleTemplate } from './gt-template-helpers.js';
 
-export function setupEventListeners() {
+let _documentListenersAdded = false;
+
+export function setupEventListeners(panelEl) {
     const dom = getTableDOM();
     if (!dom.rowsContainer) return;
 
-    const rightPanel = document.querySelector('.aside');
+    const rightPanel = panelEl || document.querySelector('.aside');
     if (rightPanel) {
         rightPanel.addEventListener('click', (event) => {
             const target = event.target.closest('[id]');
@@ -56,20 +58,25 @@ export function setupEventListeners() {
         });
     }
 
-    document.addEventListener('click', (event) => {
-        const magicApplyBtn = event.target.closest('#magic-apply-btn');
-        if (magicApplyBtn) handleMagicApply();
+    // Document-level listeners — тільки один раз (не дублюються при re-init)
+    if (!_documentListenersAdded) {
+        _documentListenersAdded = true;
 
-        const modalCloseBtn = event.target.closest('[data-modal-close]');
-        if (modalCloseBtn) {
-             closeModal();
-        }
-    });
+        document.addEventListener('click', (event) => {
+            const magicApplyBtn = event.target.closest('#magic-apply-btn');
+            if (magicApplyBtn) handleMagicApply();
 
-    // Слухаємо modal-opened event для preview та magic hints
-    document.addEventListener('modal-opened', handleTablePreview);
-    document.addEventListener('modal-opened', handleMagicModalOpened);
-    document.addEventListener('modal-closed', handleMagicModalClosed);
+            const modalCloseBtn = event.target.closest('[data-modal-close]');
+            if (modalCloseBtn) {
+                 closeModal();
+            }
+        });
+
+        // Слухаємо modal-opened event для preview та magic hints
+        document.addEventListener('modal-opened', handleTablePreview);
+        document.addEventListener('modal-opened', handleMagicModalOpened);
+        document.addEventListener('modal-closed', handleMagicModalClosed);
+    }
 
     const debouncedCalculateAndSave = debounce(() => {
         calculatePercentages();

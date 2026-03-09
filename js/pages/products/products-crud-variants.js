@@ -165,12 +165,13 @@ function _ensureTable(data) {
                         closeCellHeader: 'Власні дані',
                         renderCloseCellContent: (row) => _renderCloseCellContent(row),
                         onExpand: async (rowEl, row) => {
-                            onVariantExpand(rowEl, row);
-                            // Для pending — рендеримо chars inline
+                            // Для pending — спочатку рендеримо chars (створює фото-поля через hook)
                             if (String(row.variant_id).startsWith('pending-')) {
                                 const categoryId = document.getElementById('product-category')?.value || '';
                                 if (categoryId) await _renderPendingChars(categoryId, [row]);
                             }
+                            // Потім initInlinePhotos — фото-поля вже в DOM
+                            onVariantExpand(rowEl, row);
                         },
                         onSave: (rowEl) => _handleRowSave(rowEl),
                         onOpenFull: (_rowEl, row) => {

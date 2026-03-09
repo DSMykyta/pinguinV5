@@ -22,9 +22,9 @@
  */
 
 import { registerAsideInitializer } from '../../layout/layout-main.js';
-import { getTableDOM } from './gt-dom.js';
+import { getTableDOM, resetDomCache } from './gt-dom.js';
 import { SORTABLE_CONFIG } from '../../utils/common-utils.js';
-import { setInitialized, getLoadedPlugins } from './gt-state.js';
+import { setInitialized, getLoadedPlugins, resetState } from './gt-state.js';
 
 // ============================================================================
 // CORE MODULES (завжди завантажуються)
@@ -47,11 +47,15 @@ const PLUGINS = [
 
 /** Завантажені модулі плагінів */
 const loadedModules = {};
+let _pluginsLoaded = false;
 
 /**
  * Завантажити плагіни з graceful degradation
  */
 async function loadPlugins() {
+    if (_pluginsLoaded) return;
+    _pluginsLoaded = true;
+
     const results = await Promise.allSettled(
         PLUGINS.map(path => import(path))
     );
@@ -104,7 +108,11 @@ export function callPlugin(pluginName, funcName, ...args) {
 // INITIALIZATION
 // ============================================================================
 
-async function initTableGenerator() {
+/**
+ * Ініціалізація генератора таблиць.
+ * @param {HTMLElement} [panelEl] — контейнер кнопок (замість .aside)
+ */
+async function initTableGenerator(panelEl) {
     const dom = getTableDOM();
     if (!dom.rowsContainer) return;
 
@@ -113,7 +121,7 @@ async function initTableGenerator() {
     console.log(`[GT] Loaded plugins: ${getLoadedPlugins().join(', ')}`);
 
     // 2. Ініціалізуємо core
-    setupEventListeners();
+    setupEventListeners(panelEl);
 
     // 3. Завантажуємо сесію або створюємо перший рядок
     const loadSession = getPluginFunction('gt-session-manager', 'loadSession');
@@ -136,11 +144,19 @@ async function initTableGenerator() {
     setInitialized();
 }
 
+/**
+ * Скидає генератор (для re-init при повторному відкритті модалу).
+ */
+function destroyTableGenerator() {
+    resetDomCache();
+    resetState();
+}
+
 // Реєструємо запускач
-registerAsideInitializer('aside-table', initTableGenerator);
+registerAsideInitializer('aside-table', () => initTableGenerator());
 
 // ============================================================================
 // EXPORTS
 // ============================================================================
 
-export { loadedModules, getLoadedPlugins };
+export { initTableGenerator, destroyTableGenerator, loadedModules, getLoadedPlugins };

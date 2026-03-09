@@ -111,14 +111,19 @@
     background-color: var(--color-surface-c-low);
 }
 
-/* Коли один рядок розкритий — решта приглушені й неактивні */
-.pseudo-table-container:has(.u-reveal.is-open) .pseudo-table-row:not(:has(.u-reveal.is-open)),
-.modal-body:has(.u-reveal.is-open) > .nav.column,
-.modal-body:has(.u-reveal.is-open) > .modal-aside,
-.modal-body:has(.u-reveal.is-open) ~ .modal-footer {
-    filter: blur(1px);
-    opacity: 0.2;
-    pointer-events: none;
+/* Коли один рядок розкритий — overlay поверх модалу */
+.modal-overlay:has(.u-reveal.is-open) .modal-content::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(var(--color-surface-rgb, 0 0 0), 0.8);
+    pointer-events: auto;
+    z-index: 50;
+}
+
+.modal-overlay:has(.u-reveal.is-open) .pseudo-table-row:has(.u-reveal.is-open) {
+    position: relative;
+    z-index: 51;
 }
 
 .pseudo-table-row:last-child {
