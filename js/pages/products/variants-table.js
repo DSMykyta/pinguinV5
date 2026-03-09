@@ -144,6 +144,26 @@ function initVariantsPageTable() {
         tabId: 'variants-page',
         actions: [
             {
+                id: 'deactivate',
+                label: 'Не активні',
+                icon: 'visibility_off',
+                handler: async (selectedIds) => {
+                    const { updateProductVariant } = await import('./variants-data.js');
+                    const { showToast } = await import('../../components/feedback/toast.js');
+                    try {
+                        for (const id of selectedIds) {
+                            await updateProductVariant(id, { status: 'draft' });
+                        }
+                        _variantsBatchBar.deselectAll();
+                        renderVariantsTable();
+                        showToast(`${selectedIds.length} варіант(ів) деактивовано`, 'success');
+                    } catch (error) {
+                        console.error('Batch deactivate error:', error);
+                        showToast('Помилка деактивації', 'error');
+                    }
+                }
+            },
+            {
                 id: 'delete',
                 label: 'Видалити',
                 icon: 'delete',
@@ -151,7 +171,9 @@ function initVariantsPageTable() {
                 handler: async (selectedIds) => {
                     const { deleteProductVariant } = await import('./variants-data.js');
                     const { showToast } = await import('../../components/feedback/toast.js');
-                    if (!confirm(`Видалити ${selectedIds.length} варіант(ів)?`)) return;
+                    const { showConfirmModal } = await import('../../components/modal/modal-main.js');
+                    const confirmed = await showConfirmModal({ action: 'видалити', entity: `${selectedIds.length} варіант(ів)` });
+                    if (!confirmed) return;
                     try {
                         for (const id of selectedIds) {
                             await deleteProductVariant(id);

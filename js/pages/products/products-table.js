@@ -174,6 +174,26 @@ function initProductsTable() {
                 }
             },
             {
+                id: 'deactivate',
+                label: 'Не активні',
+                icon: 'visibility_off',
+                handler: async (selectedIds) => {
+                    const { updateProduct } = await import('./products-data.js');
+                    const { showToast } = await import('../../components/feedback/toast.js');
+                    try {
+                        for (const id of selectedIds) {
+                            await updateProduct(id, { status: 'draft' });
+                        }
+                        _productsBatchBar.deselectAll();
+                        renderProductsTable();
+                        showToast(`${selectedIds.length} товар(ів) деактивовано`, 'success');
+                    } catch (error) {
+                        console.error('Batch deactivate error:', error);
+                        showToast('Помилка деактивації', 'error');
+                    }
+                }
+            },
+            {
                 id: 'delete',
                 label: 'Видалити',
                 icon: 'delete',
@@ -181,7 +201,9 @@ function initProductsTable() {
                 handler: async (selectedIds) => {
                     const { deleteProduct } = await import('./products-data.js');
                     const { showToast } = await import('../../components/feedback/toast.js');
-                    if (!confirm(`Видалити ${selectedIds.length} товар(ів)?`)) return;
+                    const { showConfirmModal } = await import('../../components/modal/modal-main.js');
+                    const confirmed = await showConfirmModal({ action: 'видалити', entity: `${selectedIds.length} товар(ів)` });
+                    if (!confirmed) return;
                     try {
                         for (const id of selectedIds) {
                             await deleteProduct(id);

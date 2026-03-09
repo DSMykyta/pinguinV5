@@ -131,7 +131,9 @@ function initGroupsPageTable() {
                 handler: async (selectedIds) => {
                     const { deleteProductGroup } = await import('./groups-data.js');
                     const { showToast } = await import('../../components/feedback/toast.js');
-                    if (!confirm(`Видалити ${selectedIds.length} груп(у)?`)) return;
+                    const { showConfirmModal } = await import('../../components/modal/modal-main.js');
+                    const confirmed = await showConfirmModal({ action: 'видалити', entity: `${selectedIds.length} груп(у)` });
+                    if (!confirmed) return;
                     try {
                         for (const id of selectedIds) {
                             await deleteProductGroup(id);
