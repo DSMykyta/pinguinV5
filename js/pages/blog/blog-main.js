@@ -32,53 +32,21 @@ async function loadPlugins() {
 
 export async function initBlog() {
     await loadPlugins();
-    initTabSwitching();
+
+    // Слухати перемикання табів (generic event від layout-plugin-nav-tabs)
+    document.addEventListener('tab-switched', (e) => {
+        const tabName = e.detail.tabId.replace('tab-', '');
+        blogState.activeTab = tabName;
+        runHook('onTabChange', tabName);
+        runHook('onRender');
+    });
+
     checkAuthAndLoadData();
 
     document.addEventListener('auth-state-changed', (event) => {
         if (event.detail.isAuthorized) {
             checkAuthAndLoadData();
         }
-    });
-}
-
-function initTabSwitching() {
-    const tabButtons = document.querySelectorAll('[data-tab-target]');
-    const tabContents = document.querySelectorAll('[data-tab-content]');
-
-    tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const targetTab = button.dataset.tabTarget;
-
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-
-            tabContents.forEach(content => {
-                if (content.dataset.tabContent === targetTab) {
-                    content.classList.add('active');
-                } else {
-                    content.classList.remove('active');
-                }
-            });
-
-            const tabName = targetTab.replace('tab-', '');
-            blogState.activeTab = tabName;
-
-            const newsContainer = document.getElementById('news-table-container');
-            const blogContainer = document.getElementById('blog-table-container');
-
-            newsContainer?._paginationCharm?.deactivate();
-            blogContainer?._paginationCharm?.deactivate();
-
-            if (tabName === 'blog') {
-                blogContainer?._paginationCharm?.activate();
-            } else {
-                newsContainer?._paginationCharm?.activate();
-            }
-
-            runHook('onTabChange', tabName);
-            runHook('onRender');
-        });
     });
 }
 

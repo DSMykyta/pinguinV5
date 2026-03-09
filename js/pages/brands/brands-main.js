@@ -67,6 +67,7 @@ import { runHook, runHookAsync } from './brands-plugins.js';
 import { initTooltips } from '../../components/feedback/tooltip.js';
 import { registerAsideInitializer } from '../../layout/layout-main.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
+import { initAsideFab } from '../../components/fab-menu.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ПЛАГІНИ - можна видалити будь-який, система працюватиме
@@ -113,8 +114,13 @@ export async function initBrands() {
     // Завантажити плагіни
     await loadPlugins();
 
-    // Ініціалізувати перемикання табів
-    initTabSwitching();
+    // Слухати перемикання табів (generic event від layout-plugin-nav-tabs)
+    document.addEventListener('tab-switched', (e) => {
+        const tabName = e.detail.tabId.replace('tab-', '');
+        brandsState.activeTab = tabName;
+        runHook('onTabChange', tabName);
+        runHook('onRender');
+    });
 
     // Перевірити авторизацію та завантажити дані
     await checkAuthAndLoadData();
@@ -166,55 +172,6 @@ async function checkAuthAndLoadData() {
 }
 
 /**
- * Ініціалізувати перемикання табів
- */
-function initTabSwitching() {
-    const tabButtons = document.querySelectorAll('[data-tab-target]');
-    const tabContents = document.querySelectorAll('[data-tab-content]');
-
-    tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const targetTab = button.dataset.tabTarget;
-
-            // Оновити активну кнопку
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-
-            // Оновити видимий контент
-            tabContents.forEach(content => {
-                if (content.dataset.tabContent === targetTab) {
-                    content.classList.add('active');
-                } else {
-                    content.classList.remove('active');
-                }
-            });
-
-            // Оновити стан
-            const tabName = targetTab.replace('tab-', '');
-            brandsState.activeTab = tabName;
-
-            // Charm pagination — deactivate/activate при tab switch
-            const brandsContainer = document.getElementById('brands-table-container');
-            const linesContainer = document.getElementById('lines-table-container');
-
-            if (tabName === 'lines') {
-                brandsContainer?._paginationCharm?.deactivate();
-                linesContainer?._paginationCharm?.activate();
-            } else {
-                linesContainer?._paginationCharm?.deactivate();
-                brandsContainer?._paginationCharm?.activate();
-            }
-
-            // Запустити хук
-            runHook('onTabChange', tabName);
-            runHook('onRender');
-
-        });
-    });
-
-}
-
-/**
  * Відрендерити стан "Потрібна авторизація"
  */
 function renderAuthRequiredState() {
@@ -249,29 +206,14 @@ function renderErrorState() {
 }
 
 registerAsideInitializer('aside-brands', () => {
-    const fabMenu = document.getElementById('fab-brands-aside');
-    if (!fabMenu) return;
-
-    fabMenu.addEventListener('click', async (e) => {
-        if (e.target.closest('.fab-menu-trigger')) {
-            fabMenu.classList.toggle('open');
-            return;
-        }
-        const item = e.target.closest('.fab-menu-item');
-        if (!item) return;
-
-        fabMenu.classList.remove('open');
-
-        if (item.id === 'btn-add-brand-aside') {
+    initAsideFab('fab-brands-aside', {
+        'btn-add-brand-aside': async () => {
             const { showAddBrandModal } = await import('./brands-crud.js');
             showAddBrandModal();
-        } else if (item.id === 'btn-add-line-aside') {
+        },
+        'btn-add-line-aside': async () => {
             const { showAddLineModal } = await import('./lines-crud.js');
             showAddLineModal();
         }
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!fabMenu.contains(e.target)) fabMenu.classList.remove('open');
     });
 });

@@ -31,6 +31,7 @@ import { createLazyLoader } from '../../utils/utils-lazy-load.js';
 import { initTooltips } from '../../components/feedback/tooltip.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { registerAsideInitializer } from '../../layout/layout-main.js';
+import { initAsideFab } from '../../components/fab-menu.js';
 
 export { mapperState } from './mapper-state.js';
 import { mapperState, runHook } from './mapper-state.js';
@@ -93,7 +94,7 @@ export async function importPluginFunction(pluginName, functionName) {
  */
 export async function initMapper() {
     initTooltips();
-    initTabSwitching();
+    initTabListener();
     await loadMapperPlugins();
     checkAuthAndLoadData();
 
@@ -105,39 +106,30 @@ export async function initMapper() {
 }
 
 /**
- * Ініціалізація перемикання табів — використовує switchMapperTab (activate/deactivate)
+ * Слухати перемикання табів (generic event від layout-plugin-nav-tabs)
  */
-function initTabSwitching() {
-    const tabButtons = document.querySelectorAll('[data-tab-target^="tab-mapper-"]');
+function initTabListener() {
+    document.addEventListener('tab-switched', async (e) => {
+        const tabId = e.detail.tabId;
+        if (!tabId.startsWith('tab-mapper-')) return;
 
-    tabButtons.forEach(button => {
-        button.addEventListener('click', async () => {
-            const tabId = button.dataset.tabTarget;
-            const newTab = tabId.replace('tab-mapper-', '');
-            const oldTab = mapperState.activeTab;
+        const newTab = tabId.replace('tab-mapper-', '');
+        const oldTab = mapperState.activeTab;
+        mapperState.activeTab = newTab;
 
-            mapperState.activeTab = newTab;
+        // switchMapperTab: deactivate old → activate new (search columns перебудовуються)
+        switchMapperTab(newTab, oldTab);
 
-            // Charm pagination — deactivate/activate при tab switch
-            const oldContainer = document.getElementById(`mapper-${oldTab}-table-container`);
-            const newContainer = document.getElementById(`mapper-${newTab}-table-container`);
-            oldContainer?._paginationCharm?.deactivate();
-            newContainer?._paginationCharm?.activate();
+        if (!window.isAuthorized) return;
 
-            // switchMapperTab: deactivate old → activate new (search columns перебудовуються)
-            switchMapperTab(newTab, oldTab);
+        // Lazy load даних для цього табу
+        await ensureTabData(newTab);
 
-            if (!window.isAuthorized) return;
+        // Ensure managed table exists
+        ensureTabManagedTable(newTab);
 
-            // Lazy load даних для цього табу
-            await ensureTabData(newTab);
-
-            // Ensure managed table exists
-            ensureTabManagedTable(newTab);
-
-            // Рендер
-            renderCurrentTab();
-        });
+        // Рендер
+        renderCurrentTab();
     });
 }
 
@@ -258,38 +250,24 @@ function renderErrorState() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 registerAsideInitializer('aside-mapper', () => {
-    // FAB speed dial — делегування подій
-    const fabMenu = document.getElementById('fab-mapper-aside');
-    if (fabMenu) {
-        fabMenu.addEventListener('click', async (e) => {
-            if (e.target.closest('.fab-menu-trigger')) {
-                fabMenu.classList.toggle('open');
-                return;
-            }
-            const item = e.target.closest('.fab-menu-item');
-            if (!item) return;
-
-            fabMenu.classList.remove('open');
-
-            if (item.id === 'btn-add-category-aside') {
-                const { showAddCategoryModal } = await import('./mapper-categories.js');
-                showAddCategoryModal();
-            } else if (item.id === 'btn-add-characteristic-aside') {
-                const { showAddCharacteristicModal } = await import('./mapper-characteristics.js');
-                showAddCharacteristicModal();
-            } else if (item.id === 'btn-add-option-aside') {
-                const { showAddOptionModal } = await import('./mapper-options.js');
-                showAddOptionModal();
-            } else if (item.id === 'btn-add-mapper-marketplace') {
-                const { showAddMarketplaceModal } = await import('./mapper-marketplaces.js');
-                showAddMarketplaceModal();
-            }
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!fabMenu.contains(e.target)) fabMenu.classList.remove('open');
-        });
-    }
+    initAsideFab('fab-mapper-aside', {
+        'btn-add-category-aside': async () => {
+            const { showAddCategoryModal } = await import('./mapper-categories.js');
+            showAddCategoryModal();
+        },
+        'btn-add-characteristic-aside': async () => {
+            const { showAddCharacteristicModal } = await import('./mapper-characteristics.js');
+            showAddCharacteristicModal();
+        },
+        'btn-add-option-aside': async () => {
+            const { showAddOptionModal } = await import('./mapper-options.js');
+            showAddOptionModal();
+        },
+        'btn-add-mapper-marketplace': async () => {
+            const { showAddMarketplaceModal } = await import('./mapper-marketplaces.js');
+            showAddMarketplaceModal();
+        }
+    });
 
     // Import button
     const importBtn = document.getElementById('btn-import-aside');

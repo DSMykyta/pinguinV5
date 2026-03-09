@@ -33,8 +33,7 @@
  * ║  ├── variants-events.js             — Обробники подій варіантів          ║
  * ║  ├── groups-table.js                — Таблиця груп (сторінка)            ║
  * ║  ├── groups-crud.js                 — CRUD операції для груп             ║
- * ║  ├── products-plugin-tabs.js        — Перемикання табів                  ║
- * ║  └── products-plugin-fab.js         — FAB меню (aside)                  ║
+ * ║  └── products-plugin-brand-status.js — Статус бренду                    ║
  * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
@@ -45,9 +44,11 @@ import { loadProductVariants } from './variants-data.js';
 import { loadProductGroups } from './groups-data.js';
 import { loadCategories, getCategories } from '../mapper/mapper-data-own.js';
 import { getBrands, loadBrands } from '../brands/brands-data.js';
-import { runHookAsync } from './products-plugins.js';
+import { runHook, runHookAsync } from './products-plugins.js';
 import { initTooltips } from '../../components/feedback/tooltip.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
+import { registerAsideInitializer } from '../../layout/layout-main.js';
+import { initAsideFab } from '../../components/fab-menu.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ПЛАГІНИ - можна видалити будь-який, система працюватиме
@@ -66,8 +67,6 @@ const PLUGINS = [
     './products-crud-variant-weight.js',
     './products-crud-article.js',
     './products-plugin-brand-status.js',
-    './products-plugin-tabs.js',
-    './products-plugin-fab.js',
 ];
 
 /**
@@ -101,6 +100,38 @@ export async function initProducts() {
 
     // Завантажити плагіни
     await loadPlugins();
+
+    // FAB aside — generic toggle/close + page-specific handlers
+    registerAsideInitializer('aside-products', () => {
+        initAsideFab('fab-products-aside', {
+            'btn-wizard-product-aside': async () => {
+                const { showAddProductModal } = await import('./products-crud.js');
+                const { setPendingWizardMode } = await import('./products-crud-wizard.js');
+                setPendingWizardMode();
+                await showAddProductModal();
+            },
+            'btn-add-group-aside': async () => {
+                const { showAddGroupModal } = await import('./groups-crud.js');
+                showAddGroupModal();
+            }
+        });
+    });
+
+    // Слухати перемикання табів (generic event від layout-plugin-nav-tabs)
+    document.addEventListener('tab-switched', (e) => {
+        const tabName = e.detail.tabId.replace('tab-', '');
+        productsState.activeTab = tabName;
+
+        // Lazy load таблиць при першому відкритті
+        if (tabName === 'variants') {
+            import('./variants-table.js').then(m => m.renderVariantsTable()).catch(() => {});
+        } else if (tabName === 'groups') {
+            import('./groups-table.js').then(m => m.renderGroupsTable()).catch(() => {});
+        }
+
+        runHook('onTabChange', tabName);
+        runHook('onRender');
+    });
 
     // Перевірити авторизацію та завантажити дані
     await checkAuthAndLoadData();

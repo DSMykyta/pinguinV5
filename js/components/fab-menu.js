@@ -13,12 +13,18 @@
  * Використовується в пагінації, speed dial, і будь-де.
  * ІДЕМПОТЕНТНИЙ: повторні виклики НЕ додають нових event listeners.
  *
- * @example
+ * @example Programmatic (pagination, speed dial):
  * initFabMenu(container, {
  *     items: [{ value: 10, label: '10' }, { value: 999999, label: 'Всі' }],
  *     value: 25,
  *     onChange: (newValue) => console.log(newValue),
  *     formatLabel: v => v > 1000 ? 'Всі' : String(v)
+ * });
+ *
+ * @example Template-based (aside panels):
+ * initAsideFab('fab-brands-aside', {
+ *     'btn-add-brand-aside': async () => { ... },
+ *     'btn-add-line-aside': async () => { ... }
  * });
  */
 
@@ -73,6 +79,38 @@ export function initFabMenu(container, { items, value, onChange, formatLabel = S
     });
 
     return makeAPI(menu, formatLabel);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// TEMPLATE-BASED FAB (aside panels)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Ініціалізує FAB меню з HTML-шаблону (aside panels).
+ * Обробляє toggle, close, outside click. Делегує item кліки до handlers.
+ * @param {string} fabMenuId - ID елемента .fab-menu
+ * @param {Object<string, Function>} handlers - Map: item.id → async handler
+ */
+export function initAsideFab(fabMenuId, handlers) {
+    const fabMenu = document.getElementById(fabMenuId);
+    if (!fabMenu) return;
+
+    fabMenu.addEventListener('click', async (e) => {
+        if (e.target.closest('.fab-menu-trigger')) {
+            fabMenu.classList.toggle('open');
+            return;
+        }
+        const item = e.target.closest('.fab-menu-item');
+        if (!item) return;
+
+        fabMenu.classList.remove('open');
+        const handler = handlers[item.id];
+        if (handler) await handler();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!fabMenu.contains(e.target)) fabMenu.classList.remove('open');
+    });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

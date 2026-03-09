@@ -16,7 +16,8 @@
  * ║  📋 ПРАВИЛА:                                                             ║
  * ║  ├── Перша вкладка активується автоматично                               ║
  * ║  ├── Активний тригер отримує клас .active                                ║
- * ║  └── Активний контент отримує клас .active                               ║
+ * ║  ├── Активний контент отримує клас .active                               ║
+ * ║  └── При перемиканні — custom event `tab-switched` на контейнері         ║
  * ║                                                                          ║
  * ║  🎯 ВИКОРИСТАННЯ:                                                        ║
  * ║  import { initTabs } from './layout/layout-main.js';                     ║
@@ -74,14 +75,28 @@ function activateTab(selectedTab) {
         tabContainer.querySelectorAll('[data-tab-target]').forEach(t => t.classList.remove('active'));
     }
 
-    // Деактивуємо весь контент (шукаємо глобально)
-    document.querySelectorAll('.tab-content.active').forEach(content => {
+    // Деактивуємо весь контент + pagination charms
+    document.querySelectorAll('[data-tab-content]').forEach(content => {
         content.classList.remove('active');
+        content.querySelectorAll('.pseudo-table-container').forEach(c => {
+            c._paginationCharm?.deactivate();
+        });
     });
 
-    // Активуємо потрібні
+    // Активуємо потрібні + pagination charms
     selectedTab.classList.add('active');
     if (targetContent) {
         targetContent.classList.add('active');
+        targetContent.querySelectorAll('.pseudo-table-container').forEach(c => {
+            c._paginationCharm?.activate();
+        });
+    }
+
+    // Custom event для page-specific логіки (state, hooks, lazy load)
+    if (tabContainer) {
+        tabContainer.dispatchEvent(new CustomEvent('tab-switched', {
+            detail: { tabId: targetId },
+            bubbles: true
+        }));
     }
 }
