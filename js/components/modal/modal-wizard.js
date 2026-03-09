@@ -15,13 +15,9 @@ let _currentStep = 0;
 let _sections = [];
 let _container = null;
 let _footer = null;
-let _headerCenter = null;
-let _headerLeft = null;
 let _main = null;
 let _dotsContainer = null;
 let _originalFooter = '';
-let _originalCenter = '';
-let _originalLeft = '';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PUBLIC
@@ -33,16 +29,12 @@ export function initWizard(container) {
 
     _container = container;
     _footer = container.querySelector('.modal-footer');
-    _headerCenter = container.querySelector('.modal-header .modal-center');
-    _headerLeft = container.querySelector('.modal-header .modal-left');
     _main = container.querySelector('.modal-body > main');
 
     if (!_main) { console.warn('[Wizard] no <main>'); return; }
 
-    // Зберегти оригінали
+    // Зберегти оригінал footer
     _originalFooter = _footer?.innerHTML ?? '';
-    _originalCenter = _headerCenter?.innerHTML ?? '';
-    _originalLeft = _headerLeft?.innerHTML ?? '';
 
     // Зібрати всі секції (блок 6 "Куди це?" пропускається)
     const allSections = Array.from(
@@ -62,7 +54,6 @@ export function initWizard(container) {
     container.classList.add('wizard-mode');
 
     _buildFooter();
-    _buildDots();
     _showStep(0);
 
     console.log(`[Wizard] activated, ${_sections.length} sections`);
@@ -94,7 +85,7 @@ export function refreshWizard() {
     if (_sections.length === 0) return;
     if (_currentStep >= _sections.length) _currentStep = _sections.length - 1;
 
-    _buildDots();
+    _updateDots();
     _showStep(_currentStep);
 
     console.log(`[Wizard] refreshed, ${_sections.length} sections`);
@@ -106,19 +97,6 @@ export function destroyWizard(container) {
 
     if (_container) _container.classList.remove('wizard-mode');
 
-    // Повернути кнопки секцій на місце (вони в headerLeft)
-    if (_headerLeft) {
-        _headerLeft.querySelectorAll('[data-wizard-source]').forEach(btn => {
-            const sourceId = btn.dataset.wizardSource;
-            const source = _container?.querySelector(`#${CSS.escape(sourceId)} .section-header .group`);
-            if (source) {
-                delete btn.dataset.wizardSource;
-                btn.classList.remove('touch');
-                source.appendChild(btn);
-            }
-        });
-    }
-
     // Видалити wizard елементи з footer, показати оригінальні
     if (_footer) {
         _footer.querySelectorAll('[data-wizard]').forEach(el => el.remove());
@@ -127,10 +105,6 @@ export function destroyWizard(container) {
             el.classList.remove('u-hidden');
         });
     }
-
-    // Повернути header
-    if (_headerCenter) _headerCenter.innerHTML = _originalCenter;
-    if (_headerLeft) _headerLeft.innerHTML = _originalLeft;
 
     // Показати всі секції (включно з виключеними), прибрати inline стилі
     if (_main) {
@@ -145,8 +119,6 @@ export function destroyWizard(container) {
     _sections = [];
     _container = null;
     _footer = null;
-    _headerCenter = null;
-    _headerLeft = null;
     _main = null;
     _dotsContainer = null;
 }
@@ -165,9 +137,6 @@ function _showStep(step) {
     if (prevStep === step) {
         // Перший показ — без анімації
         _sections.forEach((sec, i) => {
-            const header = sec.querySelector('.section-header');
-            if (header) header.style.display = 'none';
-
             if (i === step) {
                 sec.classList.remove('u-hidden');
                 sec.style.transform = 'translateX(0)';
@@ -188,10 +157,6 @@ function _showStep(step) {
 function _animateSlide(fromIdx, toIdx, direction) {
     const from = _sections[fromIdx];
     const to = _sections[toIdx];
-
-    // Ховаємо section-header
-    const toHeader = to.querySelector('.section-header');
-    if (toHeader) toHeader.style.display = 'none';
 
     // Нова секція — поза екраном
     to.classList.remove('u-hidden');
@@ -240,17 +205,6 @@ function _updateUI() {
     const save = _footer?.querySelector('[data-wizard="save"]');
     if (save) save.classList.toggle('u-hidden', !isLast);
 
-    // Title — назва секції
-    if (_headerLeft) {
-        const section = _sections[_currentStep];
-        const name = section?.querySelector('.section-header h2')?.textContent?.trim() || '';
-        const h1 = _headerLeft.querySelector('h1');
-        if (h1) h1.textContent = name;
-    }
-
-    // Section actions → wizard footer left
-    _updateSectionActions();
-
     // Dots
     _updateDots();
 }
@@ -280,15 +234,26 @@ function _buildFooter() {
     left.dataset.wizard = 'left';
     frag.appendChild(left);
 
+    // Center — dots
     const center = document.createElement('div');
     center.className = 'modal-center';
     center.dataset.wizard = 'center';
-    center.innerHTML = '<span class="body-s" data-wizard="label"></span>';
+    _dotsContainer = document.createElement('div');
+    _dotsContainer.className = 'group';
+    _dotsContainer.addEventListener('click', (e) => {
+        const dot = e.target.closest('[data-wizard-step]');
+        if (!dot) return;
+        const idx = parseInt(dot.dataset.wizardStep);
+        if (!isNaN(idx)) _showStep(idx);
+    });
+    center.appendChild(_dotsContainer);
     frag.appendChild(center);
 
+    // Right — N/N label
     const right = document.createElement('div');
     right.className = 'modal-right';
     right.dataset.wizard = 'right';
+    right.innerHTML = '<span class="body-s" data-wizard="label"></span>';
     frag.appendChild(right);
 
     const next = _createBtn('arrow_forward', 'c-main', 'next');
@@ -298,10 +263,8 @@ function _buildFooter() {
     const save = _createBtn('check', 'c-main', 'save');
     save.classList.add('u-hidden');
     save.addEventListener('click', () => {
-        // Клікаємо оригінальну save-close кнопку (прихована, але з onclick)
         const saveClose = _footer?.querySelector('[data-wizard-original][id^="save-close"]');
         if (saveClose) { saveClose.click(); return; }
-        // Fallback: aside save
         const asideSave = _container?.querySelector('.modal-aside [id^="btn-save"]');
         if (asideSave) asideSave.click();
     });
@@ -317,57 +280,6 @@ function _createBtn(icon, colorClass, wizardKey) {
     btn.dataset.wizard = wizardKey;
     btn.innerHTML = `<span class="material-symbols-outlined">${icon}</span>`;
     return btn;
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// DOTS
-// ═══════════════════════════════════════════════════════════════════════════
-
-function _buildDots() {
-    if (!_headerCenter) return;
-    _headerCenter.innerHTML = '';
-
-    _dotsContainer = document.createElement('div');
-    _dotsContainer.className = 'group';
-    _dotsContainer.addEventListener('click', (e) => {
-        const dot = e.target.closest('[data-wizard-step]');
-        if (!dot) return;
-        const idx = parseInt(dot.dataset.wizardStep);
-        if (!isNaN(idx)) _showStep(idx);
-    });
-
-    _headerCenter.appendChild(_dotsContainer);
-}
-
-/**
- * Переносить кнопки з section-header .group поточної секції в header (поряд з h1).
- * При зміні кроку — повертає назад, прибирає touch.
- */
-function _updateSectionActions() {
-    if (!_headerLeft) return;
-
-    // Повернути попередні кнопки на місце
-    _headerLeft.querySelectorAll('[data-wizard-source]').forEach(btn => {
-        const sourceId = btn.dataset.wizardSource;
-        const source = _container?.querySelector(`#${CSS.escape(sourceId)} .section-header .group`);
-        if (source) {
-            delete btn.dataset.wizardSource;
-            btn.classList.remove('touch');
-            source.appendChild(btn);
-        }
-    });
-
-    // Забрати кнопки з поточної секції
-    const section = _sections[_currentStep];
-    if (!section) return;
-    const headerGroup = section.querySelector('.section-header .group');
-    if (!headerGroup) return;
-
-    Array.from(headerGroup.children).forEach(btn => {
-        btn.dataset.wizardSource = section.id;
-        btn.classList.add('touch');
-        _headerLeft.appendChild(btn);
-    });
 }
 
 function _updateDots() {
