@@ -497,83 +497,98 @@
                         </div>
                     </div>
 
-                    <div class="section-content">
-                        <div id="product-seo-triggers" class="group wrap u-p-8"></div>
-                        <div class="grid">
-                            <!-- SEO Title (двомовний) -->
-                            <div class="group column col-12">
-                                <label class="label-l">SEO Title</label>
-                                <div class="content-bloc-container">
-                                    <div class="content-bloc">
-                                        <div class="content-line">
-                                            <div class="input-box">
-                                                <input type="text" id="product-seo-title-ua"
-                                                    placeholder="SEO заголовок українською">
-                                                <span class="tag c-secondary">UA</span>
+                    <div class="section-content grid">
+                        <!-- ЛІВА ЧАСТИНА — SEO поля -->
+                        <div class="col-10">
+                            <div class="grid">
+                                <!-- SEO Title (двомовний) -->
+                                <div class="group column col-12">
+                                    <label class="label-l">SEO Title</label>
+                                    <div class="content-bloc-container">
+                                        <div class="content-bloc">
+                                            <div class="content-line">
+                                                <div class="input-box">
+                                                    <input type="text" id="product-seo-title-ua" placeholder="SEO заголовок українською">
+                                                    <span class="tag c-secondary">UA</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="content-bloc">
+                                            <div class="content-line">
+                                                <div class="input-box">
+                                                    <input type="text" id="product-seo-title-ru" placeholder="SEO заголовок російською">
+                                                    <span class="tag c-secondary">RU</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="content-bloc">
-                                        <div class="content-line">
-                                            <div class="input-box">
-                                                <input type="text" id="product-seo-title-ru"
-                                                    placeholder="SEO заголовок російською">
-                                                <span class="tag c-secondary">RU</span>
+                                </div>
+
+                                <!-- SEO Keywords (двомовний) -->
+                                <div class="group column col-12">
+                                    <label class="label-l">SEO Keywords</label>
+                                    <div class="content-bloc-container">
+                                        <div class="content-bloc">
+                                            <div class="content-line">
+                                                <div class="input-box">
+                                                    <input type="text" id="product-seo-keywords-ua" placeholder="Ключові слова через кому">
+                                                    <span class="tag c-secondary">UA</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="content-bloc">
+                                            <div class="content-line">
+                                                <div class="input-box">
+                                                    <input type="text" id="product-seo-keywords-ru" placeholder="Ключевые слова через запятую">
+                                                    <span class="tag c-secondary">RU</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- SEO Description (двомовний) -->
+                                <div class="group column col-12">
+                                    <label class="label-l">SEO Description</label>
+                                    <div class="content-bloc-container">
+                                        <div class="content-bloc">
+                                            <div class="content-line">
+                                                <div class="input-box">
+                                                    <textarea id="product-seo-desc-ua" rows="3" placeholder="Мета-опис українською..."></textarea>
+                                                    <span class="tag c-secondary">UA</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="content-bloc">
+                                            <div class="content-line">
+                                                <div class="input-box">
+                                                    <textarea id="product-seo-desc-ru" rows="3" placeholder="Мета-опис російською..."></textarea>
+                                                    <span class="tag c-secondary">RU</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- SEO Keywords (двомовний) -->
-                            <div class="group column col-12">
-                                <label class="label-l">SEO Keywords</label>
-                                <div class="content-bloc-container">
-                                    <div class="content-bloc">
-                                        <div class="content-line">
-                                            <div class="input-box">
-                                                <input type="text" id="product-seo-keywords-ua"
-                                                    placeholder="Ключові слова через кому">
-                                                <span class="tag c-secondary">UA</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="content-bloc">
-                                        <div class="content-line">
-                                            <div class="input-box">
-                                                <input type="text" id="product-seo-keywords-ru"
-                                                    placeholder="Ключевые слова через запятую">
-                                                <span class="tag c-secondary">RU</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <!-- Trigger keywords output -->
+                            <div class="seo-triggers-output">
+                                <div id="product-trigger-titles-container" class="group wrap u-p-8"></div>
                             </div>
+                        </div>
 
-                            <!-- SEO Description (двомовний) -->
-                            <div class="group column col-12">
-                                <label class="label-l">SEO Description</label>
-                                <div class="content-bloc-container">
-                                    <div class="content-bloc">
-                                        <div class="content-line">
-                                            <div class="input-box">
-                                                <textarea id="product-seo-desc-ua" rows="3"
-                                                    placeholder="Мета-опис українською..."></textarea>
-                                                <span class="tag c-secondary">UA</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="content-bloc">
-                                        <div class="content-line">
-                                            <div class="input-box">
-                                                <textarea id="product-seo-desc-ru" rows="3"
-                                                    placeholder="Мета-опис російською..."></textarea>
-                                                <span class="tag c-secondary">RU</span>
-                                            </div>
-                                        </div>
-                                    </div>
+                        <!-- ПРАВА ЧАСТИНА — aside з тригерами -->
+                        <div class="col-2" id="product-seo-aside">
+                            <div class="panel-content-fix">
+                                <div class="content-line panel">
+                                    <span class="material-symbols-outlined">search</span>
+                                    <input type="text" id="product-search-triger" placeholder="Пошук тригера...">
+                                    <button data-clear-for="product-search-triger" class="btn-icon" style="visibility:hidden;pointer-events:none" aria-label="Очистити пошук">
+                                        <span class="material-symbols-outlined">close</span>
+                                    </button>
                                 </div>
                             </div>
+                            <div id="product-triger-buttons-container" class="group wrap scroll u-p-8"></div>
                         </div>
                     </div>
                 </section>
