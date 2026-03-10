@@ -131,17 +131,6 @@
                         </div>
                     </div>
 
-                    <!-- Keywords -->
-                    <div class="content-bloc" title="Клікнути, щоб скопіювати">
-                        <div class="content-line panel">
-                            <span class="panel-label">Keywords:</span>
-                            <div class="input-box">
-                                <input type="text" id="seo-keywords" readonly>
-                            </div>
-                            <span id="seo-keywords-counter" class="panel-counter">0/250</span>
-                        </div>
-                    </div>
-
                     <!-- Description -->
                     <div class="content-bloc" title="Клікнути, щоб скопіювати">
                         <div class="content-line panel">
@@ -150,6 +139,17 @@
                                 <input type="text" id="seo-description" readonly>
                             </div>
                             <span id="seo-description-counter" class="panel-counter">0/200</span>
+                        </div>
+                    </div>
+
+                    <!-- Keywords -->
+                    <div class="content-bloc" title="Клікнути, щоб скопіювати">
+                        <div class="content-line panel">
+                            <span class="panel-label">Keywords:</span>
+                            <div class="input-box">
+                                <input type="text" id="seo-keywords" readonly>
+                            </div>
+                            <span id="seo-keywords-counter" class="panel-counter">0/250</span>
                         </div>
                     </div>
 
@@ -178,7 +178,7 @@
             </div>
             <div class="section-content section-content-full-height">
 
-                <iframe class="image-tool-iframe" src="https://semi-shop.com.ua/5tLKV0FnOo.php?all"
+                <iframe src="https://semi-shop.com.ua/5tLKV0FnOo.php?all"
                     title="Інструмент перекладу" sandbox="allow-scripts allow-same-origin allow-forms" loading="lazy">
                 </iframe>
 
@@ -199,7 +199,7 @@
                 </div>
             </div>
             <div class="section-content section-content-full-height">
-                <div id="links-buttons-container" class="group wrap scroll u-p-8">
+                <div id="links-buttons-container" class="group wrap scroll u-p-8" scroll-fade>
                 </div>
             </div>
         </section>
@@ -219,9 +219,21 @@
             </div>
 
             <div class="section-content section-content-full-height u-p-8">
+                <div class="grid">
 
-                <div class="image-tool-container">
-                    <div class="image-tool-wrapper">
+                    <!-- Головне зображення (Canvas) -->
+                    <div class="group column col-8 photo-main-preview-wrapper">
+                        <label class="label-l">Зображення</label>
+                        <div class="content-bloc photo-main-preview" id="gim-canvas-preview">
+                            <canvas id="gim-image-canvas"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Завантаження + список зображень -->
+                    <div class="group column col-4">
+                        <label class="label-l">Галерея</label>
+
+                        <!-- Upload zone -->
                         <div class="content-bloc" id="gim-dropzone" data-dropzone>
                             <div class="content-line">
                                 <div class="input-box">
@@ -229,11 +241,11 @@
                                         placeholder="URL або перетягніть файл...">
                                 </div>
                                 <button type="button" id="gim-select-file-btn" class="btn-icon ci-action"
-                                    data-dz-pick data-tooltip="Вибрати файл">
+                                    data-dz-pick data-tooltip="Вибрати файл" data-tooltip-always>
                                     <span class="material-symbols-outlined">folder_open</span>
                                 </button>
                                 <button type="button" id="gim-load-url-btn" class="btn-icon ci-action u-hidden"
-                                    data-dz-upload data-tooltip="Додати URL">
+                                    data-dz-upload data-tooltip="Додати URL" data-tooltip-always>
                                     <span class="material-symbols-outlined">download</span>
                                 </button>
                             </div>
@@ -241,19 +253,17 @@
                                 accept="image/png, image/jpeg, image/webp, image/avif, image/gif, image/bmp, image/tiff"
                                 class="u-hidden" multiple>
                         </div>
-                        <div class="canvas-area">
-                            <canvas id="gim-image-canvas" class="image-tool-canvas--no-shadow"></canvas>
-                        </div>
 
-                    </div>
-                    <div id="gim-thumbnails-area" class="thumbnails-area">
-                        <div class="loading-state" id="gim-empty-state">
-                            <span class="material-symbols-outlined">image</span>
-                            <p>Завантажте зображення</p>
+                        <!-- Зображення-картки -->
+                        <div class="content-bloc-container photos" id="gim-thumbnails-area">
+                            <div class="loading-state" id="gim-empty-state">
+                                <span class="material-symbols-outlined">image</span>
+                                <p>Завантажте зображення</p>
+                            </div>
                         </div>
                     </div>
+
                 </div>
-
             </div>
         </section>
 

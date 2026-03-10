@@ -255,21 +255,23 @@ function renderGrid(rowId) {
         html += `
             <div class="content-bloc" draggable="true" data-photo-index="${index}">
                 <div class="content-line${isMain ? ' main' : ''}">
-                    <button class="btn-icon ghost drag" tabindex="-1">
-                        <span class="material-symbols-outlined">expand_all</span>
-                    </button>
-                    <div class="content-line-photo">
-                        <img src="${escapeHtml(url)}" alt="Фото ${index + 1}" show
-                             onload="this.closest('.content-line').querySelector('.content-line-label').textContent = this.naturalWidth + '×' + this.naturalHeight">
+                    <div class="input-box">
+                        <button class="btn-icon ghost drag" tabindex="-1">
+                            <span class="material-symbols-outlined">expand_all</span>
+                        </button>
+                        <div class="content-line-photo">
+                            <img src="${escapeHtml(url)}" alt="Фото ${index + 1}" show
+                                 onload="this.closest('.content-line').querySelector('.content-line-label').textContent = this.naturalWidth + '×' + this.naturalHeight">
+                        </div>
+                        <div class="content-line-info">
+                            <span class="content-line-name" title="${fileName}">${fileName}</span>
+                            <span class="content-line-label"></span>
+                        </div>
+                        <span class="tag c-tertiary">${ext}</span>
+                        <button type="button" class="btn-icon ci-remove" data-photo-remove="${index}" data-tooltip="Видалити">
+                            <span class="material-symbols-outlined">close</span>
+                        </button>
                     </div>
-                    <div class="content-line-info">
-                        <span class="content-line-name" title="${fileName}">${fileName}</span>
-                        <span class="content-line-label"></span>
-                    </div>
-                    <span class="tag c-tertiary">${ext}</span>
-                    <button type="button" class="btn-icon ci-remove" data-photo-remove="${index}" data-tooltip="Видалити">
-                        <span class="material-symbols-outlined">close</span>
-                    </button>
                 </div>
             </div>
         `;

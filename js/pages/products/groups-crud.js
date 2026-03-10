@@ -208,17 +208,19 @@ function renderGroupProductsList() {
         return `
             <div class="content-bloc" data-group-product-id="${escapeHtml(id)}" data-group-index="${index}">
                 <div class="content-line main">
-                    <button class="btn-icon ghost drag" tabindex="-1">
-                        <span class="material-symbols-outlined">expand_all</span>
-                    </button>
-                    ${photoHtml}
-                    <div class="content-line-info">
-                        <span class="content-line-name">${name}</span>
-                        <span class="content-line-label">${escapeHtml(id)}</span>
+                    <div class="input-box">
+                        <button class="btn-icon ghost drag" tabindex="-1">
+                            <span class="material-symbols-outlined">expand_all</span>
+                        </button>
+                        ${photoHtml}
+                        <div class="content-line-info">
+                            <span class="content-line-name">${name}</span>
+                            <span class="content-line-label">${escapeHtml(id)}</span>
+                        </div>
+                        <button type="button" class="btn-icon ci-remove" data-remove-product="${escapeHtml(id)}" data-tooltip="Прибрати">
+                            <span class="material-symbols-outlined">close</span>
+                        </button>
                     </div>
-                    <button type="button" class="btn-icon ci-remove" data-remove-product="${escapeHtml(id)}" data-tooltip="Прибрати">
-                        <span class="material-symbols-outlined">close</span>
-                    </button>
                 </div>
             </div>
         `;

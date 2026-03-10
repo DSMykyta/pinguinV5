@@ -138,7 +138,7 @@ function addTulip(title, isActive = true) {
     if (!triggerData) return;
 
     const tulip = document.createElement('div');
-    tulip.className = isActive ? 'badge c-main' : 'badge';
+    tulip.className = isActive ? 'badge c-secondary' : 'badge';
     tulip.textContent = title;
     tulip.dataset.title = title;
     if (triggerData.keywords?.length) {
@@ -153,7 +153,7 @@ function addTulip(title, isActive = true) {
 export function getActiveTulips() {
     const container = document.getElementById('product-trigger-titles-container');
     if (!container) return [];
-    return Array.from(container.querySelectorAll('.badge.c-main'))
+    return Array.from(container.querySelectorAll('.badge.c-secondary'))
         .map(t => t.dataset.title);
 }
 
@@ -205,7 +205,7 @@ export function initSeoTriggers() {
         tulipsContainer.addEventListener('click', e => {
             const target = e.target;
             if (target.dataset.title && target.classList.contains('badge')) {
-                target.classList.toggle('c-main');
+                target.classList.toggle('c-secondary');
             }
         });
     }

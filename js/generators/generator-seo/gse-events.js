@@ -25,7 +25,7 @@ export function runCalculations() {
     const product = dom.productNameInput.value.trim();
     const packaging = dom.productPackagingInput.value.trim();
     const mainText = dom.ghlEditor?.textContent || '';
-    const activeTulips = Array.from(dom.triggerTitlesContainer.querySelectorAll('.badge.c-main'))
+    const activeTulips = Array.from(dom.triggerTitlesContainer.querySelectorAll('.badge.c-secondary'))
                               .map(t => t.dataset.title);
 
     dom.seoTitleInput.value = generateSeoTitle(brand, product, packaging);
@@ -92,7 +92,7 @@ export function initEventListeners() {
     dom.triggerTitlesContainer.addEventListener('click', e => {
         const target = e.target;
         if (target.dataset.title && target.classList.contains('badge')) {
-            target.classList.toggle('c-main');
+            target.classList.toggle('c-secondary');
             runCalculations();
         }
     });

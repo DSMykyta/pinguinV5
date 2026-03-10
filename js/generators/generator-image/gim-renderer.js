@@ -19,6 +19,7 @@ import { getImageDom } from './gim-dom.js';
 import { getImageState, resetCanvasState } from './gim-state.js';
 import { updateSaveButtonText } from './gim-saver.js';
 import { showToast } from '../../components/feedback/toast.js';
+import { extractExtension } from '../../utils/utils-file.js';
 
 /**
  * Встановлює активне зображення (для показу в Canvas)
@@ -57,12 +58,12 @@ export function updateCanvasDisplay(image) {
     const dom = getImageDom();
     const canvas = dom.imageCanvas;
     const ctx = canvas.getContext('2d');
-    const container = canvas.closest('.canvas-area');
+    const container = canvas.closest('.photo-main-preview');
 
     if (!container || !image) return;
 
-    const containerHeight = container.clientHeight - 32; // -32px padding
-    const containerWidth = container.clientWidth - 32;
+    const containerHeight = container.clientHeight;
+    const containerWidth = container.clientWidth;
 
     let newWidth = image.width;
     let newHeight = image.height;
@@ -106,25 +107,35 @@ export function renderThumbnails() {
     dom.emptyState.classList.add('u-hidden');
 
     imageState.files.forEach(item => {
-        const div = document.createElement('div');
-        div.className = `thumbnail-item${item.id === imageState.activeId ? ' active' : ''}`;
-        div.dataset.id = item.id;
-
+        const ext = extractExtension(item.name);
+        const isActive = item.id === imageState.activeId;
         const isChecked = imageState.selectedIds.has(item.id);
 
+        const div = document.createElement('div');
+        div.className = 'content-bloc';
+        div.dataset.id = item.id;
+
         div.innerHTML = `
-            <input type="checkbox" class="row-checkbox" data-id="${item.id}" ${isChecked ? 'checked' : ''}>
-            <img src="${item.image.src}" alt="${item.name}">
-            <div class="thumbnail-item-info">
-                <strong>${item.name}</strong>
-                <span>${item.width} x ${item.height} px</span>
+            <div class="content-line${isActive ? ' main' : ''}">
+                <div class="input-box">
+                    <input type="checkbox" class="row-checkbox" data-id="${item.id}" ${isChecked ? 'checked' : ''}>
+                    <div class="content-line-photo">
+                        <img src="${item.image.src}" alt="${item.name}" show>
+                    </div>
+                    <div class="content-line-info">
+                        <span class="content-line-name" title="${item.name}">${item.name}</span>
+                        <span class="content-line-label">${item.width}×${item.height}</span>
+                    </div>
+                    <span class="tag c-tertiary">${ext}</span>
+                    <button type="button" class="btn-icon ci-remove" data-delete-id="${item.id}"
+                        data-tooltip="Видалити">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
             </div>
-            <button class="tab-close-btn" data-delete-id="${item.id}" aria-label="Видалити">
-                <span class="material-symbols-outlined">close</span>
-            </button>
         `;
 
-        div.querySelector('.thumbnail-item-info').addEventListener('click', () => {
+        div.querySelector('.content-line-info').addEventListener('click', () => {
             setActiveImage(item.id);
         });
 
@@ -137,7 +148,7 @@ export function renderThumbnails() {
             updateSaveButtonText();
         });
 
-        div.querySelector('.tab-close-btn').addEventListener('click', (e) => {
+        div.querySelector('.btn-icon.ci-remove').addEventListener('click', (e) => {
             e.stopPropagation();
             deleteImage(item.id);
         });

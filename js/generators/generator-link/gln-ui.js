@@ -30,7 +30,7 @@ export function renderLinkButtons() {
 
     data.forEach(item => {
         const button = document.createElement("a");
-        button.className = "badge c-main";
+        button.className = "badge c-secondary";
         button.href = item.url;
         button.target = "_blank";
         button.rel = "noopener noreferrer";
@@ -62,7 +62,7 @@ export function updateLinkCountryDisplay() {
     const countryName = countries[brandName];
 
     if (countryName) {
-        dom.countryDisplay.innerHTML = `<span class="badge c-main">${countryName}</span>`;
+        dom.countryDisplay.innerHTML = `<span class="badge c-secondary">${countryName}</span>`;
     } else {
         dom.countryDisplay.innerHTML = '';
     }

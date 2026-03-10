@@ -1,274 +1,331 @@
 /* /css/root.css */
 :root {
-    color-scheme: light;
+   color-scheme: light;
 
-    /* ═══════════════════════════════════════════
+   /* ═══════════════════════════════════════════
        1. ОСНОВНІ КОЛЬОРИ
        ═══════════════════════════════════════════ */
 
-    /* --- Main --- */
-    --color-main: /*rgb(9, 63, 69)*/ #113855;
-    --color-on-main: rgb(255, 255, 255);
-    --color-main-c: color-mix(in srgb, var(--color-main) 8%, transparent);
-    --color-on-main-c: var(--color-main);
+   /* --- Main --- */
+   --color-main:
+      /*rgb(9, 63, 69)*/
+      rgb(17, 56, 85);
+   --color-on-main: rgb(255, 255, 255);
+   --color-main-c: color-mix(in srgb, var(--color-main) 8%, transparent);
+   --color-on-main-c: var(--color-main);
 
-    /* --- Secondary --- */
-    --color-secondary: /*rgb(39, 93, 99)*/#007aff;
-    --color-on-secondary: rgb(255, 255, 255);
-    --color-secondary-c: color-mix(in srgb, var(--color-secondary) 8%, transparent);
-    --color-on-secondary-c: var(--color-secondary);
+   /* --- Secondary --- */
+   --color-secondary:
+      /*rgb(39, 93, 99)*/
+      rgb(0, 122, 255);
+   --color-on-secondary: rgb(255, 255, 255);
+   --color-secondary-c: color-mix(in srgb, var(--color-secondary) 8%, transparent);
+   --color-on-secondary-c: var(--color-secondary);
 
-    /* --- Tertiary --- */
-    --color-tertiary: /*rgb(232, 110, 80)*/#ff5223;
-    --color-on-tertiary: rgb(255, 255, 255);
-    --color-tertiary-c: color-mix(in srgb, var(--color-tertiary) 10%, transparent);
-    --color-on-tertiary-c: color-mix(in srgb, var(--color-tertiary), black 20%);
+   /* --- Tertiary --- */
+   --color-tertiary:
+      /*rgb(232, 110, 80)*/
+      rgb(255, 82, 35);
+   --color-on-tertiary: rgb(255, 255, 255);
+   --color-tertiary-c: color-mix(in srgb, var(--color-tertiary) 10%, transparent);
+   --color-on-tertiary-c: color-mix(in srgb, var(--color-tertiary), black 20%);
 
-    /* ═══════════════════════════════════════════
+   /* ═══════════════════════════════════════════
        2. СТАТУСНІ КОЛЬОРИ
        ═══════════════════════════════════════════ */
 
-    --color-error: rgb(239, 68, 68);
-    --color-on-error: rgb(255, 255, 255);
-    --color-error-c: color-mix(in srgb, var(--color-error) 10%, transparent);
-    --color-on-error-c: var(--color-error);
+   --color-error: rgb(239, 68, 68);
+   --color-on-error: rgb(255, 255, 255);
+   --color-error-c: color-mix(in srgb, var(--color-error) 10%, transparent);
+   --color-on-error-c: var(--color-error);
 
-    --color-warning: rgb(245, 158, 11);
-    --color-on-warning: rgb(255, 255, 255);
-    --color-warning-c: color-mix(in srgb, var(--color-warning) 10%, transparent);
-    --color-on-warning-c: var(--color-warning);
+   --color-warning: rgb(245, 158, 11);
+   --color-on-warning: rgb(255, 255, 255);
+   --color-warning-c: color-mix(in srgb, var(--color-warning) 10%, transparent);
+   --color-on-warning-c: var(--color-warning);
 
-    --color-success: rgb(16, 185, 129);
-    --color-on-success: rgb(255, 255, 255);
-    --color-success-c: color-mix(in srgb, var(--color-success) 10%, transparent);
-    --color-on-success-c: var(--color-success);
+   --color-success: rgb(16, 185, 129);
+   --color-on-success: rgb(255, 255, 255);
+   --color-success-c: color-mix(in srgb, var(--color-success) 10%, transparent);
+   --color-on-success-c: var(--color-success);
 
-    --color-info: rgb(59, 130, 246);
-    --color-on-info: rgb(255, 255, 255);
-    --color-info-c: color-mix(in srgb, var(--color-info) 10%, transparent);
-    --color-on-info-c: var(--color-info);
+   --color-info: rgb(59, 130, 246);
+   --color-on-info: rgb(255, 255, 255);
+   --color-info-c: color-mix(in srgb, var(--color-info) 10%, transparent);
+   --color-on-info-c: var(--color-info);
 
-    /* ═══════════════════════════════════════════
+   /* ═══════════════════════════════════════════
        3. ПОВЕРХНЯ ТА РІВНІ
        ═══════════════════════════════════════════ */
 
-    --color-surface: rgb(250, 250, 250);
-    --color-on-surface: rgb(23, 23, 23);
-    --color-on-surface-v: color-mix(in srgb, var(--color-on-surface) 60%, var(--color-surface));
+   --color-surface: rgb(250, 250, 250);
+   --color-on-surface: rgb(23, 23, 23);
+   --color-on-surface-v: color-mix(in srgb, var(--color-on-surface) 60%, var(--color-surface));
 
-    --color-surface-c-low:  color-mix(in srgb, var(--color-surface), var(--color-on-surface) 2%);
-    --color-surface-c:      color-mix(in srgb, var(--color-surface), var(--color-on-surface) 9%);
-    --color-surface-c-high: color-mix(in srgb, var(--color-surface), var(--color-on-surface) 17%);
+   --color-surface-c-low: color-mix(in srgb, var(--color-surface), var(--color-on-surface) 2%);
+   --color-surface-c: color-mix(in srgb, var(--color-surface), var(--color-on-surface) 9%);
+   --color-surface-c-high: color-mix(in srgb, var(--color-surface), var(--color-on-surface) 17%);
 
-    /* ═══════════════════════════════════════════
+   /* ═══════════════════════════════════════════
        4. ОБВОДКА / БОРДЕРИ
        ═══════════════════════════════════════════ */
 
-    --color-outline:   color-mix(in srgb, var(--color-surface), var(--color-on-surface) 17%);
-    --color-outline-v: color-mix(in srgb, var(--color-surface), var(--color-on-surface) 38%);
+   --color-outline: color-mix(in srgb, var(--color-surface), var(--color-on-surface) 17%);
+   --color-outline-v: color-mix(in srgb, var(--color-surface), var(--color-on-surface) 38%);
 
-    /* ═══════════════════════════════════════════
+   /* ═══════════════════════════════════════════
        5. ТЕКСТ
        ═══════════════════════════════════════════ */
 
-    --text-primary: var(--color-on-surface);
-    --text-secondary: var(--color-on-surface-v);
-    --text-disabled: color-mix(in srgb, var(--color-on-surface) 38%, transparent);
-    --text-hint: color-mix(in srgb, var(--color-on-surface) 60%, transparent);
+   --text-primary: var(--color-on-surface);
+   --text-secondary: var(--color-on-surface-v);
+   --text-disabled: color-mix(in srgb, var(--color-on-surface) 38%, transparent);
+   --text-hint: color-mix(in srgb, var(--color-on-surface) 60%, transparent);
 
-    /* ═══════════════════════════════════════════
+   /* ═══════════════════════════════════════════
        6. ОВЕРЛЕЙ
        ═══════════════════════════════════════════ */
 
-    --color-modal-overlay: rgba(0, 0, 0, 0.5);
+   --color-modal-overlay: rgba(0, 0, 0, 0.5);
 
-    /* ═══════════════════════════════════════════
+   /* ═══════════════════════════════════════════
        7. ТІНІ
        ═══════════════════════════════════════════ */
 
-    --shadow-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
-    --shadow-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
-    --shadow-3: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.30);
+   --shadow-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+   --shadow-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+   --shadow-3: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.30);
 
-    /* ═══════════════════════════════════════════
+   /* ═══════════════════════════════════════════
        8. БЛУР
        ═══════════════════════════════════════════ */
 
-    --blur-s: blur(4px);
-    --blur-m: blur(8px);
-    --blur-l: blur(16px);
+   --blur-s: blur(4px);
+   --blur-m: blur(8px);
+   --blur-l: blur(16px);
 
-    /* ═══════════════════════════════════════════
+   /* ═══════════════════════════════════════════
        9. РАДІУСИ
        ═══════════════════════════════════════════ */
 
-    --radius-xs: 4px;
-    --radius-s: 8px;
-    --radius-m: 12px;
-    --radius-l: 16px;
-    --radius-full: 999px;
+   --radius-xs: 4px;
+   --radius-s: 8px;
+   --radius-m: 12px;
+   --radius-l: 16px;
+   --radius-full: 999px;
 
-    /* ═══════════════════════════════════════════
+   /* ═══════════════════════════════════════════
        10. ВІДСТУПИ
        ═══════════════════════════════════════════ */
 
-    --space-s: 12px;
-    --space-m: 16px;
-    --space-l: 24px;
+   --space-s: 12px;
+   --space-m: 16px;
+   --space-l: 24px;
 
-    /* ═══════════════════════════════════════════
+   /* ═══════════════════════════════════════════
        11. ШРИФТИ
        ═══════════════════════════════════════════ */
 
-    --font-body: 'Geologica', sans-serif;
-    --font-display: 'NyghtSerif', serif;
-    --font-mono: 'Roboto Mono', monospace;
+   --font-body: 'Geologica', sans-serif;
+   --font-display: 'NyghtSerif', serif;
+   --font-mono: 'Roboto Mono', monospace;
 
-    /* ═══════════════════════════════════════════
+   /* ═══════════════════════════════════════════
        12. МАКЕТ
        ═══════════════════════════════════════════ */
 
-    --panel-width-collapsed: 60px;
-    --panel-width-expanded: 320px;
-    --nav-width-expanded: 180px;
+   --panel-width-collapsed: 60px;
+   --panel-width-expanded: 320px;
+   --nav-width-expanded: 180px;
 
-    /* ═══════════════════════════════════════════
+   /* ═══════════════════════════════════════════
        13. ПЕРЕХОДИ
        ═══════════════════════════════════════════ */
 
-    --transition-speed: 0.2s;
-    --transition-ease: cubic-bezier(0.2, 0, 0, 1);
-    --transition-standard: var(--transition-speed) var(--transition-ease);
+   --transition-speed: 0.2s;
+   --transition-ease: cubic-bezier(0.2, 0, 0, 1);
+   --transition-standard: var(--transition-speed) var(--transition-ease);
 
-    /* ═══════════════════════════════════════════
+   /* ═══════════════════════════════════════════
        14. Z-ІНДЕКС ШАРИ
        ═══════════════════════════════════════════ */
 
-    --z-content: 1;
-    --z-sticky: 10;
-    --z-fab: 20;
-    --z-header: 100;
-    --z-panel: 200;
-    --z-tabs: 300;
-    --z-modal: 1000;
-    --z-dropdown: 10000;
-    --z-tooltip: 10000;
-    --z-toast: 10000;
+   --z-content: 1;
+   --z-sticky: 10;
+   --z-fab: 20;
+   --z-header: 100;
+   --z-panel: 200;
+   --z-tabs: 300;
+   --z-modal: 1000;
+   --z-dropdown: 10000;
+   --z-tooltip: 10000;
+   --z-toast: 10000;
 
-    /* ═══════════════════════════════════════════
+   /* ═══════════════════════════════════════════
        15. AFFINITY (ролі команди)
        ═══════════════════════════════════════════ */
 
-    --affinity-main: #86efac;
-    --affinity-vector: #06b6d4;
-    --affinity-pixel: #d946ef;
-    --affinity-layout: #fb923c;
-    --affinity-canvas: #60a5fa;
+   --affinity-main: #86efac;
+   --affinity-vector: #06b6d4;
+   --affinity-pixel: #d946ef;
+   --affinity-layout: #fb923c;
+   --affinity-canvas: #60a5fa;
 
-    /* ═══════════════════════════════════════════
+   /* ═══════════════════════════════════════════
        16. ГРАДІЄНТИ
        ═══════════════════════════════════════════ */
 
-    --gradient-light: linear-gradient(to bottom,
-        color-mix(in srgb, var(--color-secondary) 65%, white),
-        color-mix(in srgb, var(--color-secondary) 45%, white),
-        color-mix(in srgb, var(--color-secondary) 17%, white),
-        color-mix(in srgb, var(--color-secondary) 7%, white),
-        color-mix(in srgb, var(--color-secondary) 17%, white),
-        color-mix(in srgb, var(--color-secondary) 45%, white)
-    );
-    --gradient-storm: linear-gradient(to bottom,
-        color-mix(in srgb, var(--color-main), black 50%),
-        color-mix(in srgb, var(--color-main), black 40%),
-        color-mix(in srgb, var(--color-main), black 20%),
-        color-mix(in srgb, var(--color-main) 50%, var(--color-secondary)),
-        color-mix(in srgb, var(--color-secondary) 65%, white),
-        color-mix(in srgb, var(--color-secondary) 45%, white)
-    );
-    --gradient-dawn: linear-gradient(to bottom,
-        color-mix(in srgb, var(--color-secondary) 65%, white),
-        color-mix(in srgb, var(--color-secondary) 60%, white),
-        color-mix(in srgb, var(--color-secondary) 50%, var(--color-tertiary)),
-        color-mix(in srgb, var(--color-tertiary) 60%, var(--color-secondary)),
-        color-mix(in srgb, var(--color-tertiary), black 10%),
-        var(--color-tertiary)
-    );
+   --gradient-light: linear-gradient(to bottom,
+         color-mix(in srgb, var(--color-secondary) 65%, white),
+         color-mix(in srgb, var(--color-secondary) 45%, white),
+         color-mix(in srgb, var(--color-secondary) 17%, white),
+         color-mix(in srgb, var(--color-secondary) 7%, white),
+         color-mix(in srgb, var(--color-secondary) 17%, white),
+         color-mix(in srgb, var(--color-secondary) 45%, white));
+   --gradient-storm: linear-gradient(to bottom,
+         color-mix(in srgb, var(--color-main), black 50%),
+         color-mix(in srgb, var(--color-main), black 40%),
+         color-mix(in srgb, var(--color-main), black 20%),
+         color-mix(in srgb, var(--color-main) 50%, var(--color-secondary)),
+         color-mix(in srgb, var(--color-secondary) 65%, white),
+         color-mix(in srgb, var(--color-secondary) 45%, white));
+   --gradient-dawn: linear-gradient(to bottom,
+         color-mix(in srgb, var(--color-secondary) 65%, white),
+         color-mix(in srgb, var(--color-secondary) 60%, white),
+         color-mix(in srgb, var(--color-secondary) 50%, var(--color-tertiary)),
+         color-mix(in srgb, var(--color-tertiary) 60%, var(--color-secondary)),
+         color-mix(in srgb, var(--color-tertiary), black 10%),
+         var(--color-tertiary));
 }
 
 /* ═══════════════════════════════════════════════════
    ТЕМНА ТЕМА
    ═══════════════════════════════════════════════════ */
 [data-theme="dark"] {
-    color-scheme: dark;
+   color-scheme: dark;
 
-    /* ═══════════════════════════════════════════
-       1. ОСНОВНІ КОЛЬОРИ
-       ═══════════════════════════════════════════ */
+   /* ═══════════════════════════════════════════
+   1. ОСНОВНІ КОЛЬОРИ
+   ═══════════════════════════════════════════ */
 
-    --color-main: rgb(76, 166, 175);
-    --color-on-main: rgb(0, 30, 35);
-    --color-main-c: color-mix(in srgb, var(--color-main) 15%, transparent);
-    --color-on-main-c: color-mix(in srgb, var(--color-main), white 40%);
+   /* --- Main --- */
+   --color-main: #7bbad4;
+   --color-on-main: rgb(0, 0, 0);
+   --color-main-c: color-mix(in srgb, var(--color-main) 12%, transparent);
+   --color-on-main-c: var(--color-main);
 
-    --color-secondary: rgb(100, 170, 176);
-    --color-on-secondary: rgb(0, 30, 35);
-    --color-secondary-c: color-mix(in srgb, var(--color-secondary) 15%, transparent);
-    --color-on-secondary-c: color-mix(in srgb, var(--color-secondary), white 40%);
+   /* --- Secondary --- */
+   --color-secondary: #4da3ff;
+   --color-on-secondary: rgb(0, 0, 0);
+   --color-secondary-c: color-mix(in srgb, var(--color-secondary) 12%, transparent);
+   --color-on-secondary-c: var(--color-secondary);
 
-    --color-tertiary: rgb(255, 145, 120);
-    --color-on-tertiary: rgb(50, 20, 10);
-    --color-tertiary-c: color-mix(in srgb, var(--color-tertiary) 15%, transparent);
-    --color-on-tertiary-c: color-mix(in srgb, var(--color-tertiary), white 40%);
+   /* --- Tertiary --- */
+   --color-tertiary: #ff7a5c;
+   --color-on-tertiary: rgb(0, 0, 0);
+   --color-tertiary-c: color-mix(in srgb, var(--color-tertiary) 14%, transparent);
+   --color-on-tertiary-c: color-mix(in srgb, var(--color-tertiary), white 20%);
 
-    /* ═══════════════════════════════════════════
-       2. СТАТУСНІ КОЛЬОРИ (вищий % для видимості)
-       ═══════════════════════════════════════════ */
+   /* ═══════════════════════════════════════════
+   2. СТАТУСНІ КОЛЬОРИ
+   ═══════════════════════════════════════════ */
 
-    --color-error-c: color-mix(in srgb, var(--color-error) 15%, transparent);
-    --color-warning-c: color-mix(in srgb, var(--color-warning) 15%, transparent);
-    --color-success-c: color-mix(in srgb, var(--color-success) 15%, transparent);
-    --color-info-c: color-mix(in srgb, var(--color-info) 15%, transparent);
+   --color-error: rgb(248, 113, 113);
+   --color-on-error: rgb(0, 0, 0);
+   --color-error-c: color-mix(in srgb, var(--color-error) 14%, transparent);
+   --color-on-error-c: var(--color-error);
 
-    /* ═══════════════════════════════════════════
-       3. ПОВЕРХНЯ ТА РІВНІ (більший крок)
-       ═══════════════════════════════════════════ */
+   --color-warning: rgb(251, 191, 36);
+   --color-on-warning: rgb(0, 0, 0);
+   --color-warning-c: color-mix(in srgb, var(--color-warning) 14%, transparent);
+   --color-on-warning-c: var(--color-warning);
 
-    --color-surface: #121212;
-    --color-on-surface: #e5e5e5;
-    --color-on-surface-v: color-mix(in srgb, var(--color-on-surface) 69%, var(--color-surface));
+   --color-success: rgb(52, 211, 153);
+   --color-on-success: rgb(0, 0, 0);
+   --color-success-c: color-mix(in srgb, var(--color-success) 14%, transparent);
+   --color-on-success-c: var(--color-success);
 
-    --color-surface-c-low:  color-mix(in srgb, var(--color-surface), var(--color-on-surface) 6%);
-    --color-surface-c:      color-mix(in srgb, var(--color-surface), var(--color-on-surface) 12%);
-    --color-surface-c-high: color-mix(in srgb, var(--color-surface), var(--color-on-surface) 20%);
+   --color-info: rgb(96, 165, 250);
+   --color-on-info: rgb(0, 0, 0);
+   --color-info-c: color-mix(in srgb, var(--color-info) 14%, transparent);
+   --color-on-info-c: var(--color-info);
 
-    /* ═══════════════════════════════════════════
-       4. ОБВОДКА / БОРДЕРИ (більший крок)
-       ═══════════════════════════════════════════ */
+   /* ═══════════════════════════════════════════
+   3. ПОВЕРХНЯ ТА РІВНІ
+   ═══════════════════════════════════════════ */
 
-    --color-outline:   color-mix(in srgb, var(--color-surface), var(--color-on-surface) 22%);
-    --color-outline-v: color-mix(in srgb, var(--color-surface), var(--color-on-surface) 30%);
+   --color-surface: rgb(23, 23, 23);
+   --color-on-surface: rgb(240, 240, 240);
+   --color-on-surface-v: color-mix(in srgb, var(--color-on-surface) 60%, var(--color-surface));
 
-    /* ═══════════════════════════════════════════
-       6. ОВЕРЛЕЙ (більш щільний)
-       ═══════════════════════════════════════════ */
+   --color-surface-c-low: color-mix(in srgb, var(--color-surface), var(--color-on-surface) 4%);
+   --color-surface-c: color-mix(in srgb, var(--color-surface), var(--color-on-surface) 11%);
+   --color-surface-c-high: color-mix(in srgb, var(--color-surface), var(--color-on-surface) 19%);
 
-    --color-modal-overlay: rgba(0, 0, 0, 0.8);
+   /* ═══════════════════════════════════════════
+   4. ОБВОДКА / БОРДЕРИ
+   ═══════════════════════════════════════════ */
 
-    /* ═══════════════════════════════════════════
-       7. ТІНІ (глибші)
-       ═══════════════════════════════════════════ */
+   --color-outline: color-mix(in srgb, var(--color-surface), var(--color-on-surface) 19%);
+   --color-outline-v: color-mix(in srgb, var(--color-surface), var(--color-on-surface) 40%);
 
-    --shadow-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.6);
-    --shadow-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.6), 0px 1px 2px 0px rgba(0, 0, 0, 0.5);
-    --shadow-3: 0px 4px 8px 3px rgba(0, 0, 0, 0.6), 0px 1px 3px 0px rgba(0, 0, 0, 0.5);
+   /* ═══════════════════════════════════════════
+   5. ТЕКСТ
+   ═══════════════════════════════════════════ */
 
-    /* ═══════════════════════════════════════════
+   --text-primary: var(--color-on-surface);
+   --text-secondary: var(--color-on-surface-v);
+   --text-disabled: color-mix(in srgb, var(--color-on-surface) 38%, transparent);
+   --text-hint: color-mix(in srgb, var(--color-on-surface) 60%, transparent);
+
+   /* ═══════════════════════════════════════════
+   6. ОВЕРЛЕЙ
+   ═══════════════════════════════════════════ */
+
+   --color-modal-overlay: rgba(0, 0, 0, 0.7);
+
+   /* ═══════════════════════════════════════════
+   7. ТІНІ
+   ═══════════════════════════════════════════ */
+
+   --shadow-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.30), 0px 1px 2px 0px rgba(0, 0, 0, 0.50);
+   --shadow-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.30), 0px 1px 2px 0px rgba(0, 0, 0, 0.50);
+   --shadow-3: 0px 4px 8px 3px rgba(0, 0, 0, 0.30), 0px 1px 3px 0px rgba(0, 0, 0, 0.50);
+   /* ═══════════════════════════════════════════
        15. AFFINITY (ролі команди)
        ═══════════════════════════════════════════ */
 
-    --affinity-main: #4ade80;
-    --affinity-vector: #22d3ee;
-    --affinity-pixel: #e879f9;
-    --affinity-layout: #fdba74;
-    --affinity-canvas: #93c5fd;
+   --affinity-main: #4ade80;
+   --affinity-vector: #22d3ee;
+   --affinity-pixel: #e879f9;
+   --affinity-layout: #fdba74;
+   --affinity-canvas: #93c5fd;
+
+   /* ═══════════════════════════════════════════
+       16. ГРАДІЄНТИ
+       ═══════════════════════════════════════════ */
+
+   --gradient-light: linear-gradient(to bottom,
+         color-mix(in srgb, var(--color-secondary) 45%, black),
+         color-mix(in srgb, var(--color-secondary) 30%, black),
+         color-mix(in srgb, var(--color-secondary) 12%, black),
+         color-mix(in srgb, var(--color-secondary) 5%, black),
+         color-mix(in srgb, var(--color-secondary) 12%, black),
+         color-mix(in srgb, var(--color-secondary) 30%, black));
+
+   --gradient-storm: linear-gradient(to bottom,
+         color-mix(in srgb, var(--color-main), black 70%),
+         color-mix(in srgb, var(--color-main), black 60%),
+         color-mix(in srgb, var(--color-main), black 40%),
+         color-mix(in srgb, var(--color-main) 50%, var(--color-secondary)),
+         color-mix(in srgb, var(--color-secondary) 45%, black),
+         color-mix(in srgb, var(--color-secondary) 30%, black));
+
+   --gradient-dawn: linear-gradient(to bottom,
+         color-mix(in srgb, var(--color-secondary) 45%, black),
+         color-mix(in srgb, var(--color-secondary) 40%, black),
+         color-mix(in srgb, var(--color-secondary) 50%, var(--color-tertiary)),
+         color-mix(in srgb, var(--color-tertiary) 60%, var(--color-secondary)),
+         color-mix(in srgb, var(--color-tertiary), black 30%),
+         color-mix(in srgb, var(--color-tertiary), black 15%));
 }

@@ -28,7 +28,7 @@ function renderTriggerButtons() {
 
     triggersData.forEach(trigger => {
         const button = document.createElement('button');
-        button.className = 'badge';
+        button.className = 'badge c-secondary';
         button.textContent = trigger.title;
         button.dataset.title = trigger.title;
         dom.trigerButtonsContainer.appendChild(button);
@@ -47,7 +47,7 @@ function addTulip(title, isActive = true) {
     if (!triggerData) return;
 
     const tulip = document.createElement('div');
-    tulip.className = isActive ? 'badge c-main' : 'badge';
+    tulip.className = isActive ? 'badge c-secondary' : 'badge';
     tulip.textContent = title;
     tulip.dataset.title = title;
 
