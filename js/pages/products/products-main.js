@@ -51,6 +51,25 @@ import { registerAsideInitializer } from '../../layout/layout-main.js';
 import { initAsideFab } from '../../components/fab-menu.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
+// ASIDE FAB — реєстрація на рівні модуля (до initLayout)
+// ═══════════════════════════════════════════════════════════════════════════
+
+registerAsideInitializer('aside-products', () => {
+    initAsideFab('fab-products-aside', {
+        'btn-wizard-product-aside': async () => {
+            const { showAddProductModal } = await import('./products-crud.js');
+            const { setPendingWizardMode } = await import('./products-crud-wizard.js');
+            setPendingWizardMode();
+            await showAddProductModal();
+        },
+        'btn-add-group-aside': async () => {
+            const { showAddGroupModal } = await import('./groups-crud.js');
+            showAddGroupModal();
+        }
+    });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 // ПЛАГІНИ - можна видалити будь-який, система працюватиме
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -100,22 +119,6 @@ export async function initProducts() {
 
     // Завантажити плагіни
     await loadPlugins();
-
-    // FAB aside — generic toggle/close + page-specific handlers
-    registerAsideInitializer('aside-products', () => {
-        initAsideFab('fab-products-aside', {
-            'btn-wizard-product-aside': async () => {
-                const { showAddProductModal } = await import('./products-crud.js');
-                const { setPendingWizardMode } = await import('./products-crud-wizard.js');
-                setPendingWizardMode();
-                await showAddProductModal();
-            },
-            'btn-add-group-aside': async () => {
-                const { showAddGroupModal } = await import('./groups-crud.js');
-                showAddGroupModal();
-            }
-        });
-    });
 
     // Слухати перемикання табів (generic event від layout-plugin-nav-tabs)
     document.addEventListener('tab-switched', (e) => {

@@ -4,7 +4,10 @@
   "description": "Pinguin V5 - Custom Auth System",
   "private": true,
   "scripts": {
-    "dev": "vercel dev"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "vercel-dev": "vercel dev"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -15,5 +18,8 @@
   },
   "engines": {
     "node": ">=18.x"
+  },
+  "devDependencies": {
+    "vite": "^7.3.1"
   }
 }
