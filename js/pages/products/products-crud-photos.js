@@ -24,6 +24,8 @@ import { fetchImageAsFile, extractExtension } from '../../utils/utils-file.js';
 
 const MAX_PHOTOS = 10;
 let _photoUrls = [];
+/** @type {Map<string, File>} blobUrl → File (ще не завантажені) */
+const _pendingFiles = new Map();
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INIT
@@ -154,44 +156,14 @@ async function handleUploadPhoto(file) {
         return;
     }
 
-    const dropzone = document.getElementById('product-photo-dropzone');
-    dropzone?.classList.add('loading');
-
-    try {
-        const brandId = getSelectValue('product-brand');
-        const productId = getInputValue('product-id');
-        const photoIndex = _photoUrls.length + 1;
-
-        const brandName = getSelectText('product-brand');
-        if (!brandId && !brandName) {
-            showToast('Оберіть бренд перед завантаженням фото', 'warning');
-            dropzone?.classList.remove('loading');
-            return;
-        }
-
-        const productName = buildPhotoName();
-        if (!productId && !productName) {
-            showToast('Введіть назву товару перед завантаженням фото', 'warning');
-            dropzone?.classList.remove('loading');
-            return;
-        }
-
-        const result = await uploadProductPhotoFile(file, brandId, productId, photoIndex, { brandName, productName });
-
-        dropzone?.classList.remove('loading');
-
-        if (result && result.thumbnailUrl) {
-            _photoUrls.push(result.thumbnailUrl);
-            syncHiddenField();
-            renderPhotoGrid();
-            updateMainPreview();
-            showToast('Фото завантажено', 'success');
-        }
-    } catch (error) {
-        console.error('❌ Помилка завантаження фото:', error);
-        dropzone?.classList.remove('loading');
-        showToast('Помилка завантаження фото', 'error');
-    }
+    // Зберігаємо в пам'яті, показуємо превью — upload при збереженні товару
+    const blobUrl = URL.createObjectURL(file);
+    _pendingFiles.set(blobUrl, file);
+    _photoUrls.push(blobUrl);
+    syncHiddenField();
+    renderPhotoGrid();
+    updateMainPreview();
+    showToast('Фото додано', 'success');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -284,14 +256,52 @@ export function setPhotoUrls(urls) {
 }
 
 export function getPhotoUrls() {
-    return [..._photoUrls];
+    // Повертаємо тільки реальні URL (без blob pending)
+    return _photoUrls.filter(url => !_pendingFiles.has(url));
 }
 
 export function clearPhotos() {
+    // Звільнити blob URL
+    for (const blobUrl of _pendingFiles.keys()) URL.revokeObjectURL(blobUrl);
+    _pendingFiles.clear();
     _photoUrls = [];
     renderPhotoGrid();
     updateMainPreview();
     syncHiddenField();
+}
+
+/**
+ * Завантажити всі pending фото на Drive.
+ * Викликається після збереження товару (коли вже є brandId/productId).
+ */
+export async function commitPendingPhotos() {
+    if (_pendingFiles.size === 0) return;
+
+    const brandId = getSelectValue('product-brand');
+    const brandName = getSelectText('product-brand');
+    const productId = getInputValue('product-id');
+    const productName = buildPhotoName();
+
+    for (const [blobUrl, file] of _pendingFiles.entries()) {
+        const index = _photoUrls.indexOf(blobUrl);
+        if (index === -1) continue;
+
+        const photoIndex = index + 1;
+        try {
+            const result = await uploadProductPhotoFile(file, brandId, productId, photoIndex, { brandName, productName });
+            if (result && result.thumbnailUrl) {
+                _photoUrls[index] = result.thumbnailUrl;
+            }
+        } catch (error) {
+            console.error('Помилка завантаження фото:', error);
+        }
+        URL.revokeObjectURL(blobUrl);
+    }
+
+    _pendingFiles.clear();
+    syncHiddenField();
+    renderPhotoGrid();
+    updateMainPreview();
 }
 
 function removePhoto(index) {

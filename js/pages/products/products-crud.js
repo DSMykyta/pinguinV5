@@ -742,6 +742,14 @@ async function handleSaveProduct(shouldClose = true) {
                 await commitPendingVariantChanges(currentProductId, productData, populateProductVariants);
             } catch { /* ignore */ }
 
+            // Завантажити pending фото на Drive
+            try {
+                const { commitPendingPhotos, getPhotoUrls } = await import('./products-crud-photos.js');
+                await commitPendingPhotos();
+                const urls = getPhotoUrls();
+                if (urls.length > 0) await updateProduct(currentProductId, { image_url: JSON.stringify(urls) });
+            } catch { /* ignore */ }
+
             showToast('Товар успішно оновлено', 'success');
             runHook('onProductUpdate', currentProductId, productData);
         } else {
@@ -757,6 +765,14 @@ async function handleSaveProduct(shouldClose = true) {
                 } catch (err) {
                     console.error('Помилка збереження варіантів:', err);
                 }
+
+                // Завантажити pending фото на Drive
+                try {
+                    const { commitPendingPhotos, getPhotoUrls } = await import('./products-crud-photos.js');
+                    await commitPendingPhotos();
+                    const urls = getPhotoUrls();
+                    if (urls.length > 0) await updateProduct(currentProductId, { image_url: JSON.stringify(urls) });
+                } catch { /* ignore */ }
             }
 
             showToast('Товар успішно додано', 'success');
