@@ -36,14 +36,14 @@ import { runHook, getRegisteredPlugins } from './gim-plugins.js';
  * Поки що генератор не має плагінів — всі файли є частиною ядра.
  */
 const PLUGINS = [
-    // './gim-some-plugin.js',
+    // () => import('./gim-some-plugin.js'),
 ];
 
 async function loadPlugins() {
     if (PLUGINS.length === 0) return;
 
     const results = await Promise.allSettled(
-        PLUGINS.map(path => import(path))
+        PLUGINS.map(fn => fn())
     );
 
     results.forEach((result, index) => {

@@ -36,15 +36,15 @@ import { initEventListeners, runCalculations } from './gse-events.js';
  * Якщо файл видалено — просто не завантажиться, без помилок.
  */
 const PLUGINS = [
-    './gse-triggers.js',
-    './gse-reset.js',
-    './gse-copy.js',
-    './gse-aside.js',
+    () => import('./gse-triggers.js'),
+    () => import('./gse-reset.js'),
+    () => import('./gse-copy.js'),
+    () => import('./gse-aside.js'),
 ];
 
 async function loadPlugins() {
     const results = await Promise.allSettled(
-        PLUGINS.map(path => import(path))
+        PLUGINS.map(fn => fn())
     );
 
     results.forEach((result, index) => {
@@ -52,10 +52,10 @@ async function loadPlugins() {
             try {
                 result.value.init({ runCalculations });
             } catch (e) {
-                console.error(`[SEO] Error initializing ${PLUGINS[index]}:`, e);
+                console.error(`[SEO] Plugin ${index} init error:`, e);
             }
         } else if (result.status === 'rejected') {
-            console.warn(`[SEO] Plugin failed: ${PLUGINS[index]}`);
+            console.warn(`[SEO] Plugin ${index} failed`);
         }
     });
 }

@@ -18,22 +18,22 @@ import { initGlossarySearch } from './glossary-search.js';
 // ═══════════════════════════════════════════════════════════════════════════
 
 const PLUGINS = [
-    './glossary-tree.js',
-    './glossary-articles.js',
-    './glossary-modals.js',
-    './glossary-search.js',
+    () => import('./glossary-tree.js'),
+    () => import('./glossary-articles.js'),
+    () => import('./glossary-modals.js'),
+    () => import('./glossary-search.js'),
 ];
 
 async function loadPlugins() {
     const results = await Promise.allSettled(
-        PLUGINS.map(path => import(path))
+        PLUGINS.map(fn => fn())
     );
 
     results.forEach((result, index) => {
         if (result.status === 'fulfilled' && result.value.init) {
             result.value.init();
         } else if (result.status === 'rejected') {
-            console.warn(`[Glossary] ${PLUGINS[index]} — не завантажено`);
+            console.warn(`[Glossary] Plugin ${index} — не завантажено`);
         }
     });
 }

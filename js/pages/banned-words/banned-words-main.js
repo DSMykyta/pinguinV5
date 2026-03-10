@@ -35,14 +35,14 @@ export { bannedWordsState, getCachedCheckResults, setCachedCheckResults, invalid
 
 // ── Плагіни ──
 const PLUGINS = [
-    './banned-words-aside.js',
-    './banned-words-tabs.js',
-    './banned-words-events.js',
-    './banned-words-ui.js',
-    './banned-words-manage.js',
-    './banned-words-check.js',
-    './banned-words-batch.js',
-    './banned-words-product-modal.js',
+    () => import('./banned-words-aside.js'),
+    () => import('./banned-words-tabs.js'),
+    () => import('./banned-words-events.js'),
+    () => import('./banned-words-ui.js'),
+    () => import('./banned-words-manage.js'),
+    () => import('./banned-words-check.js'),
+    () => import('./banned-words-batch.js'),
+    () => import('./banned-words-product-modal.js'),
 ];
 
 /**
@@ -50,14 +50,14 @@ const PLUGINS = [
  */
 async function loadPlugins(state) {
     const results = await Promise.allSettled(
-        PLUGINS.map(path => import(path))
+        PLUGINS.map(fn => fn())
     );
 
     results.forEach((result, index) => {
         if (result.status === 'fulfilled' && result.value.init) {
             result.value.init(state);
         } else if (result.status === 'rejected') {
-            console.warn(`[BannedWords] ⚠️ ${PLUGINS[index]} — не завантажено`);
+            console.warn(`[BannedWords] ⚠️ Плагін ${index} — не завантажено`);
         }
     });
 }

@@ -41,29 +41,27 @@ import { mapperState, runHook } from './mapper-state.js';
 // ═══════════════════════════════════════════════════════════════════════════
 
 const PLUGINS = [
-    './mapper-categories.js',
-    './mapper-characteristics.js',
-    './mapper-options.js',
-    './mapper-marketplaces.js',
-    './mapper-import.js',
+    () => import('./mapper-categories.js'),
+    () => import('./mapper-characteristics.js'),
+    () => import('./mapper-options.js'),
+    () => import('./mapper-marketplaces.js'),
+    () => import('./mapper-import.js'),
 ];
 
 async function loadMapperPlugins() {
     const results = await Promise.allSettled(
-        PLUGINS.map(path => import(path))
+        PLUGINS.map(fn => fn())
     );
 
     results.forEach((result, index) => {
-        const pluginPath = PLUGINS[index];
-
         if (result.status === 'fulfilled' && result.value.init) {
             try {
                 result.value.init(mapperState);
             } catch (e) {
-                console.error(`[Mapper] Error initializing ${pluginPath}:`, e);
+                console.error(`[Mapper] Error initializing plugin ${index}:`, e);
             }
         } else if (result.status === 'rejected') {
-            console.warn(`[Mapper] ${pluginPath} — не завантажено`);
+            console.warn(`[Mapper] Плагін ${index} — не завантажено`);
         }
     });
 }

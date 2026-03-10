@@ -12,20 +12,20 @@ import { bannersState } from './banners-state.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 
 const PLUGINS = [
-    './banners-table.js',
-    './banners-ui.js'
+    () => import('./banners-table.js'),
+    () => import('./banners-ui.js')
 ];
 
 async function loadPlugins() {
     const results = await Promise.allSettled(
-        PLUGINS.map(path => import(path))
+        PLUGINS.map(fn => fn())
     );
 
     results.forEach((result, index) => {
         if (result.status === 'fulfilled' && result.value.init) {
             result.value.init(bannersState);
         } else if (result.status === 'rejected') {
-            console.warn(`[Banners] ⚠️ Плагін не завантажено: ${PLUGINS[index]}`, result.reason?.message || '');
+            console.warn(`[Banners] ⚠️ Плагін ${index} не завантажено`, result.reason?.message || '');
         }
     });
 }

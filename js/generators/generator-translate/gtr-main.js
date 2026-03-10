@@ -10,17 +10,17 @@
 
 import { registerAsideInitializer } from '../../layout/layout-main.js';
 
-const PLUGINS = ['./gtr-reset.js'];
+const PLUGINS = [() => import('./gtr-reset.js')];
 
 async function loadPlugins() {
     const results = await Promise.allSettled(
-        PLUGINS.map(path => import(path))
+        PLUGINS.map(fn => fn())
     );
     results.forEach((result, index) => {
         if (result.status === 'fulfilled' && result.value.init) {
             result.value.init();
         } else if (result.status === 'rejected') {
-            console.warn(`[Translate] Plugin failed: ${PLUGINS[index]}`);
+            console.warn(`[Translate] Plugin ${index} failed`);
         }
     });
 }

@@ -29,7 +29,7 @@ function copyStaticPlugin() {
     return {
         name: 'copy-static',
         closeBundle() {
-            const dirs = ['templates', 'icon'];
+            const dirs = ['templates', 'icon', 'resources'];
             for (const dir of dirs) {
                 if (existsSync(dir)) {
                     cpSync(dir, resolve(__dirname, 'dist', dir), { recursive: true });

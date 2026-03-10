@@ -74,11 +74,11 @@ import { initAsideFab } from '../../components/fab-menu.js';
 // ═══════════════════════════════════════════════════════════════════════════
 
 const PLUGINS = [
-    './brands-table.js',
-    './brands-crud.js',
-    './brands-events.js',
-    './lines-table.js',
-    './lines-crud.js',
+    () => import('./brands-table.js'),
+    () => import('./brands-crud.js'),
+    () => import('./brands-events.js'),
+    () => import('./lines-table.js'),
+    () => import('./lines-crud.js'),
 ];
 
 /**
@@ -87,14 +87,14 @@ const PLUGINS = [
 async function loadPlugins() {
 
     const results = await Promise.allSettled(
-        PLUGINS.map(path => import(path))
+        PLUGINS.map(fn => fn())
     );
 
     results.forEach((result, index) => {
         if (result.status === 'fulfilled' && result.value.init) {
             result.value.init(brandsState);
         } else if (result.status === 'rejected') {
-            console.warn(`[Brands] ⚠️ Плагін не завантажено: ${PLUGINS[index]}`, result.reason?.message || '');
+            console.warn(`[Brands] ⚠️ Плагін ${index} не завантажено`, result.reason?.message || '');
         }
     });
 }

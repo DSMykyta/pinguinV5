@@ -31,13 +31,13 @@ import { runHook, getRegisteredPlugins } from './gln-plugins.js';
  * Якщо файл видалено — просто не завантажиться, без помилок.
  */
 const PLUGINS = [
-    './gln-reset.js',
-    './gln-aside.js',
+    () => import('./gln-reset.js'),
+    () => import('./gln-aside.js'),
 ];
 
 async function loadPlugins() {
     const results = await Promise.allSettled(
-        PLUGINS.map(path => import(path))
+        PLUGINS.map(fn => fn())
     );
 
     results.forEach((result, index) => {
@@ -45,10 +45,10 @@ async function loadPlugins() {
             try {
                 result.value.init({ updateLinksUI });
             } catch (e) {
-                console.error(`[Links] Error initializing ${PLUGINS[index]}:`, e);
+                console.error(`[Links] Plugin ${index} init error:`, e);
             }
         } else if (result.status === 'rejected') {
-            console.warn(`[Links] Plugin failed: ${PLUGINS[index]}`);
+            console.warn(`[Links] Plugin ${index} failed`);
         }
     });
 }

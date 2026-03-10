@@ -74,18 +74,18 @@ registerAsideInitializer('aside-products', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const PLUGINS = [
-    './products-table.js',
-    './products-crud.js',
-    './products-events.js',
-    './variants-table.js',
-    './variants-events.js',
-    './groups-table.js',
-    './groups-crud.js',
-    './products-crud-wizard.js',
-    './products-crud-table-generator.js',
-    './products-crud-variant-weight.js',
-    './products-crud-article.js',
-    './products-plugin-brand-status.js',
+    () => import('./products-table.js'),
+    () => import('./products-crud.js'),
+    () => import('./products-events.js'),
+    () => import('./variants-table.js'),
+    () => import('./variants-events.js'),
+    () => import('./groups-table.js'),
+    () => import('./groups-crud.js'),
+    () => import('./products-crud-wizard.js'),
+    () => import('./products-crud-table-generator.js'),
+    () => import('./products-crud-variant-weight.js'),
+    () => import('./products-crud-article.js'),
+    () => import('./products-plugin-brand-status.js'),
 ];
 
 /**
@@ -93,14 +93,14 @@ const PLUGINS = [
  */
 async function loadPlugins() {
     const results = await Promise.allSettled(
-        PLUGINS.map(path => import(path))
+        PLUGINS.map(fn => fn())
     );
 
     results.forEach((result, index) => {
         if (result.status === 'fulfilled' && result.value.init) {
             result.value.init(productsState);
         } else if (result.status === 'rejected') {
-            console.warn(`[Products] ⚠️ Плагін не завантажено: ${PLUGINS[index]}`, result.reason?.message || '');
+            console.warn(`[Products] ⚠️ Плагін ${index} не завантажено`, result.reason?.message || '');
         }
     });
 }

@@ -12,20 +12,20 @@ import { blogState } from './blog-state.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 
 const PLUGINS = [
-    './blog-table.js',
-    './blog-ui.js'
+    () => import('./blog-table.js'),
+    () => import('./blog-ui.js')
 ];
 
 async function loadPlugins() {
     const results = await Promise.allSettled(
-        PLUGINS.map(path => import(path))
+        PLUGINS.map(fn => fn())
     );
 
     results.forEach((result, index) => {
         if (result.status === 'fulfilled' && result.value.init) {
             result.value.init(blogState);
         } else if (result.status === 'rejected') {
-            console.warn(`[Blog] ⚠️ Плагін не завантажено: ${PLUGINS[index]}`, result.reason?.message || '');
+            console.warn(`[Blog] ⚠️ Плагін ${index} не завантажено`, result.reason?.message || '');
         }
     });
 }

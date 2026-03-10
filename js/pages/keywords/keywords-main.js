@@ -23,20 +23,20 @@ export { keywordsState } from './keywords-state.js';
 // ═══════════════════════════════════════════════════════════════════════════
 
 const PLUGINS = [
-    './keywords-table.js',
-    './keywords-events.js',
-    './keywords-crud.js',
+    () => import('./keywords-table.js'),
+    () => import('./keywords-events.js'),
+    () => import('./keywords-crud.js'),
 ];
 
 async function loadPlugins(state) {
     const results = await Promise.allSettled(
-        PLUGINS.map(path => import(path))
+        PLUGINS.map(fn => fn())
     );
     results.forEach((result, index) => {
         if (result.status === 'fulfilled' && result.value.init) {
             result.value.init(state);
         } else if (result.status === 'rejected') {
-            console.warn(`[Keywords] Plugin failed: ${PLUGINS[index]}`);
+            console.warn(`[Keywords] Plugin ${index} failed`);
         }
     });
 }

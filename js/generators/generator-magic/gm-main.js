@@ -46,12 +46,21 @@ import {
  * Порядок важливий - вони виконуються послідовно!
  */
 const PLUGINS = [
-    './gm-cleanup.js',
-    './gm-normalize.js',
-    './gm-serving.js',
-    './gm-merge.js',
-    './gm-headers.js',
-    './gm-smart-parser.js',
+    () => import('./gm-cleanup.js'),
+    () => import('./gm-normalize.js'),
+    () => import('./gm-serving.js'),
+    () => import('./gm-merge.js'),
+    () => import('./gm-headers.js'),
+    () => import('./gm-smart-parser.js'),
+];
+
+const PLUGIN_NAMES = [
+    'gm-cleanup',
+    'gm-normalize',
+    'gm-serving',
+    'gm-merge',
+    'gm-headers',
+    'gm-smart-parser',
 ];
 
 /** Завантажені модулі плагінів */
@@ -67,12 +76,11 @@ const loadedModules = {};
  */
 export async function initMagicParser() {
     const results = await Promise.allSettled(
-        PLUGINS.map(path => import(path))
+        PLUGINS.map(fn => fn())
     );
 
     results.forEach((result, index) => {
-        const pluginPath = PLUGINS[index];
-        const pluginName = pluginPath.replace('./', '').replace('.js', '');
+        const pluginName = PLUGIN_NAMES[index];
 
         if (result.status === 'fulfilled') {
             const module = result.value;

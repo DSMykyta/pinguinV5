@@ -12,20 +12,20 @@ import { imagesState } from './images-state.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 
 const PLUGINS = [
-    './images-table.js',
-    './images-ui.js'
+    () => import('./images-table.js'),
+    () => import('./images-ui.js')
 ];
 
 async function loadPlugins() {
     const results = await Promise.allSettled(
-        PLUGINS.map(path => import(path))
+        PLUGINS.map(fn => fn())
     );
 
     results.forEach((result, index) => {
         if (result.status === 'fulfilled' && result.value.init) {
             result.value.init(imagesState);
         } else if (result.status === 'rejected') {
-            console.warn(`[Images] ⚠️ Плагін не завантажено: ${PLUGINS[index]}`, result.reason?.message || '');
+            console.warn(`[Images] ⚠️ Плагін ${index} не завантажено`, result.reason?.message || '');
         }
     });
 }

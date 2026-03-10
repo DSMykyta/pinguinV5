@@ -22,20 +22,20 @@ import { redirectTargetState } from './redirect-target-state.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 
 const PLUGINS = [
-    './redirect-target-table.js',
-    './redirect-target-ui.js'
+    () => import('./redirect-target-table.js'),
+    () => import('./redirect-target-ui.js')
 ];
 
 async function loadPlugins() {
     const results = await Promise.allSettled(
-        PLUGINS.map(path => import(path))
+        PLUGINS.map(fn => fn())
     );
 
     results.forEach((result, index) => {
         if (result.status === 'fulfilled' && result.value.init) {
             result.value.init(redirectTargetState);
         } else if (result.status === 'rejected') {
-            console.warn(`[RedirectTarget] ⚠️ Плагін не завантажено: ${PLUGINS[index]}`, result.reason?.message || '');
+            console.warn(`[RedirectTarget] ⚠️ Плагін ${index} не завантажено`, result.reason?.message || '');
         }
     });
 }

@@ -37,11 +37,11 @@ import { capitalizeFirst } from '../../utils/utils-text.js';
 // ═══════════════════════════════════════════════════════════════════════════
 
 const PLUGINS = [
-    './avatar-user.js',
-    './avatar-ui-states.js',
-    './avatar-modal.js',
-    './avatar-selector.js',
-    './avatar-text.js'
+    () => import('./avatar-user.js'),
+    () => import('./avatar-ui-states.js'),
+    () => import('./avatar-modal.js'),
+    () => import('./avatar-selector.js'),
+    () => import('./avatar-text.js'),
 ];
 
 /**
@@ -49,7 +49,7 @@ const PLUGINS = [
  */
 async function loadPlugins() {
     const results = await Promise.allSettled(
-        PLUGINS.map(path => import(path))
+        PLUGINS.map(fn => fn())
     );
 
     results.forEach((result, index) => {
@@ -57,10 +57,10 @@ async function loadPlugins() {
             try {
                 result.value.init(avatarState);
             } catch (e) {
-                console.error(`[Avatar] ❌ Plugin init error: ${PLUGINS[index]}`, e);
+                console.error(`[Avatar] Plugin ${index} init error`, e);
             }
         } else if (result.status === 'rejected') {
-            console.warn(`[Avatar] Plugin not loaded: ${PLUGINS[index]}`, result.reason?.message || '');
+            console.warn(`[Avatar] Plugin ${index} not loaded`, result.reason?.message || '');
         }
     });
 }

@@ -38,11 +38,19 @@ import { initializeFirstRow } from './gt-row-manager.js';
 // ============================================================================
 
 const PLUGINS = [
-    './gt-hotkeys.js',
-    './gt-reset.js',
-    './gt-session-manager.js',
-    './gt-calculator.js',
-    './gt-magic-hints.js',
+    () => import('./gt-hotkeys.js'),
+    () => import('./gt-reset.js'),
+    () => import('./gt-session-manager.js'),
+    () => import('./gt-calculator.js'),
+    () => import('./gt-magic-hints.js'),
+];
+
+const PLUGIN_NAMES = [
+    'gt-hotkeys',
+    'gt-reset',
+    'gt-session-manager',
+    'gt-calculator',
+    'gt-magic-hints',
 ];
 
 /** Завантажені модулі плагінів */
@@ -57,12 +65,11 @@ async function loadPlugins() {
     _pluginsLoaded = true;
 
     const results = await Promise.allSettled(
-        PLUGINS.map(path => import(path))
+        PLUGINS.map(fn => fn())
     );
 
     results.forEach((result, index) => {
-        const pluginPath = PLUGINS[index];
-        const pluginName = pluginPath.replace('./', '').replace('.js', '');
+        const pluginName = PLUGIN_NAMES[index];
 
         if (result.status === 'fulfilled') {
             const module = result.value;

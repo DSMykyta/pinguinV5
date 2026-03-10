@@ -63,19 +63,19 @@ let _focusSplitInit = false;
 
 const PLUGINS = [
     // Завжди активні
-    './editor-plugin-formatting.js',
-    './editor-plugin-case.js',
-    './editor-plugin-undo.js',
-    './editor-plugin-enter.js',
-    './editor-plugin-paste.js',
+    () => import('./editor-plugin-formatting.js'),
+    () => import('./editor-plugin-case.js'),
+    () => import('./editor-plugin-undo.js'),
+    () => import('./editor-plugin-enter.js'),
+    () => import('./editor-plugin-paste.js'),
     // Шарми (активуються за конфігом)
-    './editor-charm-find.js',
-    './editor-charm-check.js',
-    './editor-charm-chip-navigation.js',
-    './editor-charm-tooltip.js',
-    './editor-charm-stats.js',
-    './editor-charm-cleanup.js',
-    './editor-charm-br.js',
+    () => import('./editor-charm-find.js'),
+    () => import('./editor-charm-check.js'),
+    () => import('./editor-charm-chip-navigation.js'),
+    () => import('./editor-charm-tooltip.js'),
+    () => import('./editor-charm-stats.js'),
+    () => import('./editor-charm-cleanup.js'),
+    () => import('./editor-charm-br.js'),
 ];
 
 /**
@@ -221,14 +221,14 @@ function initFocusSplit() {
 
 async function loadPlugins(state) {
     const results = await Promise.allSettled(
-        PLUGINS.map(path => import(path))
+        PLUGINS.map(fn => fn())
     );
 
     results.forEach((result, index) => {
         if (result.status === 'fulfilled' && result.value.init) {
             result.value.init(state);
         } else if (result.status === 'rejected') {
-            console.warn(`[Editor] ⚠️ ${PLUGINS[index]} — не завантажено`);
+            console.warn(`[Editor] Plugin ${index} — не завантажено`);
         }
     });
 }

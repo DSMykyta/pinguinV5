@@ -25,9 +25,9 @@
 import { initModalCore } from './modal-core.js';
 
 const PLUGINS = [
-    './modal-plugin-confirm.js',
-    './modal-plugin-cascade.js',
-    './modal-plugin-info.js',
+    () => import('./modal-plugin-confirm.js'),
+    () => import('./modal-plugin-cascade.js'),
+    () => import('./modal-plugin-info.js'),
 ];
 
 /**
@@ -38,14 +38,14 @@ export async function initModals() {
     initModalCore();
 
     const results = await Promise.allSettled(
-        PLUGINS.map(path => import(path))
+        PLUGINS.map(fn => fn())
     );
 
     results.forEach((result, index) => {
         if (result.status === 'fulfilled' && result.value.init) {
             result.value.init();
         } else if (result.status === 'rejected') {
-            console.warn(`[modal] ${PLUGINS[index]} — не завантажено`);
+            console.warn(`[modal] Plugin ${index} — не завантажено`);
         }
     });
 }

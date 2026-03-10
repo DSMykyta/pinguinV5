@@ -22,24 +22,24 @@ export { priceState };
 // ═══════════════════════════════════════════════════════════════════════════
 
 const PLUGINS = [
-    './price-aside.js',
-    './price-ui.js',
-    './price-table.js',
-    './price-events.js',
-    './price-import.js',
-    './price-edit-modal.js',
+    () => import('./price-aside.js'),
+    () => import('./price-ui.js'),
+    () => import('./price-table.js'),
+    () => import('./price-events.js'),
+    () => import('./price-import.js'),
+    () => import('./price-edit-modal.js'),
 ];
 
 async function loadPlugins(state) {
     const results = await Promise.allSettled(
-        PLUGINS.map(path => import(path))
+        PLUGINS.map(fn => fn())
     );
 
     results.forEach((result, index) => {
         if (result.status === 'fulfilled' && result.value.init) {
             result.value.init(state);
         } else if (result.status === 'rejected') {
-            console.warn(`[Price] ${PLUGINS[index]} — не завантажено`);
+            console.warn(`[Price] Плагін ${index} — не завантажено`);
         }
     });
 }
