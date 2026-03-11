@@ -8,6 +8,8 @@ const APP_PAGES = [
     'products.html',
     'brands.html',
     'mapper.html',
+    'entities.html',
+    'marketplaces.html',
     'keywords.html',
     'glossary.html',
     'blog.html',
