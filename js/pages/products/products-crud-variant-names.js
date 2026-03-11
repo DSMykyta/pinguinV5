@@ -10,7 +10,7 @@
  * Батьківські характеристики виключаються з назви.
  */
 
-import { getCharacteristics, getOptions } from '../mapper/mapper-data-own.js';
+import { getCharacteristics, getOptions } from '../../data/entities-data.js';
 import { getProductById } from './products-data.js';
 import { buildParentChildMap } from './products-crud-hierarchy.js';
 import { parseSpecJson } from '../../utils/utils-json.js';

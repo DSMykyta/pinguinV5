@@ -12,7 +12,7 @@
  */
 
 import { getProductById } from './products-data.js';
-import { getCharacteristics, getOptions, loadCharacteristics, loadOptions } from '../mapper/mapper-data-own.js';
+import { getCharacteristics, getOptions, loadCharacteristics, loadOptions } from '../../data/entities-data.js';
 import { escapeHtml } from '../../utils/utils-text.js';
 import { parseSpecJson } from '../../utils/utils-json.js';
 import { initCustomSelects } from '../../components/forms/select.js';

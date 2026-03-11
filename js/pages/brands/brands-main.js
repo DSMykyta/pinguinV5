@@ -62,7 +62,7 @@
 import { brandsState } from './brands-state.js';
 import { loadBrands } from './brands-data.js';
 import { loadBrandLines } from './lines-data.js';
-import { loadOptions, getOptions } from '../mapper/mapper-data-own.js';
+import { loadOptions, getOptions } from '../../data/entities-data.js';
 import { runHook, runHookAsync } from './brands-plugins.js';
 import { initTooltips } from '../../components/feedback/tooltip.js';
 import { registerAsideInitializer } from '../../layout/layout-main.js';

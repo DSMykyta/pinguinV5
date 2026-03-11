@@ -22,7 +22,7 @@
  *   TextArea         → textarea
  */
 
-import { getCharacteristics, loadCharacteristics, getOptions, loadOptions } from '../mapper/mapper-data-own.js';
+import { getCharacteristics, loadCharacteristics, getOptions, loadOptions } from '../../data/entities-data.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { escapeHtml } from '../../utils/utils-text.js';
 import { initCustomSelects } from '../../components/forms/select.js';

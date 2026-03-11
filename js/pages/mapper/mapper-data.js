@@ -3,20 +3,33 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║                    MAPPER - DATA MANAGEMENT                              ║
- * ║                        (Re-export Hub)                                   ║
+ * ║                   (Backward Compat Re-export Hub)                        ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
- * Центральний модуль для всіх data-операцій маппера.
- * Реекспортує функції з підмодулів — жоден імпортер не потребує змін.
+ * Реекспортує з нового спільного data layer (js/data/).
+ * Зберігає сумісність з існуючими імпортерами.
  *
- * Підмодулі:
- *   mapper-data-helpers.js  — конфіг аркушів, hard delete, утиліти
- *   mapper-data-own.js      — Load + CRUD + Getters для власних сутностей
- *   mapper-data-mp.js       — Load MP сутностей + маппінги (load + getters)
- *   mapper-data-mappings.js — CRUD маппінгів, autoMap, batch операції
+ * Нові модулі:
+ *   js/data/data-helpers.js      — конфіг аркушів, hard delete, утиліти
+ *   js/data/entities-data.js     — CRUD для категорій, характеристик, опцій
+ *   js/data/marketplaces-data.js — CRUD для маркетплейсів
+ *   js/data/mp-data.js           — Load MP сутностей
+ *   js/data/mappings-data.js     — CRUD маппінгів, autoMap, batch операції
  */
 
-export * from './mapper-data-helpers.js';
-export * from './mapper-data-own.js';
-export * from './mapper-data-mp.js';
-export * from './mapper-data-mappings.js';
+export * from '../../data/data-helpers.js';
+export * from '../../data/entities-data.js';
+export * from '../../data/marketplaces-data.js';
+export * from '../../data/mp-data.js';
+export * from '../../data/mappings-data.js';
+
+// Backward compat: loadMapperData = loadAllEntities + loadMarketplaces
+import { loadAllEntities } from '../../data/entities-data.js';
+import { loadMarketplaces } from '../../data/marketplaces-data.js';
+
+export async function loadMapperData() {
+    await Promise.allSettled([
+        loadAllEntities(),
+        loadMarketplaces()
+    ]);
+}

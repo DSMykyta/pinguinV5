@@ -19,7 +19,7 @@ import {
 } from '../../components/actions/actions-main.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 import { createBatchActionsBar } from '../../components/actions/actions-batch.js';
-import { getOptions } from '../mapper/mapper-data-own.js';
+import { getOptions } from '../../data/entities-data.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ

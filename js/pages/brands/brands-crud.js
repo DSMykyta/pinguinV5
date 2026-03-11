@@ -21,7 +21,7 @@ import { addBrand, updateBrand, getBrands, getBrandById } from './brands-data.js
 import { showModal, closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
-import { getOptions, loadOptions } from '../mapper/mapper-data-own.js';
+import { getOptions, loadOptions } from '../../data/entities-data.js';
 import { populateSelect, reinitializeCustomSelect } from '../../components/forms/select.js';
 import { initSectionNav, destroySectionNav } from '../../layout/layout-plugin-nav-sections.js';
 

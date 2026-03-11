@@ -26,7 +26,7 @@ import { showToast } from '../../components/feedback/toast.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
 import { getBrands, loadBrands } from '../brands/brands-data.js';
 import { getBrandLines, loadBrandLines } from '../brands/lines-data.js';
-import { getCategories, loadCategories } from '../mapper/mapper-data-own.js';
+import { getCategories, loadCategories } from '../../data/entities-data.js';
 import { populateSelect, reinitializeCustomSelect } from '../../components/forms/select.js';
 import { getCharacteristicsData } from './products-crud-characteristics.js';
 import { initSectionNav } from '../../layout/layout-plugin-nav-sections.js';

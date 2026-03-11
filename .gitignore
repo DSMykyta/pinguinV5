@@ -62,6 +62,7 @@ V4 ALL ALL резерв 12 10 25/
 
 # Local data files
 DATA/
+!js/data/
 
 # Deprecated generators (kept locally as backup)
 js/generators/generator-text/

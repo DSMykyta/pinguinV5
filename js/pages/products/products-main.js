@@ -42,7 +42,7 @@ import { productsState } from './products-state.js';
 import { loadProducts } from './products-data.js';
 import { loadProductVariants } from './variants-data.js';
 import { loadProductGroups } from './groups-data.js';
-import { loadCategories, getCategories } from '../mapper/mapper-data-own.js';
+import { loadCategories, getCategories } from '../../data/entities-data.js';
 import { getBrands, loadBrands } from '../brands/brands-data.js';
 import { runHook, runHookAsync } from './products-plugins.js';
 import { initTooltips } from '../../components/feedback/tooltip.js';

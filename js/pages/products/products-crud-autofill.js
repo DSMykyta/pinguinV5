@@ -215,7 +215,7 @@ export async function autofillFromNutritionTable() {
         return;
     }
 
-    const { getCharacteristics } = await import('../mapper/mapper-data-own.js');
+    const { getCharacteristics } = await import('../../data/entities-data.js');
     const allChars = getCharacteristics();
     const categoryChars = allChars.filter(c => {
         if (c.block_number !== '2') return false;
