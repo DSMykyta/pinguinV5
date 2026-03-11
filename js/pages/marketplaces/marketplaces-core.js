@@ -12,6 +12,9 @@
  */
 
 import { loadMarketplaces } from '../../data/marketplaces-data.js';
+import { loadAllEntities } from '../../data/entities-data.js';
+import { loadMpCategories, loadMpCharacteristics, loadMpOptions } from '../../data/mp-data.js';
+import { loadMapCategories, loadMapCharacteristics, loadMapOptions } from '../../data/mappings-data.js';
 import { initTooltips } from '../../components/feedback/tooltip.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { registerAsideInitializer } from '../../layout/layout-main.js';
@@ -45,7 +48,16 @@ export function init(state) {
 async function checkAuthAndLoadData() {
     if (window.isAuthorized) {
         try {
-            await loadMarketplaces();
+            await Promise.allSettled([
+                loadMarketplaces(),
+                loadAllEntities(),
+                loadMpCategories(),
+                loadMpCharacteristics(),
+                loadMpOptions(),
+                loadMapCategories(),
+                loadMapCharacteristics(),
+                loadMapOptions(),
+            ]);
             _state.runHook('onDataLoaded');
         } catch (error) {
             console.error('Помилка завантаження даних:', error);
