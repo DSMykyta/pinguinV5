@@ -17,6 +17,7 @@
 import { loadAllEntities } from '../../data/entities-data.js';
 import { loadMpCategories, loadMpCharacteristics, loadMpOptions } from '../../data/mp-data.js';
 import { loadMapCategories, loadMapCharacteristics, loadMapOptions } from '../../data/mappings-data.js';
+import { loadMarketplaces } from '../../data/marketplaces-data.js';
 import { createLazyLoader } from '../../utils/utils-lazy-load.js';
 import { initTooltips } from '../../components/feedback/tooltip.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
@@ -100,7 +101,7 @@ async function ensureTabData(tabName) {
 async function checkAuthAndLoadData() {
     if (window.isAuthorized) {
         try {
-            await loadAllEntities();
+            await Promise.allSettled([loadAllEntities(), loadMarketplaces()]);
             await Promise.allSettled([loadMpCategories(), loadMapCategories()]);
 
             createTabLoaders();
