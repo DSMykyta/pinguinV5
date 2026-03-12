@@ -37,7 +37,6 @@ export function init(state) {
 
     initTooltips();
     initTabListener();
-    initAside();
 
     checkAuthAndLoadData();
 
@@ -152,48 +151,46 @@ function renderErrorState() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ASIDE
+// ASIDE (module-level registration — before initCore())
 // ═══════════════════════════════════════════════════════════════════════════
 
-function initAside() {
-    registerAsideInitializer('aside-entities', () => {
-        initAsideFab('fab-entities-aside', {
-            'btn-add-category-aside': async () => {
-                const { showAddCategoryModal } = await import('./entities-categories.js');
-                showAddCategoryModal();
-            },
-            'btn-add-characteristic-aside': async () => {
-                const { showAddCharacteristicModal } = await import('./entities-characteristics.js');
-                showAddCharacteristicModal();
-            },
-            'btn-add-option-aside': async () => {
-                const { showAddOptionModal } = await import('./entities-options.js');
-                showAddOptionModal();
-            }
-        });
-
-        const mappingWizardBtn = document.getElementById('btn-mapping-wizard-aside');
-        if (mappingWizardBtn) {
-            mappingWizardBtn.addEventListener('click', async () => {
-                const { showMappingWizard } = await import('./entities-mapping-wizard.js');
-                showMappingWizard();
-            });
-        }
-
-        const charWizardBtn = document.getElementById('btn-mapping-wizard-characteristics-aside');
-        if (charWizardBtn) {
-            charWizardBtn.addEventListener('click', async () => {
-                const { showCharacteristicMappingWizard } = await import('./entities-mapping-wizard-characteristics.js');
-                showCharacteristicMappingWizard();
-            });
-        }
-
-        const optWizardBtn = document.getElementById('btn-mapping-wizard-options-aside');
-        if (optWizardBtn) {
-            optWizardBtn.addEventListener('click', async () => {
-                const { showOptionMappingWizard } = await import('./entities-mapping-wizard-options.js');
-                showOptionMappingWizard();
-            });
+registerAsideInitializer('aside-entities', () => {
+    initAsideFab('fab-entities-aside', {
+        'btn-add-category-aside': async () => {
+            const { showAddCategoryModal } = await import('./entities-categories.js');
+            showAddCategoryModal();
+        },
+        'btn-add-characteristic-aside': async () => {
+            const { showAddCharacteristicModal } = await import('./entities-characteristics.js');
+            showAddCharacteristicModal();
+        },
+        'btn-add-option-aside': async () => {
+            const { showAddOptionModal } = await import('./entities-options.js');
+            showAddOptionModal();
         }
     });
-}
+
+    const mappingWizardBtn = document.getElementById('btn-mapping-wizard-aside');
+    if (mappingWizardBtn) {
+        mappingWizardBtn.addEventListener('click', async () => {
+            const { showMappingWizard } = await import('./entities-mapping-wizard.js');
+            showMappingWizard();
+        });
+    }
+
+    const charWizardBtn = document.getElementById('btn-mapping-wizard-characteristics-aside');
+    if (charWizardBtn) {
+        charWizardBtn.addEventListener('click', async () => {
+            const { showCharacteristicMappingWizard } = await import('./entities-mapping-wizard-characteristics.js');
+            showCharacteristicMappingWizard();
+        });
+    }
+
+    const optWizardBtn = document.getElementById('btn-mapping-wizard-options-aside');
+    if (optWizardBtn) {
+        optWizardBtn.addEventListener('click', async () => {
+            const { showOptionMappingWizard } = await import('./entities-mapping-wizard-options.js');
+            showOptionMappingWizard();
+        });
+    }
+});

@@ -30,7 +30,6 @@ export function init(state) {
     _state = state;
 
     initTooltips();
-    initAside();
 
     checkAuthAndLoadData();
 
@@ -95,27 +94,25 @@ function renderErrorState() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ASIDE
+// ASIDE (module-level registration — before initCore())
 // ═══════════════════════════════════════════════════════════════════════════
 
-function initAside() {
-    registerAsideInitializer('aside-marketplaces', () => {
-        initAsideFab('fab-marketplaces-aside', {
-            'btn-add-marketplace-aside': async () => {
-                const { showAddMarketplaceModal } = await import('./marketplaces-crud.js');
-                showAddMarketplaceModal();
-            }
-        });
-
-        const importBtn = document.getElementById('btn-import-aside');
-        if (importBtn) {
-            importBtn.addEventListener('click', async () => {
-                await import('./marketplaces-import-rozetka.js');
-                await import('./marketplaces-import-epicentr.js');
-                await import('./marketplaces-import-etalon.js');
-                const { showImportModal } = await import('./marketplaces-import.js');
-                showImportModal();
-            });
+registerAsideInitializer('aside-marketplaces', () => {
+    initAsideFab('fab-marketplaces-aside', {
+        'btn-add-marketplace-aside': async () => {
+            const { showAddMarketplaceModal } = await import('./marketplaces-crud.js');
+            showAddMarketplaceModal();
         }
     });
-}
+
+    const importBtn = document.getElementById('btn-import-aside');
+    if (importBtn) {
+        importBtn.addEventListener('click', async () => {
+            await import('./marketplaces-import-rozetka.js');
+            await import('./marketplaces-import-epicentr.js');
+            await import('./marketplaces-import-etalon.js');
+            const { showImportModal } = await import('./marketplaces-import.js');
+            showImportModal();
+        });
+    }
+});
