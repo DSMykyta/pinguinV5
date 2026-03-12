@@ -70,7 +70,17 @@ function setupSearch(container) {
     input.id = inputId;
     input.placeholder = placeholder;
 
-    wrapper.append(icon, input);
+    // clear button (працює через charm-search-clear.js delegation)
+    const clearBtn = document.createElement('button');
+    clearBtn.className = 'btn-icon u-invisible';
+    clearBtn.dataset.clearFor = inputId;
+    clearBtn.type = 'button';
+    const clearIcon = document.createElement('span');
+    clearIcon.className = 'material-symbols-outlined';
+    clearIcon.textContent = 'close';
+    clearBtn.appendChild(clearIcon);
+
+    wrapper.append(icon, input, clearBtn);
     group.insertBefore(wrapper, group.firstChild);
 
     // Store reference for table-managed.js auto-detection

@@ -97,7 +97,6 @@
 .pseudo-table-row {
     display: flex;
     flex-wrap: wrap;
-    margin: 0 6px;
     border-bottom: 1px solid var(--color-outline);
     transition: background-color 150ms ease;
 }

@@ -116,6 +116,23 @@ export function createManagedTable(config) {
             filters: tableConfig.plugins?.filters ? {
                 ...tableConfig.plugins.filters,
                 dataSource: () => getWorkingData(),
+                filteredDataSource: () => {
+                    let data = getWorkingData();
+                    if (preFilter) data = preFilter(data);
+                    if (searchQuery) {
+                        const searchCols = getSearchColumnIds();
+                        data = data.filter(row =>
+                            searchCols.some(colId => {
+                                const val = row[colId];
+                                if (Array.isArray(val)) {
+                                    return val.some(v => String(v).toLowerCase().includes(searchQuery));
+                                }
+                                return val && String(val).toLowerCase().includes(searchQuery);
+                            })
+                        );
+                    }
+                    return data;
+                },
                 onFilter: (filters) => {
                     columnFilters = filters;
                     applyFilters();

@@ -56,6 +56,7 @@ class FiltersPlugin {
             filterColumns: [],     // Array of { id, label, filterType, labelMap }
             onFilter: null,        // Callback (filtersObj) => void
             dataSource: null,      // Function () => data[] — зовнішнє джерело (як в initTableSorting)
+            filteredDataSource: null, // Function () => data[] — дані після пошуку/preFilter (для cross-filtering)
             ...config
         };
 
@@ -232,13 +233,15 @@ class FiltersPlugin {
         const filterType = columnConfig?.filterType || 'values';
         const labelMap = columnConfig?.labelMap || null;
 
-        // Дані для побудови значень — завжди оригінальні (нефільтровані)
-        const data = this.config.dataSource ? this.config.dataSource() : this.state.getData();
-        const uniqueValues = this.getUniqueValues(data, columnId, filterType, labelMap);
+        // Дані: повні — для ініціалізації фільтрів, відфільтровані — для відображення в dropdown
+        const fullData = this.config.dataSource ? this.config.dataSource() : this.state.getData();
+        const displayData = this.config.filteredDataSource ? this.config.filteredDataSource() : fullData;
+        const uniqueValues = this.getUniqueValues(displayData, columnId, filterType, labelMap);
 
-        // Ініціалізуємо фільтр якщо потрібно (все вибрано за замовчуванням)
+        // Ініціалізуємо фільтр якщо потрібно (все вибрано за замовчуванням — з ПОВНИХ даних)
         if (!this.activeFilters.has(columnId)) {
-            this.activeFilters.set(columnId, new Set(uniqueValues.map(v => v.value)));
+            const fullUniqueValues = this.getUniqueValues(fullData, columnId, filterType, labelMap);
+            this.activeFilters.set(columnId, new Set(fullUniqueValues.map(v => v.value)));
         }
 
         const currentFilter = this.activeFilters.get(columnId);
