@@ -9,6 +9,7 @@
  * Одна таблиця (без табів).
  */
 
+import { registerMarketplacesPlugin, runHook } from './marketplaces-plugins.js';
 import { getMarketplaces } from '../../data/marketplaces-data.js';
 import { createManagedTable } from '../../components/table/table-managed.js';
 import { col } from '../../components/table/table-main.js';
@@ -20,13 +21,13 @@ let _state = null;
 
 export function init(state) {
     _state = state;
-    state.registerHook('onDataLoaded', () => {
+    registerMarketplacesPlugin('onDataLoaded', () => {
         initMarketplacesTable();
         renderMarketplacesTable();
-    }, { plugin: 'table' });
-    state.registerHook('onDataChanged', () => {
+    });
+    registerMarketplacesPlugin('onDataChanged', () => {
         renderMarketplacesTable();
-    }, { plugin: 'table' });
+    });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -135,7 +136,7 @@ function initTableCheckboxes(container) {
                 container.querySelectorAll('.row-checkbox').forEach(cb => { cb.checked = false; });
                 if (currentBatchBar) pageIds.forEach(id => currentBatchBar.deselectItem(id));
             }
-            _state.runHook('onRowSelect', Array.from(selectedSet));
+            runHook('onRowSelect', Array.from(selectedSet));
             return;
         }
 
@@ -157,7 +158,7 @@ function initTableCheckboxes(container) {
                 selectAll.checked = allSelected;
                 selectAll.indeterminate = someSelected && !allSelected;
             }
-            _state.runHook('onRowSelect', Array.from(selectedSet));
+            runHook('onRowSelect', Array.from(selectedSet));
         }
     };
 

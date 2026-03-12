@@ -20,6 +20,7 @@
  */
 
 let _state = null;
+import { registerMarketplacesPlugin, runHook } from './marketplaces-plugins.js';
 import {
     addMarketplace, updateMarketplace, deleteMarketplace, getMarketplaces,
     getMarketplaceDependencies
@@ -63,9 +64,7 @@ export const PLUGIN_NAME = 'marketplaces-crud';
  */
 export function init(state) {
     _state = state;
-    _state.registerHook('onDataLoaded', handleDataLoaded, { plugin: 'marketplaces-crud' });
-
-    _state.markPluginLoaded(PLUGIN_NAME);
+    registerMarketplacesPlugin('onDataLoaded', handleDataLoaded);
 }
 
 /**
@@ -290,7 +289,7 @@ async function showDeleteMarketplaceConfirm(id) {
 
             await deleteMarketplace(id);
             showToast('Маркетплейс видалено', 'success');
-            _state.runHook('onDataChanged');
+            runHook('onDataChanged');
         } catch (error) {
             showToast('Помилка видалення маркетплейсу', 'error');
         }
@@ -307,7 +306,7 @@ async function handleSaveNewMarketplace(shouldClose = true) {
         await addMarketplace(data);
         showToast('Маркетплейс додано', 'success');
         if (shouldClose) closeModal();
-        _state.runHook('onDataChanged');
+        runHook('onDataChanged');
     } catch (error) {
         showToast('Помилка додавання маркетплейсу', 'error');
     }
@@ -319,7 +318,7 @@ async function handleUpdateMarketplace(id, shouldClose = true) {
         await updateMarketplace(id, data);
         showToast('Маркетплейс оновлено', 'success');
         if (shouldClose) closeModal();
-        _state.runHook('onDataChanged');
+        runHook('onDataChanged');
     } catch (error) {
         showToast('Помилка оновлення маркетплейсу', 'error');
     }

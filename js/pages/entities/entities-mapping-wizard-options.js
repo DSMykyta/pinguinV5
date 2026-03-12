@@ -13,6 +13,7 @@
 
 let _state = null;
 
+import { runHook } from './entities-plugins.js';
 import { getOptions } from '../../data/entities-data.js';
 import { getMpOptions } from '../../data/mp-data.js';
 import { getMarketplaces } from '../../data/marketplaces-data.js';
@@ -462,7 +463,7 @@ export async function showOptionMappingWizard() {
         const observer = new MutationObserver(() => {
             if (!document.contains(modal)) {
                 observer.disconnect();
-                _state.runHook('onDataChanged');
+                runHook('onDataChanged');
             }
         });
         observer.observe(modal.parentNode || document.body, { childList: true });

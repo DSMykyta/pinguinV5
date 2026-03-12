@@ -27,6 +27,7 @@
 
 let _state = null;
 
+import { registerEntitiesPlugin, runHook } from './entities-plugins.js';
 import {
     addOption, updateOption, deleteOption, getOptions,
     getCharacteristics,
@@ -74,10 +75,8 @@ export const PLUGIN_NAME = 'entities-options';
  */
 export function init(state) {
     _state = state;
-    state.registerHook('onTabChange', handleTabChange, { plugin: 'options' });
-    state.registerHook('onDataLoaded', handleDataLoaded, { plugin: 'options' });
-
-    state.markPluginLoaded(PLUGIN_NAME);
+    registerEntitiesPlugin('onTabChange', handleTabChange);
+    registerEntitiesPlugin('onDataLoaded', handleDataLoaded);
 }
 
 /**
@@ -247,7 +246,7 @@ async function showDeleteOptionConfirm(id) {
             }
 
             showToast('Опцію видалено', 'success');
-            _state.runHook('onDataChanged');
+            runHook('onDataChanged');
         } catch (error) {
             showToast('Помилка видалення опції', 'error');
         }
@@ -264,7 +263,7 @@ async function handleSaveNewOption(shouldClose = true) {
         await addOption(data);
         showToast('Опцію додано', 'success');
         if (shouldClose) closeModal();
-        _state.runHook('onDataChanged');
+        runHook('onDataChanged');
     } catch (error) {
         showToast('Помилка додавання опції', 'error');
     }
@@ -276,7 +275,7 @@ async function handleUpdateOption(id, shouldClose = true) {
         await updateOption(id, data);
         showToast('Опцію оновлено', 'success');
         if (shouldClose) closeModal();
-        _state.runHook('onDataChanged');
+        runHook('onDataChanged');
     } catch (error) {
         showToast('Помилка оновлення опції', 'error');
     }
@@ -552,7 +551,7 @@ function renderMappedMpOptionsSections(ownOptionId) {
                     showToast('Маппінг створено', 'success');
                     renderMappedMpOptionsSections(ownOptionId);
                     initSectionNavigation('option-section-navigator');
-                    _state.runHook('onDataChanged');
+                    runHook('onDataChanged');
                 }
             });
         });
@@ -574,7 +573,7 @@ function renderMappedMpOptionsSections(ownOptionId) {
                     const undoData = mapping ? { ownId: mapping.option_id, mpId: mapping.mp_option_id } : null;
                     await deleteOptionMapping(mappingId);
                     renderMappedMpOptionsSections(ownOptionId);
-                    _state.runHook('onDataChanged');
+                    runHook('onDataChanged');
                     showToast('Прив\'язку знято', 'success', undoData ? {
                         duration: 6000,
                         action: {
@@ -582,7 +581,7 @@ function renderMappedMpOptionsSections(ownOptionId) {
                             onClick: async () => {
                                 await createOptionMapping(undoData.ownId, undoData.mpId);
                                 renderMappedMpOptionsSections(ownOptionId);
-                                _state.runHook('onDataChanged');
+                                runHook('onDataChanged');
                             }
                         }
                     } : 3000);
@@ -696,7 +695,7 @@ export async function showSelectOwnOptionModal(selectedIds) {
             const batchBar = getBatchBar('entities-options');
             if (batchBar) batchBar.deselectAll();
 
-            await _state.runHook('onDataChanged');
+            await runHook('onDataChanged');
 
             const targetOpt = ownOpts.find(o => o.id === targetOwnOptId);
             showToast(`Замаплено ${result.success.length} опцій до "${targetOpt?.value_ua || targetOwnOptId}"`, 'success');
@@ -771,7 +770,7 @@ export async function showSelectOwnOptionModal(selectedIds) {
             const batchBar = getBatchBar('entities-options');
             if (batchBar) batchBar.deselectAll();
 
-            await _state.runHook('onDataChanged');
+            await runHook('onDataChanged');
 
             showToast(`Замаплено ${result.success.length} опцій`, 'success');
         } catch (error) {
@@ -794,7 +793,7 @@ export async function handleAutoMapOptions(selectedIds) {
         const batchBar = getBatchBar('entities-options');
         if (batchBar) batchBar.deselectAll();
 
-        await _state.runHook('onDataChanged');
+        await runHook('onDataChanged');
 
         showToast(`Автоматично замаплено ${result.mapped.length} опцій`, 'success');
     } catch (error) {
@@ -914,7 +913,7 @@ export async function showBindingsModal(ownOptionId, ownOptionName) {
     modalEl.querySelectorAll('[data-modal-close]').forEach(btn => {
         btn.onclick = () => {
             closeModal(MODAL_ID);
-            _state.runHook('onDataChanged');
+            runHook('onDataChanged');
         };
     });
 

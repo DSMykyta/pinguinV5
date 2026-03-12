@@ -2,86 +2,70 @@
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                    ENTITIES - STATE MANAGEMENT                          ║
- * ╠══════════════════════════════════════════════════════════════════════════╣
- * ║  🔒 ЯДРО — Фабрика state + hooks (єдине джерело правди)                ║
+ * ║                    ENTITIES - STATE                                     ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
+ *
+ * Глобальний стан для модуля сутностей.
+ *
+ * 🔒 ЯДРО — цей файл не можна видаляти!
  */
 
 /**
- * Створити state для Entities модуля.
- * Hooks та helpers — методи на об'єкті, як вимагає контракт.
+ * Глобальний стан для entities модуля
  */
-export function createEntitiesState() {
-    const hooks = {};
+export const entitiesState = {
+    // ═══════════════════════════════════════════════════════════════════════
+    // АКТИВНИЙ ТАБ
+    // ═══════════════════════════════════════════════════════════════════════
 
-    return {
-        activeTab: 'categories',
+    activeTab: 'categories',
 
-        // Пошук
-        searchQuery: '',
-        searchColumns: {
-            categories: ['id', 'name_ua', 'name_ru'],
-            characteristics: ['id', 'name_ua', 'name_ru', 'type'],
-            options: ['id', 'value_ua', 'value_ru'],
-        },
+    // ═══════════════════════════════════════════════════════════════════════
+    // ПОШУК
+    // ═══════════════════════════════════════════════════════════════════════
 
-        // Фільтри
-        filters: { categories: {}, characteristics: {}, options: {} },
-        columnFilters: { categories: {}, characteristics: {}, options: {} },
-        columnFiltersAPI: { categories: null, characteristics: null, options: null },
+    searchQuery: '',
+    searchColumns: {
+        categories: ['id', 'name_ua', 'name_ru'],
+        characteristics: ['id', 'name_ua', 'name_ru', 'type'],
+        options: ['id', 'value_ua', 'value_ru'],
+    },
 
-        // Видимі колонки
-        visibleColumns: {
-            categories: ['id', 'nesting_level', 'name_ua', 'parent_id', 'grouping', 'bindings'],
-            characteristics: ['id', 'raw_category_ids', 'name_ua', 'type', 'is_global', 'bindings'],
-            options: ['id', 'characteristic_id', 'value_ua', 'bindings'],
-        },
+    // ═══════════════════════════════════════════════════════════════════════
+    // ФІЛЬТРИ
+    // ═══════════════════════════════════════════════════════════════════════
 
-        // Сортування
-        sortState: {
-            categories: { column: null, direction: null },
-            characteristics: { column: null, direction: null },
-            options: { column: null, direction: null },
-        },
+    filters: { categories: {}, characteristics: {}, options: {} },
+    columnFilters: { categories: {}, characteristics: {}, options: {} },
+    columnFiltersAPI: { categories: null, characteristics: null, options: null },
 
-        // Вибрані рядки
-        selectedRows: {
-            categories: new Set(),
-            characteristics: new Set(),
-            options: new Set(),
-        },
+    // ═══════════════════════════════════════════════════════════════════════
+    // ВИДИМІ КОЛОНКИ
+    // ═══════════════════════════════════════════════════════════════════════
 
-        // Завантажені плагіни
-        loadedPlugins: new Set(),
+    visibleColumns: {
+        categories: ['id', 'nesting_level', 'name_ua', 'parent_id', 'grouping', 'bindings'],
+        characteristics: ['id', 'raw_category_ids', 'name_ua', 'type', 'is_global', 'bindings'],
+        options: ['id', 'characteristic_id', 'value_ua', 'bindings'],
+    },
 
-        // ── Hooks ──────────────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════════
+    // СОРТУВАННЯ
+    // ═══════════════════════════════════════════════════════════════════════
 
-        registerHook(name, fn, opts = {}) {
-            (hooks[name] ??= []).push({ fn, plugin: opts.plugin ?? '?' });
-        },
+    sortState: {
+        categories: { column: null, direction: null },
+        characteristics: { column: null, direction: null },
+        options: { column: null, direction: null },
+    },
 
-        runHook(name, ...args) {
-            (hooks[name] ?? []).forEach(({ fn, plugin }) => {
-                try { fn(...args); } catch (e) { console.error(`[Entities:${plugin}] hook "${name}":`, e); }
-            });
-        },
+    // ═══════════════════════════════════════════════════════════════════════
+    // ВИБРАНІ РЯДКИ
+    // ═══════════════════════════════════════════════════════════════════════
 
-        // ── Helpers ────────────────────────────────────────────────────────
-
-        clearSelection(tabName) {
-            if (this.selectedRows[tabName]) {
-                this.selectedRows[tabName].clear();
-                this.runHook('onRowSelect', tabName, []);
-            }
-        },
-
-        markPluginLoaded(name) {
-            this.loadedPlugins.add(name);
-        },
-
-        isPluginLoaded(name) {
-            return this.loadedPlugins.has(name);
-        },
-    };
-}
+    selectedRows: {
+        categories: new Set(),
+        characteristics: new Set(),
+        options: new Set(),
+    },
+};

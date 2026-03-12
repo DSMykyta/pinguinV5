@@ -40,6 +40,7 @@
 
 let _state = null;
 
+import { registerEntitiesPlugin, runHook } from './entities-plugins.js';
 import {
     addCharacteristic, updateCharacteristic, deleteCharacteristic, getCharacteristics,
     getCategories, getOptions, updateOption, addOption,
@@ -87,10 +88,8 @@ export const PLUGIN_NAME = 'entities-characteristics';
  */
 export function init(state) {
     _state = state;
-    state.registerHook('onTabChange', handleTabChange, { plugin: 'characteristics' });
-    state.registerHook('onDataLoaded', handleDataLoaded, { plugin: 'characteristics' });
-
-    state.markPluginLoaded(PLUGIN_NAME);
+    registerEntitiesPlugin('onTabChange', handleTabChange);
+    registerEntitiesPlugin('onDataLoaded', handleDataLoaded);
 }
 
 /**
@@ -256,7 +255,7 @@ async function showDeleteCharacteristicConfirm(id) {
             }
 
             showToast('Характеристику видалено', 'success');
-            _state.runHook('onDataChanged');
+            runHook('onDataChanged');
         } catch (error) {
             showToast('Помилка видалення характеристики', 'error');
         }
@@ -273,7 +272,7 @@ async function handleSaveNewCharacteristic(shouldClose = true) {
         await addCharacteristic(data);
         showToast('Характеристику додано', 'success');
         if (shouldClose) closeModal();
-        _state.runHook('onDataChanged');
+        runHook('onDataChanged');
     } catch (error) {
         showToast('Помилка додавання характеристики', 'error');
     }
@@ -285,7 +284,7 @@ async function handleUpdateCharacteristic(id, shouldClose = true) {
         await updateCharacteristic(id, data);
         showToast('Характеристику оновлено', 'success');
         if (shouldClose) closeModal();
-        _state.runHook('onDataChanged');
+        runHook('onDataChanged');
     } catch (error) {
         showToast('Помилка оновлення характеристики', 'error');
     }
@@ -712,7 +711,7 @@ function renderMappedMpCharacteristicsSections(ownCharId) {
                     showToast('Маппінг створено', 'success');
                     renderMappedMpCharacteristicsSections(ownCharId);
                     initSectionNavigation('char-section-navigator');
-                    _state.runHook('onDataChanged');
+                    runHook('onDataChanged');
                 }
             });
         });
@@ -732,7 +731,7 @@ function renderMappedMpCharacteristicsSections(ownCharId) {
                 const undoData = mapping ? { ownId: mapping.characteristic_id, mpId: mapping.mp_characteristic_id } : null;
                 await deleteCharacteristicMapping(data.mappingId);
                 renderMappedMpCharacteristicsSections(ownCharId);
-                _state.runHook('onDataChanged');
+                runHook('onDataChanged');
                 showToast('Прив\'язку знято', 'success', undoData ? {
                     duration: 6000,
                     action: {
@@ -740,7 +739,7 @@ function renderMappedMpCharacteristicsSections(ownCharId) {
                         onClick: async () => {
                             await createCharacteristicMapping(undoData.ownId, undoData.mpId);
                             renderMappedMpCharacteristicsSections(ownCharId);
-                            _state.runHook('onDataChanged');
+                            runHook('onDataChanged');
                         }
                     }
                 } : 3000);
@@ -855,7 +854,7 @@ export async function showSelectOwnCharacteristicModal(selectedIds) {
             const batchBar = getBatchBar('entities-characteristics');
             if (batchBar) batchBar.deselectAll();
 
-            await _state.runHook('onDataChanged');
+            await runHook('onDataChanged');
 
             const targetChar = ownChars.find(c => c.id === targetOwnCharId);
             showToast(`Замаплено ${result.success.length} характеристик до "${targetChar?.name_ua || targetOwnCharId}"`, 'success');
@@ -930,7 +929,7 @@ export async function showSelectOwnCharacteristicModal(selectedIds) {
             const batchBar = getBatchBar('entities-characteristics');
             if (batchBar) batchBar.deselectAll();
 
-            await _state.runHook('onDataChanged');
+            await runHook('onDataChanged');
 
             showToast(`Замаплено ${result.success.length} характеристик`, 'success');
         } catch (error) {
@@ -953,7 +952,7 @@ export async function handleAutoMapCharacteristics(selectedIds) {
         const batchBar = getBatchBar('entities-characteristics');
         if (batchBar) batchBar.deselectAll();
 
-        await _state.runHook('onDataChanged');
+        await runHook('onDataChanged');
 
         showToast(`Автоматично замаплено ${result.mapped.length} характеристик`, 'success');
     } catch (error) {
@@ -1073,7 +1072,7 @@ export async function showBindingsModal(ownCharId, ownCharName) {
     modalEl.querySelectorAll('[data-modal-close]').forEach(btn => {
         btn.onclick = () => {
             closeModal(MODAL_ID);
-            _state.runHook('onDataChanged');
+            runHook('onDataChanged');
         };
     });
 

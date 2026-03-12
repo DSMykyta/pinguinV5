@@ -14,6 +14,7 @@
  */
 
 let _state = null;
+import { registerMarketplacesPlugin, runHook } from './marketplaces-plugins.js';
 import {
     getCategories, getCharacteristics, getOptions
 } from '../../data/entities-data.js';
@@ -72,9 +73,7 @@ function normalizeIsGlobal(value) {
  */
 export function init(state) {
     _state = state;
-    _state.registerHook('onDataLoaded', handleDataLoaded, { plugin: 'import' });
-
-    _state.markPluginLoaded(PLUGIN_NAME);
+    registerMarketplacesPlugin('onDataLoaded', handleDataLoaded);
 }
 
 /**
@@ -273,7 +272,7 @@ async function handleFilesSelect(files) {
         showToast(msg, failed ? 'warning' : 'success');
         if (fileNameEl) fileNameEl.textContent = `${success}/${total} файлів імпортовано`;
         if (importBtn) importBtn.disabled = false;
-        _state.runHook('onDataChanged');
+        runHook('onDataChanged');
     }, 500);
 }
 
@@ -592,7 +591,7 @@ async function executeImport() {
             loader.hide();
             showToast('Імпорт завершено успішно!', 'success');
             closeModal();
-            _state.runHook('onDataChanged');
+            runHook('onDataChanged');
         }, 500);
     } catch (error) {
         console.error('Помилка імпорту:', error);

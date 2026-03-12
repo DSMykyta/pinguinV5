@@ -13,6 +13,7 @@
 
 let _state = null;
 
+import { registerEntitiesPlugin, runHook } from './entities-plugins.js';
 import {
     getCategories, getCharacteristics, getOptions
 } from '../../data/entities-data.js';
@@ -265,32 +266,32 @@ let _oldTab = null;
 export function init(state) {
     _state = state;
 
-    state.registerHook('onDataLoaded', () => {
+    registerEntitiesPlugin('onDataLoaded', () => {
         invalidateLookupCaches();
         initAllEntitiesTables();
         ensureTabManagedTable(state.activeTab);
         renderCurrentTab();
         import('./entities-events.js').then(m => m.initEntitiesEvents());
-    }, { plugin: 'table' });
+    });
 
-    state.registerHook('onTabSwitch', (newTab) => {
+    registerEntitiesPlugin('onTabSwitch', (newTab) => {
         switchEntitiesTab(newTab, _oldTab);
         _oldTab = newTab;
-    }, { plugin: 'table' });
+    });
 
-    state.registerHook('onTabDataReady', (newTab) => {
+    registerEntitiesPlugin('onTabDataReady', (newTab) => {
         ensureTabManagedTable(newTab);
         renderCurrentTab();
-    }, { plugin: 'table' });
+    });
 
-    state.registerHook('onDataChanged', () => {
+    registerEntitiesPlugin('onDataChanged', () => {
         invalidateLookupCaches();
         renderCurrentTab();
-    }, { plugin: 'table' });
+    });
 
-    state.registerHook('onLookupInvalidate', () => {
+    registerEntitiesPlugin('onLookupInvalidate', () => {
         invalidateLookupCaches();
-    }, { plugin: 'table' });
+    });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -588,7 +589,7 @@ function initTableCheckboxes(container, tabName) {
                 container.querySelectorAll('.row-checkbox').forEach(cb => { cb.checked = false; });
                 if (currentBatchBar) pageIds.forEach(id => currentBatchBar.deselectItem(id));
             }
-            _state.runHook('onRowSelect', tabName, Array.from(selectedSet));
+            runHook('onRowSelect', tabName, Array.from(selectedSet));
             return;
         }
 
@@ -610,7 +611,7 @@ function initTableCheckboxes(container, tabName) {
                 selectAll.checked = allSelected;
                 selectAll.indeterminate = someSelected && !allSelected;
             }
-            _state.runHook('onRowSelect', tabName, Array.from(selectedSet));
+            runHook('onRowSelect', tabName, Array.from(selectedSet));
         }
     };
 

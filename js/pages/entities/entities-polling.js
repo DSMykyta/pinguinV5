@@ -13,14 +13,15 @@ import {
     getMapCategories, getMapCharacteristics, getMapOptions,
     loadMapCategories, loadMapCharacteristics, loadMapOptions
 } from '../../data/mappings-data.js';
+import { registerEntitiesPlugin, runHook } from './entities-plugins.js';
 
 let _state = null;
 
 export function init(state) {
     _state = state;
-    state.registerHook('onDataLoaded', () => {
+    registerEntitiesPlugin('onDataLoaded', () => {
         startPolling();
-    }, { plugin: 'polling' });
+    });
 }
 
 // ── Fetch helper ──
@@ -78,7 +79,7 @@ const polling = createPolling({
     async onChanged() {
         console.log('[Entities] Polling: виявлено змiни в маппiнгах');
         if (_state) {
-            _state.runHook('onDataChanged');
+            runHook('onDataChanged');
         }
     },
 });

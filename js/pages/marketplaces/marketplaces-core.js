@@ -4,9 +4,9 @@
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║                    MARKETPLACES - CORE                                  ║
  * ╠══════════════════════════════════════════════════════════════════════════╣
- * ║  🔒 ЯДРО — Lifecycle: auth, data loading, aside                        ║
+ * ║  🔒 ЯДРО — Lifecycle: auth, data loading                               ║
  * ║                                                                          ║
- * ║  Запускає state.runHook() в ключових точках:                            ║
+ * ║  Запускає runHook() в ключових точках:                                  ║
  * ║  • onDataLoaded — дані завантажено, можна рендерити                    ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
@@ -17,8 +17,7 @@ import { loadMpCategories, loadMpCharacteristics, loadMpOptions } from '../../da
 import { loadMapCategories, loadMapCharacteristics, loadMapOptions } from '../../data/mappings-data.js';
 import { initTooltips } from '../../components/feedback/tooltip.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
-import { registerAsideInitializer } from '../../layout/layout-main.js';
-import { initAsideFab } from '../../components/fab-menu.js';
+import { runHook } from './marketplaces-plugins.js';
 
 let _state = null;
 
@@ -57,7 +56,7 @@ async function checkAuthAndLoadData() {
                 loadMapCharacteristics(),
                 loadMapOptions(),
             ]);
-            _state.runHook('onDataLoaded');
+            runHook('onDataLoaded');
         } catch (error) {
             console.error('Помилка завантаження даних:', error);
             renderErrorState();
@@ -92,27 +91,3 @@ function renderErrorState() {
         showMessage: true
     });
 }
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ASIDE (module-level registration — before initCore())
-// ═══════════════════════════════════════════════════════════════════════════
-
-registerAsideInitializer('aside-marketplaces', () => {
-    initAsideFab('fab-marketplaces-aside', {
-        'btn-add-marketplace-aside': async () => {
-            const { showAddMarketplaceModal } = await import('./marketplaces-crud.js');
-            showAddMarketplaceModal();
-        }
-    });
-
-    const importBtn = document.getElementById('btn-import-aside');
-    if (importBtn) {
-        importBtn.addEventListener('click', async () => {
-            await import('./marketplaces-import-rozetka.js');
-            await import('./marketplaces-import-epicentr.js');
-            await import('./marketplaces-import-etalon.js');
-            const { showImportModal } = await import('./marketplaces-import.js');
-            showImportModal();
-        });
-    }
-});

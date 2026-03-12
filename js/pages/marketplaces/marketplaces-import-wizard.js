@@ -18,6 +18,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
+import { registerMarketplacesPlugin, runHook } from './marketplaces-plugins.js';
 import { getMpCategories, getMpCharacteristics, getMpOptions } from '../../data/mp-data.js';
 import { getCategories, getCharacteristics, getOptions, addCategory, addCharacteristic, addOption } from '../../data/entities-data.js';
 import { getMarketplaces } from '../../data/marketplaces-data.js';
@@ -67,8 +68,7 @@ const wizardState = {
 
 export function init(state) {
     _state = state;
-    _state.registerHook('onDataLoaded', handleDataLoaded, { plugin: 'import-wizard' });
-    _state.markPluginLoaded(PLUGIN_NAME);
+    registerMarketplacesPlugin('onDataLoaded', handleDataLoaded);
 }
 
 function handleDataLoaded() {
@@ -700,7 +700,7 @@ async function executeImport() {
             `;
             document.getElementById('wizard-close')?.addEventListener('click', () => {
                 closeModal('mapper-import-wizard');
-                _state.runHook('onDataChanged');
+                runHook('onDataChanged');
             });
         }
 

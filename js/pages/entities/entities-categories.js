@@ -26,6 +26,7 @@
 
 let _state = null;
 
+import { registerEntitiesPlugin, runHook } from './entities-plugins.js';
 import {
     addCategory, updateCategory, deleteCategory, getCategories,
     getCharacteristics, getOptions, updateCharacteristic,
@@ -73,10 +74,8 @@ export const PLUGIN_NAME = 'entities-categories';
  */
 export function init(state) {
     _state = state;
-    state.registerHook('onTabChange', handleTabChange, { plugin: 'categories' });
-    state.registerHook('onDataLoaded', handleDataLoaded, { plugin: 'categories' });
-
-    state.markPluginLoaded(PLUGIN_NAME);
+    registerEntitiesPlugin('onTabChange', handleTabChange);
+    registerEntitiesPlugin('onDataLoaded', handleDataLoaded);
 }
 
 function handleTabChange(newTab, prevTab) {
@@ -224,7 +223,7 @@ async function showDeleteCategoryConfirm(id) {
             }
 
             showToast('Категорiю видалено', 'success');
-            _state.runHook('onDataChanged');
+            runHook('onDataChanged');
         } catch (error) {
             showToast('Помилка видалення категорiї', 'error');
         }
@@ -241,7 +240,7 @@ async function handleSaveNewCategory(shouldClose = true) {
         await addCategory(data);
         showToast('Категорiю додано', 'success');
         if (shouldClose) closeModal();
-        _state.runHook('onDataChanged');
+        runHook('onDataChanged');
     } catch (error) {
         showToast('Помилка додавання категорiї', 'error');
     }
@@ -253,7 +252,7 @@ async function handleUpdateCategory(id, shouldClose = true) {
         await updateCategory(id, data);
         showToast('Категорiю оновлено', 'success');
         if (shouldClose) closeModal();
-        _state.runHook('onDataChanged');
+        runHook('onDataChanged');
     } catch (error) {
         showToast('Помилка оновлення категорiї', 'error');
     }
@@ -635,7 +634,7 @@ export async function showSelectOwnCategoryModal(selectedMpCatIds) {
             if (batchBar) batchBar.deselectAll();
 
             showToast(`Замаплено ${selectedMpCatIds.length} категорiй`, 'success');
-            _state.runHook('onDataChanged');
+            runHook('onDataChanged');
         } catch (error) {
             console.error('Помилка маппiнгу:', error);
             showToast('Помилка маппiнгу категорiй', 'error');
@@ -759,7 +758,7 @@ function renderMappedMpCategoriesSections(ownCatId) {
                     showToast('Маппiнг створено', 'success');
                     renderMappedMpCategoriesSections(ownCatId);
                     initSectionNavigation('category-section-navigator');
-                    _state.runHook('onDataChanged');
+                    runHook('onDataChanged');
                 }
             });
         });
@@ -779,7 +778,7 @@ function renderMappedMpCategoriesSections(ownCatId) {
                 const undoData = mapping ? { ownId: mapping.category_id, mpId: mapping.mp_category_id } : null;
                 await deleteCategoryMapping(data.mappingId);
                 renderMappedMpCategoriesSections(ownCatId);
-                _state.runHook('onDataChanged');
+                runHook('onDataChanged');
                 showToast('Прив\'язку знято', 'success', undoData ? {
                     duration: 6000,
                     action: {
@@ -787,7 +786,7 @@ function renderMappedMpCategoriesSections(ownCatId) {
                         onClick: async () => {
                             await createCategoryMapping(undoData.ownId, undoData.mpId);
                             renderMappedMpCategoriesSections(ownCatId);
-                            _state.runHook('onDataChanged');
+                            runHook('onDataChanged');
                         }
                     }
                 } : 3000);
@@ -917,7 +916,7 @@ export async function showBindingsModal(ownCatId, ownCatName) {
     modalEl.querySelectorAll('[data-modal-close]').forEach(btn => {
         btn.onclick = () => {
             closeModal(MODAL_ID);
-            _state.runHook('onDataChanged');
+            runHook('onDataChanged');
         };
     });
 

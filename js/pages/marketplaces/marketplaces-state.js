@@ -2,66 +2,48 @@
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                    MARKETPLACES - STATE MANAGEMENT                      ║
- * ╠══════════════════════════════════════════════════════════════════════════╣
- * ║  🔒 ЯДРО — Фабрика state + hooks (єдине джерело правди)                ║
+ * ║                    MARKETPLACES - STATE                                 ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
+ *
+ * Глобальний стан для модуля маркетплейсів.
+ *
+ * 🔒 ЯДРО — цей файл не можна видаляти!
  */
 
 /**
- * Створити state для Marketplaces модуля.
- * Hooks та helpers — методи на об'єкті, як вимагає контракт.
+ * Глобальний стан для marketplaces модуля
  */
-export function createMarketplacesState() {
-    const hooks = {};
+export const marketplacesState = {
+    // ═══════════════════════════════════════════════════════════════════════
+    // ПОШУК
+    // ═══════════════════════════════════════════════════════════════════════
 
-    return {
-        // Пошук
-        searchQuery: '',
-        searchColumns: ['id', 'name', 'slug'],
+    searchQuery: '',
+    searchColumns: ['id', 'name', 'slug'],
 
-        // Фільтри
-        filters: {},
-        columnFilters: {},
-        columnFiltersAPI: null,
+    // ═══════════════════════════════════════════════════════════════════════
+    // ФІЛЬТРИ
+    // ═══════════════════════════════════════════════════════════════════════
 
-        // Видимі колонки
-        visibleColumns: ['id', 'name', 'slug', 'is_active'],
+    filters: {},
+    columnFilters: {},
+    columnFiltersAPI: null,
 
-        // Сортування
-        sortState: { column: null, direction: null },
+    // ═══════════════════════════════════════════════════════════════════════
+    // ВИДИМІ КОЛОНКИ
+    // ═══════════════════════════════════════════════════════════════════════
 
-        // Вибрані рядки
-        selectedRows: new Set(),
+    visibleColumns: ['id', 'name', 'slug', 'is_active'],
 
-        // Завантажені плагіни
-        loadedPlugins: new Set(),
+    // ═══════════════════════════════════════════════════════════════════════
+    // СОРТУВАННЯ
+    // ═══════════════════════════════════════════════════════════════════════
 
-        // ── Hooks ──────────────────────────────────────────────────────────
+    sortState: { column: null, direction: null },
 
-        registerHook(name, fn, opts = {}) {
-            (hooks[name] ??= []).push({ fn, plugin: opts.plugin ?? '?' });
-        },
+    // ═══════════════════════════════════════════════════════════════════════
+    // ВИБРАНІ РЯДКИ
+    // ═══════════════════════════════════════════════════════════════════════
 
-        runHook(name, ...args) {
-            (hooks[name] ?? []).forEach(({ fn, plugin }) => {
-                try { fn(...args); } catch (e) { console.error(`[Marketplaces:${plugin}] hook "${name}":`, e); }
-            });
-        },
-
-        // ── Helpers ────────────────────────────────────────────────────────
-
-        clearSelection() {
-            this.selectedRows.clear();
-            this.runHook('onRowSelect', []);
-        },
-
-        markPluginLoaded(name) {
-            this.loadedPlugins.add(name);
-        },
-
-        isPluginLoaded(name) {
-            return this.loadedPlugins.has(name);
-        },
-    };
-}
+    selectedRows: new Set(),
+};

@@ -4,9 +4,9 @@
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║                    ENTITIES - CORE                                      ║
  * ╠══════════════════════════════════════════════════════════════════════════╣
- * ║  🔒 ЯДРО — Lifecycle: auth, data loading, tabs, lazy loaders, aside    ║
+ * ║  🔒 ЯДРО — Lifecycle: auth, data loading, tabs, lazy loaders           ║
  * ║                                                                          ║
- * ║  Запускає state.runHook() в ключових точках:                            ║
+ * ║  Запускає runHook() в ключових точках:                                  ║
  * ║  • onDataLoaded   — дані завантажено, можна рендерити                  ║
  * ║  • onTabSwitch    — користувач переключив таб                          ║
  * ║  • onTabDataReady — lazy data для табу готова                          ║
@@ -21,8 +21,7 @@ import { loadMarketplaces } from '../../data/marketplaces-data.js';
 import { createLazyLoader } from '../../utils/utils-lazy-load.js';
 import { initTooltips } from '../../components/feedback/tooltip.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
-import { registerAsideInitializer } from '../../layout/layout-main.js';
-import { initAsideFab } from '../../components/fab-menu.js';
+import { runHook } from './entities-plugins.js';
 
 let _state = null;
 let lazyCharacteristics = null;
@@ -59,12 +58,12 @@ function initTabListener() {
         const newTab = tabId.replace('tab-entities-', '');
         _state.activeTab = newTab;
 
-        _state.runHook('onTabSwitch', newTab);
+        runHook('onTabSwitch', newTab);
 
         if (!window.isAuthorized) return;
 
         await ensureTabData(newTab);
-        _state.runHook('onTabDataReady', newTab);
+        runHook('onTabDataReady', newTab);
     });
 }
 
@@ -75,12 +74,12 @@ function initTabListener() {
 function createTabLoaders() {
     lazyCharacteristics = createLazyLoader(async () => {
         await Promise.allSettled([loadMpCharacteristics(), loadMapCharacteristics()]);
-        _state.runHook('onLookupInvalidate');
+        runHook('onLookupInvalidate');
     });
 
     lazyOptions = createLazyLoader(async () => {
         await Promise.allSettled([loadMpOptions(), loadMapOptions()]);
-        _state.runHook('onLookupInvalidate');
+        runHook('onLookupInvalidate');
     });
 }
 
@@ -106,7 +105,7 @@ async function checkAuthAndLoadData() {
             createTabLoaders();
             await ensureTabData(_state.activeTab);
 
-            _state.runHook('onDataLoaded');
+            runHook('onDataLoaded');
         } catch (error) {
             console.error('Помилка завантаження даних:', error);
             renderErrorState();
@@ -149,48 +148,3 @@ function renderErrorState() {
         showMessage: true
     });
 }
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ASIDE (module-level registration — before initCore())
-// ═══════════════════════════════════════════════════════════════════════════
-
-registerAsideInitializer('aside-entities', () => {
-    initAsideFab('fab-entities-aside', {
-        'btn-add-category-aside': async () => {
-            const { showAddCategoryModal } = await import('./entities-categories.js');
-            showAddCategoryModal();
-        },
-        'btn-add-characteristic-aside': async () => {
-            const { showAddCharacteristicModal } = await import('./entities-characteristics.js');
-            showAddCharacteristicModal();
-        },
-        'btn-add-option-aside': async () => {
-            const { showAddOptionModal } = await import('./entities-options.js');
-            showAddOptionModal();
-        }
-    });
-
-    const mappingWizardBtn = document.getElementById('btn-mapping-wizard-aside');
-    if (mappingWizardBtn) {
-        mappingWizardBtn.addEventListener('click', async () => {
-            const { showMappingWizard } = await import('./entities-mapping-wizard.js');
-            showMappingWizard();
-        });
-    }
-
-    const charWizardBtn = document.getElementById('btn-mapping-wizard-characteristics-aside');
-    if (charWizardBtn) {
-        charWizardBtn.addEventListener('click', async () => {
-            const { showCharacteristicMappingWizard } = await import('./entities-mapping-wizard-characteristics.js');
-            showCharacteristicMappingWizard();
-        });
-    }
-
-    const optWizardBtn = document.getElementById('btn-mapping-wizard-options-aside');
-    if (optWizardBtn) {
-        optWizardBtn.addEventListener('click', async () => {
-            const { showOptionMappingWizard } = await import('./entities-mapping-wizard-options.js');
-            showOptionMappingWizard();
-        });
-    }
-});

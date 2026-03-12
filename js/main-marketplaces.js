@@ -18,6 +18,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     await initCore();
 
     // Потім ініціалізуємо специфічні для marketplaces функції
-    initMarketplaces();
+    await initMarketplaces();
 
 });
