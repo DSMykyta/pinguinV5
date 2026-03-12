@@ -278,3 +278,155 @@ export function init(table, state, config = {}) {
     plugin.init(table, state);
     return plugin;
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STANDALONE — Генерік initTableCheckboxes для будь-якої таблиці
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Ініціалізує чекбокси таблиці з підтримкою пагінації та batch actions.
+ *
+ * @param {Object} config
+ * @param {HTMLElement} config.container — контейнер таблиці
+ * @param {string}     config.tabName — ім'я табу (для data-tab matching)
+ * @param {Set}        config.selectedSet — Set для збереження вибраних ID
+ * @param {string}     config.batchBarId — ID batch actions bar
+ * @param {Function}   config.getBatchBar — () => batchBar instance
+ * @param {Function}   [config.onSelectionChange] — callback(selectedArray)
+ * @returns {Function} cleanup — видаляє event listener
+ */
+export function initTableCheckboxes({ container, tabName, selectedSet, batchBarId, getBatchBar, onSelectionChange }) {
+    const selectAllCheckbox = container.querySelector('.select-all-checkbox');
+    const rowCheckboxes = container.querySelectorAll('.row-checkbox');
+    if (!selectAllCheckbox || rowCheckboxes.length === 0) return () => {};
+
+    // Отримати ID тільки видимих рядків (без прихованих пагінацією)
+    const getVisibleIds = () => [...container.querySelectorAll('.row-checkbox')]
+        .filter(cb => !cb.closest('.paginated-hidden'))
+        .map(cb => cb.dataset.rowId);
+
+    let pageIds = getVisibleIds();
+
+    // Відновити стан чекбоксів
+    rowCheckboxes.forEach(checkbox => {
+        checkbox.checked = selectedSet.has(checkbox.dataset.rowId);
+    });
+
+    const updateSelectAllState = () => {
+        pageIds = getVisibleIds();
+        const allSelected = pageIds.length > 0 && pageIds.every(id => selectedSet.has(id));
+        const someSelected = pageIds.some(id => selectedSet.has(id));
+        selectAllCheckbox.checked = allSelected;
+        selectAllCheckbox.indeterminate = someSelected && !allSelected;
+    };
+
+    updateSelectAllState();
+
+    // Sync batch bar
+    const batchBar = getBatchBar(batchBarId);
+    if (batchBar) {
+        const batchSelected = new Set(batchBar.getSelected());
+        selectedSet.forEach(id => { if (!batchSelected.has(id)) batchBar.selectItem(id); });
+        batchSelected.forEach(id => { if (!selectedSet.has(id)) batchBar.deselectItem(id); });
+    }
+
+    // Event delegation
+    const delegationHandler = (e) => {
+        const target = e.target;
+
+        if (target.classList.contains('select-all-checkbox') && target.dataset.tab === tabName) {
+            const currentBatchBar = getBatchBar(batchBarId);
+            pageIds = getVisibleIds();
+            if (target.checked) {
+                pageIds.forEach(id => selectedSet.add(id));
+                pageIds.forEach(id => {
+                    const cb = container.querySelector(`.row-checkbox[data-row-id="${id}"]`);
+                    if (cb) cb.checked = true;
+                });
+                if (currentBatchBar) pageIds.forEach(id => currentBatchBar.selectItem(id));
+            } else {
+                pageIds.forEach(id => selectedSet.delete(id));
+                pageIds.forEach(id => {
+                    const cb = container.querySelector(`.row-checkbox[data-row-id="${id}"]`);
+                    if (cb) cb.checked = false;
+                });
+                if (currentBatchBar) pageIds.forEach(id => currentBatchBar.deselectItem(id));
+            }
+            if (onSelectionChange) onSelectionChange(Array.from(selectedSet));
+            return;
+        }
+
+        if (target.classList.contains('row-checkbox') && target.dataset.tab === tabName) {
+            const rowId = target.dataset.rowId;
+            const currentBatchBar = getBatchBar(batchBarId);
+            if (target.checked) {
+                selectedSet.add(rowId);
+                if (currentBatchBar) currentBatchBar.selectItem(rowId);
+            } else {
+                selectedSet.delete(rowId);
+                if (currentBatchBar) currentBatchBar.deselectItem(rowId);
+            }
+
+            const visibleIds = getVisibleIds();
+            const allSelected = visibleIds.length > 0 && visibleIds.every(id => selectedSet.has(id));
+            const someSelected = visibleIds.some(id => selectedSet.has(id));
+            const selectAll = container.querySelector('.select-all-checkbox');
+            if (selectAll) {
+                selectAll.checked = allSelected;
+                selectAll.indeterminate = someSelected && !allSelected;
+            }
+            if (onSelectionChange) onSelectionChange(Array.from(selectedSet));
+        }
+    };
+
+    container.addEventListener('change', delegationHandler);
+
+    // Повертаємо cleanup функцію
+    return () => container.removeEventListener('change', delegationHandler);
+}
+
+/**
+ * Реєстр checkbox handlers — керує lifecycle для кількох табів.
+ *
+ * @param {Object} config
+ * @param {string}   config.pagePrefix — префікс контейнера (напр. 'entities', 'mapper')
+ * @param {Function} config.getBatchBar — () => batchBar
+ * @param {Function} config.getSelectedSet — (tabName) => Set
+ * @param {Function} [config.onSelectionChange] — callback(tabName, selectedArray)
+ * @returns {{ init, clear }}
+ */
+export function createCheckboxRegistry({ pagePrefix, getBatchBar, getSelectedSet, onSelectionChange }) {
+    const cleanups = new Map();
+
+    return {
+        init(container, tabName) {
+            // Cleanup попередній handler для цього табу
+            const prev = cleanups.get(tabName);
+            if (prev) prev();
+
+            const cleanup = initTableCheckboxes({
+                container,
+                tabName,
+                selectedSet: getSelectedSet(tabName),
+                batchBarId: `${pagePrefix}-${tabName}`,
+                getBatchBar,
+                onSelectionChange: onSelectionChange
+                    ? (selected) => onSelectionChange(tabName, selected)
+                    : null,
+            });
+
+            cleanups.set(tabName, cleanup);
+        },
+
+        clear(tabName) {
+            if (tabName) {
+                const cleanup = cleanups.get(tabName);
+                if (cleanup) cleanup();
+                cleanups.delete(tabName);
+            } else {
+                cleanups.forEach(cleanup => cleanup());
+                cleanups.clear();
+            }
+        }
+    };
+}

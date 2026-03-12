@@ -25,6 +25,7 @@ import {
 } from '../../data/mappings-data.js';
 import { getMarketplaces } from '../../data/marketplaces-data.js';
 import { getBatchBar } from '../../components/actions/actions-batch.js';
+import { createCheckboxRegistry } from '../../components/table/table-checkboxes.js';
 import { createCachedFn } from '../../utils/utils-lazy-load.js';
 import { createManagedTable } from '../../components/table/table-managed.js';
 import { col } from '../../components/table/table-main.js';
@@ -337,7 +338,15 @@ registerActionHandlers('entities-options', {
 
 const managedTables = {};
 const actionCleanups = new Map();
-const checkboxDelegationHandlers = new Map();
+const checkboxRegistry = createCheckboxRegistry({
+    pagePrefix: 'entities',
+    getBatchBar,
+    getSelectedSet: (tabName) => {
+        if (!_state.selectedRows[tabName]) _state.selectedRows[tabName] = new Set();
+        return _state.selectedRows[tabName];
+    },
+    onSelectionChange: (tabName, selected) => runHook('onRowSelect', tabName, selected),
+});
 
 const entitiesColumnTypes = {
     id: 'string',
@@ -531,92 +540,11 @@ function getFilterColumnsConfig(tabName) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// CHECKBOX INIT (onAfterRender)
+// CHECKBOX INIT (onAfterRender) — делегує в generic table-checkboxes
 // ═══════════════════════════════════════════════════════════════════════════
 
 function initTableCheckboxes(container, tabName) {
-    const selectAllCheckbox = container.querySelector('.select-all-checkbox');
-    const rowCheckboxes = container.querySelectorAll('.row-checkbox');
-    if (!selectAllCheckbox || rowCheckboxes.length === 0) return;
-
-    if (!_state.selectedRows[tabName]) {
-        _state.selectedRows[tabName] = new Set();
-    }
-
-    const selectedSet = _state.selectedRows[tabName];
-    const batchBarId = `entities-${tabName}`;
-    const batchBar = getBatchBar(batchBarId);
-
-    // Отримати ID з DOM
-    const pageIds = [...rowCheckboxes].map(cb => cb.dataset.rowId);
-
-    // Вiдновити стан чекбоксiв
-    rowCheckboxes.forEach(checkbox => {
-        checkbox.checked = selectedSet.has(checkbox.dataset.rowId);
-    });
-
-    const updateSelectAllState = () => {
-        const allSelected = pageIds.length > 0 && pageIds.every(id => selectedSet.has(id));
-        const someSelected = pageIds.some(id => selectedSet.has(id));
-        selectAllCheckbox.checked = allSelected;
-        selectAllCheckbox.indeterminate = someSelected && !allSelected;
-    };
-
-    updateSelectAllState();
-
-    // Sync batch bar
-    if (batchBar) {
-        const batchSelected = new Set(batchBar.getSelected());
-        selectedSet.forEach(id => { if (!batchSelected.has(id)) batchBar.selectItem(id); });
-        batchSelected.forEach(id => { if (!selectedSet.has(id)) batchBar.deselectItem(id); });
-    }
-
-    // Event delegation
-    const prevHandler = checkboxDelegationHandlers.get(tabName);
-    if (prevHandler) container.removeEventListener('change', prevHandler);
-
-    const delegationHandler = (e) => {
-        const target = e.target;
-
-        if (target.classList.contains('select-all-checkbox') && target.dataset.tab === tabName) {
-            const currentBatchBar = getBatchBar(batchBarId);
-            if (target.checked) {
-                pageIds.forEach(id => selectedSet.add(id));
-                container.querySelectorAll('.row-checkbox').forEach(cb => { cb.checked = true; });
-                if (currentBatchBar) pageIds.forEach(id => currentBatchBar.selectItem(id));
-            } else {
-                pageIds.forEach(id => selectedSet.delete(id));
-                container.querySelectorAll('.row-checkbox').forEach(cb => { cb.checked = false; });
-                if (currentBatchBar) pageIds.forEach(id => currentBatchBar.deselectItem(id));
-            }
-            runHook('onRowSelect', tabName, Array.from(selectedSet));
-            return;
-        }
-
-        if (target.classList.contains('row-checkbox') && target.dataset.tab === tabName) {
-            const rowId = target.dataset.rowId;
-            const currentBatchBar = getBatchBar(batchBarId);
-            if (target.checked) {
-                selectedSet.add(rowId);
-                if (currentBatchBar) currentBatchBar.selectItem(rowId);
-            } else {
-                selectedSet.delete(rowId);
-                if (currentBatchBar) currentBatchBar.deselectItem(rowId);
-            }
-
-            const allSelected = pageIds.length > 0 && pageIds.every(id => selectedSet.has(id));
-            const someSelected = pageIds.some(id => selectedSet.has(id));
-            const selectAll = container.querySelector('.select-all-checkbox');
-            if (selectAll) {
-                selectAll.checked = allSelected;
-                selectAll.indeterminate = someSelected && !allSelected;
-            }
-            runHook('onRowSelect', tabName, Array.from(selectedSet));
-        }
-    };
-
-    checkboxDelegationHandlers.set(tabName, delegationHandler);
-    container.addEventListener('change', delegationHandler);
+    checkboxRegistry.init(container, tabName);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -819,20 +747,7 @@ export function resetEntitiesTableAPIs() {
 }
 
 export function clearCheckboxHandlers(tabName) {
-    if (tabName) {
-        const handler = checkboxDelegationHandlers.get(tabName);
-        if (handler) {
-            const container = document.getElementById(`entities-${tabName}-table-container`);
-            if (container) container.removeEventListener('change', handler);
-            checkboxDelegationHandlers.delete(tabName);
-        }
-    } else {
-        checkboxDelegationHandlers.forEach((handler, tab) => {
-            const container = document.getElementById(`entities-${tab}-table-container`);
-            if (container) container.removeEventListener('change', handler);
-        });
-        checkboxDelegationHandlers.clear();
-    }
+    checkboxRegistry.clear(tabName || null);
 }
 
 export function getEntitiesTableAPI(tabName) {

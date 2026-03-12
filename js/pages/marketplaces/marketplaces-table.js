@@ -14,6 +14,7 @@ import { getMarketplaces } from '../../data/marketplaces-data.js';
 import { createManagedTable } from '../../components/table/table-managed.js';
 import { col } from '../../components/table/table-main.js';
 import { getBatchBar } from '../../components/actions/actions-batch.js';
+import { initTableCheckboxes } from '../../components/table/table-checkboxes.js';
 import { registerActionHandlers, initActionHandlers, actionButton } from '../../components/actions/actions-main.js';
 import { escapeHtml } from '../../utils/utils-text.js';
 
@@ -81,89 +82,22 @@ function getFilterColumnsConfig() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// CHECKBOX INIT (onAfterRender)
+// CHECKBOX INIT (onAfterRender) — делегує в generic table-checkboxes
 // ═══════════════════════════════════════════════════════════════════════════
 
-let _checkboxHandler = null;
+let _checkboxCleanup = null;
 
-function initTableCheckboxes(container) {
-    const selectAllCheckbox = container.querySelector('.select-all-checkbox');
-    const rowCheckboxes = container.querySelectorAll('.row-checkbox');
-    if (!selectAllCheckbox || rowCheckboxes.length === 0) return;
+function initMarketplacesCheckboxes(container) {
+    if (_checkboxCleanup) _checkboxCleanup();
 
-    const selectedSet = _state.selectedRows;
-    const batchBarId = 'marketplaces';
-    const batchBar = getBatchBar(batchBarId);
-
-    // Отримати ID з DOM
-    const pageIds = [...rowCheckboxes].map(cb => cb.dataset.rowId);
-
-    // Відновити стан чекбоксів
-    rowCheckboxes.forEach(checkbox => {
-        checkbox.checked = selectedSet.has(checkbox.dataset.rowId);
+    _checkboxCleanup = initTableCheckboxes({
+        container,
+        tabName: 'marketplaces',
+        selectedSet: _state.selectedRows,
+        batchBarId: 'marketplaces',
+        getBatchBar,
+        onSelectionChange: (selected) => runHook('onRowSelect', selected),
     });
-
-    const updateSelectAllState = () => {
-        const allSelected = pageIds.length > 0 && pageIds.every(id => selectedSet.has(id));
-        const someSelected = pageIds.some(id => selectedSet.has(id));
-        selectAllCheckbox.checked = allSelected;
-        selectAllCheckbox.indeterminate = someSelected && !allSelected;
-    };
-
-    updateSelectAllState();
-
-    // Sync batch bar
-    if (batchBar) {
-        const batchSelected = new Set(batchBar.getSelected());
-        selectedSet.forEach(id => { if (!batchSelected.has(id)) batchBar.selectItem(id); });
-        batchSelected.forEach(id => { if (!selectedSet.has(id)) batchBar.deselectItem(id); });
-    }
-
-    // Event delegation
-    if (_checkboxHandler) container.removeEventListener('change', _checkboxHandler);
-
-    const delegationHandler = (e) => {
-        const target = e.target;
-
-        if (target.classList.contains('select-all-checkbox') && target.dataset.tab === 'marketplaces') {
-            const currentBatchBar = getBatchBar(batchBarId);
-            if (target.checked) {
-                pageIds.forEach(id => selectedSet.add(id));
-                container.querySelectorAll('.row-checkbox').forEach(cb => { cb.checked = true; });
-                if (currentBatchBar) pageIds.forEach(id => currentBatchBar.selectItem(id));
-            } else {
-                pageIds.forEach(id => selectedSet.delete(id));
-                container.querySelectorAll('.row-checkbox').forEach(cb => { cb.checked = false; });
-                if (currentBatchBar) pageIds.forEach(id => currentBatchBar.deselectItem(id));
-            }
-            runHook('onRowSelect', Array.from(selectedSet));
-            return;
-        }
-
-        if (target.classList.contains('row-checkbox') && target.dataset.tab === 'marketplaces') {
-            const rowId = target.dataset.rowId;
-            const currentBatchBar = getBatchBar(batchBarId);
-            if (target.checked) {
-                selectedSet.add(rowId);
-                if (currentBatchBar) currentBatchBar.selectItem(rowId);
-            } else {
-                selectedSet.delete(rowId);
-                if (currentBatchBar) currentBatchBar.deselectItem(rowId);
-            }
-
-            const allSelected = pageIds.length > 0 && pageIds.every(id => selectedSet.has(id));
-            const someSelected = pageIds.some(id => selectedSet.has(id));
-            const selectAll = container.querySelector('.select-all-checkbox');
-            if (selectAll) {
-                selectAll.checked = allSelected;
-                selectAll.indeterminate = someSelected && !allSelected;
-            }
-            runHook('onRowSelect', Array.from(selectedSet));
-        }
-    };
-
-    _checkboxHandler = delegationHandler;
-    container.addEventListener('change', delegationHandler);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -207,7 +141,7 @@ function createMarketplacesManagedTable(rawData) {
             onAfterRender: (cont) => {
                 if (_actionCleanup) _actionCleanup();
                 _actionCleanup = initActionHandlers(cont, 'marketplaces');
-                initTableCheckboxes(cont);
+                initMarketplacesCheckboxes(cont);
             },
             plugins: {
                 sorting: {
