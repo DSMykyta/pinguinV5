@@ -10,6 +10,7 @@
 
 import { getKeywords } from './keywords-data.js';
 import { keywordsState } from './keywords-state.js';
+import { registerHook } from './keywords-plugins.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import {
     registerActionHandlers,
@@ -21,7 +22,9 @@ import {
 // LEGO PLUGIN INIT
 // ═══════════════════════════════════════════════════════════════════════════
 
-export function init(state) { /* one-time setup — main orchestrates rendering */ }
+export function init(state) {
+    registerHook('onRender', () => renderKeywordsTable());
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ

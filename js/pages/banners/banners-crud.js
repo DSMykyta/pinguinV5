@@ -3,17 +3,19 @@
 /**
  * BANNERS — CRUD (MODAL)
  *
- * Modal-based editing for banners (consistent with products pattern).
+ * Modal-based editing for banners. Uses generic createCrudModal factory.
  */
 
 import { getBanners, addBanner, updateBanner, deleteBanner } from './banners-data.js';
 import { initCustomSelects } from '../../components/forms/select.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { showConfirmModal, showModal, closeModal } from '../../components/modal/modal-main.js';
+import { showConfirmModal, closeModal } from '../../components/modal/modal-main.js';
 import { escapeHtml } from '../../utils/utils-text.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
 import { initSectionNav } from '../../layout/layout-plugin-nav-sections.js';
 import { runHook } from './banners-plugins.js';
+import { createCrudModal } from '../../components/crud/crud-main.js';
+import { bannersPlugins } from './banners-plugins.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -21,7 +23,6 @@ import { runHook } from './banners-plugins.js';
 
 let textEditorUa = null;
 let textEditorRu = null;
-let currentBannerId = null;
 
 const DEFAULTS = {
     banner_target: ['home', 'category', 'product', 'blog'],
@@ -56,66 +57,11 @@ function set(id, val) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// SHOW MODALS
-// ═══════════════════════════════════════════════════════════════════════════
-
-export async function showAddBannerModal() {
-    currentBannerId = null;
-
-    await showModal('banner-edit', null);
-
-    const title = document.getElementById('banner-modal-title');
-    if (title) title.textContent = 'Новий банер';
-
-    const deleteBtn = document.getElementById('btn-delete-banner');
-    if (deleteBtn) deleteBtn.classList.add('u-hidden');
-
-    const badge = document.getElementById('banner-status-badge');
-    if (badge) badge.textContent = '';
-
-    clearBannerForm();
-    await initModalComponents();
-
-    runHook('onModalOpen', null);
-}
-
-export async function showEditBannerModal(bannerId) {
-    const banner = getBannerById(bannerId);
-    if (!banner) {
-        showToast('Банер не знайдено', 'error');
-        return;
-    }
-
-    currentBannerId = bannerId;
-
-    await showModal('banner-edit', null);
-
-    const title = document.getElementById('banner-modal-title');
-    if (title) title.textContent = banner.banner_name_ua || `Банер ${bannerId}`;
-
-    const deleteBtn = document.getElementById('btn-delete-banner');
-    if (deleteBtn) {
-        deleteBtn.classList.remove('u-hidden');
-        deleteBtn.onclick = () => handleDeleteBanner();
-    }
-
-    await initModalComponents();
-    fillBannerForm(banner);
-
-    runHook('onModalOpen', banner);
-}
-
-export function getCurrentBannerId() {
-    return currentBannerId;
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
 // MODAL INIT
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function initModalComponents() {
     initTextEditors();
-    initSaveHandler();
     initSectionNavigation();
     populateSelects();
     initStatusToggle();
@@ -131,14 +77,6 @@ function initTextEditors() {
     if (ruContainer) {
         textEditorRu = createHighlightEditor(ruContainer, { initialValue: '' });
     }
-}
-
-function initSaveHandler() {
-    const saveBtn = document.getElementById('btn-save-banner');
-    if (saveBtn) saveBtn.onclick = () => handleSaveBanner(false);
-
-    const saveCloseBtn = document.getElementById('save-close-banner');
-    if (saveCloseBtn) saveCloseBtn.onclick = () => handleSaveBanner(true);
 }
 
 function initSectionNavigation() {
@@ -181,7 +119,7 @@ function updateStatusBadge() {
     if (!badge) return;
 
     const status = document.querySelector('input[name="banner-status"]:checked')?.value || 'active';
-    badge.textContent = currentBannerId || '';
+    badge.textContent = crud.getCurrentId() || '';
     badge.classList.remove('c-green', 'c-yellow', 'c-red');
 
     if (status === 'active') badge.classList.add('c-green');
@@ -238,6 +176,10 @@ function clearBannerForm() {
     const statusRadio = document.querySelector('input[name="banner-status"][value="active"]');
     if (statusRadio) statusRadio.checked = true;
 
+    // Reset badge
+    const badge = document.getElementById('banner-status-badge');
+    if (badge) badge.textContent = '';
+
     if (textEditorUa) textEditorUa.setValue('');
     if (textEditorRu) textEditorRu.setValue('');
 }
@@ -265,63 +207,54 @@ function getBannerFormData() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// SAVE / DELETE
+// CRUD INSTANCE
 // ═══════════════════════════════════════════════════════════════════════════
 
-async function handleSaveBanner(shouldClose = true) {
-    const bannerData = getBannerFormData();
-
-    try {
-        if (currentBannerId) {
-            await updateBanner(currentBannerId, bannerData);
-            showToast('Банер оновлено', 'success');
-        } else {
-            const newBanner = await addBanner(bannerData);
-            currentBannerId = newBanner?.banner_id || null;
-            showToast(`Банер ${currentBannerId} додано`, 'success');
+const crud = createCrudModal({
+    modalId: 'banner-edit',
+    titleId: 'banner-modal-title',
+    deleteBtnId: 'btn-delete-banner',
+    saveBtnId: 'btn-save-banner',
+    saveCloseBtnId: 'save-close-banner',
+    entityName: 'Банер',
+    addTitle: 'Новий банер',
+    getTitle: (banner) => banner.banner_name_ua || `Банер ${banner.banner_id}`,
+    getId: (b) => b?.banner_id || null,
+    getById: getBannerById,
+    add: addBanner,
+    update: updateBanner,
+    getFormData: getBannerFormData,
+    fillForm: fillBannerForm,
+    clearForm: clearBannerForm,
+    initComponents: initModalComponents,
+    onDelete: async (bannerId) => {
+        const confirmed = await showConfirmModal({
+            action: 'видалити',
+            entity: 'банер',
+            name: bannerId
+        });
+        if (!confirmed) return;
+        try {
+            await deleteBanner(bannerId);
+            showToast(`Банер ${bannerId} видалено`, 'success');
+            closeModal();
+            runHook('onRender');
+        } catch (error) {
+            console.error('Помилка видалення банера:', error);
+            showToast('Помилка видалення банера', 'error');
         }
-
-        if (shouldClose) closeModal('banner-edit');
-        runHook('onRender');
-    } catch (error) {
-        console.error('Помилка збереження банера:', error);
-        showToast('Помилка збереження банера', 'error');
-    }
-}
-
-async function handleDeleteBanner() {
-    if (!currentBannerId) return;
-
-    const confirmed = await showConfirmModal({
-        action: 'видалити',
-        entity: 'банер',
-        name: currentBannerId
-    });
-    if (!confirmed) return;
-
-    try {
-        await deleteBanner(currentBannerId);
-        showToast(`Банер ${currentBannerId} видалено`, 'success');
-        closeModal('banner-edit');
-        runHook('onRender');
-    } catch (error) {
-        console.error('Помилка видалення банера:', error);
-        showToast('Помилка видалення банера', 'error');
-    }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// CLEANUP
-// ═══════════════════════════════════════════════════════════════════════════
-
-document.addEventListener('modal-closed', (e) => {
-    if (e.detail?.modalId !== 'banner-edit') return;
-    cleanupBannerModal();
+    },
+    onCleanup: () => {
+        if (textEditorUa) { textEditorUa.destroy(); textEditorUa = null; }
+        if (textEditorRu) { textEditorRu.destroy(); textEditorRu = null; }
+    },
+    plugins: bannersPlugins,
 });
 
-function cleanupBannerModal() {
-    currentBannerId = null;
+// ═══════════════════════════════════════════════════════════════════════════
+// EXPORTS
+// ═══════════════════════════════════════════════════════════════════════════
 
-    if (textEditorUa) { textEditorUa.destroy(); textEditorUa = null; }
-    if (textEditorRu) { textEditorRu.destroy(); textEditorRu = null; }
-}
+export const showAddBannerModal = crud.showAdd;
+export const showEditBannerModal = crud.showEdit;
+export const getCurrentBannerId = crud.getCurrentId;

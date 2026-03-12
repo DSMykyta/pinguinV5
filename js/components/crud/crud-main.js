@@ -2,13 +2,13 @@
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                    CRUD MODAL — Generic Factory                         ║
+ * ║                    CRUD MODAL — Generic Factory                          ║
  * ╠══════════════════════════════════════════════════════════════════════════╣
- * ║  Фабрика CRUD модалу. Замінює повторюваний lifecycle:                   ║
- * ║  showAdd → clear → initComponents                                       ║
- * ║  showEdit → fetch → fill → initComponents                               ║
- * ║  save → getFormData → add/update → toast → close                       ║
- * ║  cleanup → destroy editors, reset state                                 ║
+ * ║  Фабрика CRUD модалу. Замінює повторюваний lifecycle:                    ║
+ * ║  showAdd → clear → initComponents                                        ║
+ * ║  showEdit → fetch → fill → initComponents                                ║
+ * ║  save → getFormData → add/update → toast → close                         ║
+ * ║  cleanup → destroy editors, reset state                                  ║
  * ║                                                                          ║
  * ║  ВИКОРИСТАННЯ:                                                           ║
  * ║  const crud = createCrudModal({                                          ║
@@ -18,10 +18,13 @@
  * ║      saveBtnId: 'btn-save-brand',                                        ║
  * ║      saveCloseBtnId: 'save-close-brand',                                 ║
  * ║      entityName: 'Бренд',                                                ║
+ * ║      addTitle: 'Новий бренд',                                            ║
+ * ║      getTitle: (b) => b.name_uk || 'Бренд',                              ║
+ * ║      getId: (b) => b.brand_id,                                           ║
  * ║      getById: (id) => getBrandById(id),                                  ║
  * ║      add: (data) => addBrand(data),                                      ║
  * ║      update: (id, data) => updateBrand(id, data),                        ║
- * ║      getFormData: () => getBrandFormData(),                               ║
+ * ║      getFormData: () => getBrandFormData(),                              ║
  * ║      fillForm: (entity) => fillBrandForm(entity),                        ║
  * ║      clearForm: () => clearBrandForm(),                                  ║
  * ║      initComponents: () => initModalComponents(),                        ║
@@ -49,6 +52,9 @@ export function createCrudModal(config) {
         saveBtnId,
         saveCloseBtnId,
         entityName = 'Запис',
+        addTitle = entityName,
+        getTitle = (entity) => entity.name_uk || entityName,
+        getId = null,
         getById,
         add,
         update,
@@ -67,19 +73,19 @@ export function createCrudModal(config) {
     let currentId = null;
 
     // ── Show Add ──
-    async function showAdd() {
+    async function showAdd(...args) {
         currentId = null;
 
         await showModal(modalId, null);
 
         const title = document.getElementById(titleId);
-        if (title) title.textContent = `${entityName}`;
+        if (title) title.textContent = addTitle;
 
         const deleteBtn = document.getElementById(deleteBtnId);
         if (deleteBtn) deleteBtn.classList.add('u-hidden');
 
         clearForm();
-        await initComponents();
+        await initComponents(...args);
 
         if (generateId) {
             generateId();
@@ -103,7 +109,7 @@ export function createCrudModal(config) {
         await showModal(modalId, null);
 
         const title = document.getElementById(titleId);
-        if (title) title.textContent = `${entity.name_uk || entityName}`;
+        if (title) title.textContent = getTitle(entity);
 
         const deleteBtn = document.getElementById(deleteBtnId);
         if (deleteBtn) {
@@ -112,7 +118,7 @@ export function createCrudModal(config) {
         }
 
         await initComponents();
-        fillForm(entity);
+        await fillForm(entity);
 
         initSaveHandlers();
 
@@ -132,6 +138,7 @@ export function createCrudModal(config) {
                 if (plugins) plugins.runHook('onUpdate', currentId, data);
             } else {
                 const newEntity = await add(data);
+                if (getId) currentId = getId(newEntity);
                 showToast(`${entityName} added`, 'success');
                 if (plugins) plugins.runHook('onAdd', newEntity);
             }

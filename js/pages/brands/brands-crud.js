@@ -6,6 +6,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
  * 🔌 ПЛАГІН — модал бренду: відкриття, заповнення, збереження.
+ * Uses generic createCrudModal factory.
  *
  * Секції модала винесені в окремі файли:
  *   brands-crud-alt-names.js  — альтернативні назви
@@ -15,15 +16,14 @@
  *   brands-delete.js         — видалення бренду
  */
 
-import { registerHook, runHook } from './brands-plugins.js';
-import { brandsState } from './brands-state.js';
+import { registerHook } from './brands-plugins.js';
 import { addBrand, updateBrand, getBrands, getBrandById } from './brands-data.js';
-import { showModal, closeModal } from '../../components/modal/modal-main.js';
-import { showToast } from '../../components/feedback/toast.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
 import { getOptions, loadOptions } from '../../data/entities-data.js';
 import { populateSelect, reinitializeCustomSelect } from '../../components/forms/select.js';
 import { initSectionNav, destroySectionNav } from '../../layout/layout-plugin-nav-sections.js';
+import { createCrudModal } from '../../components/crud/crud-main.js';
+import { brandsPlugins } from './brands-plugins.js';
 
 // Секції модала
 import { initAltNamesHandlers, getAltNames, setAltNames } from './brands-crud-alt-names.js';
@@ -38,66 +38,6 @@ import { showDeleteBrandConfirm } from './brands-delete.js';
 // ═══════════════════════════════════════════════════════════════════════════
 
 let textEditor = null;
-let currentBrandId = null;
-
-// ═══════════════════════════════════════════════════════════════════════════
-// SHOW MODALS
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Показати модальне вікно для додавання бренду
- */
-export async function showAddBrandModal() {
-    currentBrandId = null;
-
-    await showModal('brand-edit', null);
-
-    const title = document.getElementById('brand-modal-title');
-    if (title) title.textContent = 'Новий бренд';
-
-    const deleteBtn = document.getElementById('btn-delete-brand');
-    if (deleteBtn) deleteBtn.classList.add('u-hidden');
-
-    clearBrandForm();
-    await initModalComponents();
-
-    const newId = generateBrandIdForUI();
-    const idField = document.getElementById('brand-id');
-    if (idField) idField.value = newId;
-
-    runHook('onModalOpen', null);
-}
-
-/**
- * Показати модальне вікно для редагування бренду
- * @param {string} brandId - ID бренду
- */
-export async function showEditBrandModal(brandId) {
-    const brand = getBrandById(brandId);
-    if (!brand) {
-        showToast('Бренд не знайдено', 'error');
-        return;
-    }
-
-    currentBrandId = brandId;
-
-    await showModal('brand-edit', null);
-
-    const title = document.getElementById('brand-modal-title');
-    if (title) title.textContent = `Редагувати ${brand.name_uk}`;
-
-    const deleteBtn = document.getElementById('btn-delete-brand');
-    if (deleteBtn) {
-        deleteBtn.classList.remove('u-hidden');
-        deleteBtn.onclick = () => showDeleteBrandConfirm(brandId);
-    }
-
-    await initModalComponents();
-    fillBrandForm(brand);
-    populateBrandLines(brandId);
-
-    runHook('onModalOpen', brand);
-}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // MODAL COMPONENTS INITIALIZATION
@@ -107,9 +47,8 @@ async function initModalComponents() {
     initTextEditor();
     initAltNamesHandlers();
     initLinksHandlers();
-    initBrandLinesSection(() => currentBrandId);
+    initBrandLinesSection(() => crud.getCurrentId());
     initLogoHandlers();
-    initSaveHandler();
     initSectionNavigation();
     initBrandStatusToggle();
     await populateCountrySelect();
@@ -155,9 +94,6 @@ function initBrandStatusToggle() {
     dot.dataset.toggleInited = '1';
 }
 
-/**
- * Ініціалізувати текстовий редактор
- */
 function initTextEditor() {
     const container = document.getElementById('brand-text-editor-container');
     if (!container) return;
@@ -172,20 +108,6 @@ function initTextEditor() {
     textEditor = createHighlightEditor(container);
 }
 
-/**
- * Ініціалізувати обробник збереження
- */
-function initSaveHandler() {
-    const saveBtn = document.getElementById('btn-save-brand');
-    if (saveBtn) saveBtn.onclick = () => handleSaveBrand(false);
-
-    const saveCloseBtn = document.getElementById('save-close-brand');
-    if (saveCloseBtn) saveCloseBtn.onclick = () => handleSaveBrand(true);
-}
-
-/**
- * Ініціалізувати навігацію по секціях
- */
 function initSectionNavigation() {
     const nav = document.getElementById('brand-section-navigator');
     const contentArea = document.querySelector('.modal-body > main');
@@ -196,9 +118,6 @@ function initSectionNavigation() {
 // FORM DATA
 // ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * Отримати дані з форми
- */
 function getBrandFormData() {
     return {
         name_uk: document.getElementById('brand-name-uk')?.value.trim() || '',
@@ -212,9 +131,6 @@ function getBrandFormData() {
     };
 }
 
-/**
- * Заповнити форму даними бренду
- */
 function fillBrandForm(brand) {
     const idField = document.getElementById('brand-id');
     if (idField) idField.value = brand.brand_id || '';
@@ -259,11 +175,12 @@ function fillBrandForm(brand) {
     } else {
         handleRemoveLogo();
     }
+
+    // Populate lines for edit mode
+    const currentId = crud.getCurrentId();
+    if (currentId) populateBrandLines(currentId);
 }
 
-/**
- * Очистити форму
- */
 function clearBrandForm() {
     const idField = document.getElementById('brand-id');
     if (idField) idField.value = '';
@@ -303,110 +220,9 @@ function clearBrandForm() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// HANDLERS
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Обробник збереження бренду
- */
-async function handleSaveBrand(shouldClose = true) {
-    const brandData = getBrandFormData();
-
-    try {
-        if (currentBrandId) {
-            await updateBrand(currentBrandId, brandData);
-            // Зберегти pending зміни лінійок (unlink і т.д.)
-            await commitPendingLineChanges();
-            showToast('Бренд успішно оновлено', 'success');
-            runHook('onBrandUpdate', currentBrandId, brandData);
-        } else {
-            const newBrand = await addBrand(brandData);
-            showToast('Бренд успішно додано', 'success');
-            runHook('onBrandAdd', newBrand);
-        }
-
-        if (shouldClose) closeModal();
-        runHook('onModalClose');
-        runHook('onRender');
-    } catch (error) {
-        console.error('❌ Помилка збереження бренду:', error);
-        showToast('Помилка збереження бренду', 'error');
-    }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// REFRESH MODAL (для polling / BroadcastChannel)
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Оновити форму модала свіжими даними зі стейту.
- * Оновлює одразу + показує undo тост.
- */
-export function refreshBrandModal(isManual = false) {
-    if (!currentBrandId) return;
-    const brand = getBrandById(currentBrandId);
-    if (!brand) return;
-
-    // Зберегти snapshot для undo
-    const snapshot = getBrandFormData();
-
-    _applyRefresh(brand, snapshot, isManual);
-}
-
-function _applyRefresh(brand, snapshot, isManual = false) {
-    fillBrandForm(brand);
-    populateBrandLines(currentBrandId);
-
-    if (!isManual) {
-        showToast('Дані оновлено іншим користувачем', 'info', {
-            duration: 8000,
-            action: {
-                label: 'Відмінити',
-                onClick: () => {
-                    _restoreSnapshot(snapshot);
-                },
-            },
-        });
-    }
-}
-
-function _restoreSnapshot(snapshot) {
-    const nameField = document.getElementById('brand-name-uk');
-    if (nameField) nameField.value = snapshot.name_uk;
-
-    setAltNames(snapshot.names_alt);
-
-    const countryField = document.getElementById('brand-country');
-    if (countryField) {
-        countryField.value = snapshot.country_option_id;
-        reinitializeCustomSelect(countryField);
-    }
-
-    const statusRadio = document.querySelector(`input[name="brand-status"][value="${snapshot.brand_status || 'active'}"]`);
-    if (statusRadio) statusRadio.checked = true;
-
-    setLinks(snapshot.brand_links);
-
-    if (textEditor) textEditor.setValue(snapshot.brand_text || '');
-
-    const mapperIdField = document.getElementById('brand-mapper-option-id');
-    if (mapperIdField) mapperIdField.value = snapshot.mapper_option_id;
-
-    const logoUrlField = document.getElementById('brand-logo-url');
-    if (logoUrlField) logoUrlField.value = snapshot.brand_logo_url;
-}
-
-export function getCurrentBrandId() {
-    return currentBrandId;
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * Генерувати новий ID для бренду (для відображення в UI)
- */
 function generateBrandIdForUI() {
     const brands = getBrands();
     let maxNum = 0;
@@ -421,8 +237,53 @@ function generateBrandIdForUI() {
     });
 
     const newNum = maxNum + 1;
-    return `bran-${String(newNum).padStart(6, '0')}`;
+    const newId = `bran-${String(newNum).padStart(6, '0')}`;
+
+    const idField = document.getElementById('brand-id');
+    if (idField) idField.value = newId;
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CRUD INSTANCE
+// ═══════════════════════════════════════════════════════════════════════════
+
+const crud = createCrudModal({
+    modalId: 'brand-edit',
+    titleId: 'brand-modal-title',
+    deleteBtnId: 'btn-delete-brand',
+    saveBtnId: 'btn-save-brand',
+    saveCloseBtnId: 'save-close-brand',
+    entityName: 'Бренд',
+    addTitle: 'Новий бренд',
+    getTitle: (brand) => `Редагувати ${brand.name_uk}`,
+    getById: getBrandById,
+    add: addBrand,
+    update: updateBrand,
+    getFormData: getBrandFormData,
+    fillForm: fillBrandForm,
+    clearForm: clearBrandForm,
+    initComponents: initModalComponents,
+    generateId: generateBrandIdForUI,
+    onDelete: (brandId) => showDeleteBrandConfirm(brandId),
+    onAfterSave: async (currentId) => {
+        if (currentId) await commitPendingLineChanges();
+    },
+    onCleanup: () => {
+        destroySectionNav(document.getElementById('brand-section-navigator'));
+        if (textEditor) { textEditor.destroy(); textEditor = null; }
+        discardPendingLineChanges();
+    },
+    plugins: brandsPlugins,
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EXPORTS
+// ═══════════════════════════════════════════════════════════════════════════
+
+export const showAddBrandModal = crud.showAdd;
+export const showEditBrandModal = crud.showEdit;
+export const refreshBrandModal = crud.refreshModal;
+export const getCurrentBrandId = crud.getCurrentId;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PLUGIN REGISTRATION
@@ -430,42 +291,17 @@ function generateBrandIdForUI() {
 
 export function init(state) {
     registerHook('onLineAdd', () => {
-        if (currentBrandId) {
-            populateBrandLines(currentBrandId);
-        }
+        const id = crud.getCurrentId();
+        if (id) populateBrandLines(id);
     });
 
     registerHook('onLineUpdate', () => {
-        if (currentBrandId) {
-            populateBrandLines(currentBrandId);
-        }
+        const id = crud.getCurrentId();
+        if (id) populateBrandLines(id);
     });
 
     registerHook('onLineDelete', () => {
-        if (currentBrandId) {
-            populateBrandLines(currentBrandId);
-        }
+        const id = crud.getCurrentId();
+        if (id) populateBrandLines(id);
     });
-
-    // Очистка при закритті модалу
-    document.addEventListener('modal-closed', (e) => {
-        if (e.detail?.modalId !== 'brand-edit') return;
-        cleanupBrandModal();
-    });
-}
-
-/**
- * Очистити всі ресурси модалу бренду
- */
-function cleanupBrandModal() {
-    currentBrandId = null;
-
-    destroySectionNav(document.getElementById('brand-section-navigator'));
-
-    if (textEditor) {
-        textEditor.destroy();
-        textEditor = null;
-    }
-
-    discardPendingLineChanges();
 }

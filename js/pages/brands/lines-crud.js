@@ -6,111 +6,33 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
  * 🔌 ПЛАГІН — можна видалити, система працюватиме без модалів редагування.
- *
- * Повноекранний модал для додавання та редагування лінійок брендів.
- * Видалення — в lines-delete.js.
+ * Uses generic createCrudModal factory.
  */
 
-import { registerHook, runHook } from './brands-plugins.js';
+import { runHook } from './brands-plugins.js';
 import { getBrands } from './brands-data.js';
 import { getBrandLineById, addBrandLine, updateBrandLine } from './lines-data.js';
-import { showModal, closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { showDeleteLineConfirm } from './lines-delete.js';
 import { populateSelect, initCustomSelects } from '../../components/forms/select.js';
 import { initLineLogoHandlers, setLineLogoPreview, handleRemoveLineLogo } from './lines-crud-logo.js';
 import { normalizeName } from '../../utils/utils-text.js';
+import { createCrudModal } from '../../components/crud/crud-main.js';
+import { brandsPlugins } from './brands-plugins.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// STATE
+// MODAL COMPONENTS
 // ═══════════════════════════════════════════════════════════════════════════
 
-let currentLineId = null;
-
-// ═══════════════════════════════════════════════════════════════════════════
-// SHOW MODALS
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Показати модальне вікно для додавання лінійки
- * @param {string} [preselectedBrandId] - Попередньо обраний бренд (опціонально)
- */
-export async function showAddLineModal(preselectedBrandId = null) {
-    currentLineId = null;
-
-    await showModal('line-edit', null);
-
-    const title = document.getElementById('line-modal-title');
-    if (title) title.textContent = 'Нова лінійка';
-
-    const deleteBtn = document.getElementById('btn-delete-line');
-    if (deleteBtn) deleteBtn.classList.add('u-hidden');
-
-    clearLineForm();
-    initModalComponents();
-    populateBrandSelect(preselectedBrandId);
-}
-
-/**
- * Показати модальне вікно для редагування лінійки
- * @param {string} lineId - ID лінійки
- */
-export async function showEditLineModal(lineId) {
-    const line = getBrandLineById(lineId);
-    if (!line) {
-        showToast('Лінійку не знайдено', 'error');
-        return;
-    }
-
-    currentLineId = lineId;
-
-    await showModal('line-edit', null);
-
-    const title = document.getElementById('line-modal-title');
-    if (title) title.textContent = `Редагувати: ${line.name_uk}`;
-
-    const deleteBtn = document.getElementById('btn-delete-line');
-    if (deleteBtn) {
-        deleteBtn.classList.remove('u-hidden');
-        deleteBtn.onclick = () => showDeleteLineConfirm(lineId);
-    }
-
-    initModalComponents();
-    populateBrandSelect(line.brand_id);
-    fillLineForm(line);
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// MODAL COMPONENTS INITIALIZATION
-// ═══════════════════════════════════════════════════════════════════════════
-
-function initModalComponents() {
-    initSaveHandler();
+function initModalComponents(preselectedBrandId = null) {
     initLineLogoHandlers();
 
     const modalEl = document.querySelector('[data-modal-id="line-edit-modal"]');
     if (modalEl) initCustomSelects(modalEl);
+
+    populateBrandSelect(preselectedBrandId);
 }
 
-/**
- * Ініціалізувати обробники збереження
- */
-function initSaveHandler() {
-    const saveBtn = document.getElementById('btn-save-line');
-    if (saveBtn) saveBtn.onclick = () => handleSaveLine(false);
-
-    const saveCloseBtn = document.getElementById('save-close-line');
-    if (saveCloseBtn) saveCloseBtn.onclick = () => handleSaveLine(true);
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// FORM DATA
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Заповнити select брендами
- * @param {string} [selectedBrandId] - ID обраного бренду
- */
 function populateBrandSelect(selectedBrandId = null) {
     const brands = getBrands()
         .filter(b => b.brand_status !== 'inactive')
@@ -125,10 +47,10 @@ function populateBrandSelect(selectedBrandId = null) {
     );
 }
 
-/**
- * Отримати дані з форми
- * @returns {Object} Дані лінійки
- */
+// ═══════════════════════════════════════════════════════════════════════════
+// FORM DATA
+// ═══════════════════════════════════════════════════════════════════════════
+
 function getLineFormData() {
     return {
         brand_id: document.getElementById('line-brand-id')?.value || '',
@@ -137,16 +59,15 @@ function getLineFormData() {
     };
 }
 
-/**
- * Заповнити форму даними лінійки
- * @param {Object} line - Лінійка
- */
 function fillLineForm(line) {
     const idField = document.getElementById('line-id');
     if (idField) idField.value = line.line_id || '';
 
     const nameField = document.getElementById('line-name-uk');
     if (nameField) nameField.value = line.name_uk || '';
+
+    // Populate brand select with line's brand
+    populateBrandSelect(line.brand_id);
 
     if (line.line_logo_url) {
         const brand = getBrands().find(b => b.brand_id === line.brand_id);
@@ -159,9 +80,6 @@ function fillLineForm(line) {
     }
 }
 
-/**
- * Очистити форму
- */
 function clearLineForm() {
     const idField = document.getElementById('line-id');
     if (idField) idField.value = '';
@@ -176,47 +94,47 @@ function clearLineForm() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// HANDLERS
+// CRUD INSTANCE
 // ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * Обробник збереження лінійки
- * @param {boolean} shouldClose - Закрити після збереження
- */
-async function handleSaveLine(shouldClose = true) {
-    const lineData = getLineFormData();
-
-    if (!lineData.brand_id) {
-        showToast('Оберіть бренд', 'error');
-        return;
-    }
-
-    if (!lineData.name_uk) {
-        showToast('Введіть назву лінійки', 'error');
-        return;
-    }
-
-    try {
-        if (currentLineId) {
-            await updateBrandLine(currentLineId, lineData);
-            showToast('Лінійку успішно оновлено', 'success');
-            runHook('onLineUpdate', currentLineId, lineData);
-        } else {
-            const newLine = await addBrandLine(lineData);
-            showToast('Лінійку успішно додано', 'success');
-            runHook('onLineAdd', newLine);
+const crud = createCrudModal({
+    modalId: 'line-edit',
+    titleId: 'line-modal-title',
+    deleteBtnId: 'btn-delete-line',
+    saveBtnId: 'btn-save-line',
+    saveCloseBtnId: 'save-close-line',
+    entityName: 'Лінійка',
+    addTitle: 'Нова лінійка',
+    getTitle: (line) => `Редагувати: ${line.name_uk}`,
+    getById: getBrandLineById,
+    add: addBrandLine,
+    update: updateBrandLine,
+    getFormData: getLineFormData,
+    fillForm: fillLineForm,
+    clearForm: clearLineForm,
+    initComponents: initModalComponents,
+    onBeforeSave: async (currentId, data) => {
+        if (!data.brand_id) {
+            showToast('Оберіть бренд', 'error');
+            throw new Error('Validation failed');
         }
-
-        if (shouldClose) closeModal();
-        runHook('onRender');
-    } catch (error) {
-        console.error('Помилка збереження лінійки:', error);
-        showToast('Помилка збереження лінійки', 'error');
-    }
-}
+        if (!data.name_uk) {
+            showToast('Введіть назву лінійки', 'error');
+            throw new Error('Validation failed');
+        }
+    },
+    onAfterSave: (currentId) => {
+        runHook(currentId ? 'onLineUpdate' : 'onLineAdd');
+    },
+    onDelete: (lineId) => showDeleteLineConfirm(lineId),
+    plugins: brandsPlugins,
+});
 
 // ═══════════════════════════════════════════════════════════════════════════
-// PLUGIN REGISTRATION
+// EXPORTS
 // ═══════════════════════════════════════════════════════════════════════════
+
+export const showAddLineModal = crud.showAdd;
+export const showEditLineModal = crud.showEdit;
 
 export function init(state) { }

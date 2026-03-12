@@ -3,17 +3,19 @@
 /**
  * BLOG — CRUD (MODAL)
  *
- * Modal-based editing for blog posts (consistent with products pattern).
+ * Modal-based editing for blog posts. Uses generic createCrudModal factory.
  */
 
 import { getBlogPosts, addBlogPost, updateBlogPost, deleteBlogPost } from './blog-data.js';
 import { initCustomSelects } from '../../components/forms/select.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { showConfirmModal, showModal, closeModal } from '../../components/modal/modal-main.js';
+import { showConfirmModal, closeModal } from '../../components/modal/modal-main.js';
 import { escapeHtml } from '../../utils/utils-text.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
 import { initSectionNav } from '../../layout/layout-plugin-nav-sections.js';
 import { runHook } from './blog-plugins.js';
+import { createCrudModal } from '../../components/crud/crud-main.js';
+import { blogPlugins } from './blog-plugins.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -21,7 +23,6 @@ import { runHook } from './blog-plugins.js';
 
 let textEditorUa = null;
 let textEditorRu = null;
-let currentBlogId = null;
 
 const DEFAULTS = {
     blog_ext_site: ['site-a', 'site-b'],
@@ -57,70 +58,11 @@ function set(id, val) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// SHOW MODALS
-// ═══════════════════════════════════════════════════════════════════════════
-
-export async function showAddBlogModal(defaultType = 'blog') {
-    currentBlogId = null;
-
-    await showModal('blog-edit', null);
-
-    const title = document.getElementById('blog-modal-title');
-    if (title) title.textContent = 'Новий пост';
-
-    const deleteBtn = document.getElementById('btn-delete-blog');
-    if (deleteBtn) deleteBtn.classList.add('u-hidden');
-
-    const badge = document.getElementById('blog-status-badge');
-    if (badge) badge.textContent = '';
-
-    clearBlogForm();
-    await initModalComponents();
-
-    // Set default type after selects are populated
-    const typeEl = document.getElementById('blog-type');
-    if (typeEl) typeEl.value = defaultType;
-
-    runHook('onModalOpen', null);
-}
-
-export async function showEditBlogModal(blogId) {
-    const post = getBlogById(blogId);
-    if (!post) {
-        showToast('Пост не знайдено', 'error');
-        return;
-    }
-
-    currentBlogId = blogId;
-
-    await showModal('blog-edit', null);
-
-    const title = document.getElementById('blog-modal-title');
-    if (title) title.textContent = post.blog_name_ua || `Пост ${blogId}`;
-
-    const deleteBtn = document.getElementById('btn-delete-blog');
-    if (deleteBtn) {
-        deleteBtn.classList.remove('u-hidden');
-        deleteBtn.onclick = () => handleDeleteBlog();
-    }
-
-    await initModalComponents();
-    fillBlogForm(post);
-
-    runHook('onModalOpen', post);
-}
-
-export function getCurrentBlogId() {
-    return currentBlogId;
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
 // MODAL INIT
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function initModalComponents() {
     initTextEditors();
-    initSaveHandler();
     initSectionNavigation();
     populateSelects();
     initStatusToggle();
@@ -136,14 +78,6 @@ function initTextEditors() {
     if (ruContainer) {
         textEditorRu = createHighlightEditor(ruContainer, { initialValue: '' });
     }
-}
-
-function initSaveHandler() {
-    const saveBtn = document.getElementById('btn-save-blog');
-    if (saveBtn) saveBtn.onclick = () => handleSaveBlog(false);
-
-    const saveCloseBtn = document.getElementById('save-close-blog');
-    if (saveCloseBtn) saveCloseBtn.onclick = () => handleSaveBlog(true);
 }
 
 function initSectionNavigation() {
@@ -187,7 +121,7 @@ function updateStatusBadge() {
     if (!badge) return;
 
     const status = document.querySelector('input[name="blog-status"]:checked')?.value || 'active';
-    badge.textContent = currentBlogId || '';
+    badge.textContent = crud.getCurrentId() || '';
     badge.classList.remove('c-green', 'c-yellow', 'c-red');
 
     if (status === 'active') badge.classList.add('c-green');
@@ -249,6 +183,10 @@ function clearBlogForm() {
     const statusRadio = document.querySelector('input[name="blog-status"][value="active"]');
     if (statusRadio) statusRadio.checked = true;
 
+    // Reset badge
+    const badge = document.getElementById('blog-status-badge');
+    if (badge) badge.textContent = '';
+
     if (textEditorUa) textEditorUa.setValue('');
     if (textEditorRu) textEditorRu.setValue('');
 }
@@ -280,63 +218,54 @@ function getBlogFormData() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// SAVE / DELETE
+// CRUD INSTANCE
 // ═══════════════════════════════════════════════════════════════════════════
 
-async function handleSaveBlog(shouldClose = true) {
-    const blogData = getBlogFormData();
-
-    try {
-        if (currentBlogId) {
-            await updateBlogPost(currentBlogId, blogData);
-            showToast('Пост оновлено', 'success');
-        } else {
-            const newPost = await addBlogPost(blogData);
-            currentBlogId = newPost?.blog_id || null;
-            showToast(`Пост ${currentBlogId} додано`, 'success');
+const crud = createCrudModal({
+    modalId: 'blog-edit',
+    titleId: 'blog-modal-title',
+    deleteBtnId: 'btn-delete-blog',
+    saveBtnId: 'btn-save-blog',
+    saveCloseBtnId: 'save-close-blog',
+    entityName: 'Пост',
+    addTitle: 'Новий пост',
+    getTitle: (post) => post.blog_name_ua || `Пост ${post.blog_id}`,
+    getId: (p) => p?.blog_id || null,
+    getById: getBlogById,
+    add: addBlogPost,
+    update: updateBlogPost,
+    getFormData: getBlogFormData,
+    fillForm: fillBlogForm,
+    clearForm: clearBlogForm,
+    initComponents: initModalComponents,
+    onDelete: async (blogId) => {
+        const confirmed = await showConfirmModal({
+            action: 'видалити',
+            entity: 'пост',
+            name: blogId
+        });
+        if (!confirmed) return;
+        try {
+            await deleteBlogPost(blogId);
+            showToast(`Пост ${blogId} видалено`, 'success');
+            closeModal();
+            runHook('onRender');
+        } catch (error) {
+            console.error('Помилка видалення поста:', error);
+            showToast('Помилка видалення поста', 'error');
         }
-
-        if (shouldClose) closeModal('blog-edit');
-        runHook('onRender');
-    } catch (error) {
-        console.error('Помилка збереження поста:', error);
-        showToast('Помилка збереження поста', 'error');
-    }
-}
-
-async function handleDeleteBlog() {
-    if (!currentBlogId) return;
-
-    const confirmed = await showConfirmModal({
-        action: 'видалити',
-        entity: 'пост',
-        name: currentBlogId
-    });
-    if (!confirmed) return;
-
-    try {
-        await deleteBlogPost(currentBlogId);
-        showToast(`Пост ${currentBlogId} видалено`, 'success');
-        closeModal('blog-edit');
-        runHook('onRender');
-    } catch (error) {
-        console.error('Помилка видалення поста:', error);
-        showToast('Помилка видалення поста', 'error');
-    }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// CLEANUP
-// ═══════════════════════════════════════════════════════════════════════════
-
-document.addEventListener('modal-closed', (e) => {
-    if (e.detail?.modalId !== 'blog-edit') return;
-    cleanupBlogModal();
+    },
+    onCleanup: () => {
+        if (textEditorUa) { textEditorUa.destroy(); textEditorUa = null; }
+        if (textEditorRu) { textEditorRu.destroy(); textEditorRu = null; }
+    },
+    plugins: blogPlugins,
 });
 
-function cleanupBlogModal() {
-    currentBlogId = null;
+// ═══════════════════════════════════════════════════════════════════════════
+// EXPORTS
+// ═══════════════════════════════════════════════════════════════════════════
 
-    if (textEditorUa) { textEditorUa.destroy(); textEditorUa = null; }
-    if (textEditorRu) { textEditorRu.destroy(); textEditorRu = null; }
-}
+export const showAddBlogModal = crud.showAdd;
+export const showEditBlogModal = crud.showEdit;
+export const getCurrentBlogId = crud.getCurrentId;
