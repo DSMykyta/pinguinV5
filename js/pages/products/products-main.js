@@ -22,7 +22,7 @@
  */
 
 import { productsState } from './products-state.js';
-import { productsPlugins, runHook } from './products-plugins.js';
+import { productsPlugins } from './products-plugins.js';
 import { loadProducts } from './products-data.js';
 import { loadProductVariants } from './variants-data.js';
 import { loadProductGroups } from './groups-data.js';
@@ -62,6 +62,16 @@ const page = createPage({
         () => getCategories().length === 0 ? loadCategories() : Promise.resolve()
     ],
     containers: ['products-table-container'],
+    tabLazyLoaders: {
+        variants: async () => {
+            const m = await import('./variants-table.js');
+            await m.renderVariantsTable();
+        },
+        groups: async () => {
+            const m = await import('./groups-table.js');
+            await m.renderGroupsTable();
+        },
+    },
 });
 
 export async function initProducts() {
@@ -70,21 +80,6 @@ export async function initProducts() {
     // Cache brands/categories on state for dataTransform
     productsState.brands = getBrands();
     productsState.categories = getCategories();
-
-    // Tab switching with lazy loading
-    document.addEventListener('tab-switched', (e) => {
-        const tabName = e.detail.tabId.replace('tab-', '');
-        productsState.activeTab = tabName;
-
-        if (tabName === 'variants') {
-            import('./variants-table.js').then(m => m.renderVariantsTable()).catch(() => {});
-        } else if (tabName === 'groups') {
-            import('./groups-table.js').then(m => m.renderGroupsTable()).catch(() => {});
-        }
-
-        runHook('onTabChange', tabName);
-        runHook('onRender');
-    });
 
     // Start polling
     const { startPolling } = await import('./products-polling.js');

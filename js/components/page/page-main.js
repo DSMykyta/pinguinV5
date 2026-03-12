@@ -22,6 +22,7 @@
 
 import { initTooltips } from '../feedback/tooltip.js';
 import { renderAvatarState } from '../avatar/avatar-ui-states.js';
+import { createLazyLoader } from '../../utils/utils-lazy-load.js';
 
 /**
  * Створити сторінку
@@ -33,6 +34,9 @@ import { renderAvatarState } from '../avatar/avatar-ui-states.js';
  * @param {Array<Function>} [config.dataLoaders] - Функції завантаження даних
  * @param {Array<string>} [config.containers] - ID контейнерів для auth/error states
  * @param {string} [config.initHook='onInit'] - Хук після завантаження даних
+ * @param {string} [config.tabPrefix='tab-'] - Префікс для парсингу tabId
+ * @param {string} [config.tabHook='onTabChange'] - Хук при перемиканні табу
+ * @param {Object} [config.tabLazyLoaders] - { tabName: asyncFn } — lazy loading при переключенні
  * @param {Function} [config.onAuthRequired] - Кастомний handler для auth required
  * @param {Function} [config.onError] - Кастомний handler для помилок
  * @returns {{ init: Function }}
@@ -46,9 +50,21 @@ export function createPage(config) {
         dataLoaders = [],
         containers = [],
         initHook = 'onInit',
+        tabPrefix = 'tab-',
+        tabHook = 'onTabChange',
+        tabLazyLoaders = null,
+        tabDataReadyHook = null,
         onAuthRequired = null,
         onError = null,
     } = config;
+
+    // Lazy loaders (створюються один раз)
+    const _lazyLoaders = {};
+    if (tabLazyLoaders) {
+        for (const [tab, loaderFn] of Object.entries(tabLazyLoaders)) {
+            _lazyLoaders[tab] = createLazyLoader(loaderFn);
+        }
+    }
 
     async function loadPlugins() {
         const results = await Promise.allSettled(
@@ -131,9 +147,35 @@ export function createPage(config) {
         });
     }
 
+    // ── Tab switching ──
+    function initTabListener() {
+        if (!state || !('activeTab' in state)) return;
+
+        document.addEventListener('tab-switched', async (e) => {
+            const tabName = e.detail.tabId.replace(tabPrefix, '');
+            state.activeTab = tabName;
+
+            plugins.runHook(tabHook, tabName);
+            plugins.runHook('onRender');
+
+            if (!window.isAuthorized) return;
+
+            // Lazy load data for tab
+            if (_lazyLoaders[tabName]) {
+                await _lazyLoaders[tabName].load();
+            }
+
+            // Post-load hook (fires every switch, not just first load)
+            if (tabDataReadyHook) {
+                plugins.runHook(tabDataReadyHook, tabName);
+            }
+        });
+    }
+
     async function init() {
         initTooltips();
         await loadPlugins();
+        initTabListener();
         await checkAuthAndLoadData();
 
         document.addEventListener('auth-state-changed', async (event) => {

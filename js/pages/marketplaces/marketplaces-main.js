@@ -8,64 +8,59 @@
  * ║  🔒 ЯДРО (не видаляти):                                                  ║
  * ║  ├── marketplaces-main.js       — Точка входу, завантаження плагінів     ║
  * ║  ├── marketplaces-plugins.js    — Система реєстрації плагінів (хуки)     ║
- * ║  ├── marketplaces-state.js      — Глобальний стан (marketplacesState)    ║
- * ║  ├── marketplaces-core.js       — Lifecycle: auth, data                 ║
- * ║  └── marketplaces-table.js      — Рендеринг таблиці                     ║
+ * ║  └── marketplaces-state.js      — Глобальний стан (marketplacesState)    ║
  * ║                                                                          ║
  * ║  🔌 ПЛАГІНИ (можна видалити):                                            ║
+ * ║  ├── marketplaces-table.js      — Рендеринг таблиці                     ║
  * ║  ├── marketplaces-events.js     — Обробники подій                       ║
  * ║  ├── marketplaces-crud.js       — Маркетплейси CRUD + модалки           ║
- * ║  └── marketplaces-import.js     — Імпорт даних                          ║
+ * ║  ├── marketplaces-import.js     — Імпорт даних                          ║
+ * ║  └── marketplaces-import-wizard.js — Wizard імпорту                     ║
  * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
 import { marketplacesState } from './marketplaces-state.js';
+import { marketplacesPlugins } from './marketplaces-plugins.js';
+import { loadMarketplaces } from '../../data/marketplaces-data.js';
+import { loadAllEntities } from '../../data/entities-data.js';
+import { loadMpCategories, loadMpCharacteristics, loadMpOptions } from '../../data/mp-data.js';
+import { loadMapCategories, loadMapCharacteristics, loadMapOptions } from '../../data/mappings-data.js';
 import { registerAsideInitializer } from '../../layout/layout-main.js';
 import { initAsideFab } from '../../components/fab-menu.js';
+import { createPage } from '../../components/page/page-main.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ПЛАГІНИ - можна видалити будь-який, система працюватиме
+// PAGE BOOTSTRAP
 // ═══════════════════════════════════════════════════════════════════════════
 
-const PLUGINS = [
-    () => import('./marketplaces-core.js'),
-    () => import('./marketplaces-table.js'),
-    () => import('./marketplaces-events.js'),
-    () => import('./marketplaces-crud.js'),
-    () => import('./marketplaces-import.js'),
-    () => import('./marketplaces-import-wizard.js'),
-];
+const page = createPage({
+    name: 'Marketplaces',
+    state: marketplacesState,
+    plugins: marketplacesPlugins,
+    PLUGINS: [
+        () => import('./marketplaces-table.js'),
+        () => import('./marketplaces-events.js'),
+        () => import('./marketplaces-crud.js'),
+        () => import('./marketplaces-import.js'),
+        () => import('./marketplaces-import-wizard.js'),
+    ],
+    dataLoaders: [
+        loadMarketplaces,
+        loadAllEntities,
+        loadMpCategories,
+        loadMpCharacteristics,
+        loadMpOptions,
+        loadMapCategories,
+        loadMapCharacteristics,
+        loadMapOptions,
+    ],
+    initHook: 'onDataLoaded',
+    containers: ['marketplaces-table-container'],
+});
 
-/**
- * Завантажити плагіни динамічно
- */
-async function loadPlugins() {
-
-    const results = await Promise.allSettled(
-        PLUGINS.map(fn => fn())
-    );
-
-    results.forEach((result, index) => {
-        if (result.status === 'fulfilled' && result.value.init) {
-            result.value.init(marketplacesState);
-        } else if (result.status === 'rejected') {
-            console.warn(`[Marketplaces] ⚠️ Плагін ${index} не завантажено`, result.reason?.message || '');
-        }
-    });
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ІНІЦІАЛІЗАЦІЯ
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Головна функція ініціалізації модуля Marketplaces
- */
 export async function initMarketplaces() {
-
-    // Завантажити плагіни
-    await loadPlugins();
+    await page.init();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

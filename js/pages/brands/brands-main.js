@@ -28,7 +28,7 @@
  */
 
 import { brandsState } from './brands-state.js';
-import { brandsPlugins, runHook } from './brands-plugins.js';
+import { brandsPlugins } from './brands-plugins.js';
 import { loadBrands } from './brands-data.js';
 import { loadBrandLines } from './lines-data.js';
 import { loadOptions, getOptions } from '../../data/entities-data.js';
@@ -64,14 +64,6 @@ const page = createPage({
  */
 export async function initBrands() {
     await page.init();
-
-    // Tab switching
-    document.addEventListener('tab-switched', (e) => {
-        const tabName = e.detail.tabId.replace('tab-', '');
-        brandsState.activeTab = tabName;
-        runHook('onTabChange', tabName);
-        runHook('onRender');
-    });
 
     // Start polling
     const { startPolling } = await import('./brands-polling.js');

@@ -7,7 +7,7 @@
  */
 
 import { blogState } from './blog-state.js';
-import { blogPlugins, runHook } from './blog-plugins.js';
+import { blogPlugins } from './blog-plugins.js';
 import { loadBlogPosts } from './blog-data.js';
 import { createPage } from '../../components/page/page-main.js';
 
@@ -25,11 +25,4 @@ const page = createPage({
 
 export async function initBlog() {
     await page.init();
-
-    document.addEventListener('tab-switched', (e) => {
-        const tabName = e.detail.tabId.replace('tab-', '');
-        blogState.activeTab = tabName;
-        runHook('onTabChange', tabName);
-        runHook('onRender');
-    });
 }
