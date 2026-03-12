@@ -6,18 +6,18 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-export const blogState = {
-    posts: [],
-    _dataLoaded: false,
+import { createPageState } from '../../components/page/page-state.js';
 
-    tableAPI: null,
-    managedTable: null,
-    managedTables: {
-        news: null,
-        blog: null
-    },
+export const blogState = createPageState({
     activeTab: 'news',
-
-    visibleColumns: [],
-    searchColumns: []
-};
+    custom: {
+        posts: [],
+        _dataLoaded: false,
+        tableAPI: null,
+        managedTable: null,
+        managedTables: {
+            news: null,
+            blog: null
+        },
+    }
+});

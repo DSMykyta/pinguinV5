@@ -7,14 +7,14 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-export const keywordsState = {
-    keywords: [],
-    _dataLoaded: false,      // Прапорець: дані завантажено
-    searchQuery: '',
+import { createPageState } from '../../components/page/page-state.js';
+
+export const keywordsState = createPageState({
     searchColumns: ['local_id', 'name_uk', 'trigers', 'keywords_ua'],
     visibleColumns: ['local_id', 'name_uk', 'trigers', 'keywords_ua'],
-    columnFilters: {},       // Фільтри по колонках { columnId: ['value1', 'value2'] }
-    sortKey: null,
-    sortOrder: 'asc',
-    sortAPI: null
-};
+    custom: {
+        keywords: [],
+        _dataLoaded: false,
+        sortAPI: null,
+    }
+});

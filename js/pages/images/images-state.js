@@ -6,13 +6,13 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-export const imagesState = {
-    images: [],
-    _dataLoaded: false,
+import { createPageState } from '../../components/page/page-state.js';
 
-    tableAPI: null,
-    managedTable: null,
-
-    visibleColumns: [],
-    searchColumns: []
-};
+export const imagesState = createPageState({
+    custom: {
+        images: [],
+        _dataLoaded: false,
+        tableAPI: null,
+        managedTable: null,
+    }
+});

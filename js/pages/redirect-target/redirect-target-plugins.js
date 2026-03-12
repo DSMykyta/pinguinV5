@@ -2,31 +2,12 @@
 
 /**
  * Система хуків для сторінки Redirect Target.
- * Дозволяє плагінам підписуватись на події життєвого циклу сторінки.
  */
 
-const hooks = {
-    onInit: [],
-    onRender: [],
-    onDataLoaded: []
-};
+import { createPluginRegistry } from '../../components/page/page-plugins.js';
 
-export function registerRedirectPlugin(hookName, callback) {
-    if (hooks[hookName]) {
-        hooks[hookName].push(callback);
-    } else {
-        console.warn(`[RedirectTarget Plugins] Unknown hook: ${hookName}`);
-    }
-}
+const redirectPlugins = createPluginRegistry('RedirectTarget');
 
-export function runHook(hookName, ...args) {
-    if (hooks[hookName]) {
-        hooks[hookName].forEach(callback => {
-            try {
-                callback(...args);
-            } catch (error) {
-                console.error(`[RedirectTarget Plugins] Error in hook ${hookName}:`, error);
-            }
-        });
-    }
-}
+export const registerRedirectPlugin = redirectPlugins.registerHook;
+export const runHook = redirectPlugins.runHook;
+export { redirectPlugins };

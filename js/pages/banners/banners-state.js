@@ -8,15 +8,13 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-export const bannersState = {
-    banners: [],
-    _dataLoaded: false,
+import { createPageState } from '../../components/page/page-state.js';
 
-    // API таблиці
-    tableAPI: null,
-    managedTable: null,
-
-    // Налаштування колонок
-    visibleColumns: [],
-    searchColumns: []
-};
+export const bannersState = createPageState({
+    custom: {
+        banners: [],
+        _dataLoaded: false,
+        tableAPI: null,
+        managedTable: null,
+    }
+});

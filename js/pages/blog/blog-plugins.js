@@ -4,31 +4,10 @@
  * Система хуків для сторінки Blog.
  */
 
-const hooks = {
-    onInit: [],
-    onRender: [],
-    onDataLoaded: [],
-    onTabChange: [],
-    onModalOpen: [],
-    onModalClose: []
-};
+import { createPluginRegistry } from '../../components/page/page-plugins.js';
 
-export function registerBlogPlugin(hookName, callback) {
-    if (hooks[hookName]) {
-        hooks[hookName].push(callback);
-    } else {
-        console.warn(`[Blog Plugins] Unknown hook: ${hookName}`);
-    }
-}
+const blogPlugins = createPluginRegistry('Blog');
 
-export function runHook(hookName, ...args) {
-    if (hooks[hookName]) {
-        hooks[hookName].forEach(callback => {
-            try {
-                callback(...args);
-            } catch (error) {
-                console.error(`[Blog Plugins] Error in hook ${hookName}:`, error);
-            }
-        });
-    }
-}
+export const registerBlogPlugin = blogPlugins.registerHook;
+export const runHook = blogPlugins.runHook;
+export { blogPlugins };

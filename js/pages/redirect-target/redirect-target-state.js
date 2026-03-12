@@ -8,15 +8,13 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-export const redirectTargetState = {
-    redirects: [],
-    _dataLoaded: false,
-    
-    // API таблиці
-    tableAPI: null,
-    managedTable: null,
-    
-    // Налаштування колонок
-    visibleColumns: [],
-    searchColumns: []
-};
+import { createPageState } from '../../components/page/page-state.js';
+
+export const redirectTargetState = createPageState({
+    custom: {
+        redirects: [],
+        _dataLoaded: false,
+        tableAPI: null,
+        managedTable: null,
+    }
+});

@@ -4,28 +4,10 @@
  * Система хуків для сторінки Images.
  */
 
-const hooks = {
-    onInit: [],
-    onRender: [],
-    onDataLoaded: []
-};
+import { createPluginRegistry } from '../../components/page/page-plugins.js';
 
-export function registerImagesPlugin(hookName, callback) {
-    if (hooks[hookName]) {
-        hooks[hookName].push(callback);
-    } else {
-        console.warn(`[Images Plugins] Unknown hook: ${hookName}`);
-    }
-}
+const imagesPlugins = createPluginRegistry('Images');
 
-export function runHook(hookName, ...args) {
-    if (hooks[hookName]) {
-        hooks[hookName].forEach(callback => {
-            try {
-                callback(...args);
-            } catch (error) {
-                console.error(`[Images Plugins] Error in hook ${hookName}:`, error);
-            }
-        });
-    }
-}
+export const registerImagesPlugin = imagesPlugins.registerHook;
+export const runHook = imagesPlugins.runHook;
+export { imagesPlugins };
