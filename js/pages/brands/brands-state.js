@@ -5,7 +5,7 @@
  * ║                    BRANDS - STATE                                        ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
- * Глобальний стан для модуля брендів та лінійок.
+ * Стан модуля брендів. Створений через generic createPageState.
  *
  * 🔒 ЯДРО — цей файл не можна видаляти!
  *
@@ -17,57 +17,31 @@
  * A: line_id | B: brand_id | C: name_uk | D: line_logo_url
  */
 
-/**
- * Глобальний стан для brands модуля
- */
-export const brandsState = {
-    // ═══════════════════════════════════════════════════════════════════════
-    // АКТИВНИЙ ТАБ
-    // ═══════════════════════════════════════════════════════════════════════
+import { createPageState } from '../../components/page/page-state.js';
 
-    activeTab: 'brands', // 'brands' | 'lines'
+export const brandsState = createPageState({
+    activeTab: 'brands',
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // ДАНІ
-    // ═══════════════════════════════════════════════════════════════════════
-
-    brands: [],
-    brandLines: [],
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // ПОШУК
-    // ═══════════════════════════════════════════════════════════════════════
-
-    searchQuery: '',
     searchColumns: ['brand_id', 'name_uk', 'names_alt', 'country_option_id'],
-
-    // Пошук для лінійок
-    linesSearchQuery: '',
-    linesSearchColumns: ['line_id', 'name_uk', 'brand_id'],
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // КОЛОНКИ ТАБЛИЦІ
-    // ═══════════════════════════════════════════════════════════════════════
-
-    // Видимі колонки за замовчуванням (brand_text прихований - занадто довгий)
     visibleColumns: ['brand_logo_url', 'brand_id', 'name_uk', 'names_alt', 'country_option_id', 'brand_status', 'brand_links', 'bindings'],
 
-    // Фільтри колонок (країна, статус — dropdown з чекбоксами)
-    columnFilters: {},
+    custom: {
+        // Дані
+        brands: [],
+        brandLines: [],
 
-    // Видимі колонки для лінійок
-    linesVisibleColumns: ['line_id', 'brand_name', 'name_uk'],
+        // Пошук для лінійок
+        linesSearchQuery: '',
+        linesSearchColumns: ['line_id', 'name_uk', 'brand_id'],
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // СОРТУВАННЯ
-    // ═══════════════════════════════════════════════════════════════════════
+        // Видимі колонки для лінійок
+        linesVisibleColumns: ['line_id', 'brand_name', 'name_uk'],
 
-    sortKey: null,
-    sortOrder: 'asc', // asc | desc
-    sortAPI: null,
+        // Сортування для лінійок
+        linesSortKey: null,
+        linesSortOrder: 'asc',
 
-    // Сортування для лінійок
-    linesSortKey: null,
-    linesSortOrder: 'asc',
-
-};
+        // Managed table API (заповнюється плагінами)
+        sortAPI: null,
+    }
+});
