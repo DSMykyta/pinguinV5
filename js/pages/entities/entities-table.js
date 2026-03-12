@@ -13,7 +13,7 @@
 
 let _state = null;
 
-import { registerEntitiesPlugin, runHook } from './entities-plugins.js';
+import { registerHook, runHook } from './entities-plugins.js';
 import {
     getCategories, getCharacteristics, getOptions
 } from '../../data/entities-data.js';
@@ -266,7 +266,7 @@ let _oldTab = null;
 export function init(state) {
     _state = state;
 
-    registerEntitiesPlugin('onDataLoaded', () => {
+    registerHook('onDataLoaded', () => {
         invalidateLookupCaches();
         initAllEntitiesTables();
         ensureTabManagedTable(state.activeTab);
@@ -274,22 +274,22 @@ export function init(state) {
         import('./entities-events.js').then(m => m.initEntitiesEvents());
     });
 
-    registerEntitiesPlugin('onTabSwitch', (newTab) => {
+    registerHook('onTabSwitch', (newTab) => {
         switchEntitiesTab(newTab, _oldTab);
         _oldTab = newTab;
     });
 
-    registerEntitiesPlugin('onTabDataReady', (newTab) => {
+    registerHook('onTabDataReady', (newTab) => {
         ensureTabManagedTable(newTab);
         renderCurrentTab();
     });
 
-    registerEntitiesPlugin('onDataChanged', () => {
+    registerHook('onDataChanged', () => {
         invalidateLookupCaches();
         renderCurrentTab();
     });
 
-    registerEntitiesPlugin('onLookupInvalidate', () => {
+    registerHook('onLookupInvalidate', () => {
         invalidateLookupCaches();
     });
 }

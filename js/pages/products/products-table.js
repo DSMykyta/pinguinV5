@@ -8,7 +8,7 @@
  * 🔌 ПЛАГІН — Використовує createManagedTable для таблиці + пошуку + колонок.
  */
 
-import { registerProductsPlugin, runHook } from './products-plugins.js';
+import { registerHook, runHook } from './products-plugins.js';
 import { getProducts } from './products-data.js';
 import { productsState } from './products-state.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
@@ -261,11 +261,11 @@ export function resetTableAPI() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function init(state) {
-    registerProductsPlugin('onInit', () => {
+    registerHook('onInit', () => {
         renderProductsTable();
     });
 
-    registerProductsPlugin('onRender', () => {
+    registerHook('onRender', () => {
         if (productsState.productsManagedTable) {
             productsState.productsManagedTable.refilter();
         }

@@ -13,7 +13,7 @@
 import { uploadProductPhotoFile } from '../../utils/utils-api-client.js';
 import { escapeHtml, normalizeName } from '../../utils/utils-text.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { registerProductsPlugin } from './products-plugins.js';
+import { registerHook } from './products-plugins.js';
 import { SORTABLE_CONFIG } from '../../utils/utils-sortable-config.js';
 import { fetchImageAsFile } from '../../utils/utils-file.js';
 
@@ -303,7 +303,7 @@ function buildPhotoName(rowId) {
 // HOOK: рендер фото блоку в grid характеристик
 // ═══════════════════════════════════════════════════════════════════════════
 
-registerProductsPlugin('onCharsRender', (container) => {
+registerHook('onCharsRender', (container) => {
     if (!container) return;
     // Тільки для expandable рядків, НЕ для модалу (де є окрема секція "Фото")
     if (container.id === 'variant-characteristics-container') return;

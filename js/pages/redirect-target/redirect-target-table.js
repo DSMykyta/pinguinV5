@@ -12,7 +12,7 @@ import { getRedirects } from './redirect-target-data.js';
 import { redirectTargetState } from './redirect-target-state.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import { renderRedirectEditRow, handleRedirectExpand, handleRedirectSave, handleRedirectDelete } from './redirect-target-crud.js';
-import { registerRedirectPlugin } from './redirect-target-plugins.js';
+import { registerHook } from './redirect-target-plugins.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 import { escapeHtml } from '../../utils/utils-text.js';
 
@@ -122,10 +122,10 @@ export function resetRedirectsTableAPI() {
 }
 
 export function init(state) {
-    registerRedirectPlugin('onInit', () => {
+    registerHook('onInit', () => {
         renderRedirectsTable();
     });
-    registerRedirectPlugin('onRender', () => {
+    registerHook('onRender', () => {
         if (redirectTargetState.managedTable) {
             redirectTargetState.managedTable.refilter();
         }

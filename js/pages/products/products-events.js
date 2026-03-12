@@ -9,7 +9,7 @@
  */
 
 import { productsState } from './products-state.js';
-import { registerProductsPlugin, runHook } from './products-plugins.js';
+import { registerHook, runHook } from './products-plugins.js';
 import { renderProductsTable } from './products-table.js';
 import { loadProducts } from './products-data.js';
 import { showToast } from '../../components/feedback/toast.js';
@@ -89,7 +89,7 @@ function initRefreshHandlers() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function init(state) {
-    registerProductsPlugin('onInit', () => {
+    registerHook('onInit', () => {
         initProductsEvents();
     });
 }

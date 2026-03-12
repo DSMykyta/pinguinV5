@@ -26,7 +26,7 @@
 
 let _state = null;
 
-import { registerEntitiesPlugin, runHook } from './entities-plugins.js';
+import { registerHook, runHook } from './entities-plugins.js';
 import {
     addCategory, updateCategory, deleteCategory, getCategories,
     getCharacteristics, getOptions, updateCharacteristic,
@@ -74,8 +74,8 @@ export const PLUGIN_NAME = 'entities-categories';
  */
 export function init(state) {
     _state = state;
-    registerEntitiesPlugin('onTabChange', handleTabChange);
-    registerEntitiesPlugin('onDataLoaded', handleDataLoaded);
+    registerHook('onTabChange', handleTabChange);
+    registerHook('onDataLoaded', handleDataLoaded);
 }
 
 function handleTabChange(newTab, prevTab) {

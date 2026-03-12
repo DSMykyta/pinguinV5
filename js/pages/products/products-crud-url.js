@@ -9,7 +9,7 @@
  */
 
 import { getProducts } from './products-data.js';
-import { registerProductsPlugin } from './products-plugins.js';
+import { registerHook } from './products-plugins.js';
 import { slugify } from '../../utils/utils-text.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -35,7 +35,7 @@ export function isProductUrlUnique(url, excludeProductId) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 // Підписка на хук — реагуємо на зміну назви
-registerProductsPlugin('onNameUpdate', ({ shortNameUa, currentProductId }) => {
+registerHook('onNameUpdate', ({ shortNameUa, currentProductId }) => {
     updateUrlField(shortNameUa, currentProductId);
 });
 

@@ -4,7 +4,7 @@
  * BANNERS — UI
  */
 
-import { registerBannersPlugin } from './banners-plugins.js';
+import { registerHook } from './banners-plugins.js';
 import { bannersState } from './banners-state.js';
 import { loadBanners } from './banners-data.js';
 import { renderBannersTable } from './banners-table.js';
@@ -12,8 +12,8 @@ import { showAddBannerModal } from './banners-crud.js';
 import { showToast } from '../../components/feedback/toast.js';
 
 export function init() {
-    registerBannersPlugin('onInit', setupUI);
-    registerBannersPlugin('onDataLoaded', renderTableStateLog);
+    registerHook('onInit', setupUI);
+    registerHook('onDataLoaded', renderTableStateLog);
 }
 
 function setupUI() {

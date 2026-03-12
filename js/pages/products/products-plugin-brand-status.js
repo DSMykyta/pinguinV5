@@ -19,7 +19,7 @@
 
 import { getBrandById } from '../brands/brands-data.js';
 import { getProductById } from './products-data.js';
-import { registerProductsPlugin } from './products-plugins.js';
+import { registerHook } from './products-plugins.js';
 import { productsState } from './products-state.js';
 
 const ORIGINAL_HTML_ATTR = 'data-brand-original-html';
@@ -131,7 +131,7 @@ function patchContainerDots(container, dataArray, idField, getBrandId) {
 
 export function init(state) {
     // Товар: модал
-    registerProductsPlugin('onModalOpen', (product) => {
+    registerHook('onModalOpen', (product) => {
         const brandId = product?.brand_id || document.getElementById('product-brand')?.value || '';
         applyBrandSwitch('product-status-switch', brandId);
 
@@ -146,7 +146,7 @@ export function init(state) {
     });
 
     // Варіант: модал
-    registerProductsPlugin('onVariantModalOpen', (ctx) => {
+    registerHook('onVariantModalOpen', (ctx) => {
         let brandId = ctx?.brandId || '';
 
         if (!brandId && ctx?.productId) {
@@ -158,7 +158,7 @@ export function init(state) {
     });
 
     // Таблиці: після кожного рендеру — пропатчити status dots (priority 20 — після таблиць)
-    registerProductsPlugin('onRender', () => {
+    registerHook('onRender', () => {
         patchStatusDots();
     }, 20);
 }

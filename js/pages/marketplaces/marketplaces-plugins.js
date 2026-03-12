@@ -14,7 +14,7 @@ import { createPluginRegistry } from '../../components/page/page-plugins.js';
 
 const marketplacesPlugins = createPluginRegistry('Marketplaces');
 
-export const registerMarketplacesPlugin = marketplacesPlugins.registerHook;
+export const registerHook = marketplacesPlugins.registerHook;
 export const runHook = marketplacesPlugins.runHook;
 export const runHookAsync = marketplacesPlugins.runHookAsync;
 export const optionalFunctions = marketplacesPlugins.optionalFunctions;

@@ -9,7 +9,7 @@
  * Одна таблиця (без табів).
  */
 
-import { registerMarketplacesPlugin, runHook } from './marketplaces-plugins.js';
+import { registerHook, runHook } from './marketplaces-plugins.js';
 import { getMarketplaces } from '../../data/marketplaces-data.js';
 import { createManagedTable } from '../../components/table/table-managed.js';
 import { col } from '../../components/table/table-main.js';
@@ -21,11 +21,11 @@ let _state = null;
 
 export function init(state) {
     _state = state;
-    registerMarketplacesPlugin('onDataLoaded', () => {
+    registerHook('onDataLoaded', () => {
         initMarketplacesTable();
         renderMarketplacesTable();
     });
-    registerMarketplacesPlugin('onDataChanged', () => {
+    registerHook('onDataChanged', () => {
         renderMarketplacesTable();
     });
 }

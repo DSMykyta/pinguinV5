@@ -8,6 +8,6 @@ import { createPluginRegistry } from '../../components/page/page-plugins.js';
 
 const keywordsPlugins = createPluginRegistry('Keywords');
 
-export const registerKeywordsPlugin = keywordsPlugins.registerHook;
+export const registerHook = keywordsPlugins.registerHook;
 export const runHook = keywordsPlugins.runHook;
 export { keywordsPlugins };

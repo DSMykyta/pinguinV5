@@ -8,7 +8,7 @@
  * 🔌 ПЛАГІН — обробники подій для таблиці варіантів на сторінці.
  */
 
-import { registerProductsPlugin } from './products-plugins.js';
+import { registerHook } from './products-plugins.js';
 import { loadProductVariants } from './variants-data.js';
 import { loadProducts } from './products-data.js';
 
@@ -32,7 +32,7 @@ function initCharmRefresh() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function init(state) {
-    registerProductsPlugin('onInit', () => {
+    registerHook('onInit', () => {
         initCharmRefresh();
     });
 }

@@ -20,7 +20,7 @@
  */
 
 let _state = null;
-import { registerMarketplacesPlugin, runHook } from './marketplaces-plugins.js';
+import { registerHook, runHook } from './marketplaces-plugins.js';
 import {
     addMarketplace, updateMarketplace, deleteMarketplace, getMarketplaces,
     getMarketplaceDependencies
@@ -64,7 +64,7 @@ export const PLUGIN_NAME = 'marketplaces-crud';
  */
 export function init(state) {
     _state = state;
-    registerMarketplacesPlugin('onDataLoaded', handleDataLoaded);
+    registerHook('onDataLoaded', handleDataLoaded);
 }
 
 /**

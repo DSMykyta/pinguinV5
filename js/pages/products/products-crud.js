@@ -18,7 +18,7 @@
  *   products-delete.js               — видалення товару
  */
 
-import { registerProductsPlugin, runHook, applyFilter, registerOptionalFunction } from './products-plugins.js';
+import { registerHook, runHook, applyFilter, registerOptionalFunction } from './products-plugins.js';
 import { productsState } from './products-state.js';
 import { addProduct, updateProduct, getProductById } from './products-data.js';
 import { showModal, closeModal } from '../../components/modal/modal-main.js';
@@ -895,7 +895,7 @@ registerOptionalFunction('getCurrentProductId', () => currentProductId);
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function init(state) {
-    registerProductsPlugin('onVariantAdd', () => {
+    registerHook('onVariantAdd', () => {
         if (currentProductId) {
             import('./products-crud-variants.js').then(({ populateProductVariants }) => {
                 populateProductVariants(currentProductId);
@@ -903,7 +903,7 @@ export function init(state) {
         }
     });
 
-    registerProductsPlugin('onVariantUpdate', () => {
+    registerHook('onVariantUpdate', () => {
         if (currentProductId) {
             import('./products-crud-variants.js').then(({ populateProductVariants }) => {
                 populateProductVariants(currentProductId);
@@ -911,7 +911,7 @@ export function init(state) {
         }
     });
 
-    registerProductsPlugin('onVariantDelete', () => {
+    registerHook('onVariantDelete', () => {
         if (currentProductId) {
             import('./products-crud-variants.js').then(({ populateProductVariants }) => {
                 populateProductVariants(currentProductId);

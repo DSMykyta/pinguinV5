@@ -9,7 +9,7 @@
  */
 
 import { brandsState } from './brands-state.js';
-import { registerHook, runHook } from './brands-plugins.js';
+import { registerBrandsPlugin, runHook } from './brands-plugins.js';
 import { renderBrandsTable } from './brands-table.js';
 import { loadBrands, getBrands } from './brands-data.js';
 import { showToast } from '../../components/feedback/toast.js';
@@ -86,7 +86,7 @@ function initRefreshHandlers() {
 
 // Реєструємо на хук onInit — ініціалізуємо обробники подій
 export function init(state) {
-    registerHook('onInit', () => {
+    registerBrandsPlugin('onInit', () => {
         initBrandsEvents();
         // Сортування/фільтри тепер через Table LEGO плагіни (brands-table.js, lines-table.js)
     });

@@ -40,7 +40,7 @@
 
 let _state = null;
 
-import { registerEntitiesPlugin, runHook } from './entities-plugins.js';
+import { registerHook, runHook } from './entities-plugins.js';
 import {
     addCharacteristic, updateCharacteristic, deleteCharacteristic, getCharacteristics,
     getCategories, getOptions, updateOption, addOption,
@@ -88,8 +88,8 @@ export const PLUGIN_NAME = 'entities-characteristics';
  */
 export function init(state) {
     _state = state;
-    registerEntitiesPlugin('onTabChange', handleTabChange);
-    registerEntitiesPlugin('onDataLoaded', handleDataLoaded);
+    registerHook('onTabChange', handleTabChange);
+    registerHook('onDataLoaded', handleDataLoaded);
 }
 
 /**

@@ -8,15 +8,15 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { registerRedirectPlugin } from './redirect-target-plugins.js';
+import { registerHook } from './redirect-target-plugins.js';
 import { redirectTargetState } from './redirect-target-state.js';
 import { loadRedirects } from './redirect-target-data.js';
 import { renderRedirectsTable } from './redirect-target-table.js';
 import { showToast } from '../../components/feedback/toast.js';
 
 export function init() {
-    registerRedirectPlugin('onInit', setupUI);
-    registerRedirectPlugin('onDataLoaded', renderTableStateLog);
+    registerHook('onInit', setupUI);
+    registerHook('onDataLoaded', renderTableStateLog);
 }
 
 function setupUI() {

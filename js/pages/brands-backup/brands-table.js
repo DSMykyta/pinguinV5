@@ -1,17 +1,16 @@
-// js/pages/products/variants-table.js
+// js/pages/brands/brands-table.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                    VARIANTS - TABLE RENDERING (PAGE TAB)                ║
+ * ║                    BRANDS - TABLE RENDERING                              ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
- * 🔌 ПЛАГІН — Таблиця ВСІХ варіантів на вкладці "Варіанти".
+ * 🔌 ПЛАГІН — Використовує createManagedTable для таблиці + пошуку + колонок.
  */
 
-import { getProductVariants } from './variants-data.js';
-import { getProducts } from './products-data.js';
-import { productsState } from './products-state.js';
-import { registerHook } from './products-plugins.js';
+import { registerBrandsPlugin, runHook } from './brands-plugins.js';
+import { getBrands } from './brands-data.js';
+import { brandsState } from './brands-state.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import {
     registerActionHandlers,
@@ -20,38 +19,36 @@ import {
 } from '../../components/actions/actions-main.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 import { createBatchActionsBar } from '../../components/actions/actions-batch.js';
-import { displayName } from './products-crud-variant-names.js';
+import { getOptions } from '../../data/entities-data.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ACTION HANDLERS
+// РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ
 // ═══════════════════════════════════════════════════════════════════════════
 
-registerActionHandlers('variants-page', {
+registerActionHandlers('brands', {
     edit: async (rowId) => {
-        const { showEditVariantModal } = await import('./products-crud-variants.js');
-        await showEditVariantModal(rowId);
+        const { showEditBrandModal } = await import('./brands-crud.js');
+        await showEditBrandModal(rowId);
     }
 });
 
-let _variantsPageManagedTable = null;
-let _variantsBatchBar = null;
 let _actionCleanup = null;
+let _brandsBatchBar = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
-// COLUMNS
+// COLUMNS CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════════════
 
-function getColumns() {
+export function getColumns() {
     return [
-        col('variant_id', 'ID', 'tag', { span: 1 }),
-        col('product_name', 'Товар', 'text', { span: 2 }),
-        col('article', 'Артикул', 'code', { span: 2, class: 'u-max-80', align: 'center' }),
-        col('image_url', 'Фото', 'photo', { span: 1 }),
-        col('name_ua', 'Назва', 'name'),
-        col('price', 'Ціна', 'tag', { span: 1, align: 'center', class: 'u-max-80', color: 'c-secondary' }),
-        col('old_price', 'Стара ціна', 'tag', { span: 1, align: 'center', class: 'u-max-80', color: 'c-secondary' }),
-        col('stock', 'Залишок', 'tag', { span: 1, align: 'center', class: 'u-max-80', color: 'c-tertiary' }),
-        col('status', 'Статус', 'status-dot'),
+        col('brand_logo_url', ' ', 'photo'),
+        col('brand_id', 'ID', 'tag', { span: 1 }),
+        col('name_uk', 'Назва', 'name'),
+        col('names_alt', 'Альтернативні назви', 'words-list', { searchable: true }),
+        col('country_option_id', 'Країна', 'text', { span: 1, filterable: true }),
+        col('brand_status', 'Статус', 'status-dot', { filterable: true }),
+        col('brand_links', 'Посилання', 'links'),
+        col('bindings', 'Лінійки', 'binding-chip')
     ];
 }
 
@@ -59,104 +56,104 @@ function getColumns() {
 // MANAGED TABLE
 // ═══════════════════════════════════════════════════════════════════════════
 
-function initVariantsPageTable() {
-    const visibleCols = ['variant_id', 'article', 'image_url', 'name_ua', 'price', 'old_price', 'stock', 'status'];
-    const searchCols = ['variant_id', 'article', 'name_ua', 'product_name'];
+function initBrandsTable() {
+    const visibleCols = brandsState.visibleColumns.length > 0
+        ? brandsState.visibleColumns
+        : ['brand_id', 'name_uk', 'country_option_id', 'brand_links'];
 
-    _variantsPageManagedTable = createManagedTable({
-        container: 'variants-table-container',
+    const searchCols = brandsState.searchColumns.length > 0
+        ? brandsState.searchColumns
+        : ['brand_id', 'name_uk', 'names_alt', 'country_option_id'];
+
+    brandsState.brandsManagedTable = createManagedTable({
+        container: 'brands-table-container',
         columns: getColumns().map(c => ({
             ...c,
             searchable: searchCols.includes(c.id) || c.searchable === true,
             checked: visibleCols.includes(c.id)
         })),
-        data: getProductVariants(),
+        data: getBrands(),
+
+        // DOM IDs
         statsId: null,
         paginationId: null,
+
         tableConfig: {
             rowActionsHeader: ' ',
             rowActions: (row) => actionButton({
                 action: 'edit',
-                rowId: row.variant_id,
-                context: 'variants-page'
+                rowId: row.brand_id,
+                context: 'brands'
             }),
-            getRowId: (row) => row.variant_id,
-            emptyState: { message: 'Варіанти не знайдено' },
+            getRowId: (row) => row.brand_id,
+            emptyState: { message: 'Бренди не знайдено' },
             withContainer: false,
             onAfterRender: (container) => {
                 if (_actionCleanup) _actionCleanup();
-                _actionCleanup = initActionHandlers(container, 'variants-page');
+                _actionCleanup = initActionHandlers(container, 'brands');
             },
             plugins: {
                 sorting: {
                     columnTypes: {
-                        variant_id: 'id-text',
-                        product_name: 'string',
-                        article: 'string',
-                        name_ua: 'string',
-                        price: 'number',
-                        old_price: 'number',
-                        stock: 'number',
-                        status: 'string',
+                        brand_id: 'id-text',
+                        name_uk: 'string',
+                        names_alt: 'string',
+                        country_option_id: 'string',
+                        brand_status: 'string',
+                        bindings: 'binding-chip'
                     }
                 },
                 filters: {
                     filterColumns: [
-                        { id: 'status', label: 'Статус', filterType: 'values' }
+                        { id: 'country_option_id', label: 'Країна', filterType: 'values' },
+                        { id: 'brand_status', label: 'Статус', filterType: 'values' }
                     ]
                 },
                 checkboxes: {
-                    batchBar: () => _variantsBatchBar
+                    batchBar: () => _brandsBatchBar
                 }
             }
         },
+
         dataTransform: (data) => {
-            const products = getProducts();
-            const productMap = {};
-            products.forEach(p => { productMap[p.product_id] = p.generated_short_ua || p.name_ua || p.product_id; });
+            const lines = brandsState.brandLines || [];
+            // Маппінг opt-ID → value_ua для країн
+            const options = getOptions();
+            const optMap = {};
+            options.forEach(o => { optMap[o.id] = o.value_ua || o.id; });
 
-            return data.map(v => {
-                // Витягнути перший URL з JSON масиву або залишити як є
-                let thumb = v.image_url || '';
-                if (thumb) {
-                    try {
-                        const parsed = JSON.parse(thumb);
-                        if (Array.isArray(parsed)) thumb = parsed[0] || '';
-                    } catch { /* not JSON — use as-is */ }
-                }
-
-                return {
-                    ...v,
-                    // Показувати згенеровану назву варіанту
-                    name_ua: v.generated_short_ua || displayName(v.name_ua),
-                    product_name: productMap[v.product_id] || v.product_id,
-                    image_url: thumb,
-                };
+            return data.map(b => {
+                const count = lines.filter(l => l.brand_id === b.brand_id).length;
+                const country = optMap[b.country_option_id] || b.country_option_id;
+                return { ...b, country_option_id: country, bindings: { count, tooltip: `Лінійок: ${count}` } };
             });
         },
         preFilter: null,
         pageSize: null,
-        checkboxPrefix: 'variants-page'
+        checkboxPrefix: 'brands'
     });
 
+    // Зберігаємо tableAPI в state для сумісності
+    brandsState.tableAPI = brandsState.brandsManagedTable.tableAPI;
+
     // Batch actions bar
-    _variantsBatchBar = createBatchActionsBar({
-        tabId: 'variants-page',
+    _brandsBatchBar = createBatchActionsBar({
+        tabId: 'brands',
         actions: [
             {
                 id: 'deactivate',
                 label: 'Не активні',
                 icon: 'visibility_off',
                 handler: async (selectedIds) => {
-                    const { updateProductVariant } = await import('./variants-data.js');
+                    const { updateBrand } = await import('./brands-data.js');
                     const { showToast } = await import('../../components/feedback/toast.js');
                     try {
                         for (const id of selectedIds) {
-                            await updateProductVariant(id, { status: 'draft' });
+                            await updateBrand(id, { brand_status: 'draft' });
                         }
-                        _variantsBatchBar.deselectAll();
-                        renderVariantsTable();
-                        showToast(`${selectedIds.length} варіант(ів) деактивовано`, 'success');
+                        _brandsBatchBar.deselectAll();
+                        renderBrandsTable();
+                        showToast(`${selectedIds.length} бренд(ів) деактивовано`, 'success');
                     } catch (error) {
                         console.error('Batch deactivate error:', error);
                         showToast('Помилка деактивації', 'error');
@@ -169,18 +166,18 @@ function initVariantsPageTable() {
                 icon: 'delete',
                 dangerous: true,
                 handler: async (selectedIds) => {
-                    const { deleteProductVariant } = await import('./variants-data.js');
+                    const { deleteBrand } = await import('./brands-data.js');
                     const { showToast } = await import('../../components/feedback/toast.js');
                     const { showConfirmModal } = await import('../../components/modal/modal-main.js');
-                    const confirmed = await showConfirmModal({ action: 'видалити', entity: `${selectedIds.length} варіант(ів)` });
+                    const confirmed = await showConfirmModal({ action: 'видалити', entity: `${selectedIds.length} бренд(ів)` });
                     if (!confirmed) return;
                     try {
                         for (const id of selectedIds) {
-                            await deleteProductVariant(id);
+                            await deleteBrand(id);
                         }
-                        _variantsBatchBar.deselectAll();
-                        renderVariantsTable();
-                        showToast(`Видалено ${selectedIds.length} варіант(ів)`, 'success');
+                        _brandsBatchBar.deselectAll();
+                        renderBrandsTable();
+                        showToast(`Видалено ${selectedIds.length} бренд(ів)`, 'success');
                     } catch (error) {
                         console.error('Batch delete error:', error);
                         showToast('Помилка видалення', 'error');
@@ -194,36 +191,32 @@ function initVariantsPageTable() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// PUBLIC
+// PUBLIC RENDER
 // ═══════════════════════════════════════════════════════════════════════════
 
-export function renderVariantsTable() {
-    if (!_variantsPageManagedTable) {
-        if (!document.getElementById('variants-table-container')) return;
-        if (!window.isAuthorized) return;
-        initVariantsPageTable();
+export function renderBrandsTable() {
+    if (!brandsState.brandsManagedTable) {
+        if (!document.getElementById('brands-table-container')) return;
+        initBrandsTable();
         return;
     }
-    _variantsPageManagedTable.updateData(getProductVariants());
+    brandsState.brandsManagedTable.updateData(getBrands());
 }
 
-export function renderVariantsTableRowsOnly() {
-    if (_variantsPageManagedTable) {
-        _variantsPageManagedTable.refilter();
+export function renderBrandsTableRowsOnly() {
+    if (brandsState.brandsManagedTable) {
+        brandsState.brandsManagedTable.refilter();
     } else {
-        renderVariantsTable();
+        renderBrandsTable();
     }
 }
 
-export function resetVariantsTableAPI() {
-    if (_variantsPageManagedTable) {
-        _variantsPageManagedTable.destroy();
-        _variantsPageManagedTable = null;
+export function resetTableAPI() {
+    if (brandsState.brandsManagedTable) {
+        brandsState.brandsManagedTable.destroy();
+        brandsState.brandsManagedTable = null;
     }
-    if (_actionCleanup) {
-        _actionCleanup();
-        _actionCleanup = null;
-    }
+    brandsState.tableAPI = null;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -231,7 +224,13 @@ export function resetVariantsTableAPI() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function init(state) {
-    registerHook('onInit', () => {
-        if (productsState.activeTab === 'variants') renderVariantsTable();
+    registerBrandsPlugin('onInit', () => {
+        renderBrandsTable();
+    });
+
+    registerBrandsPlugin('onRender', () => {
+        if (brandsState.activeTab === 'brands' && brandsState.brandsManagedTable) {
+            brandsState.brandsManagedTable.refilter();
+        }
     });
 }

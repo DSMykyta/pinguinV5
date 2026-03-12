@@ -8,6 +8,6 @@ import { createPluginRegistry } from '../../components/page/page-plugins.js';
 
 const redirectPlugins = createPluginRegistry('RedirectTarget');
 
-export const registerRedirectPlugin = redirectPlugins.registerHook;
+export const registerHook = redirectPlugins.registerHook;
 export const runHook = redirectPlugins.runHook;
 export { redirectPlugins };

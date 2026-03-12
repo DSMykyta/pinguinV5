@@ -8,7 +8,7 @@
  * 🔌 ПЛАГІН — Використовує createManagedTable для таблиці лінійок.
  */
 
-import { registerBrandsPlugin } from './brands-plugins.js';
+import { registerHook } from './brands-plugins.js';
 import { getBrandLines } from './lines-data.js';
 import { getBrandById } from './brands-data.js';
 import { brandsState } from './brands-state.js';
@@ -193,19 +193,19 @@ export function resetLinesTableAPI() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function init(state) {
-    registerBrandsPlugin('onInit', () => {
+    registerHook('onInit', () => {
         if (brandsState.activeTab === 'lines') {
             renderLinesTable();
         }
     });
 
-    registerBrandsPlugin('onRender', () => {
+    registerHook('onRender', () => {
         if (brandsState.activeTab === 'lines' && brandsState.linesManagedTable) {
             brandsState.linesManagedTable.refilter();
         }
     });
 
-    registerBrandsPlugin('onTabChange', (tab) => {
+    registerHook('onTabChange', (tab) => {
         if (tab === 'lines') {
             brandsState.brandsManagedTable?.deactivate();
             if (!window.isAuthorized) return;

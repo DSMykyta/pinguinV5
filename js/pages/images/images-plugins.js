@@ -8,6 +8,6 @@ import { createPluginRegistry } from '../../components/page/page-plugins.js';
 
 const imagesPlugins = createPluginRegistry('Images');
 
-export const registerImagesPlugin = imagesPlugins.registerHook;
+export const registerHook = imagesPlugins.registerHook;
 export const runHook = imagesPlugins.runHook;
 export { imagesPlugins };

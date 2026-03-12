@@ -14,7 +14,7 @@ import { createPluginRegistry } from '../../components/page/page-plugins.js';
 
 const entitiesPlugins = createPluginRegistry('Entities');
 
-export const registerEntitiesPlugin = entitiesPlugins.registerHook;
+export const registerHook = entitiesPlugins.registerHook;
 export const runHook = entitiesPlugins.runHook;
 export const runHookAsync = entitiesPlugins.runHookAsync;
 export const optionalFunctions = entitiesPlugins.optionalFunctions;

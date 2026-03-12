@@ -8,7 +8,7 @@
  * Обробники подій для сторінки Маркетплейсів.
  */
 
-import { registerMarketplacesPlugin } from './marketplaces-plugins.js';
+import { registerHook } from './marketplaces-plugins.js';
 import { renderMarketplacesTable } from './marketplaces-table.js';
 import { loadMarketplaces } from '../../data/marketplaces-data.js';
 import { showToast } from '../../components/feedback/toast.js';
@@ -17,7 +17,7 @@ let _state = null;
 
 export function init(state) {
     _state = state;
-    registerMarketplacesPlugin('onDataLoaded', () => {
+    registerHook('onDataLoaded', () => {
         initMarketplacesEvents();
     });
 }

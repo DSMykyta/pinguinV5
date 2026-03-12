@@ -1,17 +1,17 @@
-// js/pages/products/groups-table.js
+// js/pages/brands/lines-table.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                    GROUPS - TABLE RENDERING (PAGE TAB)                  ║
+ * ║                    BRAND LINES - TABLE RENDERING                         ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
- * 🔌 ПЛАГІН — Таблиця груп товарів на вкладці "Групування".
+ * 🔌 ПЛАГІН — Використовує createManagedTable для таблиці лінійок.
  */
 
-import { getProductGroups } from './groups-data.js';
-import { getProducts } from './products-data.js';
-import { productsState } from './products-state.js';
-import { registerHook } from './products-plugins.js';
+import { registerBrandsPlugin } from './brands-plugins.js';
+import { getBrandLines } from './lines-data.js';
+import { getBrandById } from './brands-data.js';
+import { brandsState } from './brands-state.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import {
     registerActionHandlers,
@@ -20,108 +20,105 @@ import {
 } from '../../components/actions/actions-main.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 import { createBatchActionsBar } from '../../components/actions/actions-batch.js';
-import { getTypeLabel } from './groups-crud.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ACTION HANDLERS
+// РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ
 // ═══════════════════════════════════════════════════════════════════════════
 
-registerActionHandlers('groups-page', {
+registerActionHandlers('brand-lines', {
     edit: async (rowId) => {
-        const { showEditGroupModal } = await import('./groups-crud.js');
-        await showEditGroupModal(rowId);
-    },
+        const { showEditLineModal } = await import('./lines-crud.js');
+        await showEditLineModal(rowId);
+    }
 });
 
-let _groupsPageManagedTable = null;
-let _groupsBatchBar = null;
 let _actionCleanup = null;
+let _linesBatchBar = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
-// COLUMNS
+// COLUMNS CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════════════
 
-function getColumns() {
+export function getLinesColumns() {
     return [
-        col('group_id', 'ID', 'tag', { span: 2 }),
-        col('products_list', 'Товари', 'text', { span: 6 }),
-        col('product_type_label', 'Тип', 'tag', { span: 2 }),
-        col('products_count', 'Кількість', 'binding-chip', { span: 1 }),
+        col('line_id', 'ID', 'tag'),
+        col('brand_name', 'Бренд', 'text', { span: 3 }),
+        col('name_uk', 'Назва лінійки', 'name', { span: 5 }),
+        col('has_logo', 'Логотип', 'status-dot')
     ];
+}
+
+function enrichLinesData(lines) {
+    return lines.map(l => ({
+        ...l,
+        brand_name: getBrandById(l.brand_id)?.name_uk || l.brand_id || '—',
+        has_logo: l.line_logo_url ? 'active' : 'inactive'
+    }));
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
 // MANAGED TABLE
 // ═══════════════════════════════════════════════════════════════════════════
 
-function initGroupsPageTable() {
-    const visibleCols = ['group_id', 'products_list', 'product_type_label', 'products_count'];
-    const searchCols = ['group_id', 'products_list'];
+function initLinesTable() {
+    const visibleCols = brandsState.linesVisibleColumns.length > 0
+        ? brandsState.linesVisibleColumns
+        : ['line_id', 'brand_name', 'name_uk'];
 
-    _groupsPageManagedTable = createManagedTable({
-        container: 'groups-table-container',
-        columns: getColumns().map(c => ({
+    const searchCols = brandsState.linesSearchColumns.length > 0
+        ? brandsState.linesSearchColumns
+        : ['line_id', 'name_uk', 'brand_name'];
+
+    brandsState.linesManagedTable = createManagedTable({
+        container: 'lines-table-container',
+        columns: getLinesColumns().map(c => ({
             ...c,
             searchable: searchCols.includes(c.id) || c.searchable === true,
             checked: visibleCols.includes(c.id)
         })),
-        data: getProductGroups(),
+        data: enrichLinesData(getBrandLines()),
+
+        // DOM IDs
         statsId: null,
         paginationId: null,
+
         tableConfig: {
             rowActionsHeader: ' ',
-            rowActions: (row) => `
-                ${actionButton({ action: 'edit', rowId: row.group_id, context: 'groups-page' })}
-            `,
-            getRowId: (row) => row.group_id,
-            emptyState: { message: 'Групи не знайдено' },
+            rowActions: (row) => actionButton({
+                action: 'edit',
+                rowId: row.line_id,
+                context: 'brand-lines'
+            }),
+            getRowId: (row) => row.line_id,
+            emptyState: { message: 'Лінійки не знайдено' },
             withContainer: false,
             onAfterRender: (container) => {
                 if (_actionCleanup) _actionCleanup();
-                _actionCleanup = initActionHandlers(container, 'groups-page');
+                _actionCleanup = initActionHandlers(container, 'brand-lines');
             },
             plugins: {
                 sorting: {
                     columnTypes: {
-                        group_id: 'id-text',
-                        products_list: 'string',
-                        product_type_label: 'string',
-                        products_count: 'binding-chip',
+                        line_id: 'id-text',
+                        brand_name: 'string',
+                        name_uk: 'string'
                     }
                 },
                 checkboxes: {
-                    batchBar: () => _groupsBatchBar
+                    batchBar: () => _linesBatchBar
                 }
             }
         },
-        dataTransform: (data) => {
-            const products = getProducts();
-            const productMap = {};
-            products.forEach(p => {
-                productMap[p.product_id] = p.generated_short_ua || p.name_ua || p.product_id;
-            });
 
-            return data.map(g => {
-                const productNames = g.product_ids.map(id => productMap[id] || id);
-                return {
-                    ...g,
-                    products_list: g.name || productNames.join(', '),
-                    product_type_label: getTypeLabel(g.product_type),
-                    products_count: {
-                        count: g.product_ids.length,
-                        tooltip: productNames.join('\n')
-                    }
-                };
-            });
-        },
+        dataTransform: (data) => enrichLinesData(data),
         preFilter: null,
         pageSize: null,
-        checkboxPrefix: 'groups-page'
+        checkboxPrefix: 'lines'
     });
 
     // Batch actions bar
-    _groupsBatchBar = createBatchActionsBar({
-        tabId: 'groups-page',
+    _linesBatchBar = createBatchActionsBar({
+        tabId: 'lines',
         actions: [
             {
                 id: 'delete',
@@ -129,18 +126,18 @@ function initGroupsPageTable() {
                 icon: 'delete',
                 dangerous: true,
                 handler: async (selectedIds) => {
-                    const { deleteProductGroup } = await import('./groups-data.js');
+                    const { deleteBrandLine } = await import('./lines-data.js');
                     const { showToast } = await import('../../components/feedback/toast.js');
                     const { showConfirmModal } = await import('../../components/modal/modal-main.js');
-                    const confirmed = await showConfirmModal({ action: 'видалити', entity: `${selectedIds.length} груп(у)` });
+                    const confirmed = await showConfirmModal({ action: 'видалити', entity: `${selectedIds.length} лінійок(у)` });
                     if (!confirmed) return;
                     try {
                         for (const id of selectedIds) {
-                            await deleteProductGroup(id);
+                            await deleteBrandLine(id);
                         }
-                        _groupsBatchBar.deselectAll();
-                        renderGroupsTable();
-                        showToast(`Видалено ${selectedIds.length} груп(у)`, 'success');
+                        _linesBatchBar.deselectAll();
+                        renderLinesTable();
+                        showToast(`Видалено ${selectedIds.length} лінійок(у)`, 'success');
                     } catch (error) {
                         console.error('Batch delete error:', error);
                         showToast('Помилка видалення', 'error');
@@ -152,37 +149,43 @@ function initGroupsPageTable() {
 
     initColumnsCharm();
 
-    // Кнопка додавання
-    const addBtn = document.getElementById('btn-add-group');
-    if (addBtn) addBtn.onclick = async () => {
-        const { showAddGroupModal } = await import('./groups-crud.js');
-        showAddGroupModal();
-    };
+    // Деактивувати одразу — brands таб активний за замовчуванням
+    brandsState.linesManagedTable.deactivate();
+
+    brandsState.linesTableAPI = brandsState.linesManagedTable.tableAPI;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// PUBLIC
+// PUBLIC RENDER
 // ═══════════════════════════════════════════════════════════════════════════
 
-export function renderGroupsTable() {
-    if (!_groupsPageManagedTable) {
-        if (!document.getElementById('groups-table-container')) return;
-        if (!window.isAuthorized) return;
-        initGroupsPageTable();
+export function renderLinesTable() {
+    if (brandsState.activeTab !== 'lines') return;
+    if (!window.isAuthorized) return;
+
+    if (!brandsState.linesManagedTable) {
+        if (!document.getElementById('lines-table-container')) return;
+        initLinesTable();
+        brandsState.linesManagedTable.activate();
         return;
     }
-    _groupsPageManagedTable.updateData(getProductGroups());
+    brandsState.linesManagedTable.updateData(getBrandLines());
 }
 
-export function resetGroupsTableAPI() {
-    if (_groupsPageManagedTable) {
-        _groupsPageManagedTable.destroy();
-        _groupsPageManagedTable = null;
+export function renderLinesTableRowsOnly() {
+    if (brandsState.linesManagedTable) {
+        brandsState.linesManagedTable.refilter();
+    } else {
+        renderLinesTable();
     }
-    if (_actionCleanup) {
-        _actionCleanup();
-        _actionCleanup = null;
+}
+
+export function resetLinesTableAPI() {
+    if (brandsState.linesManagedTable) {
+        brandsState.linesManagedTable.destroy();
+        brandsState.linesManagedTable = null;
     }
+    brandsState.linesTableAPI = null;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -190,7 +193,30 @@ export function resetGroupsTableAPI() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function init(state) {
-    registerHook('onInit', () => {
-        if (productsState.activeTab === 'groups') renderGroupsTable();
+    registerBrandsPlugin('onInit', () => {
+        if (brandsState.activeTab === 'lines') {
+            renderLinesTable();
+        }
+    });
+
+    registerBrandsPlugin('onRender', () => {
+        if (brandsState.activeTab === 'lines' && brandsState.linesManagedTable) {
+            brandsState.linesManagedTable.refilter();
+        }
+    });
+
+    registerBrandsPlugin('onTabChange', (tab) => {
+        if (tab === 'lines') {
+            brandsState.brandsManagedTable?.deactivate();
+            if (!window.isAuthorized) return;
+            if (!brandsState.linesManagedTable) {
+                initLinesTable();
+            }
+            brandsState.linesManagedTable.activate();
+        } else {
+            brandsState.linesManagedTable?.deactivate();
+            if (!window.isAuthorized) return;
+            brandsState.brandsManagedTable?.activate();
+        }
     });
 }

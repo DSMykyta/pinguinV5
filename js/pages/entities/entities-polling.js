@@ -13,13 +13,13 @@ import {
     getMapCategories, getMapCharacteristics, getMapOptions,
     loadMapCategories, loadMapCharacteristics, loadMapOptions
 } from '../../data/mappings-data.js';
-import { registerEntitiesPlugin, runHook } from './entities-plugins.js';
+import { registerHook, runHook } from './entities-plugins.js';
 
 let _state = null;
 
 export function init(state) {
     _state = state;
-    registerEntitiesPlugin('onDataLoaded', () => {
+    registerHook('onDataLoaded', () => {
         startPolling();
     });
 }

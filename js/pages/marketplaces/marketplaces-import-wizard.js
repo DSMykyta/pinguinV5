@@ -18,7 +18,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { registerMarketplacesPlugin, runHook } from './marketplaces-plugins.js';
+import { registerHook, runHook } from './marketplaces-plugins.js';
 import { getMpCategories, getMpCharacteristics, getMpOptions } from '../../data/mp-data.js';
 import { getCategories, getCharacteristics, getOptions, addCategory, addCharacteristic, addOption } from '../../data/entities-data.js';
 import { getMarketplaces } from '../../data/marketplaces-data.js';
@@ -68,7 +68,7 @@ const wizardState = {
 
 export function init(state) {
     _state = state;
-    registerMarketplacesPlugin('onDataLoaded', handleDataLoaded);
+    registerHook('onDataLoaded', handleDataLoaded);
 }
 
 function handleDataLoaded() {

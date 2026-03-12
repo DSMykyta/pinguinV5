@@ -15,7 +15,7 @@
  *   brands-delete.js         — видалення бренду
  */
 
-import { registerHook, runHook } from './brands-plugins.js';
+import { registerBrandsPlugin, runHook } from './brands-plugins.js';
 import { brandsState } from './brands-state.js';
 import { addBrand, updateBrand, getBrands, getBrandById } from './brands-data.js';
 import { showModal, closeModal } from '../../components/modal/modal-main.js';
@@ -429,19 +429,19 @@ function generateBrandIdForUI() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function init(state) {
-    registerHook('onLineAdd', () => {
+    registerBrandsPlugin('onLineAdd', () => {
         if (currentBrandId) {
             populateBrandLines(currentBrandId);
         }
     });
 
-    registerHook('onLineUpdate', () => {
+    registerBrandsPlugin('onLineUpdate', () => {
         if (currentBrandId) {
             populateBrandLines(currentBrandId);
         }
     });
 
-    registerHook('onLineDelete', () => {
+    registerBrandsPlugin('onLineDelete', () => {
         if (currentBrandId) {
             populateBrandLines(currentBrandId);
         }

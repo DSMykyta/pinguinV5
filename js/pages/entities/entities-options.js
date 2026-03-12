@@ -27,7 +27,7 @@
 
 let _state = null;
 
-import { registerEntitiesPlugin, runHook } from './entities-plugins.js';
+import { registerHook, runHook } from './entities-plugins.js';
 import {
     addOption, updateOption, deleteOption, getOptions,
     getCharacteristics,
@@ -75,8 +75,8 @@ export const PLUGIN_NAME = 'entities-options';
  */
 export function init(state) {
     _state = state;
-    registerEntitiesPlugin('onTabChange', handleTabChange);
-    registerEntitiesPlugin('onDataLoaded', handleDataLoaded);
+    registerHook('onTabChange', handleTabChange);
+    registerHook('onDataLoaded', handleDataLoaded);
 }
 
 /**

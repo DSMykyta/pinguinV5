@@ -17,7 +17,7 @@
 import { getBrandById } from '../brands/brands-data.js';
 import { getBrandLineById } from '../brands/lines-data.js';
 import { buildShortName, buildFullName } from './products-crud-names.js';
-import { registerProductsPlugin } from './products-plugins.js';
+import { registerHook } from './products-plugins.js';
 import { escapeHtml } from '../../utils/utils-text.js';
 
 /**
@@ -36,7 +36,7 @@ function formatWeight(raw, lang) {
 const WEIGHT_CHAR_ID = 'char-000022';
 
 export function init(state) {
-    registerProductsPlugin('onCharsRender', (container, savedValues, variantData) => {
+    registerHook('onCharsRender', (container, savedValues, variantData) => {
         if (!container) return;
         // Не дублювати
         if (container.querySelector(`[data-vchar-id="${WEIGHT_CHAR_ID}"]`)) return;

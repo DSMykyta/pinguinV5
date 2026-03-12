@@ -6,15 +6,15 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { registerImagesPlugin } from './images-plugins.js';
+import { registerHook } from './images-plugins.js';
 import { imagesState } from './images-state.js';
 import { loadImages } from './images-data.js';
 import { renderImagesTable } from './images-table.js';
 import { showToast } from '../../components/feedback/toast.js';
 
 export function init() {
-    registerImagesPlugin('onInit', setupUI);
-    registerImagesPlugin('onDataLoaded', renderTableStateLog);
+    registerHook('onInit', setupUI);
+    registerHook('onDataLoaded', renderTableStateLog);
 }
 
 function setupUI() {

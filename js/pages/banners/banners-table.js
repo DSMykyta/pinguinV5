@@ -14,7 +14,7 @@ import {
     initActionHandlers,
     actionButton
 } from '../../components/actions/actions-main.js';
-import { registerBannersPlugin } from './banners-plugins.js';
+import { registerHook } from './banners-plugins.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 import { escapeHtml } from '../../utils/utils-text.js';
 
@@ -159,10 +159,10 @@ export function resetBannersTableAPI() {
 }
 
 export function init() {
-    registerBannersPlugin('onInit', () => {
+    registerHook('onInit', () => {
         renderBannersTable();
     });
-    registerBannersPlugin('onRender', () => {
+    registerHook('onRender', () => {
         if (bannersState.managedTable) {
             bannersState.managedTable.refilter();
         }

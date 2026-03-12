@@ -8,6 +8,6 @@ import { createPluginRegistry } from '../../components/page/page-plugins.js';
 
 const bannersPlugins = createPluginRegistry('Banners');
 
-export const registerBannersPlugin = bannersPlugins.registerHook;
+export const registerHook = bannersPlugins.registerHook;
 export const runHook = bannersPlugins.runHook;
 export { bannersPlugins };

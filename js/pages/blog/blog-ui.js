@@ -4,7 +4,7 @@
  * BLOG — UI
  */
 
-import { registerBlogPlugin } from './blog-plugins.js';
+import { registerHook } from './blog-plugins.js';
 import { blogState } from './blog-state.js';
 import { loadBlogPosts } from './blog-data.js';
 import { renderBlogTable } from './blog-table.js';
@@ -12,8 +12,8 @@ import { showAddBlogModal } from './blog-crud.js';
 import { showToast } from '../../components/feedback/toast.js';
 
 export function init() {
-    registerBlogPlugin('onInit', setupUI);
-    registerBlogPlugin('onDataLoaded', renderTableStateLog);
+    registerHook('onInit', setupUI);
+    registerHook('onDataLoaded', renderTableStateLog);
 }
 
 function setupUI() {

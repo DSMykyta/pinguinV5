@@ -11,7 +11,7 @@
  * Видалення — в lines-delete.js.
  */
 
-import { registerHook, runHook } from './brands-plugins.js';
+import { registerBrandsPlugin, runHook } from './brands-plugins.js';
 import { getBrands } from './brands-data.js';
 import { getBrandLineById, addBrandLine, updateBrandLine } from './lines-data.js';
 import { showModal, closeModal } from '../../components/modal/modal-main.js';
