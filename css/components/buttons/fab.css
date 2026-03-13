@@ -163,6 +163,12 @@
     transform: rotate(45deg);
 }
 
+/* Link as item — no underline */
+a.fab-menu-item {
+    text-decoration: none;
+    color: inherit;
+}
+
 /* Item row (анімація) */
 .fab-menu-item {
     display: flex;
