@@ -17,5 +17,7 @@ export const amState = createPageState({
         draggedId: null,
         draggedType: null,       // 'mp' | 'own'
         expandedFolders: new Set(),
+        asideSearch: '',
+        asideMpFilter: '',
     }
 });

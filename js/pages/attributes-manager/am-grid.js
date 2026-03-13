@@ -1,16 +1,14 @@
 // js/pages/attributes-manager/am-grid.js
 
 /**
- * Grid rendering plugin: папки (власні сутності) + незамаплені MP картки.
- * Будує дерево по parent_id, показує маппінги всередині папок.
+ * Grid rendering plugin: тільки папки (власні сутності) з замапленими MP.
+ * Незамаплені MP тепер в aside (am-aside.js).
  */
 
 import { amState } from './am-state.js';
 import { registerHook } from './am-plugins.js';
 import { getCategories, getCharacteristics, getOptions } from '../../data/entities-data.js';
-import { getMpCategories, getMpCharacteristics, getMpOptions } from '../../data/mp-data.js';
-import { getMappedMpCategories, getMappedMpCharacteristics, getMappedMpOptions,
-    isMpCategoryMapped, isMpCharacteristicMapped, isMpOptionMapped } from '../../data/mappings-data.js';
+import { getMappedMpCategories, getMappedMpCharacteristics, getMappedMpOptions } from '../../data/mappings-data.js';
 import { getMarketplaces } from '../../data/marketplaces-data.js';
 import { escapeHtml } from '../../utils/utils-text.js';
 
@@ -22,31 +20,22 @@ const TAB_CONFIG = {
     categories: {
         containerId: 'am-categories-grid',
         getOwn: getCategories,
-        getMp: getMpCategories,
         getMapped: getMappedMpCategories,
-        isMapped: isMpCategoryMapped,
         nameField: 'name_ua',
-        mpNameField: 'name',
         parentField: 'parent_id',
     },
     characteristics: {
         containerId: 'am-characteristics-grid',
         getOwn: getCharacteristics,
-        getMp: getMpCharacteristics,
         getMapped: getMappedMpCharacteristics,
-        isMapped: isMpCharacteristicMapped,
         nameField: 'name_ua',
-        mpNameField: 'name',
         parentField: null,
     },
     options: {
         containerId: 'am-options-grid',
         getOwn: getOptions,
-        getMp: getMpOptions,
         getMapped: getMappedMpOptions,
-        isMapped: isMpOptionMapped,
         nameField: 'value_ua',
-        mpNameField: 'name',
         parentField: 'parent_option_id',
     },
 };
@@ -55,9 +44,14 @@ const TAB_CONFIG = {
 // MARKETPLACE LOOKUP
 // ═══════════════════════════════════════════════════════════════════════════
 
+let _mpLookup = null;
+
 function getMpName(marketplaceId) {
-    const mp = getMarketplaces().find(m => m.id === marketplaceId);
-    return mp ? (mp.name || mp.id) : marketplaceId;
+    if (!_mpLookup) {
+        _mpLookup = new Map();
+        getMarketplaces().forEach(m => _mpLookup.set(m.id, m.name || m.id));
+    }
+    return _mpLookup.get(marketplaceId) || marketplaceId;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -73,30 +67,18 @@ function renderGrid() {
     if (!container) return;
 
     const ownEntities = config.getOwn();
-    const mpEntities = config.getMp();
     const searchQuery = (amState.searchQuery || '').toLowerCase();
 
-    // Build tree of own entities (folders)
+    // Separate root entities from nested
     const rootEntities = config.parentField
         ? ownEntities.filter(e => !e[config.parentField])
         : ownEntities;
 
     const fragment = document.createDocumentFragment();
 
-    // Render folders (own entities with mappings or children)
     rootEntities.forEach(entity => {
         const folderEl = renderFolder(entity, config, searchQuery, 0);
         if (folderEl) fragment.appendChild(folderEl);
-    });
-
-    // Render nested folders (entities with parent_id, rendered under their parents)
-    // Already handled recursively in renderFolder
-
-    // Render unmapped MP cards
-    mpEntities.forEach(mp => {
-        if (config.isMapped(mp.id)) return;
-        if (searchQuery && !matchesSearch(mp, config.mpNameField, searchQuery)) return;
-        fragment.appendChild(renderMpCard(mp, config));
     });
 
     container.innerHTML = '';
@@ -109,12 +91,9 @@ function renderFolder(entity, config, searchQuery, depth) {
         ? config.getOwn().filter(e => e[config.parentField] === entity.id)
         : [];
 
-    // Skip empty folders that don't match search
-    if (mapped.length === 0 && children.length === 0) return null;
-
     const name = entity[config.nameField] || entity.id;
     if (searchQuery && !name.toLowerCase().includes(searchQuery) &&
-        !mapped.some(mp => matchesSearch(mp, config.mpNameField, searchQuery))) return null;
+        !mapped.some(mp => getMpDisplayName(mp).toLowerCase().includes(searchQuery))) return null;
 
     const isExpanded = amState.expandedFolders.has(entity.id);
     const totalCount = mapped.length + children.length;
@@ -130,7 +109,7 @@ function renderFolder(entity, config, searchQuery, depth) {
     if (isExpanded) {
         // Mapped MP items
         mapped.forEach(mp => {
-            const mpName = mp[config.mpNameField] || mp.name || mp.external_id || mp.id;
+            const mpName = getMpDisplayName(mp);
             const mpMarketplace = getMpName(mp.marketplace_id);
             childrenHtml += `
                 <div class="block-line" data-mp-id="${escapeHtml(mp.id)}">
@@ -144,12 +123,12 @@ function renderFolder(entity, config, searchQuery, depth) {
                 </div>`;
         });
 
-        // Child folders (recursive)
+        // Child folders (nested)
         children.forEach(child => {
             const childMapped = config.getMapped(child.id);
             const childName = child[config.nameField] || child.id;
             childrenHtml += `
-                <div class="block-line" data-own-id="${escapeHtml(child.id)}">
+                <div class="block-line am-toggle-folder" data-own-id="${escapeHtml(child.id)}">
                     <span class="block-line-text"><span class="material-symbols-outlined">folder</span> ${escapeHtml(childName)}</span>
                     <span class="tag">${childMapped.length}</span>
                 </div>`;
@@ -176,46 +155,8 @@ function renderFolder(entity, config, searchQuery, depth) {
     return block;
 }
 
-function renderMpCard(mp, config) {
-    const name = mp[config.mpNameField] || mp.name || mp.external_id || mp.id;
-    const mpMarketplace = getMpName(mp.marketplace_id);
-
-    const block = document.createElement('div');
-    block.className = 'block';
-    block.dataset.mpId = mp.id;
-    block.dataset.entityType = amState.activeTab;
-    block.draggable = true;
-
-    // Build key-value lines from mp data (skip internal fields)
-    const skipFields = ['_rowIndex', 'id', 'marketplace_id', 'data', '_jsonId', '_source', '_mappingId',
-        'our_category_id', 'our_char_id', 'our_option_id', 'our_cat_id'];
-    let linesHtml = '';
-    const entries = Object.entries(mp).filter(([key]) => !key.startsWith('_') && !skipFields.includes(key));
-    entries.slice(0, 5).forEach(([key, value]) => {
-        if (!value) return;
-        linesHtml += `
-            <div class="block-line">
-                <label class="block-line-label">${escapeHtml(key)}</label>
-                <span class="block-line-text">${escapeHtml(String(value).substring(0, 80))}</span>
-            </div>`;
-    });
-
-    block.innerHTML = `
-        <div class="block-header">
-            <h3>${escapeHtml(name.length > 30 ? name.substring(0, 30) + '...' : name)}</h3>
-            <div class="group">
-                <span class="tag">${escapeHtml(mpMarketplace)}</span>
-            </div>
-        </div>
-        <div class="block-list">${linesHtml}</div>`;
-
-    return block;
-}
-
-function matchesSearch(entity, nameField, query) {
-    const name = (entity[nameField] || entity.name || entity.id || '').toLowerCase();
-    const extId = (entity.external_id || '').toLowerCase();
-    return name.includes(query) || extId.includes(query);
+function getMpDisplayName(mp) {
+    return mp.name || mp.external_id || mp.id || '';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -227,5 +168,8 @@ export function init() {
     registerHook('onRender', renderGrid);
     registerHook('onTabSwitch', renderGrid);
     registerHook('onTabDataReady', renderGrid);
-    registerHook('onLookupInvalidate', renderGrid);
+    registerHook('onLookupInvalidate', () => {
+        _mpLookup = null;
+        renderGrid();
+    });
 }
