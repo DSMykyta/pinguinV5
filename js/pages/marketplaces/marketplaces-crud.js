@@ -43,7 +43,7 @@ import {
     loadMapCategories, loadMapCharacteristics, loadMapOptions,
     getMapCharacteristics, getMapOptions
 } from '../../data/mappings-data.js';
-import { initSectionNavigation, buildCascadeDetails } from '../mapper/mapper-utils.js';
+import { initSectionNavigation, buildCascadeDetails } from '../entities/entities-utils.js';
 import { showModal, closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { showConfirmModal } from '../../components/modal/modal-main.js';

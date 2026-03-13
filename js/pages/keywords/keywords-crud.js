@@ -254,14 +254,17 @@ async function loadEntitiesForType(type) {
 
     if (!mapperDataCache) {
         try {
-            const { mapperState } = await import('../mapper/mapper-state.js');
-            const { loadMapperData } = await import('../mapper/mapper-data.js');
+            const { loadAllEntities, getCategories, getCharacteristics, getOptions } = await import('../../data/entities-data.js');
 
-            if (!mapperState.categories?.length) {
-                await loadMapperData();
+            if (!getCategories().length) {
+                await loadAllEntities();
             }
 
-            mapperDataCache = mapperState;
+            mapperDataCache = {
+                categories: getCategories(),
+                characteristics: getCharacteristics(),
+                options: getOptions()
+            };
         } catch (error) {
             console.warn('⚠️ Не вдалося завантажити дані Mapper:', error);
             entitySelect.innerHTML = '<option value="">-- Помилка завантаження --</option>';
