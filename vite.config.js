@@ -18,6 +18,7 @@ const APP_PAGES = [
     'price.html',
     'tasks.html',
     'redirect-target.html',
+    'attributes-manager.html',
 ];
 
 const input = {};

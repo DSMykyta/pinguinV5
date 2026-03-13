@@ -80,3 +80,13 @@
     break-inside: avoid;
     margin-bottom: 16px;
 }
+
+/* Drag-and-drop states */
+.block.drag-over {
+    outline: 2px dashed var(--color-main);
+    outline-offset: -2px;
+}
+
+.block.dragging {
+    opacity: 0.5;
+}
