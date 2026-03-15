@@ -94,3 +94,9 @@
     padding: 4px 10px;
     border-radius: 14px;
 }
+
+/* Стан: disabled */
+.switch-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
