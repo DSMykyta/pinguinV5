@@ -18,6 +18,7 @@ const APP_PAGES = [
     'price.html',
     'tasks.html',
     'redirect-target.html',
+    'MIGRATION-GUIDE.html',
 ];
 
 const input = {};
