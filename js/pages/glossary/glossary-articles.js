@@ -22,14 +22,14 @@ import {
 
 registerActionHandlers('glossary', {
     edit: async (rowId) => {
-        const { loadKeywords } = await import('../keywords/keywords-data.js');
-        await loadKeywords();
+        const { keywordsData } = await import('../keywords/keywords-main.js');
+        await keywordsData.load();
         const { showEditKeywordModal } = await import('../keywords/keywords-crud.js');
         await showEditKeywordModal(rowId);
     },
     add: async (rowId) => {
-        const { loadKeywords } = await import('../keywords/keywords-data.js');
-        await loadKeywords();
+        const { keywordsData } = await import('../keywords/keywords-main.js');
+        await keywordsData.load();
         const { showEditKeywordModal } = await import('../keywords/keywords-crud.js');
         await showEditKeywordModal(rowId);
     }

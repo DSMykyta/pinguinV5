@@ -3,40 +3,20 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║                    KEYWORDS - INITIALIZATION                             ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║  Powered by Entity Engine + custom CRUD (keywords-crud.js)              ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { keywordsState } from './keywords-state.js';
-import { keywordsPlugins } from './keywords-plugins.js';
-import { loadKeywords } from './keywords-data.js';
-import { registerAsideInitializer } from '../../layout/layout-main.js';
-import { createPage } from '../../components/page/page-main.js';
+import { createEntity } from '../../engine/entity-engine.js';
+import config from '../../configs/keywords.config.js';
 
-export { keywordsState } from './keywords-state.js';
+const entity = createEntity(config);
 
-const page = createPage({
-    name: 'Keywords',
-    state: keywordsState,
-    plugins: keywordsPlugins,
-    PLUGINS: [
-        () => import('./keywords-table.js'),
-        () => import('./keywords-events.js'),
-        () => import('./keywords-crud.js'),
-    ],
-    dataLoaders: [loadKeywords],
-    containers: ['keywords-table-container'],
-});
+// Export data layer for keywords-crud.js to use
+export const keywordsData = entity.data;
+export const keywordsState = entity.state;
 
 export async function initKeywords() {
-    await page.init();
+    await entity.init();
 }
-
-registerAsideInitializer('aside-keywords', () => {
-    const addBtn = document.getElementById('btn-add-keyword-aside');
-    if (addBtn) {
-        addBtn.addEventListener('click', async () => {
-            const { showAddKeywordModal } = await import('./keywords-crud.js');
-            showAddKeywordModal();
-        });
-    }
-});

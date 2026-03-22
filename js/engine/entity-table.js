@@ -78,6 +78,11 @@ export function createEntityTablePlugin(config, data, state, plugins) {
 
     // Build row actions HTML
     function buildRowActions(row) {
+        // Allow full override via function
+        if (typeof tableConfig.rowActions === 'function') {
+            return tableConfig.rowActions(row, dataSource.idField, name);
+        }
+
         const actions = tableConfig.actions || ['edit'];
         const idField = dataSource.idField;
 
@@ -174,21 +179,21 @@ export function createEntityTablePlugin(config, data, state, plugins) {
 
     return {
         init() {
-            // Register action handlers for CRUD
+            // Register action handlers — config-provided take priority
             const actionHandlers = {};
-            const actions = tableConfig.actions || ['edit'];
 
-            actions.forEach(action => {
-                const actionName = typeof action === 'string' ? action : action.action;
-                if (actionName === 'edit') {
-                    actionHandlers.edit = async (rowId) => {
-                        if (config.crud) {
-                            const crudModule = state._crudModule;
-                            if (crudModule) crudModule.showEdit(rowId);
-                        }
-                    };
-                }
-            });
+            // Auto-generate edit handler if CRUD is present
+            if (config.crud) {
+                actionHandlers.edit = async (rowId) => {
+                    const crudModule = state._crudModule;
+                    if (crudModule) crudModule.showEdit(rowId);
+                };
+            }
+
+            // Merge with custom handlers from config (override auto-generated)
+            if (tableConfig.actionHandlers) {
+                Object.assign(actionHandlers, tableConfig.actionHandlers);
+            }
 
             registerActionHandlers(name, actionHandlers);
 

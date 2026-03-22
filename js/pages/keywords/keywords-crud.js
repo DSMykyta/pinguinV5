@@ -8,14 +8,19 @@
  * Uses generic createCrudModal factory.
  */
 
-import { addKeyword, updateKeyword, deleteKeyword, getKeywords } from './keywords-data.js';
+import { keywordsData, keywordsState } from './keywords-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { showConfirmModal, showModal, closeModal } from '../../components/modal/modal-main.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
 import { initSectionNav } from '../../layout/layout-plugin-nav-sections.js';
 import { createCrudModal } from '../../components/crud/crud-main.js';
-import { keywordsPlugins } from './keywords-plugins.js';
+
+// Data functions from engine
+const getKeywords = () => keywordsData.getAll();
+const addKeyword = (data) => keywordsData.add(data);
+const updateKeyword = (id, data) => keywordsData.update(id, data);
+const deleteKeyword = (id) => keywordsData.remove(id);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // LEGO PLUGIN INIT
@@ -354,8 +359,8 @@ const crud = createCrudModal({
     onCleanup: () => {
         if (glossaryEditor) { glossaryEditor.destroy(); glossaryEditor = null; }
     },
-    plugins: keywordsPlugins,
 });
+
 
 // ═══════════════════════════════════════════════════════════════════════════
 // GLOSSARY MODAL (не CRUD, окрема функція)
