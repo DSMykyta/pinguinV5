@@ -86,7 +86,7 @@ export default {
             { id: 'redirect_in', label: 'Вхідний URL', type: 'code', span: 3, sortable: true },
             { id: 'redirect_out', label: 'Вихідний URL', type: 'code', span: 3, sortable: true },
             {
-                id: 'redirect_target', label: 'Ціль', type: 'words-list', span: 2,
+                id: 'redirect_target', label: 'Ціль', type: 'words-list', span: 1,
                 sortable: true, filterable: true,
                 render: (value) => value
                     ? `<span class="tag c-main">${escapeHtml(value)}</span>`
