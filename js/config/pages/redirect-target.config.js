@@ -1,15 +1,16 @@
-// js/configs/redirect-target.config.js
-
-/**
- * Redirect Target entity configuration for Entity Engine.
- *
- * Special: uses expandable rows for inline editing instead of a modal CRUD.
+// js/config/pages/redirect-target.config.js
+/*
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                    ENTITY CONFIG — РЕДИРЕКТИ                            ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║  Конфігурація сутності для page-entity.js                               ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { escapeHtml } from '../utils/utils-text.js';
-import { initCustomSelects } from '../components/forms/select.js';
-import { showToast } from '../components/feedback/toast.js';
-import { showConfirmModal } from '../components/modal/modal-main.js';
+import { escapeHtml } from '../../utils/utils-text.js';
+import { initCustomSelects } from '../../components/forms/select.js';
+import { showToast } from '../../components/feedback/toast.js';
+import { showConfirmModal } from '../../components/modal/modal-main.js';
 
 const DEFAULT_TARGET_OPTIONS = ['f-s'];
 

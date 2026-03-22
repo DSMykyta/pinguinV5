@@ -7,8 +7,8 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { createEntity } from '../../engine/entity-engine.js';
-import config from '../../configs/banners.config.js';
+import { createEntity } from '../../components/page/page-entity.js';
+import config from '../../config/pages/banners.config.js';
 
 const entity = createEntity(config);
 

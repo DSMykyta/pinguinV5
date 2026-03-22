@@ -1,13 +1,13 @@
-// js/configs/keywords.config.js
-
-/**
- * Keywords entity configuration for Entity Engine
- *
- * CRUD is handled by the existing keywords-crud.js (too custom for declarative config:
- * cascading selects, glossary editor, separate glossary view modal).
+// js/config/pages/keywords.config.js
+/*
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                    ENTITY CONFIG — КЛЮЧОВІ СЛОВА                        ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║  Конфігурація сутності для page-entity.js                               ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { actionButton } from '../components/actions/actions-main.js';
+import { actionButton } from '../../components/actions/actions-main.js';
 
 const PARAM_TYPE_LABELS = {
     'category': 'Категорія',
@@ -61,11 +61,11 @@ export default {
         // Custom action handlers (edit/view go to keywords-crud.js)
         actionHandlers: {
             edit: async (rowId) => {
-                const { showEditKeywordModal } = await import('../pages/keywords/keywords-crud.js');
+                const { showEditKeywordModal } = await import('../../pages/keywords/keywords-crud.js');
                 await showEditKeywordModal(rowId);
             },
             view: async (rowId) => {
-                const { showGlossaryModal } = await import('../pages/keywords/keywords-crud.js');
+                const { showGlossaryModal } = await import('../../pages/keywords/keywords-crud.js');
                 await showGlossaryModal(rowId);
             }
         },
@@ -96,7 +96,7 @@ function keywordsExtension({ state, plugins, data }) {
                 const task = (async () => {
                     await data.load();
                     plugins.runHook('onInit');
-                    const { showToast } = await import('../components/feedback/toast.js');
+                    const { showToast } = await import('../../components/feedback/toast.js');
                     showToast('Дані оновлено', 'success');
                 })();
                 if (e?.detail?.waitUntil) e.detail.waitUntil(task);
@@ -108,7 +108,7 @@ function keywordsExtension({ state, plugins, data }) {
         if (addBtn && !addBtn._keywordsAddInit) {
             addBtn._keywordsAddInit = true;
             addBtn.addEventListener('click', async () => {
-                const { showAddKeywordModal } = await import('../pages/keywords/keywords-crud.js');
+                const { showAddKeywordModal } = await import('../../pages/keywords/keywords-crud.js');
                 showAddKeywordModal();
             });
         }

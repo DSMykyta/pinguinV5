@@ -1,35 +1,39 @@
-// js/engine/entity-table.js
-
-/**
- * ENTITY TABLE — Universal table plugin
- *
- * Creates a managed table from config. Replaces all *-table.js files.
+// js/components/page/page-entity-table.js
+/*
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                    PAGE ENTITY TABLE — Універсальний table plugin        ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║  🔒 ЯДРО — Створює managed table з конфігурації.                         ║
+ * ║  Замінює всі *-table.js файли для простих сутностей.                    ║
+ * ║                                                                          ║
+ * ║  🎯 Використання:                                                        ║
+ * ║  Викликається автоматично з page-entity.js — не імпортувати напряму.    ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { createManagedTable, col } from '../components/table/table-main.js';
+import { createManagedTable, col } from '../table/table-main.js';
 import {
     registerActionHandlers,
     initActionHandlers,
     actionButton
-} from '../components/actions/actions-main.js';
-import { initColumnsCharm } from '../components/charms/charm-columns.js';
+} from '../actions/actions-main.js';
+import { initColumnsCharm } from '../charms/charm-columns.js';
 
 /**
- * Create a universal table plugin for an entity
+ * Створити table plugin для сутності
  *
- * @param {Object} config - Full entity config
- * @param {Object} data - Entity data layer (from createEntityData)
- * @param {Object} state - Page state
- * @param {Object} plugins - Plugin registry
- * @returns {{ init: Function }}
+ * @param {Object} config — Повна конфігурація сутності
+ * @param {Object} data — Data layer (з createEntityData)
+ * @param {Object} state — State об'єкт
+ * @param {Object} plugins — Plugin registry
+ * @returns {{ init, renderTable, refilterTable, resetTable }}
  */
-export function createEntityTablePlugin(config, data, state, plugins) {
+export function createEntityTable(config, data, state, plugins) {
     const { table: tableConfig, name, dataSource } = config;
 
     let _managedTable = null;
     let _actionCleanup = null;
 
-    // Build columns from config
     function buildColumns() {
         return tableConfig.columns.map(c =>
             col(c.id, c.label, c.type, {
@@ -41,7 +45,6 @@ export function createEntityTablePlugin(config, data, state, plugins) {
         );
     }
 
-    // Build sorting column types from config
     function buildSortingTypes() {
         const types = {};
         tableConfig.columns.forEach(c => {
@@ -52,7 +55,6 @@ export function createEntityTablePlugin(config, data, state, plugins) {
         return types;
     }
 
-    // Build filter columns from config
     function buildFilterColumns() {
         return tableConfig.columns
             .filter(c => c.filterable)
@@ -64,21 +66,15 @@ export function createEntityTablePlugin(config, data, state, plugins) {
             }));
     }
 
-    // Determine visible columns
     function getVisibleCols() {
-        return tableConfig.visibleColumns ||
-            tableConfig.columns.map(c => c.id);
+        return tableConfig.visibleColumns || tableConfig.columns.map(c => c.id);
     }
 
-    // Determine search columns
     function getSearchCols() {
-        return tableConfig.searchColumns ||
-            tableConfig.columns.map(c => c.id);
+        return tableConfig.searchColumns || tableConfig.columns.map(c => c.id);
     }
 
-    // Build row actions HTML
     function buildRowActions(row) {
-        // Allow full override via function
         if (typeof tableConfig.rowActions === 'function') {
             return tableConfig.rowActions(row, dataSource.idField, name);
         }
@@ -88,21 +84,12 @@ export function createEntityTablePlugin(config, data, state, plugins) {
 
         return actions.map(action => {
             if (typeof action === 'string') {
-                return actionButton({
-                    action,
-                    rowId: row[idField],
-                    context: name
-                });
+                return actionButton({ action, rowId: row[idField], context: name });
             }
-            return actionButton({
-                ...action,
-                rowId: row[idField],
-                context: name
-            });
+            return actionButton({ ...action, rowId: row[idField], context: name });
         }).join('');
     }
 
-    // Initialize the managed table
     function initTable() {
         const containerId = tableConfig.containerId;
         if (!document.getElementById(containerId)) return;
@@ -148,7 +135,6 @@ export function createEntityTablePlugin(config, data, state, plugins) {
         initColumnsCharm();
     }
 
-    // Render table (init or update)
     function renderTable() {
         if (!_managedTable) {
             if (!document.getElementById(tableConfig.containerId)) return;
@@ -158,7 +144,6 @@ export function createEntityTablePlugin(config, data, state, plugins) {
         _managedTable.updateData(data.getAll());
     }
 
-    // Refilter without reloading data
     function refilterTable() {
         if (_managedTable) {
             _managedTable.refilter();
@@ -167,7 +152,6 @@ export function createEntityTablePlugin(config, data, state, plugins) {
         }
     }
 
-    // Reset table
     function resetTable() {
         if (_managedTable) {
             _managedTable.destroy();
@@ -179,10 +163,8 @@ export function createEntityTablePlugin(config, data, state, plugins) {
 
     return {
         init() {
-            // Register action handlers — config-provided take priority
             const actionHandlers = {};
 
-            // Auto-generate edit handler if CRUD is present
             if (config.crud) {
                 actionHandlers.edit = async (rowId) => {
                     const crudModule = state._crudModule;
@@ -190,7 +172,6 @@ export function createEntityTablePlugin(config, data, state, plugins) {
                 };
             }
 
-            // Merge with custom handlers from config (override auto-generated)
             if (tableConfig.actionHandlers) {
                 Object.assign(actionHandlers, tableConfig.actionHandlers);
             }

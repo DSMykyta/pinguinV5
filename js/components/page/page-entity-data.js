@@ -1,20 +1,26 @@
-// js/engine/entity-data.js
-
-/**
- * ENTITY DATA — Universal data layer
- *
- * One function replaces all *-data.js files (banners-data, blog-data, etc.)
- * Provides: load (CSV), getAll, getById, add, update, remove
+// js/components/page/page-entity-data.js
+/*
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                    PAGE ENTITY DATA — Універсальний data layer           ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║  🔒 ЯДРО — Замінює всі *-data.js файли для простих сутностей.            ║
+ * ║  Надає: load (CSV), getAll, getById, add, update, remove.               ║
+ * ║                                                                          ║
+ * ║  🎯 Використання:                                                        ║
+ * ║  const data = createEntityData(dataSource, state);                      ║
+ * ║  await data.load();                                                     ║
+ * ║  const all = data.getAll();                                             ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { callSheetsAPI } from '../utils/utils-api-client.js';
-import { generateNextId } from '../utils/utils-id.js';
+import { callSheetsAPI } from '../../utils/utils-api-client.js';
+import { generateNextId } from '../../utils/utils-id.js';
 import {
     MAIN_SPREADSHEET_ID,
     PRODUCTS_SPREADSHEET_ID,
     TEXTS_SPREADSHEET_ID,
     PRICE_SPREADSHEET_ID
-} from '../config/spreadsheet-config.js';
+} from '../../config/spreadsheet-config.js';
 
 const SPREADSHEET_IDS = {
     main: MAIN_SPREADSHEET_ID,
@@ -22,10 +28,6 @@ const SPREADSHEET_IDS = {
     texts: TEXTS_SPREADSHEET_ID,
     price: PRICE_SPREADSHEET_ID,
 };
-
-function nowDateTime() {
-    return new Date().toISOString().replace('T', ' ').slice(0, 19);
-}
 
 function columnLetter(index) {
     let letter = '';
@@ -39,18 +41,18 @@ function columnLetter(index) {
 }
 
 /**
- * Create a universal data layer for any entity
+ * Створити універсальний data layer для сутності
  *
- * @param {Object} dataSource - Data source configuration
- * @param {string} dataSource.spreadsheetType - 'main' | 'products' | 'texts' | 'price'
- * @param {string} dataSource.sheetName - Sheet tab name (e.g. 'Banners')
- * @param {string} dataSource.sheetGid - Sheet GID for CSV export
- * @param {string} dataSource.idField - Primary key field name (e.g. 'banner_id')
- * @param {string} dataSource.idPrefix - ID prefix for generation (e.g. 'banner-')
- * @param {string[]} dataSource.columns - Column names in order
- * @param {string} dataSource.stateKey - Key in state to store data
- * @param {Object} [dataSource.autoFields] - Auto-populated fields on create { field: () => value }
- * @param {Object} state - Page state object
+ * @param {Object} dataSource
+ * @param {string} dataSource.spreadsheetType — 'main' | 'products' | 'texts' | 'price'
+ * @param {string} dataSource.sheetName — Назва аркуша (напр. 'Banners')
+ * @param {string} dataSource.sheetGid — GID аркуша для CSV export
+ * @param {string} dataSource.idField — Поле первинного ключа (напр. 'banner_id')
+ * @param {string} dataSource.idPrefix — Префікс для генерації ID (напр. 'banner-')
+ * @param {string[]} dataSource.columns — Назви колонок по порядку
+ * @param {string} dataSource.stateKey — Ключ в state для збереження даних
+ * @param {Object} [dataSource.autoFields] — Автозаповнення при створенні { field: () => value }
+ * @param {Object} state — State об'єкт сторінки
  * @returns {{ load, getAll, getById, add, update, remove }}
  */
 export function createEntityData(dataSource, state) {
@@ -81,7 +83,7 @@ export function createEntityData(dataSource, state) {
         return columns.map(key => record[key] ?? '');
     }
 
-    // ── Load (CSV) ──
+    // ── Load (CSV) ──────────────────────────────────────────────────────
     async function load() {
         try {
             const csvUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=csv&gid=${sheetGid}`;
@@ -107,12 +109,12 @@ export function createEntityData(dataSource, state) {
             state._dataLoaded = true;
             return state[stateKey];
         } catch (error) {
-            console.error(`[EntityData:${sheetName}] Load error:`, error);
+            console.error(`[${sheetName}] Помилка завантаження:`, error);
             throw error;
         }
     }
 
-    // ── Getters ──
+    // ── Getters ─────────────────────────────────────────────────────────
     function getAll() {
         return state[stateKey] || [];
     }
@@ -121,7 +123,7 @@ export function createEntityData(dataSource, state) {
         return getAll().find(e => e[idField] === id) || null;
     }
 
-    // ── Add ──
+    // ── Add ─────────────────────────────────────────────────────────────
     async function add(entityData = {}) {
         try {
             const existingIds = getAll().map(item => item[idField]);
@@ -154,17 +156,17 @@ export function createEntityData(dataSource, state) {
             getAll().push(newEntry);
             return newEntry;
         } catch (error) {
-            console.error(`[EntityData:${sheetName}] Add error:`, error);
+            console.error(`[${sheetName}] Помилка додавання:`, error);
             throw error;
         }
     }
 
-    // ── Update ──
+    // ── Update ──────────────────────────────────────────────────────────
     async function update(entityId, updates = {}) {
         try {
             const entry = getById(entityId);
             if (!entry) {
-                throw new Error(`${sheetName}: ${entityId} not found`);
+                throw new Error(`${sheetName}: ${entityId} не знайдено`);
             }
 
             const merged = normalizeRecord({ ...entry, ...updates });
@@ -177,18 +179,18 @@ export function createEntityData(dataSource, state) {
             Object.assign(entry, merged);
             return entry;
         } catch (error) {
-            console.error(`[EntityData:${sheetName}] Update error:`, error);
+            console.error(`[${sheetName}] Помилка оновлення:`, error);
             throw error;
         }
     }
 
-    // ── Remove ──
+    // ── Remove ──────────────────────────────────────────────────────────
     async function remove(entityId) {
         try {
             const items = getAll();
             const index = items.findIndex(item => item[idField] === entityId);
             if (index === -1) {
-                throw new Error(`${sheetName}: ${entityId} not found`);
+                throw new Error(`${sheetName}: ${entityId} не знайдено`);
             }
 
             const entry = items[index];
@@ -215,7 +217,7 @@ export function createEntityData(dataSource, state) {
 
             return true;
         } catch (error) {
-            console.error(`[EntityData:${sheetName}] Remove error:`, error);
+            console.error(`[${sheetName}] Помилка видалення:`, error);
             throw error;
         }
     }

@@ -1,20 +1,20 @@
-// js/configs/blog.config.js
-
-/**
- * Blog entity configuration for Entity Engine.
- *
- * Special: 2 tables (news + blog) with preFilter by blog_type.
- * Uses custom dual-table extension instead of engine's single table.
+// js/config/pages/blog.config.js
+/*
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                    ENTITY CONFIG — БЛОГ                                 ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║  Конфігурація сутності для page-entity.js                               ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { escapeHtml } from '../utils/utils-text.js';
-import { createManagedTable, col } from '../components/table/table-main.js';
+import { escapeHtml } from '../../utils/utils-text.js';
+import { createManagedTable, col } from '../../components/table/table-main.js';
 import {
     registerActionHandlers,
     initActionHandlers,
     actionButton
-} from '../components/actions/actions-main.js';
-import { initColumnsCharm } from '../components/charms/charm-columns.js';
+} from '../../components/actions/actions-main.js';
+import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // DEFAULTS for dynamic selects
@@ -300,7 +300,7 @@ function blogUIExtension({ state, plugins, data }) {
                 const refreshTask = (async () => {
                     await data.load();
                     plugins.runHook('onInit');
-                    const { showToast } = await import('../components/feedback/toast.js');
+                    const { showToast } = await import('../../components/feedback/toast.js');
                     showToast('Дані оновлено', 'success');
                 })();
                 if (e?.detail?.waitUntil) e.detail.waitUntil(refreshTask);

@@ -1,10 +1,13 @@
-// js/configs/banners.config.js
-
-/**
- * Banners entity configuration for Entity Engine
+// js/config/pages/banners.config.js
+/*
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                    ENTITY CONFIG — БАНЕРИ                               ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║  Конфігурація сутності для page-entity.js                               ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { escapeHtml } from '../utils/utils-text.js';
+import { escapeHtml } from '../../utils/utils-text.js';
 
 export default {
     name: 'banners',
@@ -165,7 +168,7 @@ function bannersUIExtension({ state, plugins, data }) {
                 const refreshTask = (async () => {
                     await data.load();
                     plugins.runHook('onInit');
-                    const { showToast } = await import('../components/feedback/toast.js');
+                    const { showToast } = await import('../../components/feedback/toast.js');
                     showToast('Дані оновлено', 'success');
                 })();
                 if (e?.detail?.waitUntil) e.detail.waitUntil(refreshTask);

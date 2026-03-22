@@ -1,21 +1,25 @@
-// js/engine/entity-form.js
-
-/**
- * ENTITY FORM — Automatic form handler
- *
- * Creates fillForm, clearForm, getFormData from a declarative field mapping.
- * Replaces manual fill/clear/getFormData in every *-crud.js file.
+// js/components/page/page-entity-form.js
+/*
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                    PAGE ENTITY FORM — Автоматичний обробник форми        ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║  🔒 ЯДРО — Створює fillForm, clearForm, getFormData з декларативного     ║
+ * ║  маппінгу полів. Замінює ручний fill/clear/getFormData.                 ║
+ * ║                                                                          ║
+ * ║  🎯 Використання:                                                        ║
+ * ║  Викликається автоматично з page-entity-crud.js.                        ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
 /**
- * Create an automatic form handler
+ * Створити автоматичний обробник форми
  *
- * @param {Array<Object>} fields - Field mapping
- * @param {string} fields[].domId - DOM element ID
- * @param {string} fields[].field - Entity field name
- * @param {string} [fields[].type='input'] - 'input' | 'select' | 'radio' | 'editor' | 'readonly'
- * @param {string} [fields[].default=''] - Default value for clear
- * @param {boolean} [fields[].readonly=false] - Exclude from getFormData
+ * @param {Array<Object>} fields — Маппінг полів
+ * @param {string} fields[].domId — ID DOM-елемента
+ * @param {string} fields[].field — Назва поля сутності
+ * @param {string} [fields[].type='input'] — 'input' | 'select' | 'radio' | 'editor' | 'readonly'
+ * @param {string} [fields[].default=''] — Значення за замовчуванням
+ * @param {boolean} [fields[].readonly=false] — Виключити з getFormData
  * @returns {{ fillForm, clearForm, getFormData, setEditor, getEditor, destroyEditors }}
  */
 export function createFormHandler(fields) {

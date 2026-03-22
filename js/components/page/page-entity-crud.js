@@ -1,37 +1,39 @@
-// js/engine/entity-crud.js
-
-/**
- * ENTITY CRUD — Universal CRUD modal setup
- *
- * Combines createCrudModal + createFormHandler to auto-generate
- * the full CRUD lifecycle from config.
+// js/components/page/page-entity-crud.js
+/*
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                    PAGE ENTITY CRUD — Універсальний CRUD модал            ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║  🔒 ЯДРО — Поєднує createCrudModal + createFormHandler для               ║
+ * ║  автоматичного CRUD lifecycle з конфігурації.                            ║
+ * ║                                                                          ║
+ * ║  🎯 Використання:                                                        ║
+ * ║  Викликається автоматично з page-entity.js — не імпортувати напряму.    ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { createCrudModal } from '../components/crud/crud-main.js';
-import { createFormHandler } from './entity-form.js';
-import { showConfirmModal, closeModal } from '../components/modal/modal-main.js';
-import { showToast } from '../components/feedback/toast.js';
-import { createHighlightEditor } from '../components/editor/editor-main.js';
-import { initSectionNav } from '../layout/layout-plugin-nav-sections.js';
-import { initCustomSelects } from '../components/forms/select.js';
+import { createCrudModal } from '../crud/crud-main.js';
+import { createFormHandler } from './page-entity-form.js';
+import { showConfirmModal, closeModal } from '../modal/modal-main.js';
+import { showToast } from '../feedback/toast.js';
+import { createHighlightEditor } from '../editor/editor-main.js';
+import { initSectionNav } from '../../layout/layout-plugin-nav-sections.js';
+import { initCustomSelects } from '../forms/select.js';
 
 /**
- * Create a universal CRUD module for an entity
+ * Створити CRUD модуль для сутності
  *
- * @param {Object} config - Full entity config
- * @param {Object} data - Entity data layer (from createEntityData)
- * @param {Object} state - Page state
- * @param {Object} plugins - Plugin registry
+ * @param {Object} config — Повна конфігурація сутності
+ * @param {Object} data — Data layer (з createEntityData)
+ * @param {Object} state — State об'єкт
+ * @param {Object} plugins — Plugin registry
  * @returns {{ showAdd, showEdit, getCurrentId }}
  */
 export function createEntityCrud(config, data, state, plugins) {
     const { crud: crudConfig, dataSource, entityName } = config;
     if (!crudConfig) return null;
 
-    // Create form handler from fields config
     const formHandler = createFormHandler(crudConfig.fields);
 
-    // Initialize editors for 'editor' type fields
     function initEditors() {
         const editorFields = crudConfig.fields.filter(f => f.type === 'editor');
         editorFields.forEach(f => {
@@ -43,7 +45,6 @@ export function createEntityCrud(config, data, state, plugins) {
         });
     }
 
-    // Initialize section navigation
     function initSectionNavigation() {
         if (!crudConfig.sectionNavId) return;
         const nav = document.getElementById(crudConfig.sectionNavId);
@@ -51,25 +52,21 @@ export function createEntityCrud(config, data, state, plugins) {
         if (nav && content) initSectionNav(nav, content);
     }
 
-    // Initialize custom selects in modal
     function initSelects() {
         const modalEl = document.getElementById(`modal-${crudConfig.modalId}`);
         if (modalEl) initCustomSelects(modalEl);
     }
 
-    // Full modal component initialization
     async function initComponents() {
         initEditors();
         initSectionNavigation();
         initSelects();
 
-        // Run custom init from extensions
         if (crudConfig.onInitComponents) {
             await crudConfig.onInitComponents({ formHandler, data, state });
         }
     }
 
-    // Handle delete
     async function handleDelete(entityId) {
         const deleteConfig = crudConfig.deleteConfirm || {};
         const entity = data.getById(entityId);
@@ -91,12 +88,11 @@ export function createEntityCrud(config, data, state, plugins) {
             closeModal();
             plugins.runHook('onRender');
         } catch (error) {
-            console.error(`[EntityCrud:${config.name}] Delete error:`, error);
+            console.error(`[${config.name}] Помилка видалення:`, error);
             showToast(`Помилка видалення ${entityName}`, 'error');
         }
     }
 
-    // Cleanup on modal close
     function handleCleanup() {
         formHandler.destroyEditors();
         if (crudConfig.onCleanup) {
@@ -104,7 +100,6 @@ export function createEntityCrud(config, data, state, plugins) {
         }
     }
 
-    // Create the CRUD modal instance
     const crud = createCrudModal({
         modalId: crudConfig.modalId,
         titleId: crudConfig.titleId,
@@ -127,7 +122,6 @@ export function createEntityCrud(config, data, state, plugins) {
         plugins,
     });
 
-    // Store reference in state for table to use
     state._crudModule = crud;
 
     return crud;
