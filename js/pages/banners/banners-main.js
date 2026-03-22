@@ -3,26 +3,15 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║                         BANNERS SYSTEM                                   ║
+ * ║  Powered by Entity Engine — config-driven architecture                  ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { bannersState } from './banners-state.js';
-import { bannersPlugins } from './banners-plugins.js';
-import { loadBanners } from './banners-data.js';
-import { createPage } from '../../components/page/page-main.js';
+import { createEntity } from '../../engine/entity-engine.js';
+import config from '../../configs/banners.config.js';
 
-const page = createPage({
-    name: 'Banners',
-    state: bannersState,
-    plugins: bannersPlugins,
-    PLUGINS: [
-        () => import('./banners-table.js'),
-        () => import('./banners-ui.js')
-    ],
-    dataLoaders: [loadBanners],
-    containers: ['banners-table-container'],
-});
+const entity = createEntity(config);
 
 export async function initBanners() {
-    await page.init();
+    await entity.init();
 }
