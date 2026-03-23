@@ -200,7 +200,7 @@ function cardsExtension({ state, plugins, data }) {
                 <span class="dot c-blue${isNew ? '' : ' u-invisible'}"></span>
                 <div class="block" data-task-id="${escapeHtml(task.task_id)}">
                     <div class="block-header" data-action="toggle-task">
-                        <div class="group column">
+                        <div class="group">
                             <h3>${escapeHtml(task.title || 'Без назви')}</h3>
                             ${subLine ? `<span class="body-s">${subLine}</span>` : ''}
                         </div>
@@ -213,8 +213,8 @@ function cardsExtension({ state, plugins, data }) {
                     <div class="u-reveal">
                         <div>
                             <div class="grid">
-                                <div class="block-list col-8">
-                                    ${task.description ? `<div class="block-line"><span class="body-m">${task.description}</span></div>` : ''}
+                                <div class="col-8">
+                                    ${task.description ? `<div class="rich-editor-content">${task.description}</div>` : ''}
                                 </div>
                                 <div class="block-list col-4">
                                     <div data-card-comments></div>
