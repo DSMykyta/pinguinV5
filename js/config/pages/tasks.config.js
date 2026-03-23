@@ -190,8 +190,8 @@ function cardsExtension({ state, plugins, data }) {
         const assignedStr = task.assigned_to ? escapeHtml(task.assigned_to) : '';
 
         return `
-            <div class="block" data-task-id="${escapeHtml(task.task_id)}">
-                <div class="block-header" data-action="toggle-card">
+            <div class="block" data-task-id="${escapeHtml(task.task_id)}" data-action="open-task">
+                <div class="block-header">
                     <div class="group">
                         <h3>${escapeHtml(task.title || 'Без назви')}</h3>
                         ${isNew ? '<span class="badge c-blue">новий</span>' : ''}
@@ -201,46 +201,6 @@ function cardsExtension({ state, plugins, data }) {
                     <div class="group">
                         <span class="body-s">${assignedStr}${dueDateStr}</span>
                         ${commentsCount > 0 ? `<span class="body-s"><span class="material-symbols-outlined">chat</span> ${commentsCount}</span>` : ''}
-                        ${canEdit ? `
-                            <button class="btn-icon" data-action="edit-task" data-task-id="${escapeHtml(task.task_id)}" aria-label="Редагувати">
-                                <span class="material-symbols-outlined">edit</span>
-                            </button>
-                        ` : ''}
-                    </div>
-                </div>
-                <div class="u-reveal">
-                    <div>
-                        <div class="block-list">
-                            <div class="block-line">
-                                <label class="block-line-label">Автор</label>
-                                <span class="block-line-text">${escapeHtml(task.created_by_display || task.created_by || '—')}</span>
-                            </div>
-                            <div class="block-line">
-                                <label class="block-line-label">Виконавець</label>
-                                <span class="block-line-text">${escapeHtml(task.assigned_to || '—')}</span>
-                            </div>
-                            ${task.due_date ? `
-                                <div class="block-line">
-                                    <label class="block-line-label">Дедлайн</label>
-                                    <span class="block-line-text">${escapeHtml(task.due_date)}</span>
-                                </div>
-                            ` : ''}
-                            ${task.description ? `
-                                <div class="block-line">
-                                    <label class="block-line-label">Опис</label>
-                                    <span class="block-line-text">${task.description}</span>
-                                </div>
-                            ` : ''}
-                        </div>
-                        <div data-task-sidebar>
-                            <div data-card-comments></div>
-                            <div class="content-bloc"><div class="content-line"><div class="input-box">
-                                <input type="text" data-card-comment-input data-task-id="${escapeHtml(task.task_id)}" placeholder="Коментар...">
-                                <button class="btn-icon" data-action="add-card-comment" data-task-id="${escapeHtml(task.task_id)}" aria-label="Надіслати">
-                                    <span class="material-symbols-outlined">send</span>
-                                </button>
-                            </div></div></div>
-                        </div>
                     </div>
                 </div>
             </div>`;
@@ -264,54 +224,26 @@ function cardsExtension({ state, plugins, data }) {
         container._tasksCardsInit = true;
 
         container.addEventListener('click', async (e) => {
-            const editBtn = e.target.closest('[data-action="edit-task"]');
-            if (editBtn) {
-                e.stopPropagation();
-                const crud = state._crudModule;
-                if (crud) crud.showEdit(editBtn.dataset.taskId);
-                return;
+            const block = e.target.closest('[data-action="open-task"]');
+            if (!block) return;
+            const taskId = block.dataset.taskId;
+            const task = data.getById(taskId);
+            if (!task) return;
+            // Mark as read
+            const username = window.currentUser?.username;
+            if (task.is_new === '1' && task.assigned_to === username) {
+                task.is_new = '0';
+                const badge = block.querySelector('.badge.c-blue');
+                if (badge) badge.remove();
+                callSheetsAPI('update', {
+                    range: `${SHEET_NAME}!N${task._rowIndex}`,
+                    values: [['0']],
+                    spreadsheetType: 'tasks'
+                }).catch(() => {});
             }
-            const header = e.target.closest('[data-action="toggle-card"]');
-            if (header) {
-                const block = header.closest('.block');
-                const reveal = block?.querySelector('.u-reveal');
-                if (!reveal) return;
-                const isExpanding = !reveal.classList.contains('is-open');
-                reveal.classList.toggle('is-open');
-                if (isExpanding) {
-                    const taskId = block.dataset.taskId;
-                    const task = data.getById(taskId);
-                    if (!task) return;
-                    const username = window.currentUser?.username;
-                    if (task.is_new === '1' && task.assigned_to === username) {
-                        task.is_new = '0';
-                        const badge = block.querySelector('.badge.c-blue');
-                        if (badge) badge.remove();
-                        callSheetsAPI('update', {
-                            range: `${SHEET_NAME}!N${task._rowIndex}`,
-                            values: [['0']],
-                            spreadsheetType: 'tasks'
-                        }).catch(() => {});
-                    }
-                    plugins.runHook('onCardExpand', task, block);
-                }
-                return;
-            }
-            const commentBtn = e.target.closest('[data-action="add-card-comment"]');
-            if (commentBtn) {
-                const taskId = commentBtn.dataset.taskId;
-                if (taskId) plugins.runHook('onCardAddComment', taskId, commentBtn.closest('.block'));
-                return;
-            }
-        });
-
-        container.addEventListener('keydown', (e) => {
-            if (e.key !== 'Enter') return;
-            const input = e.target.closest('[data-card-comment-input]');
-            if (!input) return;
-            e.preventDefault();
-            const taskId = input.dataset.taskId;
-            if (taskId) plugins.runHook('onCardAddComment', taskId, input.closest('.block'));
+            // Open modal
+            const crud = state._crudModule;
+            if (crud) crud.showEdit(taskId);
         });
 
         const searchInput = container._charmSearchInput;

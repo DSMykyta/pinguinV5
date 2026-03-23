@@ -16,34 +16,19 @@
             margin: 0 auto;
         }
 
-        /* Split view: details left, comments right */
-        .block .u-reveal > div {
-            display: flex;
+        /* Clean card style — no inner borders, clickable */
+        #tasks-cards-container .block {
+            cursor: pointer;
+            border: none;
+            transition: background 0.15s;
         }
 
-        .block .u-reveal > div > .block-list {
-            flex: 1;
-            min-width: 0;
+        #tasks-cards-container .block:hover {
+            background: var(--color-surface-c-low);
         }
 
-        .block [data-task-sidebar] {
-            width: 300px;
-            flex-shrink: 0;
-            border-left: 1px solid var(--color-outline);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .block [data-task-sidebar] [data-card-comments] {
-            flex: 1;
-            overflow-y: auto;
-            max-height: 300px;
-            padding: 12px;
-        }
-
-        .block [data-task-sidebar] .input-box {
-            border-top: 1px solid var(--color-outline);
-            padding: 8px 12px;
+        #tasks-cards-container .block-header {
+            border-bottom: none;
         }
     </style>
 </head>
