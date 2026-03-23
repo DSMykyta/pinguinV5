@@ -35,6 +35,12 @@ export const PRODUCTS_SPREADSHEET_ID = '1m4OfDUhdbqFKSVJJeWVYjGGTdCycshQeGRiYEul
 /**
  * Аліаси для зворотної сумісності
  */
+/**
+ * ID таблиці завдань (Tasks)
+ * Google Sheet: Tasks Database
+ */
+export const TASKS_SPREADSHEET_ID = '1XE9C6eByiQOoJ_3WNewlMO4QjUpSR-eXI-M6eDn20ls';
+
 export const SPREADSHEET_ID = MAIN_SPREADSHEET_ID;
 export const BANNED_SPREADSHEET_ID = MAIN_SPREADSHEET_ID;
 
@@ -52,6 +58,9 @@ export function getSpreadsheetType(spreadsheetId) {
     }
     if (spreadsheetId === PRODUCTS_SPREADSHEET_ID) {
         return 'products';
+    }
+    if (spreadsheetId === TASKS_SPREADSHEET_ID) {
+        return 'tasks';
     }
     return 'main';
 }

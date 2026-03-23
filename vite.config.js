@@ -16,6 +16,7 @@ const APP_PAGES = [
     'banned-words.html',
     'images.html',
     'price.html',
+    'tasks.html',
     'redirect-target.html',
     'MIGRATION-GUIDE.html',
 ];

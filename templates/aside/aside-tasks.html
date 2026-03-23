@@ -1,0 +1,45 @@
+<!-- ФІЛЬТРИ (SCROLLABLE) -->
+<div class="panel-content-scroll">
+
+    <div class="panel-section-title">
+        <span>Фільтри</span>
+    </div>
+
+    <button class="panel-item active" data-filter="all">
+        <span class="material-symbols-outlined panel-item-icon">list</span>
+        <span class="panel-item-text">Всі завдання</span>
+    </button>
+    <button class="panel-item" data-filter="assigned_to_me">
+        <span class="material-symbols-outlined panel-item-icon">person</span>
+        <span class="panel-item-text">Призначені мені</span>
+    </button>
+    <button class="panel-item" data-filter="created_by_me">
+        <span class="material-symbols-outlined panel-item-icon">edit_note</span>
+        <span class="panel-item-text">Створені мною</span>
+    </button>
+
+    <div class="panel-section-title">
+        <span>За статусом</span>
+    </div>
+
+    <button class="panel-item" data-filter="status_new">
+        <span class="material-symbols-outlined panel-item-icon">fiber_new</span>
+        <span class="panel-item-text">Нові</span>
+    </button>
+    <button class="panel-item" data-filter="status_in_progress">
+        <span class="material-symbols-outlined panel-item-icon">pending</span>
+        <span class="panel-item-text">В роботі</span>
+    </button>
+    <button class="panel-item" data-filter="status_done">
+        <span class="material-symbols-outlined panel-item-icon">check_circle</span>
+        <span class="panel-item-text">Готові</span>
+    </button>
+
+</div>
+
+<!-- FAB -->
+<div class="panel-content-footer">
+    <button id="btn-add-task-aside" class="fab primary" aria-label="Додати завдання">
+        <span class="material-symbols-outlined">add</span>
+    </button>
+</div>
