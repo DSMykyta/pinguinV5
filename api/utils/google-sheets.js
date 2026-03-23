@@ -47,6 +47,7 @@ const SPREADSHEET_ID_TEXTS = process.env.SPREADSHEET_ID_TEXTS;
 const SPREADSHEET_ID_USERS = process.env.SPREADSHEET_ID_USERS;
 const SPREADSHEET_ID_PRICE = process.env.SPREADSHEET_ID_PRICE;
 const SPREADSHEET_ID_PRODUCTS = process.env.SPREADSHEET_ID_PRODUCTS;
+// Tasks живуть в тому ж spreadsheet що й Users (SPREADSHEET_ID_USERS)
 
 // =========================================================================
 // ІНІЦІАЛІЗАЦІЯ КЛІЄНТА
@@ -90,6 +91,9 @@ function getSpreadsheetId(type = 'main') {
   }
   if (type === 'products') {
     return SPREADSHEET_ID_PRODUCTS;
+  }
+  if (type === 'tasks') {
+    return SPREADSHEET_ID_USERS;
   }
   return SPREADSHEET_ID;
 }

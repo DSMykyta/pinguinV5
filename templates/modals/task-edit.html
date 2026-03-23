@@ -1,0 +1,224 @@
+<div class="modal-overlay modal-full" data-modal-id="task-edit">
+    <div class="modal-container" refresh>
+
+        <!-- HEADER BAR -->
+        <div class="modal-header">
+            <button type="button" class="btn-icon touch rotate nav-toggle" data-tooltip="Меню" data-tooltip-always aria-label="Меню">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <div class="modal-left">
+                <h1 id="task-modal-title">Нове завдання</h1>
+                <span class="tag c-yellow" id="task-status-badge"></span>
+            </div>
+            <div class="modal-center"></div>
+            <div class="modal-right">
+                <div class="switch switch-fit" id="task-status-switch">
+                    <input type="radio" id="task-status-new" name="task-status" value="new" checked>
+                    <label for="task-status-new" class="switch-label">Нове</label>
+                    <input type="radio" id="task-status-in_progress" name="task-status" value="in_progress">
+                    <label for="task-status-in_progress" class="switch-label">В роботі</label>
+                    <input type="radio" id="task-status-done" name="task-status" value="done">
+                    <label for="task-status-done" class="switch-label">Готово</label>
+                    <input type="radio" id="task-status-cancelled" name="task-status" value="cancelled">
+                    <label for="task-status-cancelled" class="switch-label">Скасовано</label>
+                </div>
+            </div>
+            <button class="btn-icon touch c-secondary" data-modal-close data-tooltip="Закрити" data-tooltip-always>
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <!-- BODY ROW -->
+        <div class="modal-body">
+            <!-- NAVIGATION -->
+            <nav class="nav column" id="task-section-navigator">
+                <div class="nav-main">
+                    <a href="#section-task-info" class="btn-icon expand active" aria-label="Основне">
+                        <span class="material-symbols-outlined">info</span>
+                        <span class="btn-icon-label">Основне</span>
+                    </a>
+                    <a href="#section-task-comments" class="btn-icon expand" aria-label="Коментарі">
+                        <span class="material-symbols-outlined">chat</span>
+                        <span class="btn-icon-label">Коментарі</span>
+                    </a>
+                    <a href="#section-task-about" class="btn-icon expand" aria-label="Інформація">
+                        <span class="material-symbols-outlined">info_i</span>
+                        <span class="btn-icon-label">Інформація</span>
+                    </a>
+                </div>
+            </nav>
+            <main>
+
+                <input type="hidden" id="task-id">
+
+                <!-- SECTION: INFO -->
+                <section id="section-task-info">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">Основне</h2>
+                            </div>
+                            <span class="body-s">Інформація про завдання</span>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <div class="grid">
+
+                            <!-- Title -->
+                            <div class="group column col-12">
+                                <label for="task-title" class="label-l">Назва</label>
+                                <div class="content-bloc"><div class="content-line"><div class="input-box">
+                                    <input type="text" id="task-title" placeholder="Назва завдання">
+                                </div></div></div>
+                            </div>
+
+                            <!-- Category -->
+                            <div class="group column col-4">
+                                <label for="task-category" class="label-l">Категорія</label>
+                                <select id="task-category" data-custom-select>
+                                    <option value="">— Оберіть —</option>
+                                </select>
+                            </div>
+
+                            <!-- Assigned To -->
+                            <div class="group column col-4">
+                                <label for="task-assigned-to" class="label-l">Виконавець</label>
+                                <select id="task-assigned-to" data-custom-select>
+                                    <option value="">— Оберіть —</option>
+                                </select>
+                            </div>
+
+                            <!-- Due Date -->
+                            <div class="group column col-4">
+                                <label for="task-due-date" class="label-l">Дедлайн</label>
+                                <div class="content-bloc"><div class="content-line"><div class="input-box">
+                                    <input type="date" id="task-due-date">
+                                </div></div></div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="group column col-12">
+                                <label class="label-l">Опис</label>
+                                <div id="task-description-editor" editor tools code
+                                    data-placeholder="Опис завдання..."
+                                    data-min-height="200">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION: COMMENTS -->
+                <section id="section-task-comments">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">Коментарі</h2>
+                            </div>
+                            <span class="body-s">Обговорення завдання</span>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <div id="task-comments-container"></div>
+
+                        <div class="content-bloc">
+                            <div class="content-line">
+                                <div class="input-box">
+                                    <input type="text" id="task-comment-input" placeholder="Додати коментар...">
+                                    <button class="btn-icon" id="btn-add-comment" aria-label="Надіслати">
+                                        <span class="material-symbols-outlined">send</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION: ABOUT -->
+                <section id="section-task-about">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">Інформація</h2>
+                            </div>
+                            <span class="body-s">Метадані</span>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <div class="grid">
+                            <div class="group column col-6">
+                                <label class="label-l">Створив</label>
+                                <div class="content-bloc">
+                                    <div class="content-line">
+                                        <div class="input-box">
+                                            <input class="body-s" type="text" id="task-created-by" readonly tabindex="-1" value="—">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="group column col-6">
+                                <label class="label-l">Дата створення</label>
+                                <div class="content-bloc">
+                                    <div class="content-line">
+                                        <div class="input-box">
+                                            <input class="body-s" type="text" id="task-created-at" readonly tabindex="-1" value="—">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="group column col-6">
+                                <label class="label-l">Оновив</label>
+                                <div class="content-bloc">
+                                    <div class="content-line">
+                                        <div class="input-box">
+                                            <input class="body-s" type="text" id="task-updated-by" readonly tabindex="-1" value="—">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="group column col-6">
+                                <label class="label-l">Дата оновлення</label>
+                                <div class="content-bloc">
+                                    <div class="content-line">
+                                        <div class="input-box">
+                                            <input class="body-s" type="text" id="task-updated-at" readonly tabindex="-1" value="—">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+
+            <!-- ASIDE -->
+            <div class="modal-aside">
+                <div class="modal-top"></div>
+                <div class="modal-btm">
+                    <button class="btn-icon" id="btn-save-task" data-tooltip="Зберегти" data-tooltip-always aria-label="Зберегти">
+                        <span class="material-symbols-outlined">save</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER BAR -->
+        <div class="modal-footer">
+            <button type="button" class="btn-icon touch danger u-hidden" id="btn-delete-task" data-tooltip="Видалити" data-tooltip-always aria-label="Видалити">
+                <span class="material-symbols-outlined">delete</span>
+            </button>
+            <div class="modal-left"></div>
+            <div class="modal-center"></div>
+            <div class="modal-right"></div>
+            <button class="btn-icon touch c-main" id="save-close-task" data-tooltip="Зберегти і закрити" data-tooltip-always aria-label="Зберегти і закрити">
+                <span class="material-symbols-outlined">check</span>
+            </button>
+        </div>
+
+    </div>
+</div>

@@ -19,7 +19,8 @@ import {
     MAIN_SPREADSHEET_ID,
     PRODUCTS_SPREADSHEET_ID,
     TEXTS_SPREADSHEET_ID,
-    PRICE_SPREADSHEET_ID
+    PRICE_SPREADSHEET_ID,
+    TASKS_SPREADSHEET_ID
 } from '../../config/spreadsheet-config.js';
 
 const SPREADSHEET_IDS = {
@@ -27,6 +28,7 @@ const SPREADSHEET_IDS = {
     products: PRODUCTS_SPREADSHEET_ID,
     texts: TEXTS_SPREADSHEET_ID,
     price: PRICE_SPREADSHEET_ID,
+    tasks: TASKS_SPREADSHEET_ID,
 };
 
 function columnLetter(index) {

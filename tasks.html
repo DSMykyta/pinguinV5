@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Кабінет</title>
+    <title>Завдання</title>
     <link rel="icon" type="image/png" href="icon/dy_Dark_Pinguin.png">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet"
@@ -15,26 +15,56 @@
 <body>
     <div class="nav column" id="main-nav"></div>
 
-    <main id="content-main" class="content-main">
+    <main id="content-main" class="content-main tabbed-page" data-aside-template="aside-tasks">
+        <nav class="nav row" role="group" aria-label="Таби" data-tabs-container id="section-navigator">
+            <button class="btn-icon expand active" aria-label="Завдання" data-tab-target="tab-tasks">
+                <span class="material-symbols-outlined">task_alt</span>
+                Завдання
+            </button>
+        </nav>
+
+        <div class="tab-content active" data-tab-content="tab-tasks" id="tab-tasks">
+            <div class="section-header">
+                <div class="section-name-block">
+                    <div class="section-name">
+                        <h2 class="display-l section-upper">Завдання</h2>
+                        <button class="btn-icon" aria-label="Інформація">
+                            <span class="material-symbols-outlined">info</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="group">
+                    <button class="btn-icon" id="btn-add-task" aria-label="Додати завдання">
+                        <span class="material-symbols-outlined">add</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="tasks-table-container" class="pseudo-table-container"
+                search="Пошук завдань..."
+                pagination
+                refresh columns>
+            </div>
+        </div>
+
+        <footer class="footer"></footer>
     </main>
 
-    <!-- CONTROLS -->
     <div class="aside-controls">
         <button class="btn-icon large rotate aside-trigger" aria-label="Toggle aside">
             <span class="material-symbols-outlined">apps</span>
         </button>
     </div>
 
-    <!-- ASIDE -->
     <aside class="aside closed">
         <div class="aside-body"></div>
     </aside>
 
-    <!-- FAB -->
     <div class="aside-fab"></div>
-
     <div id="modal-placeholder"></div>
 
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <script type="module" src="js/main-tasks.js"></script>
 </body>
 
