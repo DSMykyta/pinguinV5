@@ -878,7 +878,7 @@ BCAA 5.5 г
         const content = el.querySelector('#info-content');
         if (content) {
             content.innerHTML = `
-                <h3>Управління брендами</h3>
+                <h3>Бренди</h3>
                 <p>У цьому розділі ви можете додавати, редагувати та видаляти бренди.</p>
                 <p>Кожен бренд може мати:</p>
                 <ul>

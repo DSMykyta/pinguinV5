@@ -92,9 +92,6 @@ function getSpreadsheetId(type = 'main') {
   if (type === 'products') {
     return SPREADSHEET_ID_PRODUCTS;
   }
-  if (type === 'tasks') {
-    return SPREADSHEET_ID_USERS;
-  }
   return SPREADSHEET_ID;
 }
 
