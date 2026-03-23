@@ -113,6 +113,7 @@ function populateCategorySelect() {
         { value: 'терміново', text: 'Терміново' },
         { value: 'міграція', text: 'Міграція' },
         { value: 'задача', text: 'Задача' },
+        { value: "пам'ятка", text: "Пам'ятка" },
     ], { placeholder: '— Оберіть —' });
 }
 
