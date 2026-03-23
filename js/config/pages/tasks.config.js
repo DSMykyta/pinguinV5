@@ -212,12 +212,12 @@ function cardsExtension({ state, plugins, data }) {
                                 </div>
                                 <div class="block-list">
                                     <div data-card-comments></div>
-                                    <div class="input-box">
+                                    <div class="content-bloc"><div class="content-line"><div class="input-box">
                                         <input type="text" data-card-comment-input placeholder="Коментар...">
                                         <button class="btn-icon" data-action="add-card-comment" aria-label="Надіслати">
                                             <span class="material-symbols-outlined">send</span>
                                         </button>
-                                    </div>
+                                    </div></div></div>
                                 </div>
                             </div>
                         </div>
