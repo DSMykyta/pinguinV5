@@ -84,10 +84,10 @@ export default {
             { domId: 'task-due-date', field: 'due_date' },
             { domId: 'task-status', field: 'status', type: 'radio', default: 'new' },
             { domId: 'task-description-editor', field: 'description', type: 'editor' },
-            { domId: 'task-created-by', field: 'created_by_display', default: '—' },
-            { domId: 'task-created-at', field: 'created_at', default: '—' },
-            { domId: 'task-updated-at', field: 'updated_at', default: '—' },
-            { domId: 'task-updated-by', field: 'updated_by', default: '—' },
+            { domId: 'task-created-by', field: 'created_by_display', readonly: true, default: '—' },
+            { domId: 'task-created-at', field: 'created_at', readonly: true, default: '—' },
+            { domId: 'task-updated-at', field: 'updated_at', readonly: true, default: '—' },
+            { domId: 'task-updated-by', field: 'updated_by', readonly: true, default: '—' },
         ],
 
         onInitComponents: ({ data, state }) => {
