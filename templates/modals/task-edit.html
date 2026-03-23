@@ -15,8 +15,8 @@
                 <div class="switch switch-fit" id="task-status-switch">
                     <input type="radio" id="task-status-new" name="task-status" value="new" checked>
                     <label for="task-status-new" class="switch-label">Нове</label>
-                    <input type="radio" id="task-status-in_progress" name="task-status" value="in_progress">
-                    <label for="task-status-in_progress" class="switch-label">В роботі</label>
+                    <input type="radio" id="task-status-in-progress" name="task-status" value="in_progress">
+                    <label for="task-status-in-progress" class="switch-label">В роботі</label>
                     <input type="radio" id="task-status-done" name="task-status" value="done">
                     <label for="task-status-done" class="switch-label">Готово</label>
                     <input type="radio" id="task-status-cancelled" name="task-status" value="cancelled">
@@ -37,6 +37,10 @@
                         <span class="material-symbols-outlined">info</span>
                         <span class="btn-icon-label">Основне</span>
                     </a>
+                    <a href="#section-task-description" class="btn-icon expand" aria-label="Опис">
+                        <span class="material-symbols-outlined">article</span>
+                        <span class="btn-icon-label">Опис</span>
+                    </a>
                     <a href="#section-task-comments" class="btn-icon expand" aria-label="Коментарі">
                         <span class="material-symbols-outlined">chat</span>
                         <span class="btn-icon-label">Коментарі</span>
@@ -51,66 +55,81 @@
 
                 <input type="hidden" id="task-id">
 
-                <!-- SECTION: INFO -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- СЕКЦІЯ 1: ОСНОВНЕ -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
                 <section id="section-task-info">
                     <div class="section-header">
                         <div class="section-name-block">
                             <div class="section-name">
                                 <h2 class="section-upper">Основне</h2>
                             </div>
-                            <span class="body-s">Інформація про завдання</span>
+                            <span class="body-s">Основні дані завдання</span>
                         </div>
                     </div>
 
                     <div class="section-content">
                         <div class="grid">
 
-                            <!-- Title -->
-                            <div class="group column col-12">
+                            <!-- Назва -->
+                            <div class="group column col-6">
                                 <label for="task-title" class="label-l">Назва</label>
                                 <div class="content-bloc"><div class="content-line"><div class="input-box">
-                                    <input type="text" id="task-title" placeholder="Назва завдання">
+                                    <input type="text" id="task-title" placeholder="Назва завдання" required>
                                 </div></div></div>
                             </div>
 
-                            <!-- Category -->
-                            <div class="group column col-4">
+                            <!-- Категорія -->
+                            <div class="group column col-3">
                                 <label for="task-category" class="label-l">Категорія</label>
                                 <select id="task-category" data-custom-select>
                                     <option value="">— Оберіть —</option>
                                 </select>
                             </div>
 
-                            <!-- Assigned To -->
-                            <div class="group column col-4">
+                            <!-- Виконавець -->
+                            <div class="group column col-3">
                                 <label for="task-assigned-to" class="label-l">Виконавець</label>
                                 <select id="task-assigned-to" data-custom-select>
                                     <option value="">— Оберіть —</option>
                                 </select>
                             </div>
 
-                            <!-- Due Date -->
-                            <div class="group column col-4">
+                            <!-- Дедлайн -->
+                            <div class="group column col-3">
                                 <label for="task-due-date" class="label-l">Дедлайн</label>
                                 <div class="content-bloc"><div class="content-line"><div class="input-box">
                                     <input type="date" id="task-due-date">
                                 </div></div></div>
                             </div>
 
-                            <!-- Description -->
-                            <div class="group column col-12">
-                                <label class="label-l">Опис</label>
-                                <div id="task-description-editor" editor tools code
-                                    data-placeholder="Опис завдання..."
-                                    data-min-height="200">
-                                </div>
-                            </div>
-
                         </div>
                     </div>
                 </section>
 
-                <!-- SECTION: COMMENTS -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- СЕКЦІЯ 2: ОПИС -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <section id="section-task-description">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">Опис</h2>
+                            </div>
+                            <span class="body-s">Детальний опис завдання</span>
+                        </div>
+                    </div>
+
+                    <div id="task-description-editor" class="section-content-full-height"
+                         editor tools code
+                         data-placeholder="Введіть опис завдання..."
+                         data-min-height="300">
+                    </div>
+                </section>
+
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- СЕКЦІЯ 3: КОМЕНТАРІ -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
                 <section id="section-task-comments">
                     <div class="section-header">
                         <div class="section-name-block">
@@ -137,7 +156,9 @@
                     </div>
                 </section>
 
-                <!-- SECTION: ABOUT -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- СЕКЦІЯ 4: ІНФОРМАЦІЯ -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
                 <section id="section-task-about">
                     <div class="section-header">
                         <div class="section-name-block">
@@ -151,7 +172,7 @@
                     <div class="section-content">
                         <div class="grid">
                             <div class="group column col-6">
-                                <label class="label-l">Створив</label>
+                                <label class="label-l">Автор</label>
                                 <div class="content-bloc">
                                     <div class="content-line">
                                         <div class="input-box">
@@ -161,7 +182,7 @@
                                 </div>
                             </div>
                             <div class="group column col-6">
-                                <label class="label-l">Дата створення</label>
+                                <label class="label-l">Створено</label>
                                 <div class="content-bloc">
                                     <div class="content-line">
                                         <div class="input-box">
@@ -171,21 +192,21 @@
                                 </div>
                             </div>
                             <div class="group column col-6">
-                                <label class="label-l">Оновив</label>
+                                <label class="label-l">Оновлено</label>
                                 <div class="content-bloc">
                                     <div class="content-line">
                                         <div class="input-box">
-                                            <input class="body-s" type="text" id="task-updated-by" readonly tabindex="-1" value="—">
+                                            <input class="body-s" type="text" id="task-updated-at" readonly tabindex="-1" value="—">
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="group column col-6">
-                                <label class="label-l">Дата оновлення</label>
+                                <label class="label-l">Хто оновив</label>
                                 <div class="content-bloc">
                                     <div class="content-line">
                                         <div class="input-box">
-                                            <input class="body-s" type="text" id="task-updated-at" readonly tabindex="-1" value="—">
+                                            <input class="body-s" type="text" id="task-updated-by" readonly tabindex="-1" value="—">
                                         </div>
                                     </div>
                                 </div>

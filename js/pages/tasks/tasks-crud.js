@@ -1,21 +1,25 @@
 // js/pages/tasks/tasks-crud.js
 
-/*
+/**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                    TASKS — CRUD (MODAL)                                ║
+ * ║                    TASKS - CRUD (МОДАЛ)                                ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
+ *
+ * 🔌 ПЛАГІН — модал завдання: відкриття, заповнення, збереження.
+ * Uses generic createCrudModal factory.
  */
 
-import { getTasks, getTaskById, addTask, updateTask, deleteTask, markTaskAsRead } from './tasks-data.js';
+import { registerHook } from './tasks-plugins.js';
 import { tasksState } from './tasks-state.js';
-import { initCustomSelects, populateSelect, reinitializeCustomSelect } from '../../components/forms/select.js';
-import { showToast } from '../../components/feedback/toast.js';
-import { showConfirmModal, closeModal } from '../../components/modal/modal-main.js';
+import { addTask, updateTask, deleteTask, getTaskById, getTasks } from './tasks-data.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
+import { populateSelect, reinitializeCustomSelect, initCustomSelects } from '../../components/forms/select.js';
 import { initSectionNav, destroySectionNav } from '../../layout/layout-plugin-nav-sections.js';
-import { runHook } from './tasks-plugins.js';
 import { createCrudModal } from '../../components/crud/crud-main.js';
+import { showConfirmModal, closeModal } from '../../components/modal/modal-main.js';
+import { showToast } from '../../components/feedback/toast.js';
 import { tasksPlugins } from './tasks-plugins.js';
+import { generateNextId } from '../../utils/utils-id.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -23,47 +27,35 @@ import { tasksPlugins } from './tasks-plugins.js';
 
 let descriptionEditor = null;
 
-const DEFAULTS = {
-    category: ['терміново', 'міграція', 'задача']
+// ═══════════════════════════════════════════════════════════════════════════
+// STATUS COLORS
+// ═══════════════════════════════════════════════════════════════════════════
+
+const STATUS_COLORS = {
+    new:         'c-yellow',
+    in_progress: 'c-blue',
+    done:        'c-green',
+    cancelled:   'c-red',
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════════════════════════════
-
-function getDynamicOptions(fieldName, currentValue = '') {
-    const fromData = getTasks()
-        .map(item => String(item[fieldName] || '').trim())
-        .filter(Boolean);
-    if (currentValue) fromData.push(String(currentValue).trim());
-    return [...new Set([...(DEFAULTS[fieldName] || []), ...fromData])].sort((a, b) => a.localeCompare(b));
-}
-
-function v(id) {
-    return document.getElementById(id)?.value.trim() || '';
-}
-
-function set(id, val) {
-    const el = document.getElementById(id);
-    if (el) el.value = val || '';
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// MODAL INIT
+// MODAL COMPONENTS INITIALIZATION
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function initModalComponents() {
     initDescriptionEditor();
     initSectionNavigation();
-    populateSelects();
-    initSelects();
     initStatusToggle();
-}
+    populateCategorySelect();
+    populateAssignedToSelect();
 
-function initSelects() {
     const modalEl = document.getElementById('modal-task-edit');
     if (modalEl) initCustomSelects(modalEl);
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EDITOR
+// ═══════════════════════════════════════════════════════════════════════════
 
 function initDescriptionEditor() {
     const container = document.getElementById('task-description-editor');
@@ -79,39 +71,28 @@ function initDescriptionEditor() {
     descriptionEditor = createHighlightEditor(container);
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION NAVIGATION
+// ═══════════════════════════════════════════════════════════════════════════
+
 function initSectionNavigation() {
     const nav = document.getElementById('task-section-navigator');
-    const contentArea = document.querySelector('.modal-body > main');
-    initSectionNav(nav, contentArea);
+    const contentArea = document.querySelector('#modal-task-edit .modal-body > main');
+    if (nav && contentArea) initSectionNav(nav, contentArea);
 }
 
-function populateSelects() {
-    // Category
-    const categoryOptions = getDynamicOptions('category');
-    populateSelect('task-category',
-        categoryOptions.map(val => ({ value: val, text: val })),
-        { placeholder: '— Оберіть —' }
-    );
-
-    // Assigned to (users)
-    const users = tasksState.usersList || [];
-    populateSelect('task-assigned-to',
-        users.map(u => ({
-            value: u.username,
-            text: u.display_name ? `${u.display_name} (${u.username})` : u.username
-        })),
-        { placeholder: '— Оберіть —' }
-    );
-}
+// ═══════════════════════════════════════════════════════════════════════════
+// STATUS TOGGLE
+// ═══════════════════════════════════════════════════════════════════════════
 
 function initStatusToggle() {
     const statusSwitch = document.getElementById('task-status-switch');
     if (!statusSwitch || statusSwitch.dataset.toggleInited) return;
+    statusSwitch.dataset.toggleInited = '1';
 
     statusSwitch.addEventListener('change', () => {
         updateStatusBadge();
     });
-    statusSwitch.dataset.toggleInited = '1';
 }
 
 function updateStatusBadge() {
@@ -121,83 +102,55 @@ function updateStatusBadge() {
     const status = document.querySelector('input[name="task-status"]:checked')?.value || 'new';
     badge.textContent = crud.getCurrentId() || '';
     badge.classList.remove('c-green', 'c-yellow', 'c-red', 'c-blue');
-
-    if (status === 'done') badge.classList.add('c-green');
-    else if (status === 'in_progress') badge.classList.add('c-blue');
-    else if (status === 'cancelled') badge.classList.add('c-red');
-    else badge.classList.add('c-yellow');
+    badge.classList.add(STATUS_COLORS[status] || 'c-yellow');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// PERMISSIONS
+// SELECTS
 // ═══════════════════════════════════════════════════════════════════════════
 
-function applyPermissions(task) {
-    const isAuthor = task.created_by === window.currentUser?.username;
-    const isAdmin = window.currentUser?.role === 'admin';
-    const canEdit = isAuthor || isAdmin;
+function populateCategorySelect() {
+    populateSelect('task-category', [
+        { value: 'терміново', text: 'Терміново' },
+        { value: 'міграція', text: 'Міграція' },
+        { value: 'задача', text: 'Задача' },
+    ], { placeholder: '— Оберіть —' });
+}
 
-    // Inputs
-    ['task-title', 'task-category', 'task-assigned-to', 'task-due-date'].forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        if (canEdit) {
-            el.removeAttribute('disabled');
-            el.removeAttribute('readonly');
-        } else {
-            if (el.tagName === 'SELECT') el.setAttribute('disabled', '');
-            else el.setAttribute('readonly', '');
-        }
-    });
-
-    // Description editor
-    const editorContainer = document.getElementById('task-description-editor');
-    if (editorContainer) {
-        if (!canEdit) editorContainer.setAttribute('readonly', '');
-        else editorContainer.removeAttribute('readonly');
-    }
-
-    // Status switch
-    const statusSwitch = document.getElementById('task-status-switch');
-    if (statusSwitch) {
-        statusSwitch.querySelectorAll('input').forEach(input => {
-            input.disabled = !canEdit;
-        });
-    }
-
-    // Save / delete buttons
-    ['btn-save-task', 'save-close-task'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.toggle('u-hidden', !canEdit);
-    });
-
-    const deleteBtn = document.getElementById('btn-delete-task');
-    if (deleteBtn && !canEdit) deleteBtn.classList.add('u-hidden');
+function populateAssignedToSelect() {
+    const users = tasksState.usersList || [];
+    populateSelect('task-assigned-to',
+        users.map(u => ({ value: u.username, text: u.display_name || u.username })),
+        { placeholder: '— Оберіть —' }
+    );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
 // FILL / CLEAR FORM
 // ═══════════════════════════════════════════════════════════════════════════
 
-async function fillTaskForm(task) {
-    set('task-id', task.task_id);
-    set('task-title', task.title);
-    const catEl = document.getElementById('task-category');
-    if (catEl) {
-        catEl.value = task.category || '';
-        reinitializeCustomSelect(catEl);
+function fillTaskForm(task) {
+    const idField = document.getElementById('task-id');
+    if (idField) idField.value = task.task_id || '';
+
+    const titleField = document.getElementById('task-title');
+    if (titleField) titleField.value = task.title || '';
+
+    const dueDateField = document.getElementById('task-due-date');
+    if (dueDateField) dueDateField.value = task.due_date || '';
+
+    // Selects
+    const categoryField = document.getElementById('task-category');
+    if (categoryField) {
+        categoryField.value = task.category || '';
+        reinitializeCustomSelect(categoryField);
     }
 
-    const assignEl = document.getElementById('task-assigned-to');
-    if (assignEl) {
-        assignEl.value = task.assigned_to || '';
-        reinitializeCustomSelect(assignEl);
+    const assignedToField = document.getElementById('task-assigned-to');
+    if (assignedToField) {
+        assignedToField.value = task.assigned_to || '';
+        reinitializeCustomSelect(assignedToField);
     }
-    set('task-due-date', task.due_date);
-    set('task-created-by', task.created_by_display || task.created_by || '—');
-    set('task-created-at', task.created_at || '—');
-    set('task-updated-by', task.updated_by || '—');
-    set('task-updated-at', task.updated_at || '—');
 
     // Status radio
     const statusRadio = document.querySelector(`input[name="task-status"][value="${task.status || 'new'}"]`);
@@ -206,29 +159,42 @@ async function fillTaskForm(task) {
     updateStatusBadge();
 
     // Editor
-    if (descriptionEditor) descriptionEditor.setValue(task.description || '');
-
-    // Permissions
-    applyPermissions(task);
-
-    // Mark as read if assigned_to is current user and is_new
-    const username = window.currentUser?.username;
-    if (task.assigned_to === username && task.is_new === '1') {
-        await markTaskAsRead(task.task_id);
-        runHook('onRender');
+    if (descriptionEditor) {
+        descriptionEditor.setValue(task.description || '');
     }
 
-    // Render comments via hook
-    runHook('onModalFill', task);
+    // Metadata (readonly)
+    const createdByField = document.getElementById('task-created-by');
+    if (createdByField) createdByField.value = task.created_by_display || task.created_by || '—';
+
+    const createdAtField = document.getElementById('task-created-at');
+    if (createdAtField) createdAtField.value = task.created_at || '—';
+
+    const updatedAtField = document.getElementById('task-updated-at');
+    if (updatedAtField) updatedAtField.value = task.updated_at || '—';
+
+    const updatedByField = document.getElementById('task-updated-by');
+    if (updatedByField) updatedByField.value = task.updated_by || '—';
+
+    // Hook for comments
+    tasksPlugins.runHook('onModalFill', task);
 }
 
 function clearTaskForm() {
-    ['task-id', 'task-title', 'task-category', 'task-assigned-to', 'task-due-date'].forEach(id => set(id, ''));
+    const idField = document.getElementById('task-id');
+    if (idField) idField.value = '';
 
-    set('task-created-by', '—');
-    set('task-created-at', '—');
-    set('task-updated-by', '—');
-    set('task-updated-at', '—');
+    const titleField = document.getElementById('task-title');
+    if (titleField) titleField.value = '';
+
+    const dueDateField = document.getElementById('task-due-date');
+    if (dueDateField) dueDateField.value = '';
+
+    const categoryField = document.getElementById('task-category');
+    if (categoryField) categoryField.value = '';
+
+    const assignedToField = document.getElementById('task-assigned-to');
+    if (assignedToField) assignedToField.value = '';
 
     const statusRadio = document.querySelector('input[name="task-status"][value="new"]');
     if (statusRadio) statusRadio.checked = true;
@@ -236,24 +202,21 @@ function clearTaskForm() {
     const badge = document.getElementById('task-status-badge');
     if (badge) badge.textContent = '';
 
-    if (descriptionEditor) descriptionEditor.setValue('');
+    if (descriptionEditor) {
+        descriptionEditor.setValue('');
+    }
 
-    // Reset permissions for new task (author = current user)
-    ['task-title', 'task-category', 'task-assigned-to', 'task-due-date'].forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.removeAttribute('disabled');
-        el.removeAttribute('readonly');
-    });
+    const createdByField = document.getElementById('task-created-by');
+    if (createdByField) createdByField.value = '—';
 
-    ['btn-save-task', 'save-close-task'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.remove('u-hidden');
-    });
+    const createdAtField = document.getElementById('task-created-at');
+    if (createdAtField) createdAtField.value = '—';
 
-    // Clear comments
-    const commentsContainer = document.getElementById('task-comments-container');
-    if (commentsContainer) commentsContainer.innerHTML = '';
+    const updatedAtField = document.getElementById('task-updated-at');
+    if (updatedAtField) updatedAtField.value = '—';
+
+    const updatedByField = document.getElementById('task-updated-by');
+    if (updatedByField) updatedByField.value = '—';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -262,13 +225,40 @@ function clearTaskForm() {
 
 function getTaskFormData() {
     return {
-        title: v('task-title'),
-        category: v('task-category'),
-        assigned_to: v('task-assigned-to'),
-        due_date: v('task-due-date'),
-        status: document.querySelector('input[name="task-status"]:checked')?.value || 'new',
+        title: document.getElementById('task-title')?.value.trim() || '',
         description: descriptionEditor ? descriptionEditor.getValue() : '',
+        category: document.getElementById('task-category')?.value.trim() || '',
+        status: document.querySelector('input[name="task-status"]:checked')?.value || 'new',
+        assigned_to: document.getElementById('task-assigned-to')?.value.trim() || '',
+        due_date: document.getElementById('task-due-date')?.value.trim() || '',
     };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DELETE HANDLER
+// ═══════════════════════════════════════════════════════════════════════════
+
+async function handleDeleteTask(taskId) {
+    const task = getTaskById(taskId);
+    const displayName = task ? (task.title || taskId) : taskId;
+
+    const confirmed = await showConfirmModal({
+        action: 'видалити',
+        entity: 'завдання',
+        name: displayName
+    });
+
+    if (!confirmed) return;
+
+    try {
+        await deleteTask(taskId);
+        showToast(`Завдання ${taskId} видалено`, 'success');
+        closeModal();
+        tasksPlugins.runHook('onRender');
+    } catch (error) {
+        console.error('[Tasks] Помилка видалення:', error);
+        showToast('Помилка видалення завдання', 'error');
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -283,8 +273,7 @@ const crud = createCrudModal({
     saveCloseBtnId: 'save-close-task',
     entityName: 'Завдання',
     addTitle: 'Нове завдання',
-    getTitle: (task) => task.title || `Завдання ${task.task_id}`,
-    getId: (t) => t?.task_id || null,
+    getTitle: (task) => task.title || 'Завдання',
     getById: getTaskById,
     add: addTask,
     update: updateTask,
@@ -292,23 +281,7 @@ const crud = createCrudModal({
     fillForm: fillTaskForm,
     clearForm: clearTaskForm,
     initComponents: initModalComponents,
-    onDelete: async (taskId) => {
-        const confirmed = await showConfirmModal({
-            action: 'видалити',
-            entity: 'завдання',
-            name: taskId
-        });
-        if (!confirmed) return;
-        try {
-            await deleteTask(taskId);
-            showToast(`Завдання ${taskId} видалено`, 'success');
-            closeModal();
-            runHook('onRender');
-        } catch (error) {
-            console.error('Помилка видалення завдання:', error);
-            showToast('Помилка видалення завдання', 'error');
-        }
-    },
+    onDelete: (taskId) => handleDeleteTask(taskId),
     onCleanup: () => {
         destroySectionNav(document.getElementById('task-section-navigator'));
         if (descriptionEditor) { descriptionEditor.destroy(); descriptionEditor = null; }
@@ -322,4 +295,11 @@ const crud = createCrudModal({
 
 export const showAddTaskModal = crud.showAdd;
 export const showEditTaskModal = crud.showEdit;
-export const getCurrentTaskId = crud.getCurrentId;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PLUGIN REGISTRATION
+// ═══════════════════════════════════════════════════════════════════════════
+
+export function init() {
+    // No additional hooks needed — crud handles everything
+}
