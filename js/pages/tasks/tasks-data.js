@@ -31,7 +31,6 @@
 
 import { tasksState } from './tasks-state.js';
 import { callSheetsAPI } from '../../utils/utils-api-client.js';
-import { TASKS_SPREADSHEET_ID as SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
 import { generateNextId } from '../../utils/utils-id.js';
 
 const SHEET_NAME = 'Tasks';
@@ -65,29 +64,32 @@ function buildRow(record) {
 
 export async function loadTasks() {
     try {
-        const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${SHEET_GID}`;
-        const response = await fetch(csvUrl);
+        const result = await callSheetsAPI('get', {
+            range: SHEET_RANGE,
+            spreadsheetType: 'tasks'
+        });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        if (!result || result.length <= 1) {
+            tasksState.tasks = [];
+            tasksState._dataLoaded = true;
+            return tasksState.tasks;
         }
 
-        const csvText = await response.text();
-        if (typeof Papa === 'undefined') {
-            throw new Error('PapaParse library is not loaded');
-        }
-
-        const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
-        const rows = parsed.data || [];
+        const headers = result[0];
+        const rows = result.slice(1);
 
         const username = window.currentUser?.username;
         const isAdmin = window.currentUser?.role === 'admin';
 
         tasksState.tasks = rows
-            .map((row, index) => ({
-                ...normalizeRecord(row),
-                _rowIndex: index + 2
-            }))
+            .map((row, index) => {
+                const record = {};
+                COLUMN_IDS.forEach((key, i) => {
+                    record[key] = (row[i] != null ? String(row[i]).trim() : '');
+                });
+                record._rowIndex = index + 2;
+                return record;
+            })
             .filter(task => {
                 if (isAdmin) return true;
                 if (!username) return false;

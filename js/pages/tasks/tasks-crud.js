@@ -8,12 +8,12 @@
 
 import { getTasks, getTaskById, addTask, updateTask, deleteTask, markTaskAsRead } from './tasks-data.js';
 import { tasksState } from './tasks-state.js';
-import { initCustomSelects } from '../../components/forms/select.js';
+import { populateSelect, reinitializeCustomSelect } from '../../components/forms/select.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { showConfirmModal, closeModal } from '../../components/modal/modal-main.js';
 import { escapeHtml } from '../../utils/utils-text.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
-import { initSectionNav } from '../../layout/layout-plugin-nav-sections.js';
+import { initSectionNav, destroySectionNav } from '../../layout/layout-plugin-nav-sections.js';
 import { runHook } from './tasks-plugins.js';
 import { createCrudModal } from '../../components/crud/crud-main.js';
 import { tasksPlugins } from './tasks-plugins.js';
@@ -62,48 +62,51 @@ async function initModalComponents() {
 
 function initDescriptionEditor() {
     const container = document.getElementById('task-description-editor');
-    if (container) {
-        descriptionEditor = createHighlightEditor(container, { initialValue: '' });
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    if (descriptionEditor) {
+        descriptionEditor.destroy();
+        descriptionEditor = null;
     }
+
+    descriptionEditor = createHighlightEditor(container);
 }
 
 function initSectionNavigation() {
     const nav = document.getElementById('task-section-navigator');
-    const content = document.querySelector('#modal-task-edit .modal-body > main');
-    if (nav && content) initSectionNav(nav, content);
+    const contentArea = document.querySelector('.modal-body > main');
+    initSectionNav(nav, contentArea);
 }
 
 function populateSelects() {
     // Category
-    const catEl = document.getElementById('task-category');
-    if (catEl) {
-        const options = getDynamicOptions('category');
-        catEl.innerHTML = '<option value="">— Оберіть —</option>' +
-            options.map(val => `<option value="${escapeHtml(val)}">${escapeHtml(val)}</option>`).join('');
-    }
+    const categoryOptions = getDynamicOptions('category');
+    populateSelect('task-category',
+        categoryOptions.map(val => ({ value: val, text: val })),
+        { placeholder: '— Оберіть —' }
+    );
 
     // Assigned to (users)
-    const assignEl = document.getElementById('task-assigned-to');
-    if (assignEl) {
-        const users = tasksState.usersList || [];
-        assignEl.innerHTML = '<option value="">— Оберіть —</option>' +
-            users.map(u => {
-                const label = u.display_name ? `${u.display_name} (${u.username})` : u.username;
-                return `<option value="${escapeHtml(u.username)}">${escapeHtml(label)}</option>`;
-            }).join('');
-    }
-
-    const modalEl = document.getElementById('modal-task-edit');
-    if (modalEl) initCustomSelects(modalEl);
+    const users = tasksState.usersList || [];
+    populateSelect('task-assigned-to',
+        users.map(u => ({
+            value: u.username,
+            text: u.display_name ? `${u.display_name} (${u.username})` : u.username
+        })),
+        { placeholder: '— Оберіть —' }
+    );
 }
 
 function initStatusToggle() {
     const statusSwitch = document.getElementById('task-status-switch');
-    if (!statusSwitch) return;
+    if (!statusSwitch || statusSwitch.dataset.toggleInited) return;
 
     statusSwitch.addEventListener('change', () => {
         updateStatusBadge();
     });
+    statusSwitch.dataset.toggleInited = '1';
 }
 
 function updateStatusBadge() {
@@ -174,8 +177,17 @@ function applyPermissions(task) {
 async function fillTaskForm(task) {
     set('task-id', task.task_id);
     set('task-title', task.title);
-    set('task-category', task.category);
-    set('task-assigned-to', task.assigned_to);
+    const catEl = document.getElementById('task-category');
+    if (catEl) {
+        catEl.value = task.category || '';
+        reinitializeCustomSelect(catEl);
+    }
+
+    const assignEl = document.getElementById('task-assigned-to');
+    if (assignEl) {
+        assignEl.value = task.assigned_to || '';
+        reinitializeCustomSelect(assignEl);
+    }
     set('task-due-date', task.due_date);
     set('task-created-by', task.created_by_display || task.created_by || '—');
     set('task-created-at', task.created_at || '—');
@@ -293,6 +305,7 @@ const crud = createCrudModal({
         }
     },
     onCleanup: () => {
+        destroySectionNav(document.getElementById('task-section-navigator'));
         if (descriptionEditor) { descriptionEditor.destroy(); descriptionEditor = null; }
     },
     plugins: tasksPlugins,
