@@ -200,7 +200,7 @@ function cardsExtension({ state, plugins, data }) {
                 <span class="dot c-blue${isNew ? '' : ' u-invisible'}"></span>
                 <div class="block" data-task-id="${escapeHtml(task.task_id)}">
                     <div class="block-header" data-action="toggle-task">
-                        <div class="group">
+                        <div class="group column">
                             <h3>${escapeHtml(task.title || 'Без назви')}</h3>
                             ${subLine ? `<span class="body-s">${subLine}</span>` : ''}
                         </div>
