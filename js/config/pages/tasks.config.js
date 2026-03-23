@@ -156,13 +156,12 @@ function dataLoaderExtension({ state, data, config }) {
 function cardsExtension({ state, plugins, data }) {
 
     function tasksPreFilter(tasks) {
-        const { activeFilter, statusFilter, categoryFilter } = state;
+        const { activeFilter, statusFilters } = state;
         const username = window.currentUser?.username;
         return tasks.filter(task => {
             if (activeFilter === 'assigned_to_me' && task.assigned_to !== username) return false;
             if (activeFilter === 'created_by_me' && task.created_by !== username) return false;
-            if (statusFilter && task.status !== statusFilter) return false;
-            if (categoryFilter && task.category !== categoryFilter) return false;
+            if (statusFilters && !statusFilters[task.status]) return false;
             return true;
         });
     }
@@ -182,25 +181,50 @@ function cardsExtension({ state, plugins, data }) {
         const username = window.currentUser?.username;
         const isAdmin = window.currentUser?.role === 'admin';
         const canEdit = task.created_by === username || isAdmin;
+        const isAssignee = task.assigned_to === username;
         const status = STATUS_TAG[task.status] || STATUS_TAG.new;
-        const isNew = task.is_new === '1' && task.assigned_to === username;
-        const comments = safeJsonParse(task.comments, []);
-        const commentsCount = Array.isArray(comments) ? comments.length : 0;
-        const dueDateStr = task.due_date ? ` · ${escapeHtml(task.due_date)}` : '';
-        const assignedStr = task.assigned_to ? escapeHtml(task.assigned_to) : '';
+
+        const toUser = state.usersList?.find(u => u.username === task.assigned_to);
+        const toName = toUser?.display_name || task.assigned_to || '';
 
         return `
-            <div class="block" data-task-id="${escapeHtml(task.task_id)}" data-action="open-task">
-                <div class="block-header">
+            <div class="block" data-task-id="${escapeHtml(task.task_id)}">
+                <div class="block-header" data-action="toggle-task">
                     <div class="group">
+                        <span class="dot ${status.color}"></span>
                         <h3>${escapeHtml(task.title || 'Без назви')}</h3>
-                        ${isNew ? '<span class="badge c-blue">новий</span>' : ''}
                         <span class="tag ${status.color}">${status.label}</span>
-                        ${task.category ? `<span class="tag">${escapeHtml(task.category)}</span>` : ''}
+                        ${task.category ? `<span class="body-s">${escapeHtml(task.category)}</span>` : ''}
                     </div>
                     <div class="group">
-                        <span class="body-s">${assignedStr}${dueDateStr}</span>
-                        ${commentsCount > 0 ? `<span class="body-s"><span class="material-symbols-outlined">chat</span> ${commentsCount}</span>` : ''}
+                        ${toName ? `<span class="body-s">${escapeHtml(toName)}</span>` : ''}
+                        ${canEdit ? `<button class="btn-icon" data-action="edit-task" aria-label="Редагувати"><span class="material-symbols-outlined">edit</span></button>` : ''}
+                    </div>
+                </div>
+                <div class="u-reveal">
+                    <div>
+                        ${task.description ? `<div class="block-list"><div class="block-line"><span class="body-m">${task.description}</span></div></div>` : ''}
+                        ${isAssignee || canEdit ? `
+                        <div class="block-list">
+                            <div class="block-line">
+                                <label class="block-line-label">Статус</label>
+                                <div class="switch switch-compact switch-fit">
+                                    ${Object.entries(STATUS_TAG).map(([key, val]) => `
+                                        <input type="radio" id="cs-${task.task_id}-${key}" name="card-status-${task.task_id}" value="${key}" ${task.status === key ? 'checked' : ''}>
+                                        <label for="cs-${task.task_id}-${key}" class="switch-label">${val.label}</label>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>` : ''}
+                        <div class="block-list" data-card-comments></div>
+                        <div class="block-list">
+                            <div class="input-box">
+                                <input type="text" data-card-comment-input placeholder="Коментар...">
+                                <button class="btn-icon" data-action="add-card-comment" aria-label="Надіслати">
+                                    <span class="material-symbols-outlined">send</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>`;
@@ -224,28 +248,72 @@ function cardsExtension({ state, plugins, data }) {
         container._tasksCardsInit = true;
 
         container.addEventListener('click', async (e) => {
-            const block = e.target.closest('[data-action="open-task"]');
-            if (!block) return;
-            const taskId = block.dataset.taskId;
-            const task = data.getById(taskId);
-            if (!task) return;
-            // Mark as read
-            const username = window.currentUser?.username;
-            if (task.is_new === '1' && task.assigned_to === username) {
-                task.is_new = '0';
-                const badge = block.querySelector('.badge.c-blue');
-                if (badge) badge.remove();
-                callSheetsAPI('update', {
-                    range: `${SHEET_NAME}!N${task._rowIndex}`,
-                    values: [['0']],
-                    spreadsheetType: 'tasks'
-                }).catch(() => {});
+            // Edit button — open modal
+            if (e.target.closest('[data-action="edit-task"]')) {
+                e.stopPropagation();
+                const block = e.target.closest('.block[data-task-id]');
+                if (!block) return;
+                const crud = state._crudModule;
+                if (crud) crud.showEdit(block.dataset.taskId);
+                return;
             }
-            // Open modal
-            const crud = state._crudModule;
-            if (crud) crud.showEdit(taskId);
+
+            // Add comment
+            if (e.target.closest('[data-action="add-card-comment"]')) {
+                const block = e.target.closest('.block[data-task-id]');
+                if (!block) return;
+                plugins.runHook('onCardAddComment', block.dataset.taskId, block);
+                return;
+            }
+
+            // Toggle expand/collapse
+            const header = e.target.closest('[data-action="toggle-task"]');
+            if (!header) return;
+            const block = header.closest('.block[data-task-id]');
+            if (!block) return;
+            const reveal = block.querySelector('.u-reveal');
+            if (!reveal) return;
+            const isOpen = reveal.classList.toggle('is-open');
+
+            if (isOpen) {
+                const task = data.getById(block.dataset.taskId);
+                if (!task) return;
+                const username = window.currentUser?.username;
+                if (task.is_new === '1' && task.assigned_to === username) {
+                    task.is_new = '0';
+                    callSheetsAPI('update', {
+                        range: `${SHEET_NAME}!N${task._rowIndex}`,
+                        values: [['0']],
+                        spreadsheetType: 'tasks'
+                    }).catch(() => {});
+                }
+                plugins.runHook('onCardExpand', task, block);
+            }
         });
 
+        // Status change via switch in expanded card
+        container.addEventListener('change', async (e) => {
+            const radio = e.target;
+            if (!radio.name?.startsWith('card-status-')) return;
+            const block = radio.closest('.block[data-task-id]');
+            if (!block) return;
+            const taskId = block.dataset.taskId;
+            const newStatus = radio.value;
+            try {
+                await data.update(taskId, { status: newStatus });
+                const statusInfo = STATUS_TAG[newStatus] || STATUS_TAG.new;
+                const tag = block.querySelector('.block-header .tag');
+                if (tag) { tag.className = `tag ${statusInfo.color}`; tag.textContent = statusInfo.label; }
+                const dot = block.querySelector('.block-header .dot');
+                if (dot) dot.className = `dot ${statusInfo.color}`;
+                const { showToast } = await import('../../components/feedback/toast.js');
+                showToast('Статус оновлено', 'success');
+            } catch (error) {
+                console.error('Помилка зміни статусу:', error);
+            }
+        });
+
+        // Search
         const searchInput = container._charmSearchInput;
         if (searchInput) {
             let debounce = null;
@@ -254,6 +322,17 @@ function cardsExtension({ state, plugins, data }) {
                 debounce = setTimeout(() => renderCards(), 200);
             });
         }
+
+        // Comment input Enter
+        container.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter') return;
+            const input = e.target.closest('[data-card-comment-input]');
+            if (!input) return;
+            e.preventDefault();
+            const block = input.closest('.block[data-task-id]');
+            if (!block) return;
+            plugins.runHook('onCardAddComment', block.dataset.taskId, block);
+        });
     }
 
     plugins.registerHook('onInit', () => { renderCards(); initClickHandlers(); });
@@ -356,32 +435,37 @@ function commentsExtension({ state, plugins, data }) {
 
 function filtersExtension({ state, plugins }) {
     state.activeFilter = 'all';
-    state.statusFilter = null;
-    state.categoryFilter = null;
+    state.statusFilters = { new: true, in_progress: true, done: true, cancelled: true };
 
-    const FILTER_MAP = {
-        all:                { activeFilter: 'all',            statusFilter: null },
-        assigned_to_me:     { activeFilter: 'assigned_to_me', statusFilter: null },
-        created_by_me:      { activeFilter: 'created_by_me',  statusFilter: null },
-        status_new:         { activeFilter: null,              statusFilter: 'new' },
-        status_in_progress: { activeFilter: null,              statusFilter: 'in_progress' },
-        status_done:        { activeFilter: null,              statusFilter: 'done' },
-    };
+    const STATUS_COLORS = { new: 'c-yellow', in_progress: 'c-blue', done: 'c-green', cancelled: 'c-red' };
 
     plugins.registerHook('onInit', () => {
         const aside = document.querySelector('.aside-body');
         if (!aside || aside._tasksFilterInit) return;
         aside._tasksFilterInit = true;
+
         aside.addEventListener('click', (e) => {
-            const item = e.target.closest('.panel-item[data-filter]');
-            if (!item) return;
-            const mapping = FILTER_MAP[item.dataset.filter];
-            if (!mapping) return;
-            if (mapping.activeFilter !== null) { state.activeFilter = mapping.activeFilter; state.statusFilter = null; }
-            if (mapping.statusFilter !== null) { state.statusFilter = mapping.statusFilter; state.activeFilter = 'all'; }
-            aside.querySelectorAll('.panel-item[data-filter]').forEach(el => el.classList.remove('active'));
-            item.classList.add('active');
-            plugins.runHook('onRender');
+            // Assignment filter (mutually exclusive)
+            const filterBadge = e.target.closest('[data-filter]');
+            if (filterBadge) {
+                state.activeFilter = filterBadge.dataset.filter;
+                aside.querySelectorAll('[data-filter]').forEach(b => {
+                    b.classList.toggle('c-blue', b === filterBadge);
+                });
+                plugins.runHook('onRender');
+                return;
+            }
+
+            // Status filter (toggle on/off)
+            const statusBadge = e.target.closest('[data-status-filter]');
+            if (statusBadge) {
+                const status = statusBadge.dataset.statusFilter;
+                state.statusFilters[status] = !state.statusFilters[status];
+                const color = STATUS_COLORS[status];
+                if (color) statusBadge.classList.toggle(color);
+                plugins.runHook('onRender');
+                return;
+            }
         });
     });
 }
