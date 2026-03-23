@@ -8,7 +8,7 @@
 
 import { getTasks, getTaskById, addTask, updateTask, deleteTask, markTaskAsRead } from './tasks-data.js';
 import { tasksState } from './tasks-state.js';
-import { populateSelect, reinitializeCustomSelect } from '../../components/forms/select.js';
+import { initCustomSelects, populateSelect, reinitializeCustomSelect } from '../../components/forms/select.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { showConfirmModal, closeModal } from '../../components/modal/modal-main.js';
 import { escapeHtml } from '../../utils/utils-text.js';
@@ -57,7 +57,13 @@ async function initModalComponents() {
     initDescriptionEditor();
     initSectionNavigation();
     populateSelects();
+    initSelects();
     initStatusToggle();
+}
+
+function initSelects() {
+    const modalEl = document.getElementById('modal-task-edit');
+    if (modalEl) initCustomSelects(modalEl);
 }
 
 function initDescriptionEditor() {
