@@ -20,6 +20,7 @@
 
 import { MAIN_SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
 import { safeJsonParse } from '../../utils/utils-json.js';
+import { getOptions, loadOptions } from '../../data/entities-data.js';
 
 let linksData = [];
 let countriesData = {};
@@ -42,13 +43,19 @@ export async function fetchLinksData() {
         const csvText = await response.text();
         const parsedData = Papa.parse(csvText, { header: true, skipEmptyLines: true }).data;
 
+        // Резолв opt-ID → назва країни
+        if (getOptions().length === 0) await loadOptions().catch(() => {});
+        const optMap = {};
+        getOptions().forEach(o => { optMap[o.id] = o.value_ua || o.id; });
+
         // Очищаємо масив
         linksData = [];
         countriesData = {};
 
         parsedData.forEach(row => {
             const brandName = (row.name_uk || '').trim();
-            const country = (row.country_option_id || '').trim();
+            const rawCountry = (row.country_option_id || '').trim();
+            const country = optMap[rawCountry] || rawCountry;
 
             if (!brandName) return;
 

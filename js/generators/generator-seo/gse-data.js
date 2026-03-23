@@ -8,6 +8,7 @@
  */
 
 import { MAIN_SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
+import { getOptions, loadOptions } from '../../data/entities-data.js';
 
 let triggersData = [];
 let brandsData = {};
@@ -49,6 +50,11 @@ export async function fetchData() {
 
         const parsedBrands = Papa.parse(brandsCsv, { header: true, skipEmptyLines: true }).data;
 
+        // Резолв opt-ID → назва країни
+        if (getOptions().length === 0) await loadOptions().catch(() => {});
+        const optMap = {};
+        getOptions().forEach(o => { optMap[o.id] = o.value_ua || o.id; });
+
         brandsData = parsedBrands.reduce((acc, row) => {
             // Збираємо ВСІ можливі назви бренду
             const nameUk = (row.name_uk || '').trim();
@@ -64,8 +70,9 @@ export async function fetchData() {
             const primaryName = (nameUk || nameRu || '').toLowerCase();
 
             if (primaryName && allNames.length > 0) {
+                const rawCountry = row.country_option_id || '';
                 acc[primaryName] = {
-                    country: row.country_option_id || '',
+                    country: optMap[rawCountry] || rawCountry,
                     // Зберігаємо список ВСІХ назв для пошуку
                     searchNames: allNames
                 };
