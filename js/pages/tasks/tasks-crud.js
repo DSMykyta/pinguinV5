@@ -11,7 +11,6 @@ import { tasksState } from './tasks-state.js';
 import { initCustomSelects, populateSelect, reinitializeCustomSelect } from '../../components/forms/select.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { showConfirmModal, closeModal } from '../../components/modal/modal-main.js';
-import { escapeHtml } from '../../utils/utils-text.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
 import { initSectionNav, destroySectionNav } from '../../layout/layout-plugin-nav-sections.js';
 import { runHook } from './tasks-plugins.js';
