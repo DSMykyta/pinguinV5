@@ -24,6 +24,11 @@ const COLUMN_IDS = [
     'updated_at', 'updated_by', 'comments', 'created_by_display', 'is_new'
 ];
 
+function localNow() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
+}
+
 const STATUS_TAG = {
     new:         { label: 'Нове',      color: 'c-yellow' },
     in_progress: { label: 'В роботі',  color: 'c-blue' },
@@ -48,8 +53,8 @@ export default {
         stateKey: 'tasks',
         columns: COLUMN_IDS,
         autoFields: {
-            created_at: () => new Date().toISOString().replace('T', ' ').slice(0, 19),
-            updated_at: () => new Date().toISOString().replace('T', ' ').slice(0, 19),
+            created_at: () => localNow(),
+            updated_at: () => localNow(),
             created_by: () => window.currentUser?.username || '',
             created_by_display: () => window.currentUser?.display_name || window.currentUser?.username || '',
             updated_by: () => window.currentUser?.username || '',
@@ -362,7 +367,7 @@ function commentsExtension({ state, plugins, data }) {
         if (!task) return;
         const comments = safeJsonParse(task.comments, []);
         if (!Array.isArray(comments)) return;
-        const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+        const now = localNow();
         comments.push({
             author: window.currentUser?.username || '',
             display_name: window.currentUser?.display_name || window.currentUser?.username || '',
