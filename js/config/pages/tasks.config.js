@@ -185,7 +185,8 @@ function cardsExtension({ state, plugins, data }) {
         const status = STATUS_TAG[task.status] || STATUS_TAG.new;
         const isNew = task.is_new === '1' && task.assigned_to === username;
 
-        const fromName = task.created_by_display || task.created_by || '';
+        const fromRaw = task.created_by_display || task.created_by || '';
+        const fromName = fromRaw === '—' ? (task.created_by || '') : fromRaw;
         const toUser = state.usersList?.find(u => u.username === task.assigned_to);
         const toName = toUser?.display_name || task.assigned_to || '';
         const namesStr = fromName && toName ? `${escapeHtml(fromName)} → ${escapeHtml(toName)}` : escapeHtml(fromName || toName);
@@ -205,14 +206,18 @@ function cardsExtension({ state, plugins, data }) {
                     </div>
                     <div class="u-reveal">
                         <div>
-                            ${task.description ? `<div class="block-list"><div class="block-line"><span class="body-m">${task.description}</span></div></div>` : ''}
-                            <div class="block-list" data-card-comments></div>
-                            <div class="block-list">
-                                <div class="input-box">
-                                    <input type="text" data-card-comment-input placeholder="Коментар...">
-                                    <button class="btn-icon" data-action="add-card-comment" aria-label="Надіслати">
-                                        <span class="material-symbols-outlined">send</span>
-                                    </button>
+                            <div class="group">
+                                <div class="block-list">
+                                    ${task.description ? `<div class="block-line"><span class="body-m">${task.description}</span></div>` : ''}
+                                </div>
+                                <div class="block-list">
+                                    <div data-card-comments></div>
+                                    <div class="input-box">
+                                        <input type="text" data-card-comment-input placeholder="Коментар...">
+                                        <button class="btn-icon" data-action="add-card-comment" aria-label="Надіслати">
+                                            <span class="material-symbols-outlined">send</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
