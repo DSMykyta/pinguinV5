@@ -219,6 +219,12 @@ function cardsExtension({ state, plugins, data }) {
                                 <label class="block-line-label">Виконавець</label>
                                 <span class="block-line-text">${escapeHtml(task.assigned_to || '—')}</span>
                             </div>
+                            ${task.due_date ? `
+                                <div class="block-line">
+                                    <label class="block-line-label">Дедлайн</label>
+                                    <span class="block-line-text">${escapeHtml(task.due_date)}</span>
+                                </div>
+                            ` : ''}
                             ${task.description ? `
                                 <div class="block-line">
                                     <label class="block-line-label">Опис</label>
@@ -226,10 +232,10 @@ function cardsExtension({ state, plugins, data }) {
                                 </div>
                             ` : ''}
                         </div>
-                        <div class="block-list" data-card-comments></div>
-                        <div class="block-list">
+                        <div data-task-sidebar>
+                            <div data-card-comments></div>
                             <div class="content-bloc"><div class="content-line"><div class="input-box">
-                                <input type="text" data-card-comment-input data-task-id="${escapeHtml(task.task_id)}" placeholder="Додати коментар...">
+                                <input type="text" data-card-comment-input data-task-id="${escapeHtml(task.task_id)}" placeholder="Коментар...">
                                 <button class="btn-icon" data-action="add-card-comment" data-task-id="${escapeHtml(task.task_id)}" aria-label="Надіслати">
                                     <span class="material-symbols-outlined">send</span>
                                 </button>

@@ -10,6 +10,42 @@
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <script src="js/theme-init.js"></script>
+    <style>
+        /* Center cards */
+        #tasks-cards-container .block-group {
+            margin: 0 auto;
+        }
+
+        /* Split view: details left, comments right */
+        .block .u-reveal > div {
+            display: flex;
+        }
+
+        .block .u-reveal > div > .block-list {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .block [data-task-sidebar] {
+            width: 300px;
+            flex-shrink: 0;
+            border-left: 1px solid var(--color-outline);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .block [data-task-sidebar] [data-card-comments] {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 300px;
+            padding: 12px;
+        }
+
+        .block [data-task-sidebar] .input-box {
+            border-top: 1px solid var(--color-outline);
+            padding: 8px 12px;
+        }
+    </style>
 </head>
 
 <body>
