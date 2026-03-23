@@ -13,7 +13,7 @@ import { registerHook } from './tasks-plugins.js';
 import { tasksState } from './tasks-state.js';
 import { addTask, updateTask, deleteTask, getTaskById, getTasks } from './tasks-data.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
-import { populateSelect, reinitializeCustomSelect, initCustomSelects } from '../../components/forms/select.js';
+import { populateSelect, reinitializeCustomSelect } from '../../components/forms/select.js';
 import { initSectionNav, destroySectionNav } from '../../layout/layout-plugin-nav-sections.js';
 import { createCrudModal } from '../../components/crud/crud-main.js';
 import { showConfirmModal, closeModal } from '../../components/modal/modal-main.js';
@@ -48,9 +48,6 @@ async function initModalComponents() {
     initStatusToggle();
     populateCategorySelect();
     populateAssignedToSelect();
-
-    const modalEl = document.getElementById('modal-task-edit');
-    if (modalEl) initCustomSelects(modalEl);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -77,7 +74,7 @@ function initDescriptionEditor() {
 
 function initSectionNavigation() {
     const nav = document.getElementById('task-section-navigator');
-    const contentArea = document.querySelector('#modal-task-edit .modal-body > main');
+    const contentArea = document.querySelector('.modal-body > main');
     if (nav && contentArea) initSectionNav(nav, contentArea);
 }
 
