@@ -206,11 +206,11 @@ function cardsExtension({ state, plugins, data }) {
                     </div>
                     <div class="u-reveal">
                         <div>
-                            <div class="group">
-                                <div class="block-list">
+                            <div class="grid">
+                                <div class="block-list col-8">
                                     ${task.description ? `<div class="block-line"><span class="body-m">${task.description}</span></div>` : ''}
                                 </div>
-                                <div class="block-list">
+                                <div class="block-list col-4">
                                     <div data-card-comments></div>
                                     <div class="content-bloc"><div class="content-line"><div class="input-box">
                                         <input type="text" data-card-comment-input placeholder="Коментар...">
@@ -409,9 +409,7 @@ function commentsExtension({ state, plugins, data }) {
 
 function filtersExtension({ state, plugins }) {
     state.activeFilter = 'all';
-    state.statusFilters = { new: true, in_progress: true, done: true, cancelled: true };
-
-    const STATUS_COLORS = { new: 'c-yellow', in_progress: 'c-blue', done: 'c-green', cancelled: 'c-red' };
+    state.statusFilters = { new: true, in_progress: true, done: false, cancelled: true };
 
     plugins.registerHook('onInit', () => {
         const aside = document.querySelector('.aside-body');
@@ -426,7 +424,7 @@ function filtersExtension({ state, plugins }) {
                 const isActive = state.activeFilter === clicked;
                 state.activeFilter = isActive ? 'all' : clicked;
                 aside.querySelectorAll('[data-filter]').forEach(b => {
-                    b.classList.toggle('c-blue', !isActive && b === filterBadge);
+                    b.classList.toggle('c-secondary', !isActive && b === filterBadge);
                 });
                 plugins.runHook('onRender');
                 return;
@@ -437,8 +435,7 @@ function filtersExtension({ state, plugins }) {
             if (statusBadge) {
                 const status = statusBadge.dataset.statusFilter;
                 state.statusFilters[status] = !state.statusFilters[status];
-                const color = STATUS_COLORS[status];
-                if (color) statusBadge.classList.toggle(color);
+                statusBadge.classList.toggle('c-secondary');
                 plugins.runHook('onRender');
                 return;
             }
