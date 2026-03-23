@@ -509,11 +509,11 @@ function uiExtension({ state, plugins, data }) {
         setupAddButtons(state);
 
         // Expand/collapse all
-        setupExpandCollapse(plugins);
+        setupExpandCollapse(plugins, data);
     });
 }
 
-function setupExpandCollapse(plugins) {
+function setupExpandCollapse(plugins, data) {
     const expandBtn = document.getElementById('btn-expand-all');
     const collapseBtn = document.getElementById('btn-collapse-all');
     const container = document.getElementById('tasks-cards-container');
@@ -522,8 +522,8 @@ function setupExpandCollapse(plugins) {
         expandBtn.addEventListener('click', () => {
             container?.querySelectorAll('.u-reveal').forEach(el => el.classList.add('is-open'));
             container?.querySelectorAll('.block[data-task-id]').forEach(block => {
-                const task = block.dataset.taskId;
-                if (task) plugins.runHook('onCardExpand', { task_id: task }, block);
+                const task = data.getById(block.dataset.taskId);
+                if (task) plugins.runHook('onCardExpand', task, block);
             });
         });
     }
