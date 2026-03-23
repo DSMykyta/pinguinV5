@@ -1,24 +1,32 @@
 <!-- ФІЛЬТРИ -->
 <div class="panel-content-scroll">
 
-    <div class="panel-section-title">
-        <span>Фільтри</span>
+    <div class="group column">
+        <label class="label-l">Фільтри</label>
+        <div class="group wrap">
+            <button class="tag" data-filter="assigned_to_me">Для мене</button>
+            <button class="tag" data-filter="created_by_me">Від мене</button>
+        </div>
     </div>
 
-    <div class="group wrap">
-        <button class="tag" data-filter="assigned_to_me">Для мене</button>
-        <button class="tag" data-filter="created_by_me">Від мене</button>
+    <div class="group column">
+        <label class="label-l">Тип</label>
+        <div class="group wrap">
+            <button class="tag c-secondary" data-category-filter="терміново">Терміново</button>
+            <button class="tag c-secondary" data-category-filter="міграція">Міграція</button>
+            <button class="tag c-secondary" data-category-filter="задача">Задача</button>
+            <button class="tag c-secondary" data-category-filter="пам'ятка">Пам'ятка</button>
+        </div>
     </div>
 
-    <div class="panel-section-title">
-        <span>Статус</span>
-    </div>
-
-    <div class="group wrap">
-        <button class="tag c-secondary" data-status-filter="new">Нові</button>
-        <button class="tag c-secondary" data-status-filter="in_progress">В роботі</button>
-        <button class="tag" data-status-filter="done">Готові</button>
-        <button class="tag c-secondary" data-status-filter="cancelled">Скасовано</button>
+    <div class="group column">
+        <label class="label-l">Статус</label>
+        <div class="group wrap">
+            <button class="tag c-secondary" data-status-filter="new">Нові</button>
+            <button class="tag c-secondary" data-status-filter="in_progress">В роботі</button>
+            <button class="tag" data-status-filter="done">Готові</button>
+            <button class="tag c-secondary" data-status-filter="cancelled">Скасовано</button>
+        </div>
     </div>
 
 </div>

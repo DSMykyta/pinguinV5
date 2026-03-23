@@ -157,12 +157,13 @@ function dataLoaderExtension({ state, data, config }) {
 function cardsExtension({ state, plugins, data }) {
 
     function tasksPreFilter(tasks) {
-        const { activeFilter, statusFilters } = state;
+        const { activeFilter, statusFilters, categoryFilters } = state;
         const username = window.currentUser?.username;
         return tasks.filter(task => {
             if (activeFilter === 'assigned_to_me' && task.assigned_to !== username) return false;
             if (activeFilter === 'created_by_me' && task.created_by !== username) return false;
             if (statusFilters && !statusFilters[task.status]) return false;
+            if (categoryFilters && task.category && !categoryFilters[task.category]) return false;
             return true;
         });
     }
@@ -416,6 +417,7 @@ function commentsExtension({ state, plugins, data }) {
 function filtersExtension({ state, plugins }) {
     state.activeFilter = 'all';
     state.statusFilters = { new: true, in_progress: true, done: false, cancelled: true };
+    state.categoryFilters = { 'терміново': true, 'міграція': true, 'задача': true, "пам'ятка": true };
 
     plugins.registerHook('onInit', () => {
         const aside = document.querySelector('.aside-body');
@@ -432,6 +434,16 @@ function filtersExtension({ state, plugins }) {
                 aside.querySelectorAll('[data-filter]').forEach(b => {
                     b.classList.toggle('c-secondary', !isActive && b === filterTag);
                 });
+                plugins.runHook('onRender');
+                return;
+            }
+
+            // Category filter (toggle on/off)
+            const categoryTag = e.target.closest('[data-category-filter]');
+            if (categoryTag) {
+                const cat = categoryTag.dataset.categoryFilter;
+                state.categoryFilters[cat] = !state.categoryFilters[cat];
+                categoryTag.classList.toggle('c-secondary');
                 plugins.runHook('onRender');
                 return;
             }
