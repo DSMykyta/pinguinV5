@@ -26,6 +26,10 @@
     gap: 16px;
 }
 
+.block-group:not(.grid) {
+    max-width: 800px;
+}
+
 .block {
     border: 1px solid var(--color-outline);
     border-radius: var(--radius-l);
@@ -37,9 +41,16 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px;
+    gap: 14px;
+    padding: 12px 16px;
     background: linear-gradient(135deg, var(--color-surface-c-low) 0%, var(--color-surface-c-high) 100%);
     border-bottom: 1px solid var(--color-outline);
+}
+
+.block-header h3 {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 600;
 }
 
 .block-list {
