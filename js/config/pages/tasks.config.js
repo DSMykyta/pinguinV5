@@ -191,15 +191,21 @@ function cardsExtension({ state, plugins, data }) {
         const toName = toUser?.display_name || task.assigned_to || '';
         const namesStr = fromName && toName ? `${escapeHtml(fromName)} → ${escapeHtml(toName)}` : escapeHtml(fromName || toName);
 
+        const fromLabel = fromName ? `Від ${escapeHtml(fromName)}` : '';
+        const toLabel = toName ? `для ${escapeHtml(toName)}` : '';
+        const subLine = [fromLabel, toLabel].filter(Boolean).join(' ');
+
         return `
             <div class="group" data-task-wrap>
                 <span class="dot c-blue${isNew ? '' : ' u-invisible'}"></span>
                 <div class="block" data-task-id="${escapeHtml(task.task_id)}">
                     <div class="block-header" data-action="toggle-task">
-                        <h3>${escapeHtml(task.title || 'Без назви')}</h3>
+                        <div class="group column">
+                            <h3>${escapeHtml(task.title || 'Без назви')}</h3>
+                            ${subLine ? `<span class="body-s">${subLine}</span>` : ''}
+                        </div>
                         <div class="group">
-                            ${namesStr ? `<span class="body-s">${namesStr}</span>` : ''}
-                            ${task.category ? `<span class="body-s">${escapeHtml(task.category)}</span>` : ''}
+                            ${task.category ? `<span class="tag c-tertiary">${escapeHtml(task.category)}</span>` : ''}
                             <span class="tag ${status.color}">${status.label}</span>
                             ${canEdit ? `<button class="btn-icon" data-action="edit-task" aria-label="Редагувати"><span class="material-symbols-outlined">edit</span></button>` : ''}
                         </div>
@@ -417,27 +423,26 @@ function filtersExtension({ state, plugins }) {
         aside._tasksFilterInit = true;
 
         aside.addEventListener('click', (e) => {
-            // Assignment filter (toggle, mutually exclusive)
-            const filterBadge = e.target.closest('[data-filter]');
-            if (filterBadge) {
-                const clicked = filterBadge.dataset.filter;
+            // Assignment filter (toggle)
+            const filterTag = e.target.closest('[data-filter]');
+            if (filterTag) {
+                const clicked = filterTag.dataset.filter;
                 const isActive = state.activeFilter === clicked;
                 state.activeFilter = isActive ? 'all' : clicked;
                 aside.querySelectorAll('[data-filter]').forEach(b => {
-                    b.classList.toggle('c-secondary', !isActive && b === filterBadge);
+                    b.classList.toggle('c-secondary', !isActive && b === filterTag);
                 });
                 plugins.runHook('onRender');
                 return;
             }
 
             // Status filter (toggle on/off)
-            const statusBadge = e.target.closest('[data-status-filter]');
-            if (statusBadge) {
-                const status = statusBadge.dataset.statusFilter;
+            const statusTag = e.target.closest('[data-status-filter]');
+            if (statusTag) {
+                const status = statusTag.dataset.statusFilter;
                 state.statusFilters[status] = !state.statusFilters[status];
-                statusBadge.classList.toggle('c-secondary');
+                statusTag.classList.toggle('c-secondary');
                 plugins.runHook('onRender');
-                return;
             }
         });
     });
