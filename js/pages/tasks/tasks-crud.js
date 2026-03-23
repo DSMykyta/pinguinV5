@@ -11,15 +11,14 @@
 
 import { registerHook } from './tasks-plugins.js';
 import { tasksState } from './tasks-state.js';
-import { addTask, updateTask, deleteTask, getTaskById, getTasks } from './tasks-data.js';
+import { addTask, updateTask, deleteTask, getTaskById } from './tasks-data.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
-import { populateSelect, reinitializeCustomSelect } from '../../components/forms/select.js';
+import { populateSelect, reinitializeCustomSelect, initCustomSelects } from '../../components/forms/select.js';
 import { initSectionNav, destroySectionNav } from '../../layout/layout-plugin-nav-sections.js';
 import { createCrudModal } from '../../components/crud/crud-main.js';
 import { showConfirmModal, closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { tasksPlugins } from './tasks-plugins.js';
-import { generateNextId } from '../../utils/utils-id.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -271,6 +270,7 @@ const crud = createCrudModal({
     entityName: 'Завдання',
     addTitle: 'Нове завдання',
     getTitle: (task) => task.title || 'Завдання',
+    getId: (task) => task.task_id,
     getById: getTaskById,
     add: addTask,
     update: updateTask,

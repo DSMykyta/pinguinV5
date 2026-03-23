@@ -13,28 +13,14 @@ import { renderTaskCards } from './tasks-cards.js';
 import { showToast } from '../../components/feedback/toast.js';
 
 export function init() {
-    registerHook('onInit', setupUI);
+    // Кнопки додавання — вішаємо ОДРАЗУ, незалежно від даних
+    setupAddButtons();
+
+    registerHook('onInit', setupRefreshCharm);
     registerHook('onInit', checkNewTasks);
 }
 
-function setupUI() {
-    const container = document.getElementById('tasks-cards-container');
-    if (!container) return;
-
-    // Refresh charm
-    if (!container._tasksRefreshInit) {
-        container._tasksRefreshInit = true;
-        container.addEventListener('charm:refresh', (e) => {
-            const refreshTask = (async () => {
-                await loadTasks();
-                renderTaskCards();
-                showToast('Дані оновлено', 'success');
-            })();
-            if (e?.detail?.waitUntil) e.detail.waitUntil(refreshTask);
-        });
-    }
-
-    // Add buttons
+function setupAddButtons() {
     const addButtons = [
         document.getElementById('btn-add-task'),
         document.getElementById('btn-add-task-aside')
@@ -47,6 +33,21 @@ function setupUI() {
             const { showAddTaskModal } = await import('./tasks-crud.js');
             showAddTaskModal();
         });
+    });
+}
+
+function setupRefreshCharm() {
+    const container = document.getElementById('tasks-cards-container');
+    if (!container || container._tasksRefreshInit) return;
+    container._tasksRefreshInit = true;
+
+    container.addEventListener('charm:refresh', (e) => {
+        const refreshTask = (async () => {
+            await loadTasks();
+            renderTaskCards();
+            showToast('Дані оновлено', 'success');
+        })();
+        if (e?.detail?.waitUntil) e.detail.waitUntil(refreshTask);
     });
 }
 

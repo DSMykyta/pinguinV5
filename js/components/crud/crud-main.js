@@ -145,11 +145,11 @@ export function createCrudModal(config) {
 
             if (onAfterSave) await onAfterSave(currentId, data);
 
-            if (shouldClose) closeModal();
-            if (plugins) {
-                plugins.runHook('onModalClose');
-                plugins.runHook('onRender');
+            if (shouldClose) {
+                closeModal();
+                if (plugins) plugins.runHook('onModalClose');
             }
+            if (plugins) plugins.runHook('onRender');
         } catch (error) {
             console.error(`CRUD save error [${modalId}]:`, error);
             showToast(`Error saving ${entityName}`, 'error');

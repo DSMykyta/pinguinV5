@@ -90,7 +90,7 @@ function renderCardHtml(task) {
                 </div>
                 <div class="group">
                     <span class="body-s">${assignedStr}${dueDateStr}</span>
-                    ${commentsCount > 0 ? `<span class="body-s"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle">chat</span> ${commentsCount}</span>` : ''}
+                    ${commentsCount > 0 ? `<span class="body-s"><span class="material-symbols-outlined">chat</span> ${commentsCount}</span>` : ''}
                     ${canEdit ? `
                         <button class="btn-icon" data-action="edit-task" data-task-id="${escapeHtml(task.task_id)}" aria-label="Редагувати">
                             <span class="material-symbols-outlined">edit</span>
