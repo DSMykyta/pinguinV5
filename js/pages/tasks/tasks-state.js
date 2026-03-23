@@ -22,8 +22,6 @@ export const tasksState = createPageState({
     custom: {
         tasks: [],
         _dataLoaded: false,
-        tableAPI: null,
-        managedTable: null,
 
         // Фільтри
         activeFilter: 'all',

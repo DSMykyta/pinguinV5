@@ -24,14 +24,14 @@ const page = createPage({
     state: tasksState,
     plugins: tasksPlugins,
     PLUGINS: [
-        () => import('./tasks-table.js'),
+        () => import('./tasks-cards.js'),
         () => import('./tasks-crud.js'),
         () => import('./tasks-ui.js'),
         () => import('./tasks-filter.js'),
         () => import('./tasks-comments.js'),
     ],
     dataLoaders: [loadTasks, loadUsersForTasks],
-    containers: ['tasks-table-container'],
+    containers: ['tasks-cards-container'],
 });
 
 // ═══════════════════════════════════════════════════════════════════════════

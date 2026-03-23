@@ -9,7 +9,7 @@
 import { registerHook } from './tasks-plugins.js';
 import { tasksState } from './tasks-state.js';
 import { loadTasks } from './tasks-data.js';
-import { renderTasksTable } from './tasks-table.js';
+import { renderTaskCards } from './tasks-cards.js';
 import { showToast } from '../../components/feedback/toast.js';
 
 export function init() {
@@ -18,16 +18,16 @@ export function init() {
 }
 
 function setupUI() {
-    const tableContainer = document.getElementById('tasks-table-container');
-    if (!tableContainer) return;
+    const container = document.getElementById('tasks-cards-container');
+    if (!container) return;
 
     // Refresh charm
-    if (!tableContainer._tasksRefreshInit) {
-        tableContainer._tasksRefreshInit = true;
-        tableContainer.addEventListener('charm:refresh', (e) => {
+    if (!container._tasksRefreshInit) {
+        container._tasksRefreshInit = true;
+        container.addEventListener('charm:refresh', (e) => {
             const refreshTask = (async () => {
                 await loadTasks();
-                renderTasksTable();
+                renderTaskCards();
                 showToast('Дані оновлено', 'success');
             })();
             if (e?.detail?.waitUntil) e.detail.waitUntil(refreshTask);

@@ -69,7 +69,7 @@ function initDescriptionEditor() {
 
 function initSectionNavigation() {
     const nav = document.getElementById('task-section-navigator');
-    const content = document.querySelector('[data-modal-id="task-edit"] .modal-body > main');
+    const content = document.querySelector('#modal-task-edit .modal-body > main');
     if (nav && content) initSectionNav(nav, content);
 }
 
@@ -93,7 +93,7 @@ function populateSelects() {
             }).join('');
     }
 
-    const modalEl = document.querySelector('[data-modal-id="task-edit"]');
+    const modalEl = document.getElementById('modal-task-edit');
     if (modalEl) initCustomSelects(modalEl);
 }
 

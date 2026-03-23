@@ -16,8 +16,7 @@ import { showToast } from '../../components/feedback/toast.js';
 // RENDER
 // ═══════════════════════════════════════════════════════════════════════════
 
-function renderComments(task) {
-    const container = document.getElementById('task-comments-container');
+function renderCommentsIntoContainer(task, container) {
     if (!container) return;
 
     const comments = safeJsonParse(task.comments, []);
@@ -47,8 +46,11 @@ function renderComments(task) {
 // ADD COMMENT
 // ═══════════════════════════════════════════════════════════════════════════
 
-async function addComment(taskId) {
-    const input = document.getElementById('task-comment-input');
+async function addComment(taskId, contextEl) {
+    // Find comment input: either in modal or in card block
+    const input = contextEl
+        ? contextEl.querySelector('[data-card-comment-input]')
+        : document.getElementById('task-comment-input');
     if (!input) return;
 
     const text = input.value.trim();
@@ -71,7 +73,15 @@ async function addComment(taskId) {
     try {
         await updateTask(taskId, { comments: JSON.stringify(comments) });
         input.value = '';
-        renderComments(task);
+
+        // Re-render comments in context
+        if (contextEl) {
+            const cardCommentsEl = contextEl.querySelector('[data-card-comments]');
+            renderCommentsIntoContainer(task, cardCommentsEl);
+        } else {
+            renderCommentsIntoContainer(task, document.getElementById('task-comments-container'));
+        }
+
         showToast('Коментар додано', 'success');
     } catch (error) {
         console.error('Помилка додавання коментаря:', error);
@@ -86,9 +96,10 @@ async function addComment(taskId) {
 let _currentTaskId = null;
 
 export function init() {
+    // Modal: render comments when form is filled
     registerHook('onModalFill', (task) => {
         _currentTaskId = task.task_id;
-        renderComments(task);
+        renderCommentsIntoContainer(task, document.getElementById('task-comments-container'));
     });
 
     registerHook('onModalOpen', (task) => {
@@ -98,7 +109,7 @@ export function init() {
         if (btn && !btn._commentsInit) {
             btn._commentsInit = true;
             btn.addEventListener('click', () => {
-                if (_currentTaskId) addComment(_currentTaskId);
+                if (_currentTaskId) addComment(_currentTaskId, null);
             });
         }
 
@@ -107,7 +118,7 @@ export function init() {
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && _currentTaskId) {
                     e.preventDefault();
-                    addComment(_currentTaskId);
+                    addComment(_currentTaskId, null);
                 }
             });
         }
@@ -115,5 +126,16 @@ export function init() {
 
     registerHook('onModalClose', () => {
         _currentTaskId = null;
+    });
+
+    // Card: render comments when card is expanded
+    registerHook('onCardExpand', (task, block) => {
+        const cardCommentsEl = block.querySelector('[data-card-comments]');
+        renderCommentsIntoContainer(task, cardCommentsEl);
+    });
+
+    // Card: add comment from inline input
+    registerHook('onCardAddComment', (taskId, block) => {
+        addComment(taskId, block);
     });
 }
