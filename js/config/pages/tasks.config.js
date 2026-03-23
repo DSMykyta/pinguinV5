@@ -180,49 +180,39 @@ function cardsExtension({ state, plugins, data }) {
     function renderCardHtml(task) {
         const username = window.currentUser?.username;
         const isAdmin = window.currentUser?.role === 'admin';
-        const canEdit = task.created_by === username || isAdmin;
-        const isAssignee = task.assigned_to === username;
+        const canEdit = task.created_by === username || task.assigned_to === username || isAdmin;
         const status = STATUS_TAG[task.status] || STATUS_TAG.new;
+        const isNew = task.is_new === '1' && task.assigned_to === username;
 
+        const fromName = task.created_by_display || task.created_by || '';
         const toUser = state.usersList?.find(u => u.username === task.assigned_to);
         const toName = toUser?.display_name || task.assigned_to || '';
+        const namesStr = fromName && toName ? `${escapeHtml(fromName)} → ${escapeHtml(toName)}` : escapeHtml(fromName || toName);
 
         return `
-            <div class="block" data-task-id="${escapeHtml(task.task_id)}">
-                <div class="block-header" data-action="toggle-task">
-                    <div class="group">
-                        <span class="dot ${status.color}"></span>
+            <div class="group" data-task-wrap>
+                <span class="dot c-blue${isNew ? '' : ' u-invisible'}"></span>
+                <div class="block" data-task-id="${escapeHtml(task.task_id)}">
+                    <div class="block-header" data-action="toggle-task">
                         <h3>${escapeHtml(task.title || 'Без назви')}</h3>
-                        <span class="tag ${status.color}">${status.label}</span>
-                        ${task.category ? `<span class="body-s">${escapeHtml(task.category)}</span>` : ''}
+                        <div class="group">
+                            ${namesStr ? `<span class="body-s">${namesStr}</span>` : ''}
+                            ${task.category ? `<span class="body-s">${escapeHtml(task.category)}</span>` : ''}
+                            <span class="tag ${status.color}">${status.label}</span>
+                            ${canEdit ? `<button class="btn-icon" data-action="edit-task" aria-label="Редагувати"><span class="material-symbols-outlined">edit</span></button>` : ''}
+                        </div>
                     </div>
-                    <div class="group">
-                        ${toName ? `<span class="body-s">${escapeHtml(toName)}</span>` : ''}
-                        ${canEdit ? `<button class="btn-icon" data-action="edit-task" aria-label="Редагувати"><span class="material-symbols-outlined">edit</span></button>` : ''}
-                    </div>
-                </div>
-                <div class="u-reveal">
-                    <div>
-                        ${task.description ? `<div class="block-list"><div class="block-line"><span class="body-m">${task.description}</span></div></div>` : ''}
-                        ${isAssignee || canEdit ? `
-                        <div class="block-list">
-                            <div class="block-line">
-                                <label class="block-line-label">Статус</label>
-                                <div class="switch switch-compact switch-fit">
-                                    ${Object.entries(STATUS_TAG).map(([key, val]) => `
-                                        <input type="radio" id="cs-${task.task_id}-${key}" name="card-status-${task.task_id}" value="${key}" ${task.status === key ? 'checked' : ''}>
-                                        <label for="cs-${task.task_id}-${key}" class="switch-label">${val.label}</label>
-                                    `).join('')}
+                    <div class="u-reveal">
+                        <div>
+                            ${task.description ? `<div class="block-list"><div class="block-line"><span class="body-m">${task.description}</span></div></div>` : ''}
+                            <div class="block-list" data-card-comments></div>
+                            <div class="block-list">
+                                <div class="input-box">
+                                    <input type="text" data-card-comment-input placeholder="Коментар...">
+                                    <button class="btn-icon" data-action="add-card-comment" aria-label="Надіслати">
+                                        <span class="material-symbols-outlined">send</span>
+                                    </button>
                                 </div>
-                            </div>
-                        </div>` : ''}
-                        <div class="block-list" data-card-comments></div>
-                        <div class="block-list">
-                            <div class="input-box">
-                                <input type="text" data-card-comment-input placeholder="Коментар...">
-                                <button class="btn-icon" data-action="add-card-comment" aria-label="Надіслати">
-                                    <span class="material-symbols-outlined">send</span>
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -239,7 +229,7 @@ function cardsExtension({ state, plugins, data }) {
             container.innerHTML = '<div class="empty-state"><span class="body-s">Завдання не знайдено</span></div>';
             return;
         }
-        container.innerHTML = `<div class="block-group">${tasks.map(renderCardHtml).join('')}</div>`;
+        container.innerHTML = `<div class="block-group">${tasks.map(t => renderCardHtml(t)).join('')}</div>`;
     }
 
     function initClickHandlers() {
@@ -288,28 +278,6 @@ function cardsExtension({ state, plugins, data }) {
                     }).catch(() => {});
                 }
                 plugins.runHook('onCardExpand', task, block);
-            }
-        });
-
-        // Status change via switch in expanded card
-        container.addEventListener('change', async (e) => {
-            const radio = e.target;
-            if (!radio.name?.startsWith('card-status-')) return;
-            const block = radio.closest('.block[data-task-id]');
-            if (!block) return;
-            const taskId = block.dataset.taskId;
-            const newStatus = radio.value;
-            try {
-                await data.update(taskId, { status: newStatus });
-                const statusInfo = STATUS_TAG[newStatus] || STATUS_TAG.new;
-                const tag = block.querySelector('.block-header .tag');
-                if (tag) { tag.className = `tag ${statusInfo.color}`; tag.textContent = statusInfo.label; }
-                const dot = block.querySelector('.block-header .dot');
-                if (dot) dot.className = `dot ${statusInfo.color}`;
-                const { showToast } = await import('../../components/feedback/toast.js');
-                showToast('Статус оновлено', 'success');
-            } catch (error) {
-                console.error('Помилка зміни статусу:', error);
             }
         });
 
@@ -445,12 +413,14 @@ function filtersExtension({ state, plugins }) {
         aside._tasksFilterInit = true;
 
         aside.addEventListener('click', (e) => {
-            // Assignment filter (mutually exclusive)
+            // Assignment filter (toggle, mutually exclusive)
             const filterBadge = e.target.closest('[data-filter]');
             if (filterBadge) {
-                state.activeFilter = filterBadge.dataset.filter;
+                const clicked = filterBadge.dataset.filter;
+                const isActive = state.activeFilter === clicked;
+                state.activeFilter = isActive ? 'all' : clicked;
                 aside.querySelectorAll('[data-filter]').forEach(b => {
-                    b.classList.toggle('c-blue', b === filterBadge);
+                    b.classList.toggle('c-blue', !isActive && b === filterBadge);
                 });
                 plugins.runHook('onRender');
                 return;
@@ -510,13 +480,38 @@ function uiExtension({ state, plugins, data }) {
             }
         }
 
-        // Add buttons
+        // Add button (aside FAB only)
         setupAddButtons(state);
+
+        // Expand/collapse all
+        setupExpandCollapse(plugins);
     });
 }
 
+function setupExpandCollapse(plugins) {
+    const expandBtn = document.getElementById('btn-expand-all');
+    const collapseBtn = document.getElementById('btn-collapse-all');
+    const container = document.getElementById('tasks-cards-container');
+    if (expandBtn && !expandBtn._init) {
+        expandBtn._init = true;
+        expandBtn.addEventListener('click', () => {
+            container?.querySelectorAll('.u-reveal').forEach(el => el.classList.add('is-open'));
+            container?.querySelectorAll('.block[data-task-id]').forEach(block => {
+                const task = block.dataset.taskId;
+                if (task) plugins.runHook('onCardExpand', { task_id: task }, block);
+            });
+        });
+    }
+    if (collapseBtn && !collapseBtn._init) {
+        collapseBtn._init = true;
+        collapseBtn.addEventListener('click', () => {
+            container?.querySelectorAll('.u-reveal').forEach(el => el.classList.remove('is-open'));
+        });
+    }
+}
+
 function setupAddButtons(state) {
-    ['btn-add-task', 'btn-add-task-aside'].forEach(btnId => {
+    ['btn-add-task-aside'].forEach(btnId => {
         const btn = document.getElementById(btnId);
         if (!btn || btn._tasksAddInit) return;
         btn._tasksAddInit = true;

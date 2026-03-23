@@ -15,7 +15,12 @@
             margin: 0 auto;
         }
 
-        #tasks-cards-container .block {
+        #tasks-cards-container .block-group > .group {
+            margin-bottom: 0;
+        }
+
+        #tasks-cards-container .group > .block {
+            flex: 1;
             border: none;
         }
 
@@ -42,8 +47,11 @@
             </div>
 
             <div class="group">
-                <button class="btn-icon" id="btn-add-task" aria-label="Додати завдання">
-                    <span class="material-symbols-outlined">add</span>
+                <button class="btn-icon" id="btn-expand-all" aria-label="Розгорнути все">
+                    <span class="material-symbols-outlined">unfold_more</span>
+                </button>
+                <button class="btn-icon" id="btn-collapse-all" aria-label="Згорнути все">
+                    <span class="material-symbols-outlined">unfold_less</span>
                 </button>
             </div>
         </div>
