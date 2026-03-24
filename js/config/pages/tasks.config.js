@@ -12,6 +12,7 @@ import { callSheetsAPI } from '../../utils/utils-api-client.js';
 import { escapeHtml } from '../../utils/utils-text.js';
 import { safeJsonParse } from '../../utils/utils-json.js';
 import { populateSelect } from '../../components/forms/select.js';
+import { actionButton } from '../../components/actions/actions-main.js';
 import { nowLocal, formatDateTime } from '../../utils/utils-date.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -93,11 +94,17 @@ export default {
         initialFilters: { status: ['new', 'in_progress'] },
         searchColumns: ['task_id', 'title', 'description', 'created_by_display', 'assigned_to'],
         emptyMessage: 'Завдання не знайдено',
-        actions: ['edit'],
-        rowActions: (row) => {
+        actions: [],
+        rowActions: (row, idField, context) => {
             const username = window.currentUser?.username;
+            const isAdmin = window.currentUser?.role === 'admin';
+            const isAuthor = row.created_by === username;
             const isNew = row.is_new === '1' && row.assigned_to === username;
-            return isNew ? '<span class="dot c-blue"></span>' : '';
+            const dot = isNew ? '<span class="dot c-blue"></span>' : '';
+            if (isAuthor || isAdmin) {
+                return dot + actionButton({ action: 'edit', rowId: row[idField], context });
+            }
+            return dot;
         },
     },
 
