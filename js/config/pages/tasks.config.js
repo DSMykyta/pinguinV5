@@ -204,24 +204,29 @@ function cardsExtension({ state, plugins, data, config }) {
             </button>`,
         renderContent: (row) => {
             const uid = row.task_id || Math.random().toString(36).slice(2);
+            const currentStatus = row.status || 'new';
+            const statusRadios = Object.entries(STATUS_TAG).map(([key, s]) =>
+                `<input type="radio" id="st-${key}-${uid}" name="st-${uid}" value="${key}"${key === currentStatus ? ' checked' : ''}>` +
+                `<label for="st-${key}-${uid}" class="switch-label">${s.label}</label>`
+            ).join('');
             return `
-            <div class="switch switch-fit switch-compact" data-expand-switch>
-                <input type="radio" id="sw-desc-${uid}" name="sw-${uid}" value="description" checked>
-                <label for="sw-desc-${uid}" class="switch-label">Опис</label>
-                <input type="radio" id="sw-com-${uid}" name="sw-${uid}" value="comments">
-                <label for="sw-com-${uid}" class="switch-label">Коментарі</label>
+            <div class="switch switch-fit switch-compact" data-status-switch>
+                ${statusRadios}
             </div>
-            <div class="tab-content active" data-tab-panel="description">
-                ${row.description ? `<div class="rich-editor-content">${row.description}</div>` : '<div class="empty-state"><span class="body-s">Опис відсутній</span></div>'}
-            </div>
-            <div class="tab-content" data-tab-panel="comments">
-                <div class="comments-list" data-card-comments></div>
-                <div class="content-bloc"><div class="content-line"><div class="input-box">
-                    <input type="text" data-card-comment-input placeholder="Коментар...">
-                    <button class="btn-icon" data-action="add-card-comment" aria-label="Надіслати">
-                        <span class="material-symbols-outlined">send</span>
-                    </button>
-                </div></div></div>
+            <div class="grid">
+                <div class="col-8">
+                    ${row.description ? `<div class="rich-editor-content">${row.description}</div>` : ''}
+                </div>
+                <div class="col-4">
+                    <label class="label-l">Коментарі</label>
+                    <div data-card-comments></div>
+                    <div class="content-bloc"><div class="content-line"><div class="input-box">
+                        <input type="text" data-card-comment-input placeholder="Коментар...">
+                        <button class="btn-icon" data-action="add-card-comment" aria-label="Надіслати">
+                            <span class="material-symbols-outlined">send</span>
+                        </button>
+                    </div></div></div>
+                </div>
             </div>`;
         },
     };
@@ -280,15 +285,27 @@ function cardsExtension({ state, plugins, data, config }) {
             }
         });
 
-        // Switch tabs (Опис / Коментарі)
-        container.addEventListener('change', (e) => {
+        // Status switch — змінює статус завдання
+        container.addEventListener('change', async (e) => {
             const radio = e.target;
-            if (!radio.closest('[data-expand-switch]')) return;
-            const reveal = radio.closest('.u-reveal');
-            if (!reveal) return;
-            reveal.querySelectorAll('[data-tab-panel]').forEach(p => {
-                p.classList.toggle('active', p.dataset.tabPanel === radio.value);
-            });
+            if (!radio.closest('[data-status-switch]')) return;
+            const row = radio.closest('.pseudo-table-row');
+            if (!row) return;
+            const taskId = row.dataset.rowId;
+            const newStatus = radio.value;
+            try {
+                await data.update(taskId, { status: newStatus, updated_at: localNow(), updated_by: window.currentUser?.username || '' });
+                const statusCell = row.querySelector('.pseudo-table-cell .tag');
+                if (statusCell) {
+                    const s = STATUS_TAG[newStatus] || STATUS_TAG.new;
+                    statusCell.className = `tag ${s.color}`;
+                    statusCell.textContent = s.label;
+                }
+                const { showToast } = await import('../../components/feedback/toast.js');
+                showToast(`Статус: ${STATUS_TAG[newStatus]?.label}`, 'success');
+            } catch (err) {
+                console.error('Помилка зміни статусу:', err);
+            }
         });
 
         // Enter in comment input
