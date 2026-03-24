@@ -27,6 +27,8 @@ import { initPaginationCharm }      from './components/charms/pagination/paginat
 import { initVirtualScrollCharm }   from './components/charms/charm-virtual-scroll.js';
 import { initScrollFadeCharm }     from './components/charms/charm-scroll-fade.js';
 import { initDropzoneCharm }       from './components/charms/charm-dropzone.js';
+import { callSheetsAPI }           from './utils/utils-api-client.js';
+import { showToast }               from './components/feedback/toast.js';
 
 
 export async function initCore() {
@@ -53,4 +55,25 @@ export async function initCore() {
     initVirtualScrollCharm();
     initScrollFadeCharm();
     initDropzoneCharm();
+
+    // Перевірка нових завдань після авторизації
+    document.addEventListener('auth-state-changed', async (e) => {
+        if (!e.detail.isAuthorized || !e.detail.user?.username) return;
+        try {
+            const result = await callSheetsAPI('get', { range: 'Tasks!A:N', spreadsheetType: 'tasks' });
+            if (!result || result.length <= 1) return;
+            const headers = result[0];
+            const assignedIdx = headers.indexOf('assigned_to');
+            const isNewIdx = headers.indexOf('is_new');
+            if (assignedIdx < 0 || isNewIdx < 0) return;
+            const username = e.detail.user.username;
+            const count = result.slice(1).filter(r => r[assignedIdx] === username && r[isNewIdx] === '1').length;
+            if (count > 0) {
+                showToast(`У вас ${count} нових завдань`, 'info', {
+                    duration: 8000,
+                    action: { label: 'Перейти', onClick: () => { window.location.href = 'tasks.html'; } }
+                });
+            }
+        } catch (_) { /* silent */ }
+    });
 }

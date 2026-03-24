@@ -12,7 +12,6 @@ import { callSheetsAPI } from '../../utils/utils-api-client.js';
 import { escapeHtml } from '../../utils/utils-text.js';
 import { safeJsonParse } from '../../utils/utils-json.js';
 import { populateSelect } from '../../components/forms/select.js';
-import { actionButton } from '../../components/actions/actions-main.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONSTANTS
@@ -69,7 +68,7 @@ export default {
     table: {
         containerId: 'tasks-cards-container',
         columns: [
-            { id: 'title', label: 'Назва', type: 'name', span: 3, sortable: true },
+            { id: 'title', label: 'Назва', type: 'name', span: 4, sortable: true },
             {
                 id: 'created_by_display', label: 'Від', type: 'text', span: 2, sortable: true, filterable: true,
                 render: (value, row) => {
@@ -88,7 +87,7 @@ export default {
                     : ''
             },
             {
-                id: 'status', label: 'Статус', span: 2, sortable: true, filterable: true,
+                id: 'status', label: 'Статус', span: 1, sortable: true, filterable: true,
                 render: (value) => {
                     const s = STATUS_TAG[value] || STATUS_TAG.new;
                     return `<span class="tag ${s.color}" data-action="cycle-status">${s.label}</span>`;
@@ -98,14 +97,10 @@ export default {
         searchColumns: ['task_id', 'title', 'description', 'created_by_display', 'assigned_to'],
         emptyMessage: 'Завдання не знайдено',
         actions: ['edit'],
-        rowActions: (row, idField, name) => {
+        rowActions: (row) => {
             const username = window.currentUser?.username;
-            const isAdmin = window.currentUser?.role === 'admin';
-            const canEdit = row.created_by === username || row.assigned_to === username || isAdmin;
             const isNew = row.is_new === '1' && row.assigned_to === username;
-            const dot = isNew ? '<span class="dot c-blue"></span>' : '';
-            const edit = canEdit ? actionButton({ action: 'edit', rowId: row[idField], context: name }) : '';
-            return `${dot}${edit}`;
+            return isNew ? '<span class="dot c-blue"></span>' : '';
         },
     },
 
@@ -204,6 +199,8 @@ function cardsExtension({ plugins, data, config }) {
     config.table.expandable = {
         showSaveButton: false,
         showOpenFullButton: false,
+        closeCellHeader: '',
+        renderCloseCellContent: () => '<span class="material-symbols-outlined">expand_more</span>',
         renderContent: (row) => `
             <div class="grid">
                 <div class="col-8">
@@ -402,17 +399,6 @@ function uiExtension({ state, plugins, data }) {
                 })();
                 if (e?.detail?.waitUntil) e.detail.waitUntil(refreshTask);
             });
-        }
-
-        // Check new tasks
-        const username = window.currentUser?.username;
-        if (username) {
-            const newTasks = data.getAll().filter(t => t.is_new === '1' && t.assigned_to === username);
-            if (newTasks.length > 0) {
-                import('../../components/feedback/toast.js').then(({ showToast }) => {
-                    showToast(`У вас ${newTasks.length} нових завдань!`, 'info');
-                });
-            }
         }
 
         // Add button (aside FAB only)
