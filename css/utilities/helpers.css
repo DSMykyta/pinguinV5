@@ -69,6 +69,7 @@
 
 .u-reveal.is-open {
     grid-template-rows: 1fr;
+    padding: 12px;
 }
 
 .u-reveal>* {

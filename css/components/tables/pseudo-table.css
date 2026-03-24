@@ -106,6 +106,12 @@
     width: 100%;
 }
 
+/* Rich content в expanded row — рамка для читабельності */
+.pseudo-table-row > .u-reveal .rich-editor-content {
+    border: 1px solid var(--color-outline);
+    border-radius: 8px;
+}
+
 
 .pseudo-table-row:not(:has(.u-reveal.is-open)):hover {
     background-color: var(--color-surface-c-low);
