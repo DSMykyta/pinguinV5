@@ -7,11 +7,11 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 import { getSeoDOM } from './gse-dom.js';
-import { generateSeoTitle, generateSeoDescription, generateSeoKeywords } from './gse-generators.js';
+import { generateSeoTitle, generateSeoDescription, generateSeoKeywords } from './gse-generators-v2.js';
 import { checkSafety } from './gse-helpers.js';
 import { optionalFunctions } from './gse-plugins.js';
 import { updateCountryDisplay } from './gse-brand.js';
-import { updateCounters } from './gse-counters.js';
+import { updateCounters } from './gse-counters-v2.js';
 import { updateBrandAndProductFromText } from './gse-parser.js';
 import { debounce } from '../../utils/utils-debounce.js';
 

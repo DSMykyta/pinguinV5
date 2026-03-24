@@ -11,7 +11,7 @@
  * Тригери: badge-и з matched triggers.
  */
 
-import { generateSeoTitle, generateSeoDescription, generateSeoKeywords } from '../../generators/generator-seo/gse-generators.js';
+import { generateSeoTitle, generateSeoDescription, generateSeoKeywords } from '../../generators/generator-seo/gse-generators-v2.js';
 import { fetchData as fetchSeoData, getTriggersData } from '../../generators/generator-seo/gse-data.js';
 import { showToast } from '../../components/feedback/toast.js';
 
