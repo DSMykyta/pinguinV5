@@ -193,12 +193,16 @@ function dataLoaderExtension({ state, data, config }) {
 // EXTENSION: CARDS
 // ═══════════════════════════════════════════════════════════════════════════
 
-function cardsExtension({ plugins, data, config }) {
+function cardsExtension({ state, plugins, data, config }) {
 
     // Expandable — u-reveal content for each row
     config.table.expandable = {
         showSaveButton: false,
         showOpenFullButton: false,
+        renderCloseCellContent: () =>
+            `<button class="btn-icon flip" data-action="toggle-expand" aria-label="Розгорнути">
+                <span class="material-symbols-outlined">expand_more</span>
+            </button>`,
         renderContent: (row) => `
             <div class="grid">
                 <div class="col-8">
@@ -215,19 +219,6 @@ function cardsExtension({ plugins, data, config }) {
                     </div></div></div>
                 </div>
             </div>`,
-        onExpand: (rowEl, row) => {
-            if (!row) return;
-            const username = window.currentUser?.username;
-            if (row.is_new === '1' && row.assigned_to === username) {
-                row.is_new = '0';
-                callSheetsAPI('update', {
-                    range: `${SHEET_NAME}!N${row._rowIndex}`,
-                    values: [['0']],
-                    spreadsheetType: 'tasks'
-                }).catch(() => {});
-            }
-            plugins.runHook('onCardExpand', row, rowEl);
-        },
     };
 
     // Status cycling
@@ -246,13 +237,26 @@ function cardsExtension({ plugins, data, config }) {
         }
     }
 
-    // Click handlers for status cycling + comments
+    // Перехоплюємо expand-edit → модал (capture phase, до expandable plugin)
     plugins.registerHook('onInit', () => {
         const container = document.getElementById('tasks-cards-container');
         if (!container || container._tasksClickInit) return;
         container._tasksClickInit = true;
 
+        // Edit button → modal (capture phase перехоплює до expandable plugin)
         container.addEventListener('click', (e) => {
+            const editBtn = e.target.closest('[data-action="expand-edit"]');
+            if (!editBtn) return;
+            e.stopImmediatePropagation();
+            const row = editBtn.closest('.pseudo-table-row');
+            if (!row) return;
+            const crud = state._crudModule;
+            if (crud) crud.showEdit(row.dataset.rowId);
+        }, true);
+
+        // Решта кліків (bubble phase)
+        container.addEventListener('click', (e) => {
+            // Cycle status
             if (e.target.closest('[data-action="cycle-status"]')) {
                 e.stopPropagation();
                 const row = e.target.closest('.pseudo-table-row');
@@ -260,27 +264,42 @@ function cardsExtension({ plugins, data, config }) {
                 cycleStatus(row.dataset.rowId);
                 return;
             }
+            // Add comment
             if (e.target.closest('[data-action="add-card-comment"]')) {
                 const row = e.target.closest('.pseudo-table-row');
                 if (!row) return;
                 plugins.runHook('onCardAddComment', row.dataset.rowId, row);
                 return;
             }
-            // Кліки на кнопки/інпути — пропускаємо (expandable plugin обробить)
-            if (e.target.closest('button, [data-action], input, textarea')) return;
-            // Клік на рядок — toggle expand/collapse
-            const row = e.target.closest('.pseudo-table-row');
-            if (row) {
+            // Toggle expand — chevron button
+            const toggleBtn = e.target.closest('[data-action="toggle-expand"]');
+            if (toggleBtn) {
+                const row = toggleBtn.closest('.pseudo-table-row');
+                if (!row) return;
                 const reveal = row.querySelector('.u-reveal');
                 if (!reveal) return;
-                if (reveal.classList.contains('is-open')) {
-                    row.querySelector('[data-action="expand-close"]')?.click();
-                } else {
-                    row.querySelector('[data-action="expand-edit"]')?.click();
+                const isOpen = reveal.classList.toggle('is-open');
+                toggleBtn.classList.toggle('open', isOpen);
+                if (isOpen) {
+                    const task = data.getById(row.dataset.rowId);
+                    if (task) {
+                        const username = window.currentUser?.username;
+                        if (task.is_new === '1' && task.assigned_to === username) {
+                            task.is_new = '0';
+                            callSheetsAPI('update', {
+                                range: `${SHEET_NAME}!N${task._rowIndex}`,
+                                values: [['0']],
+                                spreadsheetType: 'tasks'
+                            }).catch(() => {});
+                        }
+                        plugins.runHook('onCardExpand', task, row);
+                    }
                 }
+                return;
             }
         });
 
+        // Enter in comment input
         container.addEventListener('keydown', (e) => {
             if (e.key !== 'Enter') return;
             const input = e.target.closest('[data-card-comment-input]');
@@ -427,24 +446,20 @@ function setupExpandCollapse() {
     if (expandBtn && !expandBtn._init) {
         expandBtn._init = true;
         expandBtn.addEventListener('click', () => {
-            container?.querySelectorAll('.pseudo-table-row').forEach(row => {
-                const reveal = row.querySelector('.u-reveal');
-                if (reveal && !reveal.classList.contains('is-open')) {
-                    const editBtn = row.querySelector('[data-action="expand-edit"]');
-                    if (editBtn) editBtn.click();
-                }
+            container?.querySelectorAll('[data-action="toggle-expand"]').forEach(btn => {
+                const row = btn.closest('.pseudo-table-row');
+                const reveal = row?.querySelector('.u-reveal');
+                if (reveal && !reveal.classList.contains('is-open')) btn.click();
             });
         });
     }
     if (collapseBtn && !collapseBtn._init) {
         collapseBtn._init = true;
         collapseBtn.addEventListener('click', () => {
-            container?.querySelectorAll('.pseudo-table-row').forEach(row => {
-                const reveal = row.querySelector('.u-reveal');
-                if (reveal && reveal.classList.contains('is-open')) {
-                    const closeBtn = row.querySelector('[data-action="expand-close"]');
-                    if (closeBtn) closeBtn.click();
-                }
+            container?.querySelectorAll('[data-action="toggle-expand"]').forEach(btn => {
+                const row = btn.closest('.pseudo-table-row');
+                const reveal = row?.querySelector('.u-reveal');
+                if (reveal && reveal.classList.contains('is-open')) btn.click();
             });
         });
     }
