@@ -96,6 +96,7 @@
 /* glossary-article.css — видалено, стилі в section-misc.css */
 @import url('components/content/section-misc.css');
 @import url('components/content/block.css');
+@import url('components/content/dialogue.css');
 
 /* === COMPONENTS - OTHER === */
 @import url('components/rich-editor.css');

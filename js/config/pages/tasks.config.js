@@ -219,7 +219,7 @@ function cardsExtension({ state, plugins, data, config }) {
                 </div>
                 <div class="col-4">
                     <label class="label-l">Коментарі</label>
-                    <div data-card-comments></div>
+                    <div class="dialogue" data-card-comments></div>
                     <div class="content-bloc"><div class="content-line"><div class="input-box">
                         <input type="text" data-card-comment-input placeholder="Коментар...">
                         <button class="btn-icon" data-action="add-card-comment" aria-label="Надіслати">
@@ -336,18 +336,12 @@ function commentsExtension({ plugins, data }) {
             return;
         }
         container.innerHTML = comments.map(c => `
-            <div class="content-bloc-container spaced">
-                <div class="content-bloc">
-                    <div class="content-line panel">
-                        <div class="group column">
-                            <div class="group">
-                                <span class="label-l">${escapeHtml(c.display_name || c.author || '')}</span>
-                                <span class="body-s">${escapeHtml(c.created_at || '')}</span>
-                            </div>
-                            <span class="body-m">${escapeHtml(c.text || '')}</span>
-                        </div>
-                    </div>
+            <div class="dialogue-message">
+                <div class="dialogue-header">
+                    <span class="label-l">${escapeHtml(c.display_name || c.author || '')}</span>
+                    <span class="body-s">${escapeHtml(c.created_at || '')}</span>
                 </div>
+                <p class="dialogue-text">${escapeHtml(c.text || '')}</p>
             </div>
         `).join('');
     }

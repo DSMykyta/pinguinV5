@@ -1,0 +1,58 @@
+/**
+ * COMPONENT: Dialogue
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Блок повідомлень/коментарів у стилі діалогу.
+ * Список повідомлень з автором, часом і текстом.
+ *
+ * HTML ПРИКЛАД:
+ * <div class="dialogue">
+ *     <div class="dialogue-message">
+ *         <div class="dialogue-header">
+ *             <span class="label-l">Автор</span>
+ *             <span class="body-s">2026-03-23 15:02</span>
+ *         </div>
+ *         <p class="dialogue-text">Текст повідомлення</p>
+ *     </div>
+ * </div>
+ *
+ * КЛАСИ:
+ * - .dialogue — контейнер списку повідомлень (scroll)
+ * - .dialogue-message — одне повідомлення
+ * - .dialogue-header — автор + час
+ * - .dialogue-text — текст повідомлення
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - root.css (--color-surface-c-low, --color-outline, --color-on-surface-v)
+ * - typography.css (.label-l, .body-s)
+ */
+
+.dialogue {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.dialogue-message {
+    padding: 8px 12px;
+    background: var(--color-surface-c-low);
+    border-radius: 8px;
+}
+
+.dialogue-header {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 2px;
+}
+
+.dialogue-header .body-s {
+    color: var(--color-on-surface-v);
+}
+
+.dialogue-text {
+    margin: 0;
+    line-height: 1.45;
+}
