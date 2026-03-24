@@ -45,8 +45,19 @@ const UA_TO_LAT = {
     'Ю': 'Yu',  'ю': 'iu',
     'Я': 'Ya',  'я': 'ia',
     '\'': '',
-    ''': '',
+    '\u2019': '',
+    // RU fallback
+    'Ё': 'Yo',  'ё': 'yo',
+    'Ы': 'Y',   'ы': 'y',
+    'Э': 'E',   'э': 'e',
 };
+
+// Lowercase-only map для slugify/normalizeName
+const TRANSLIT_LOWER = {};
+for (const [k, v] of Object.entries(UA_TO_LAT)) {
+    const lk = k.toLowerCase();
+    if (!TRANSLIT_LOWER[lk]) TRANSLIT_LOWER[lk] = v.toLowerCase();
+}
 
 // Зворотна таблиця (multi-char → UA), сортована по довжині ключа (найдовші першими)
 const LAT_TO_UA_MULTI = [
@@ -96,6 +107,40 @@ const LAT_TO_UA_SINGLE = {
  */
 export function transliterateToLatin(str) {
     return [...str].map(ch => UA_TO_LAT[ch] ?? ch).join('');
+}
+
+/**
+ * Зворотна транслітерація Latin → UA
+ * (наближена — транслітерація не є бієктивною)
+ * @param {string} str
+ * @returns {string}
+ */
+/**
+ * Транслітерація + slug для URL: "Optimum Nutrition 100% Whey" → "optimum-nutrition-100-whey"
+ * @param {string} text
+ * @returns {string}
+ */
+export function slugify(text) {
+    if (!text) return '';
+    let result = text.toLowerCase();
+    result = result.replace(/./g, ch => TRANSLIT_LOWER[ch] || ch);
+    result = result.replace(/[^a-z0-9]+/g, '-');
+    result = result.replace(/^-+|-+$/g, '');
+    return result;
+}
+
+/**
+ * Нормалізувати назву для файлів: транслітерація UA→EN, lowercase, пробіли→_
+ * @param {string} name
+ * @returns {string}
+ */
+export function normalizeName(name) {
+    if (!name) return '';
+    let result = name.trim().toLowerCase();
+    result = result.replace(/./g, ch => TRANSLIT_LOWER[ch] || ch);
+    result = result.replace(/\s+/g, '_');
+    result = result.replace(/[^a-z0-9_\-]/g, '');
+    return result;
 }
 
 /**

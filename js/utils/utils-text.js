@@ -303,43 +303,7 @@ export function capitalizeFirst(str) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ТРАНСЛІТЕРАЦІЯ
+// ТРАНСЛІТЕРАЦІЯ — реекспорт з utils-transliterate.js
 // ═══════════════════════════════════════════════════════════════════════════
 
-const TRANSLIT_MAP = {
-    'а':'a','б':'b','в':'v','г':'h','ґ':'g','д':'d','е':'e','є':'ye',
-    'ж':'zh','з':'z','и':'y','і':'i','ї':'yi','й':'y','к':'k','л':'l',
-    'м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u',
-    'ф':'f','х':'kh','ц':'ts','ч':'ch','ш':'sh','щ':'shch','ь':'',
-    'ю':'yu','я':'ya','ё':'yo','ы':'y','э':'e',
-};
-
-/**
- * Транслітерація + slug для URL: "Optimum Nutrition 100% Whey" → "optimum-nutrition-100-whey"
- * @param {string} text - Текст для slugify
- * @returns {string} URL-safe slug
- */
-export function slugify(text) {
-    if (!text) return '';
-    let result = text.toLowerCase();
-    result = result.replace(/./g, ch => TRANSLIT_MAP[ch] || ch);
-    result = result.replace(/[^a-z0-9]+/g, '-');
-    result = result.replace(/^-+|-+$/g, '');
-    return result;
-}
-
-/**
- * Нормалізувати назву для файлів: транслітерація UA→EN, lowercase, пробіли→_
- * @param {string} name - Назва для нормалізації
- * @returns {string} Нормалізована назва латиницею
- * @example
- * normalizeName('Крем для рук') // → 'krem_dlya_ruk'
- */
-export function normalizeName(name) {
-    if (!name) return '';
-    let result = name.trim().toLowerCase();
-    result = result.replace(/./g, ch => TRANSLIT_MAP[ch] || ch);
-    result = result.replace(/\s+/g, '_');
-    result = result.replace(/[^a-z0-9_\-]/g, '');
-    return result;
-}
+export { slugify, normalizeName } from './utils-transliterate.js';
