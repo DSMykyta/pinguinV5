@@ -8,6 +8,7 @@
  */
 
 import { escapeHtml } from '../../utils/utils-text.js';
+import { nowLocal } from '../../utils/utils-date.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import {
     registerActionHandlers,
@@ -48,7 +49,7 @@ export default {
             'created_at', 'created_by'
         ],
         autoFields: {
-            created_at: () => new Date().toISOString().replace('T', ' ').slice(0, 19),
+            created_at: () => nowLocal(),
         },
     },
 

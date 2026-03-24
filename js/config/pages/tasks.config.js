@@ -12,6 +12,7 @@ import { callSheetsAPI } from '../../utils/utils-api-client.js';
 import { escapeHtml } from '../../utils/utils-text.js';
 import { safeJsonParse } from '../../utils/utils-json.js';
 import { populateSelect } from '../../components/forms/select.js';
+import { nowLocal, formatDateTime } from '../../utils/utils-date.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONSTANTS
@@ -23,20 +24,6 @@ const COLUMN_IDS = [
     'created_by', 'assigned_to', 'due_date', 'created_at',
     'updated_at', 'updated_by', 'comments', 'created_by_display', 'is_new'
 ];
-
-function localNow() {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
-}
-
-function formatShortDate(dateStr) {
-    if (!dateStr) return '';
-    const [date, time] = dateStr.split(' ');
-    if (!date) return escapeHtml(dateStr);
-    const [y, m, d] = date.split('-');
-    const shortTime = time ? time.slice(0, 5) : '';
-    return `${d}.${m}.${y?.slice(2)} ${shortTime}`.trim();
-}
 
 const STATUS_TAG = {
     new:         { label: 'Нове',      color: 'c-yellow' },
@@ -63,8 +50,8 @@ export default {
         stateKey: 'tasks',
         columns: COLUMN_IDS,
         autoFields: {
-            created_at: () => localNow(),
-            updated_at: () => localNow(),
+            created_at: () => nowLocal(),
+            updated_at: () => nowLocal(),
             created_by: () => window.currentUser?.username || '',
             created_by_display: () => window.currentUser?.display_name || window.currentUser?.username || '',
             updated_by: () => window.currentUser?.username || '',
@@ -304,7 +291,7 @@ function cardsExtension({ state, plugins, data, config }) {
             const taskId = row.dataset.rowId;
             const newStatus = radio.value;
             try {
-                await data.update(taskId, { status: newStatus, updated_at: localNow(), updated_by: window.currentUser?.username || '' });
+                await data.update(taskId, { status: newStatus, updated_at: nowLocal(), updated_by: window.currentUser?.username || '' });
                 const statusCell = row.querySelector('.pseudo-table-cell .tag');
                 if (statusCell) {
                     const s = STATUS_TAG[newStatus] || STATUS_TAG.new;
@@ -349,7 +336,7 @@ function commentsExtension({ plugins, data }) {
             <div class="dialogue-message">
                 <div class="dialogue-header">
                     <span class="body-s">${escapeHtml(c.display_name || c.author || '')}</span>
-                    <span class="body-s">${formatShortDate(c.created_at)}</span>
+                    <span class="body-s">${formatDateTime(c.created_at)}</span>
                 </div>
                 <p class="dialogue-text">${escapeHtml(c.text || '')}</p>
             </div>
@@ -367,7 +354,7 @@ function commentsExtension({ plugins, data }) {
         if (!task) return;
         const comments = safeJsonParse(task.comments, []);
         if (!Array.isArray(comments)) return;
-        const now = localNow();
+        const now = nowLocal();
         comments.push({
             author: window.currentUser?.username || '',
             display_name: window.currentUser?.display_name || window.currentUser?.username || '',

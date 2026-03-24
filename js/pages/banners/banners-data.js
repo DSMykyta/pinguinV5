@@ -12,6 +12,7 @@ import { bannersState } from './banners-state.js';
 import { callSheetsAPI } from '../../utils/utils-api-client.js';
 import { PRODUCTS_SPREADSHEET_ID as SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
 import { generateNextId } from '../../utils/utils-id.js';
+import { nowLocal } from '../../utils/utils-date.js';
 
 const SHEET_NAME = 'Banners';
 const SHEET_GID = '1208466784';
@@ -35,9 +36,6 @@ const COLUMN_IDS = [
     'created_by'
 ];
 
-function nowDateTime() {
-    return new Date().toISOString().replace('T', ' ').slice(0, 19);
-}
 
 function inferIdPrefix(existingIds, fallback) {
     const existing = (existingIds || []).find(id => typeof id === 'string' && id.includes('-'));
@@ -101,7 +99,7 @@ export async function addBanner(bannerData = {}) {
         const normalized = normalizeRecord({
             ...bannerData,
             banner_id: bannerData.banner_id || generateNextId(prefix, bannersState.banners.map(item => item.banner_id)),
-            created_at: bannerData.created_at || nowDateTime(),
+            created_at: bannerData.created_at || nowLocal(),
             created_by: bannerData.created_by || ''
         });
 

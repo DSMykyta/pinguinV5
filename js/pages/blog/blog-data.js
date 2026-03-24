@@ -12,6 +12,7 @@ import { blogState } from './blog-state.js';
 import { callSheetsAPI } from '../../utils/utils-api-client.js';
 import { PRODUCTS_SPREADSHEET_ID as SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
 import { generateNextId } from '../../utils/utils-id.js';
+import { nowLocal } from '../../utils/utils-date.js';
 
 const SHEET_NAME = 'Blog';
 const SHEET_GID = '908847151';
@@ -39,9 +40,6 @@ const COLUMN_IDS = [
     'created_by'
 ];
 
-function nowDateTime() {
-    return new Date().toISOString().replace('T', ' ').slice(0, 19);
-}
 
 function inferIdPrefix(existingIds, fallback) {
     const existing = (existingIds || []).find(id => typeof id === 'string' && id.includes('-'));
@@ -104,7 +102,7 @@ export async function addBlogPost(postData = {}) {
         const normalized = normalizeRecord({
             ...postData,
             blog_id: postData.blog_id || generateNextId(prefix, blogState.posts.map(item => item.blog_id)),
-            created_at: postData.created_at || nowDateTime(),
+            created_at: postData.created_at || nowLocal(),
             created_by: postData.created_by || ''
         });
 
