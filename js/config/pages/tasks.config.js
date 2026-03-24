@@ -12,6 +12,7 @@ import { callSheetsAPI } from '../../utils/utils-api-client.js';
 import { escapeHtml } from '../../utils/utils-text.js';
 import { safeJsonParse } from '../../utils/utils-json.js';
 import { populateSelect } from '../../components/forms/select.js';
+import { actionButton } from '../../components/actions/actions-main.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONSTANTS
@@ -35,6 +36,8 @@ const STATUS_TAG = {
     done:        { label: 'Готово',     color: 'c-green' },
     cancelled:   { label: 'Скасовано', color: 'c-red' },
 };
+
+const STATUS_CYCLE = ['new', 'in_progress', 'done', 'cancelled'];
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIG
@@ -65,9 +68,45 @@ export default {
 
     table: {
         containerId: 'tasks-cards-container',
-        columns: [],
-        actions: [],
-        _skipEngineTable: true,
+        columns: [
+            { id: 'title', label: 'Назва', type: 'name', span: 3, sortable: true },
+            {
+                id: 'created_by_display', label: 'Від', type: 'text', span: 2, sortable: true, filterable: true,
+                render: (value, row) => {
+                    const v = value === '—' ? (row.created_by || '') : (value || '');
+                    return escapeHtml(v);
+                }
+            },
+            {
+                id: 'assigned_to', label: 'Для', type: 'text', span: 2, sortable: true, filterable: true,
+                render: (value) => escapeHtml(value || '')
+            },
+            {
+                id: 'category', label: 'Тип', type: 'text', span: 2, sortable: true, filterable: true,
+                render: (value) => value
+                    ? `<span class="tag c-tertiary">${escapeHtml(value)}</span>`
+                    : ''
+            },
+            {
+                id: 'status', label: 'Статус', span: 2, sortable: true, filterable: true,
+                render: (value) => {
+                    const s = STATUS_TAG[value] || STATUS_TAG.new;
+                    return `<span class="tag ${s.color}" data-action="cycle-status">${s.label}</span>`;
+                }
+            },
+        ],
+        searchColumns: ['task_id', 'title', 'description', 'created_by_display', 'assigned_to'],
+        emptyMessage: 'Завдання не знайдено',
+        actions: ['edit'],
+        rowActions: (row, idField, name) => {
+            const username = window.currentUser?.username;
+            const isAdmin = window.currentUser?.role === 'admin';
+            const canEdit = row.created_by === username || row.assigned_to === username || isAdmin;
+            const isNew = row.is_new === '1' && row.assigned_to === username;
+            const dot = isNew ? '<span class="dot c-blue"></span>' : '';
+            const edit = canEdit ? actionButton({ action: 'edit', rowId: row[idField], context: name }) : '';
+            return `${dot}${edit}`;
+        },
     },
 
     crud: {
@@ -95,7 +134,7 @@ export default {
             { domId: 'task-updated-by', field: 'updated_by', readonly: true, default: '—' },
         ],
 
-        onInitComponents: ({ data, state }) => {
+        onInitComponents: ({ state }) => {
             populateCategorySelect();
             populateAssignedToSelect(state);
             initStatusBadge();
@@ -106,7 +145,7 @@ export default {
         containers: ['tasks-cards-container'],
     },
 
-    extensions: [dataLoaderExtension, cardsExtension, commentsExtension, filtersExtension, usersExtension, uiExtension],
+    extensions: [dataLoaderExtension, cardsExtension, commentsExtension, usersExtension, uiExtension],
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -159,177 +198,98 @@ function dataLoaderExtension({ state, data, config }) {
 // EXTENSION: CARDS
 // ═══════════════════════════════════════════════════════════════════════════
 
-function cardsExtension({ state, plugins, data }) {
+function cardsExtension({ plugins, data, config }) {
 
-    function tasksPreFilter(tasks) {
-        const { activeFilter, statusFilters, categoryFilters } = state;
-        const username = window.currentUser?.username;
-        return tasks.filter(task => {
-            if (activeFilter === 'assigned_to_me' && task.assigned_to !== username) return false;
-            if (activeFilter === 'created_by_me' && task.created_by !== username) return false;
-            if (statusFilters && !statusFilters[task.status]) return false;
-            if (categoryFilters && task.category && !categoryFilters[task.category]) return false;
-            return true;
-        });
-    }
-
-    function searchFilter(tasks) {
-        const container = document.getElementById('tasks-cards-container');
-        const input = container?._charmSearchInput;
-        const query = input?.value?.trim().toLowerCase() || '';
-        if (!query) return tasks;
-        const searchCols = ['task_id', 'title', 'description', 'created_by_display', 'assigned_to'];
-        return tasks.filter(task =>
-            searchCols.some(col => String(task[col] || '').toLowerCase().includes(query))
-        );
-    }
-
-    function renderCardHtml(task) {
-        const username = window.currentUser?.username;
-        const isAdmin = window.currentUser?.role === 'admin';
-        const canEdit = task.created_by === username || task.assigned_to === username || isAdmin;
-        const status = STATUS_TAG[task.status] || STATUS_TAG.new;
-        const isNew = task.is_new === '1' && task.assigned_to === username;
-
-        const fromRaw = task.created_by_display || task.created_by || '';
-        const fromName = fromRaw === '—' ? (task.created_by || '') : fromRaw;
-        const toUser = state.usersList?.find(u => u.username === task.assigned_to);
-        const toName = toUser?.display_name || task.assigned_to || '';
-        const namesStr = fromName && toName ? `${escapeHtml(fromName)} → ${escapeHtml(toName)}` : escapeHtml(fromName || toName);
-
-        const fromLabel = fromName ? `Від ${escapeHtml(fromName)}` : '';
-        const toLabel = toName ? `для ${escapeHtml(toName)}` : '';
-        const subLine = [fromLabel, toLabel].filter(Boolean).join(' ');
-
-        return `
-            <div class="group" data-task-wrap>
-                <span class="dot c-blue${isNew ? '' : ' u-invisible'}"></span>
-                <div class="block" data-task-id="${escapeHtml(task.task_id)}">
-                    <div class="block-header" data-action="toggle-task">
-                        <div class="group column">
-                            <h3>${escapeHtml(task.title || 'Без назви')}</h3>
-                            ${subLine ? `<span class="body-s">${subLine}</span>` : ''}
-                        </div>
-                        <div class="group">
-                            ${task.category ? `<span class="tag c-tertiary">${escapeHtml(task.category)}</span>` : ''}
-                            <span class="tag ${status.color}">${status.label}</span>
-                            ${canEdit ? `<button class="btn-icon" data-action="edit-task" aria-label="Редагувати"><span class="material-symbols-outlined">edit</span></button>` : ''}
-                        </div>
-                    </div>
-                    <div class="u-reveal">
-                        <div>
-                            <div class="grid">
-                                <div class="col-8">
-                                    ${task.description ? `<div class="rich-editor-content">${task.description}</div>` : ''}
-                                </div>
-                                <div class="block-list col-4">
-                                    <div data-card-comments></div>
-                                    <div class="content-bloc"><div class="content-line"><div class="input-box">
-                                        <input type="text" data-card-comment-input placeholder="Коментар...">
-                                        <button class="btn-icon" data-action="add-card-comment" aria-label="Надіслати">
-                                            <span class="material-symbols-outlined">send</span>
-                                        </button>
-                                    </div></div></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    // Expandable — u-reveal content for each row
+    config.table.expandable = {
+        showSaveButton: false,
+        showOpenFullButton: false,
+        renderContent: (row) => `
+            <div class="grid">
+                <div class="col-8">
+                    ${row.description ? `<div class="rich-editor-content">${row.description}</div>` : ''}
                 </div>
-            </div>`;
-    }
+                <div class="col-4">
+                    <label class="label-l">Коментарі</label>
+                    <div data-card-comments></div>
+                    <div class="content-bloc"><div class="content-line"><div class="input-box">
+                        <input type="text" data-card-comment-input placeholder="Коментар...">
+                        <button class="btn-icon" data-action="add-card-comment" aria-label="Надіслати">
+                            <span class="material-symbols-outlined">send</span>
+                        </button>
+                    </div></div></div>
+                </div>
+            </div>`,
+        onExpand: (rowEl, row) => {
+            if (!row) return;
+            const username = window.currentUser?.username;
+            if (row.is_new === '1' && row.assigned_to === username) {
+                row.is_new = '0';
+                callSheetsAPI('update', {
+                    range: `${SHEET_NAME}!N${row._rowIndex}`,
+                    values: [['0']],
+                    spreadsheetType: 'tasks'
+                }).catch(() => {});
+            }
+            plugins.runHook('onCardExpand', row, rowEl);
+        },
+    };
 
-    function renderCards() {
-        const container = document.getElementById('tasks-cards-container');
-        if (!container) return;
-        let tasks = tasksPreFilter(data.getAll());
-        tasks = searchFilter(tasks);
-        if (tasks.length === 0) {
-            container.innerHTML = '<div class="empty-state"><span class="body-s">Завдання не знайдено</span></div>';
-            return;
+    // Status cycling
+    async function cycleStatus(taskId) {
+        const task = data.getById(taskId);
+        if (!task) return;
+        const currentIdx = STATUS_CYCLE.indexOf(task.status);
+        const nextStatus = STATUS_CYCLE[(currentIdx + 1) % STATUS_CYCLE.length];
+        try {
+            await data.update(taskId, { status: nextStatus, updated_at: localNow(), updated_by: window.currentUser?.username || '' });
+            const { showToast } = await import('../../components/feedback/toast.js');
+            showToast(`Статус: ${STATUS_TAG[nextStatus].label}`, 'success');
+            plugins.runHook('onRender');
+        } catch (err) {
+            console.error('Помилка зміни статусу:', err);
         }
-        container.innerHTML = `<div class="block-group">${tasks.map(t => renderCardHtml(t)).join('')}</div>`;
     }
 
-    function initClickHandlers() {
+    // Click handlers for status cycling + comments
+    plugins.registerHook('onInit', () => {
         const container = document.getElementById('tasks-cards-container');
-        if (!container || container._tasksCardsInit) return;
-        container._tasksCardsInit = true;
+        if (!container || container._tasksClickInit) return;
+        container._tasksClickInit = true;
 
-        container.addEventListener('click', async (e) => {
-            // Edit button — open modal
-            if (e.target.closest('[data-action="edit-task"]')) {
+        container.addEventListener('click', (e) => {
+            if (e.target.closest('[data-action="cycle-status"]')) {
                 e.stopPropagation();
-                const block = e.target.closest('.block[data-task-id]');
-                if (!block) return;
-                const crud = state._crudModule;
-                if (crud) crud.showEdit(block.dataset.taskId);
+                const row = e.target.closest('.pseudo-table-row');
+                if (!row) return;
+                cycleStatus(row.dataset.rowId);
                 return;
             }
-
-            // Add comment
             if (e.target.closest('[data-action="add-card-comment"]')) {
-                const block = e.target.closest('.block[data-task-id]');
-                if (!block) return;
-                plugins.runHook('onCardAddComment', block.dataset.taskId, block);
+                const row = e.target.closest('.pseudo-table-row');
+                if (!row) return;
+                plugins.runHook('onCardAddComment', row.dataset.rowId, row);
                 return;
-            }
-
-            // Toggle expand/collapse
-            const header = e.target.closest('[data-action="toggle-task"]');
-            if (!header) return;
-            const block = header.closest('.block[data-task-id]');
-            if (!block) return;
-            const reveal = block.querySelector('.u-reveal');
-            if (!reveal) return;
-            const isOpen = reveal.classList.toggle('is-open');
-
-            if (isOpen) {
-                const task = data.getById(block.dataset.taskId);
-                if (!task) return;
-                const username = window.currentUser?.username;
-                if (task.is_new === '1' && task.assigned_to === username) {
-                    task.is_new = '0';
-                    callSheetsAPI('update', {
-                        range: `${SHEET_NAME}!N${task._rowIndex}`,
-                        values: [['0']],
-                        spreadsheetType: 'tasks'
-                    }).catch(() => {});
-                }
-                plugins.runHook('onCardExpand', task, block);
             }
         });
 
-        // Search
-        const searchInput = container._charmSearchInput;
-        if (searchInput) {
-            let debounce = null;
-            searchInput.addEventListener('input', () => {
-                clearTimeout(debounce);
-                debounce = setTimeout(() => renderCards(), 200);
-            });
-        }
-
-        // Comment input Enter
         container.addEventListener('keydown', (e) => {
             if (e.key !== 'Enter') return;
             const input = e.target.closest('[data-card-comment-input]');
             if (!input) return;
             e.preventDefault();
-            const block = input.closest('.block[data-task-id]');
-            if (!block) return;
-            plugins.runHook('onCardAddComment', block.dataset.taskId, block);
+            const row = input.closest('.pseudo-table-row');
+            if (!row) return;
+            plugins.runHook('onCardAddComment', row.dataset.rowId, row);
         });
-    }
-
-    plugins.registerHook('onInit', () => { renderCards(); initClickHandlers(); });
-    plugins.registerHook('onRender', renderCards);
+    });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
 // EXTENSION: COMMENTS
 // ═══════════════════════════════════════════════════════════════════════════
 
-function commentsExtension({ state, plugins, data }) {
+function commentsExtension({ plugins, data }) {
     let _currentTaskId = null;
 
     function renderCommentsIntoContainer(task, container) {
@@ -416,56 +376,6 @@ function commentsExtension({ state, plugins, data }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// EXTENSION: FILTERS
-// ═══════════════════════════════════════════════════════════════════════════
-
-function filtersExtension({ state, plugins }) {
-    state.activeFilter = 'all';
-    state.statusFilters = { new: true, in_progress: true, done: false, cancelled: true };
-    state.categoryFilters = { 'терміново': true, 'міграція': true, 'задача': true, "пам'ятка": true };
-
-    plugins.registerHook('onInit', () => {
-        const aside = document.querySelector('.aside-body');
-        if (!aside || aside._tasksFilterInit) return;
-        aside._tasksFilterInit = true;
-
-        aside.addEventListener('click', (e) => {
-            // Assignment filter (toggle)
-            const filterTag = e.target.closest('[data-filter]');
-            if (filterTag) {
-                const clicked = filterTag.dataset.filter;
-                const isActive = state.activeFilter === clicked;
-                state.activeFilter = isActive ? 'all' : clicked;
-                aside.querySelectorAll('[data-filter]').forEach(b => {
-                    b.classList.toggle('c-secondary', !isActive && b === filterTag);
-                });
-                plugins.runHook('onRender');
-                return;
-            }
-
-            // Category filter (toggle on/off)
-            const categoryTag = e.target.closest('[data-category-filter]');
-            if (categoryTag) {
-                const cat = categoryTag.dataset.categoryFilter;
-                state.categoryFilters[cat] = !state.categoryFilters[cat];
-                categoryTag.classList.toggle('c-secondary');
-                plugins.runHook('onRender');
-                return;
-            }
-
-            // Status filter (toggle on/off)
-            const statusTag = e.target.closest('[data-status-filter]');
-            if (statusTag) {
-                const status = statusTag.dataset.statusFilter;
-                state.statusFilters[status] = !state.statusFilters[status];
-                statusTag.classList.toggle('c-secondary');
-                plugins.runHook('onRender');
-            }
-        });
-    });
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
 // EXTENSION: USERS
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -509,28 +419,36 @@ function uiExtension({ state, plugins, data }) {
         setupAddButtons(state);
 
         // Expand/collapse all
-        setupExpandCollapse(plugins, data);
+        setupExpandCollapse();
     });
 }
 
-function setupExpandCollapse(plugins, data) {
+function setupExpandCollapse() {
     const expandBtn = document.getElementById('btn-expand-all');
     const collapseBtn = document.getElementById('btn-collapse-all');
     const container = document.getElementById('tasks-cards-container');
     if (expandBtn && !expandBtn._init) {
         expandBtn._init = true;
         expandBtn.addEventListener('click', () => {
-            container?.querySelectorAll('.u-reveal').forEach(el => el.classList.add('is-open'));
-            container?.querySelectorAll('.block[data-task-id]').forEach(block => {
-                const task = data.getById(block.dataset.taskId);
-                if (task) plugins.runHook('onCardExpand', task, block);
+            container?.querySelectorAll('.pseudo-table-row').forEach(row => {
+                const reveal = row.querySelector('.u-reveal');
+                if (reveal && !reveal.classList.contains('is-open')) {
+                    const editBtn = row.querySelector('[data-action="expand-edit"]');
+                    if (editBtn) editBtn.click();
+                }
             });
         });
     }
     if (collapseBtn && !collapseBtn._init) {
         collapseBtn._init = true;
         collapseBtn.addEventListener('click', () => {
-            container?.querySelectorAll('.u-reveal').forEach(el => el.classList.remove('is-open'));
+            container?.querySelectorAll('.pseudo-table-row').forEach(row => {
+                const reveal = row.querySelector('.u-reveal');
+                if (reveal && reveal.classList.contains('is-open')) {
+                    const closeBtn = row.querySelector('[data-action="expand-close"]');
+                    if (closeBtn) closeBtn.click();
+                }
+            });
         });
     }
 }
