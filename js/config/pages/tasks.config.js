@@ -87,12 +87,14 @@ export default {
             },
             {
                 id: 'status', label: 'Статус', span: 1, sortable: true, filterable: true,
+                labelMap: { new: 'Нове', in_progress: 'В роботі', done: 'Готово', cancelled: 'Скасовано' },
                 render: (value) => {
                     const s = STATUS_TAG[value] || STATUS_TAG.new;
                     return `<span class="tag ${s.color}">${s.label}</span>`;
                 }
             },
         ],
+        initialFilters: { status: ['new', 'in_progress'] },
         searchColumns: ['task_id', 'title', 'description', 'created_by_display', 'assigned_to'],
         emptyMessage: 'Завдання не знайдено',
         actions: ['edit'],
@@ -217,8 +219,7 @@ function cardsExtension({ state, plugins, data, config }) {
                 <div class="col-8">
                     ${row.description ? `<div class="rich-editor-content">${row.description}</div>` : ''}
                 </div>
-                <div class="col-4">
-                    <label class="label-l">Коментарі</label>
+                <div class="col-4 dialogue-container">
                     <div class="dialogue" data-card-comments></div>
                     <div class="content-bloc"><div class="content-line"><div class="input-box">
                         <input type="text" data-card-comment-input placeholder="Коментар...">

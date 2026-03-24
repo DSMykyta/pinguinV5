@@ -3,44 +3,72 @@
  *
  * ПРИЗНАЧЕННЯ:
  * Блок повідомлень/коментарів у стилі діалогу.
- * Список повідомлень з автором, часом і текстом.
+ * Контейнер-обгортка розтягується і притискає інпут донизу.
  *
  * HTML ПРИКЛАД:
- * <div class="dialogue">
- *     <div class="dialogue-message">
- *         <div class="dialogue-header">
- *             <span class="label-l">Автор</span>
- *             <span class="body-s">2026-03-23 15:02</span>
+ * <div class="dialogue-container">
+ *     <div class="dialogue">
+ *         <div class="dialogue-message">
+ *             <div class="dialogue-header">
+ *                 <span class="label-l">Автор</span>
+ *                 <span class="body-s">2026-03-23 15:02</span>
+ *             </div>
+ *             <p class="dialogue-text">Текст повідомлення</p>
  *         </div>
- *         <p class="dialogue-text">Текст повідомлення</p>
  *     </div>
+ *     <div class="content-bloc"><!-- input --></div>
  * </div>
  *
  * КЛАСИ:
- * - .dialogue — контейнер списку повідомлень (scroll)
+ * - .dialogue-container — flex column, розтягується, інпут донизу
+ * - .dialogue — список повідомлень (scroll, flex-grow)
  * - .dialogue-message — одне повідомлення
  * - .dialogue-header — автор + час
  * - .dialogue-text — текст повідомлення
  *
  * ЗАЛЕЖНОСТІ:
- * - root.css (--color-surface-c-low, --color-outline, --color-on-surface-v)
+ * - root.css (--color-surface-c-low, --color-on-surface-v)
  * - typography.css (.label-l, .body-s)
  */
 
+/* Grid that contains dialogue — stretch so container fills height */
+.grid:has(.dialogue-container) {
+    align-items: stretch;
+}
+
+/* Container — flex column, input at bottom */
+.dialogue-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 100%;
+}
+
+/* Message list — scrollable, grows to fill */
 .dialogue {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    flex: 1;
     max-height: 320px;
     overflow-y: auto;
 }
 
+/* Empty state inside dialogue — centered */
+.dialogue > .empty-state {
+    padding: 24px 16px;
+    flex: 1;
+}
+
+/* Single message */
 .dialogue-message {
     padding: 8px 12px;
     background: var(--color-surface-c-low);
     border-radius: 8px;
 }
 
+/* Author + timestamp */
 .dialogue-header {
     display: flex;
     align-items: baseline;
@@ -52,6 +80,7 @@
     color: var(--color-on-surface-v);
 }
 
+/* Message text */
 .dialogue-text {
     margin: 0;
     line-height: 1.45;

@@ -120,7 +120,10 @@ export function createEntityTable(config, data, state, plugins) {
                 },
                 plugins: {
                     sorting: { columnTypes: buildSortingTypes() },
-                    filters: { filterColumns: buildFilterColumns() },
+                    filters: {
+                        filterColumns: buildFilterColumns(),
+                        ...(tableConfig.initialFilters ? { initialFilters: tableConfig.initialFilters } : {})
+                    },
                     ...(tableConfig.expandable ? { expandable: tableConfig.expandable } : {})
                 }
             },
