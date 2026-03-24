@@ -199,8 +199,6 @@ function cardsExtension({ plugins, data, config }) {
     config.table.expandable = {
         showSaveButton: false,
         showOpenFullButton: false,
-        closeCellHeader: '',
-        renderCloseCellContent: () => '<span class="material-symbols-outlined">expand_more</span>',
         renderContent: (row) => `
             <div class="grid">
                 <div class="col-8">
@@ -267,6 +265,19 @@ function cardsExtension({ plugins, data, config }) {
                 if (!row) return;
                 plugins.runHook('onCardAddComment', row.dataset.rowId, row);
                 return;
+            }
+            // Кліки на кнопки/інпути — пропускаємо (expandable plugin обробить)
+            if (e.target.closest('button, [data-action], input, textarea')) return;
+            // Клік на рядок — toggle expand/collapse
+            const row = e.target.closest('.pseudo-table-row');
+            if (row) {
+                const reveal = row.querySelector('.u-reveal');
+                if (!reveal) return;
+                if (reveal.classList.contains('is-open')) {
+                    row.querySelector('[data-action="expand-close"]')?.click();
+                } else {
+                    row.querySelector('[data-action="expand-edit"]')?.click();
+                }
             }
         });
 
