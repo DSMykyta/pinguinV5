@@ -106,6 +106,41 @@
     width: 100%;
 }
 
+/* Expanded content — switch + tab panels */
+.pseudo-table-row > .u-reveal > div {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 16px;
+}
+
+/* Comments list — scroll area */
+.pseudo-table-row .comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 320px;
+    overflow-y: auto;
+    min-height: 80px;
+}
+
+/* Comments empty state — smaller padding inside expand */
+.pseudo-table-row .comments-list > .empty-state {
+    padding: 24px 16px;
+    flex: 1;
+}
+
+/* Comments tab — flex column, input at bottom */
+.pseudo-table-row .tab-content[data-tab-panel="comments"] {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pseudo-table-row .tab-content.active[data-tab-panel="comments"] {
+    display: flex;
+}
+
 .pseudo-table-row:not(:has(.u-reveal.is-open)):hover {
     background-color: var(--color-surface-c-low);
 }

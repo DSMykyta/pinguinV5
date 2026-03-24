@@ -36,7 +36,6 @@ const STATUS_TAG = {
     cancelled:   { label: 'Скасовано', color: 'c-red' },
 };
 
-const STATUS_CYCLE = ['new', 'in_progress', 'done', 'cancelled'];
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIG
@@ -90,7 +89,7 @@ export default {
                 id: 'status', label: 'Статус', span: 1, sortable: true, filterable: true,
                 render: (value) => {
                     const s = STATUS_TAG[value] || STATUS_TAG.new;
-                    return `<span class="tag ${s.color}" data-action="cycle-status">${s.label}</span>`;
+                    return `<span class="tag ${s.color}">${s.label}</span>`;
                 }
             },
         ],
@@ -203,39 +202,29 @@ function cardsExtension({ state, plugins, data, config }) {
             `<button class="btn-icon flip" data-action="toggle-expand" aria-label="Розгорнути">
                 <span class="material-symbols-outlined">expand_more</span>
             </button>`,
-        renderContent: (row) => `
-            <div class="grid">
-                <div class="col-8">
-                    ${row.description ? `<div class="rich-editor-content">${row.description}</div>` : ''}
-                </div>
-                <div class="col-4">
-                    <label class="label-l">Коментарі</label>
-                    <div data-card-comments></div>
-                    <div class="content-bloc"><div class="content-line"><div class="input-box">
-                        <input type="text" data-card-comment-input placeholder="Коментар...">
-                        <button class="btn-icon" data-action="add-card-comment" aria-label="Надіслати">
-                            <span class="material-symbols-outlined">send</span>
-                        </button>
-                    </div></div></div>
-                </div>
-            </div>`,
+        renderContent: (row) => {
+            const uid = row.task_id || Math.random().toString(36).slice(2);
+            return `
+            <div class="switch switch-fit switch-compact" data-expand-switch>
+                <input type="radio" id="sw-desc-${uid}" name="sw-${uid}" value="description" checked>
+                <label for="sw-desc-${uid}" class="switch-label">Опис</label>
+                <input type="radio" id="sw-com-${uid}" name="sw-${uid}" value="comments">
+                <label for="sw-com-${uid}" class="switch-label">Коментарі</label>
+            </div>
+            <div class="tab-content active" data-tab-panel="description">
+                ${row.description ? `<div class="rich-editor-content">${row.description}</div>` : '<div class="empty-state"><span class="body-s">Опис відсутній</span></div>'}
+            </div>
+            <div class="tab-content" data-tab-panel="comments">
+                <div class="comments-list" data-card-comments></div>
+                <div class="content-bloc"><div class="content-line"><div class="input-box">
+                    <input type="text" data-card-comment-input placeholder="Коментар...">
+                    <button class="btn-icon" data-action="add-card-comment" aria-label="Надіслати">
+                        <span class="material-symbols-outlined">send</span>
+                    </button>
+                </div></div></div>
+            </div>`;
+        },
     };
-
-    // Status cycling
-    async function cycleStatus(taskId) {
-        const task = data.getById(taskId);
-        if (!task) return;
-        const currentIdx = STATUS_CYCLE.indexOf(task.status);
-        const nextStatus = STATUS_CYCLE[(currentIdx + 1) % STATUS_CYCLE.length];
-        try {
-            await data.update(taskId, { status: nextStatus, updated_at: localNow(), updated_by: window.currentUser?.username || '' });
-            const { showToast } = await import('../../components/feedback/toast.js');
-            showToast(`Статус: ${STATUS_TAG[nextStatus].label}`, 'success');
-            plugins.runHook('onRender');
-        } catch (err) {
-            console.error('Помилка зміни статусу:', err);
-        }
-    }
 
     // Перехоплюємо expand-edit → модал (capture phase, до expandable plugin)
     plugins.registerHook('onInit', () => {
@@ -256,14 +245,6 @@ function cardsExtension({ state, plugins, data, config }) {
 
         // Решта кліків (bubble phase)
         container.addEventListener('click', (e) => {
-            // Cycle status
-            if (e.target.closest('[data-action="cycle-status"]')) {
-                e.stopPropagation();
-                const row = e.target.closest('.pseudo-table-row');
-                if (!row) return;
-                cycleStatus(row.dataset.rowId);
-                return;
-            }
             // Add comment
             if (e.target.closest('[data-action="add-card-comment"]')) {
                 const row = e.target.closest('.pseudo-table-row');
@@ -297,6 +278,17 @@ function cardsExtension({ state, plugins, data, config }) {
                 }
                 return;
             }
+        });
+
+        // Switch tabs (Опис / Коментарі)
+        container.addEventListener('change', (e) => {
+            const radio = e.target;
+            if (!radio.closest('[data-expand-switch]')) return;
+            const reveal = radio.closest('.u-reveal');
+            if (!reveal) return;
+            reveal.querySelectorAll('[data-tab-panel]').forEach(p => {
+                p.classList.toggle('active', p.dataset.tabPanel === radio.value);
+            });
         });
 
         // Enter in comment input
