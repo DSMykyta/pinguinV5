@@ -21,9 +21,17 @@
                 <span class="material-symbols-outlined">image</span>
                 Зображення
             </button>
+            <button class="btn-icon expand" aria-label="Image Tool" data-tab-target="tab-image-tool">
+                <span class="material-symbols-outlined">photo_camera</span>
+                Обробка
+            </button>
+            <button class="btn-icon expand" aria-label="Compare" data-tab-target="tab-compare">
+                <span class="material-symbols-outlined">compare</span>
+                Порівняння
+            </button>
         </nav>
 
-        <div class="tab-content active" data-tab-content="tab-images" id="tab-images">
+        <div class="tab-content active" data-tab-content="tab-images" data-aside-template="aside-images" id="tab-images">
             <div class="section-header">
                 <div class="section-name-block">
                     <div class="section-name">
@@ -40,6 +48,140 @@
                 search="Пошук..."
                 pagination
                 refresh columns>
+            </div>
+
+            <footer class="footer"></footer>
+        </div>
+
+        <div class="tab-content" data-tab-content="tab-image-tool" data-aside-template="aside-image-tool" id="tab-image-tool" refresh>
+            <div class="section-header">
+                <div class="section-name-block">
+                    <div class="section-name">
+                        <h2 class="display-l section-upper">Обробка зображень</h2>
+                        <button class="btn-icon" aria-label="Інформація">
+                            <span class="material-symbols-outlined">info</span>
+                        </button>
+                    </div>
+                    <span class="body-s">Зміна розміру, полотна та формату</span>
+                </div>
+            </div>
+
+            <div class="section-content section-content-full-height u-p-8">
+                <div class="grid">
+
+                    <div class="group column col-8 photo-main-preview-wrapper">
+                        <label class="label-l">Зображення</label>
+                        <div class="content-bloc photo-main-preview" id="gim-canvas-preview">
+                            <canvas id="gim-image-canvas"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="group column col-4">
+                        <label class="label-l">Галерея</label>
+
+                        <div class="content-bloc" id="gim-dropzone" data-dropzone>
+                            <div class="content-line">
+                                <div class="input-box">
+                                    <input type="url" id="gim-image-url"
+                                        placeholder="URL або перетягніть файл...">
+                                </div>
+                                <button type="button" id="gim-select-file-btn" class="btn-icon ci-action"
+                                    data-dz-pick data-tooltip="Вибрати файл" data-tooltip-always>
+                                    <span class="material-symbols-outlined">folder_open</span>
+                                </button>
+                                <button type="button" id="gim-load-url-btn" class="btn-icon ci-action u-hidden"
+                                    data-dz-upload data-tooltip="Додати URL" data-tooltip-always>
+                                    <span class="material-symbols-outlined">download</span>
+                                </button>
+                            </div>
+                            <input type="file" id="gim-image-input"
+                                accept="image/png, image/jpeg, image/webp, image/avif, image/gif, image/bmp, image/tiff"
+                                class="u-hidden" multiple>
+                        </div>
+
+                        <div class="content-bloc-container photos" id="gim-thumbnails-area">
+                            <div class="loading-state" id="gim-empty-state">
+                                <span class="material-symbols-outlined">image</span>
+                                <p>Завантажте зображення</p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" data-tab-content="tab-compare" data-aside-template="aside-compare" id="tab-compare">
+            <div class="section-header">
+                <div class="section-name-block">
+                    <div class="section-name">
+                        <h2 class="display-l section-upper">Порівняння дизайну</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-content">
+                <div class="cmp-canvas">
+                    <div class="cmp-title-area">
+                        <input type="text" id="cmp-title" value="НОВИЙ ДИЗАЙН ТОВАРУ" placeholder="Заголовок">
+                    </div>
+
+                    <div class="cmp-photos-area" data-slots="2">
+                        <div class="content-bloc cmp-photo-slot" id="cmp-preview-0" data-side="0" data-dropzone>
+                            <div class="content-line">
+                                <div class="input-box">
+                                    <input type="url" id="cmp-url-0" placeholder="URL або перетягніть файл...">
+                                </div>
+                                <button type="button" class="btn-icon ci-action" id="cmp-pick-0"
+                                    data-dz-pick data-tooltip="Вибрати файл" data-tooltip-always>
+                                    <span class="material-symbols-outlined">folder_open</span>
+                                </button>
+                            </div>
+                            <input type="file" id="cmp-file-0" accept="image/*" class="u-hidden">
+                        </div>
+                        <img class="cmp-arrow" id="cmp-arrow-0" src="icon/arrow-narrow-right.svg" alt="→">
+                        <div class="content-bloc cmp-photo-slot" id="cmp-preview-1" data-side="1" data-dropzone>
+                            <div class="content-line">
+                                <div class="input-box">
+                                    <input type="url" id="cmp-url-1" placeholder="URL або перетягніть файл...">
+                                </div>
+                                <button type="button" class="btn-icon ci-action" id="cmp-pick-1"
+                                    data-dz-pick data-tooltip="Вибрати файл" data-tooltip-always>
+                                    <span class="material-symbols-outlined">folder_open</span>
+                                </button>
+                            </div>
+                            <input type="file" id="cmp-file-1" accept="image/*" class="u-hidden">
+                        </div>
+                        <img class="cmp-arrow u-hidden" id="cmp-arrow-1" src="icon/arrow-narrow-right.svg" alt="→">
+                        <div class="content-bloc cmp-photo-slot u-hidden" id="cmp-preview-2" data-side="2" data-dropzone>
+                            <div class="content-line">
+                                <div class="input-box">
+                                    <input type="url" id="cmp-url-2" placeholder="URL або перетягніть файл...">
+                                </div>
+                                <button type="button" class="btn-icon ci-action" id="cmp-pick-2"
+                                    data-dz-pick data-tooltip="Вибрати файл" data-tooltip-always>
+                                    <span class="material-symbols-outlined">folder_open</span>
+                                </button>
+                            </div>
+                            <input type="file" id="cmp-file-2" accept="image/*" class="u-hidden">
+                        </div>
+                        <button type="button" class="btn-icon cmp-add-slot" id="cmp-add-slot">
+                            <span class="material-symbols-outlined">add</span>
+                        </button>
+                    </div>
+
+                    <div class="cmp-labels-area" data-slots="2">
+                        <input type="text" id="cmp-label-0" value="Старий дизайн" placeholder="Підпис">
+                        <input type="text" id="cmp-label-1" value="Новий дизайн" placeholder="Підпис">
+                        <input type="text" id="cmp-label-2" value="Новий дизайн 2" placeholder="Підпис" class="u-hidden">
+                    </div>
+
+                    <div class="cmp-footer-area">
+                        <textarea id="cmp-footer" rows="3"
+                            placeholder="Текст знизу">Бренд в процесі зміни етикетки продукту. Упаковка може відрізнятися</textarea>
+                    </div>
+                </div>
             </div>
         </div>
 

@@ -52,6 +52,7 @@
 @import url('components/forms/checkbox.css');
 @import url('components/forms/drop-zone.css');
 @import url('components/forms/morph-search.css');
+@import url('components/forms/slider.css');
 
 /* === COMPONENTS - NAVIGATION === */
 @import url('components/navigation/panel-item.css');
@@ -95,6 +96,7 @@
 @import url('components/content/tree.css');
 /* glossary-article.css — видалено, стилі в section-misc.css */
 @import url('components/content/section-misc.css');
+@import url('components/content/compare-tool.css');
 @import url('components/content/block.css');
 @import url('components/content/dialogue.css');
 

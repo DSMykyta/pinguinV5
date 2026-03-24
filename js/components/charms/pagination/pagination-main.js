@@ -113,6 +113,7 @@ function createInstance(el) {
         deactivate() {
             instance._active = false;
             if (instance.navContainer) instance.navContainer.innerHTML = '';
+            if (instance.paginationContainer) instance.paginationContainer.classList.add('u-hidden');
         },
         update() {
             applyPage(instance);
@@ -278,9 +279,13 @@ function applyPage(instance) {
 
     instance.state.totalItems = totalItems;
 
-    // Hide/show pagination nav (FAB завжди видимий — щоб можна було змінити pageSize)
+    // Hide/show pagination container
     if (instance.paginationContainer) {
-        instance.paginationContainer.classList.remove('u-hidden');
+        if (totalPages <= 1) {
+            instance.paginationContainer.classList.add('u-hidden');
+        } else {
+            instance.paginationContainer.classList.remove('u-hidden');
+        }
     }
 
     // Update nav

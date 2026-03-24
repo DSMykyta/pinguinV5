@@ -72,3 +72,8 @@ section {
     flex: 1;
     min-height: 0;
 }
+
+/* Section-content в табах — без зовнішніх відступів */
+.tab-content > .section-content {
+    margin: 0;
+}

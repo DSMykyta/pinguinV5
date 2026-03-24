@@ -20,74 +20,124 @@ import { updateCanvasDisplay, renderThumbnails } from './gim-renderer.js';
 import { showToast } from '../../components/feedback/toast.js';
 
 /**
- * Застосовує трансформацію (resize або canvas) до АКТИВНОГО зображення
+ * Застосовує трансформацію до одного зображення
+ * @param {object} item - Елемент зі state.files
+ * @param {'resize' | 'canvas'} mode - Тип трансформації
+ * @param {number} targetW - Цільова ширина
+ * @param {number} targetH - Цільова висота
+ * @returns {Promise<void>}
+ */
+function transformItem(item, mode, targetW, targetH) {
+    return new Promise(resolve => {
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+
+        tempCanvas.width = targetW;
+        tempCanvas.height = targetH;
+
+        if (mode === 'resize') {
+            tempCtx.drawImage(item.image, 0, 0, targetW, targetH);
+        } else {
+            tempCtx.fillStyle = 'white';
+            tempCtx.fillRect(0, 0, targetW, targetH);
+            const centerX = (targetW - item.width) / 2;
+            const centerY = (targetH - item.height) / 2;
+            tempCtx.drawImage(item.image, centerX, centerY, item.width, item.height);
+        }
+
+        const newImg = new Image();
+        newImg.onload = () => {
+            item.image = newImg;
+            item.width = newImg.width;
+            item.height = newImg.height;
+            resolve();
+        };
+        newImg.src = tempCanvas.toDataURL('image/png');
+    });
+}
+
+/**
+ * Повертає список елементів для обробки (виділені або активний)
+ */
+function getTargetItems() {
+    const imageState = getImageState();
+    if (imageState.selectedIds.size > 0) {
+        return imageState.files.filter(f => imageState.selectedIds.has(f.id));
+    }
+    const active = imageState.files.find(f => f.id === imageState.activeId);
+    return active ? [active] : [];
+}
+
+/**
+ * Застосовує трансформацію (resize або canvas) до виділених або активного зображення
  * @param {'resize' | 'canvas'} mode - Яку трансформацію застосувати
  */
-export function applyTransformation(mode) {
+export async function applyTransformation(mode) {
     const dom = getImageDom();
     const imageState = getImageState();
-    const activeItem = imageState.files.find(f => f.id === imageState.activeId);
-    if (!activeItem) {
+    const items = getTargetItems();
+
+    if (items.length === 0) {
         showToast('Спочатку виберіть зображення', 'warning');
         return;
     }
 
-    const tempCanvas = document.createElement('canvas');
-    const tempCtx = tempCanvas.getContext('2d');
-    let finalW = activeItem.width;
-    let finalH = activeItem.height;
+    const inputW = parseInt(mode === 'resize' ? dom.resizeWidth.value : dom.canvasWidth.value);
+    const inputH = parseInt(mode === 'resize' ? dom.resizeHeight.value : dom.canvasHeight.value);
 
-    if (mode === 'resize') {
-        // РЕЖИМ 1: Зміна розміру зображення
-        finalW = parseInt(dom.resizeWidth.value) || finalW;
-        finalH = parseInt(dom.resizeHeight.value) || finalH;
-
-        tempCanvas.width = finalW;
-        tempCanvas.height = finalH;
-        tempCtx.drawImage(activeItem.image, 0, 0, finalW, finalH);
-
-    } else if (mode === 'canvas') {
-        // РЕЖИМ 2: Зміна розміру полотна
-        finalW = parseInt(dom.canvasWidth.value) || activeItem.width;
-        finalH = parseInt(dom.canvasHeight.value) || activeItem.height;
-
-        tempCanvas.width = finalW;
-        tempCanvas.height = finalH;
-
-        tempCtx.fillStyle = 'white';
-        tempCtx.fillRect(0, 0, finalW, finalH);
-
-        const centerX = (finalW - activeItem.width) / 2;
-        const centerY = (finalH - activeItem.height) / 2;
-        tempCtx.drawImage(activeItem.image, centerX, centerY, activeItem.width, activeItem.height);
+    for (const item of items) {
+        const finalW = inputW || item.width;
+        const finalH = inputH || item.height;
+        await transformItem(item, mode, finalW, finalH);
     }
 
-    // Створюємо DataURL з тимчасового canvas
-    const dataUrl = tempCanvas.toDataURL('image/png');
+    // Оновлюємо UI для активного
+    const activeItem = imageState.files.find(f => f.id === imageState.activeId);
+    if (activeItem) {
+        updateCanvasDisplay(activeItem.image);
+        dom.resizeWidth.value = activeItem.width;
+        dom.resizeHeight.value = activeItem.height;
+        dom.canvasWidth.value = activeItem.width;
+        dom.canvasHeight.value = activeItem.height;
+        dom.canvasWidth.placeholder = activeItem.width;
+        dom.canvasHeight.placeholder = activeItem.height;
+    }
 
-    // Створюємо новий об'єкт Image
-    const newImg = new Image();
-    newImg.onload = () => {
-        // ОНОВЛЮЄМО STATE
-        activeItem.image = newImg;
-        activeItem.width = newImg.width;
-        activeItem.height = newImg.height;
+    renderThumbnails();
+    showToast(`Застосовано: ${mode} до ${items.length} зобр.`, 'success');
+}
 
-        // Оновлюємо UI
-        updateCanvasDisplay(newImg);
-        renderThumbnails();
+/**
+ * Квадратизує виділені або активне зображення (полотно = max сторона)
+ */
+export async function squarifyImages() {
+    const imageState = getImageState();
+    const items = getTargetItems();
 
-        // Оновлюємо поля вводу
-        dom.resizeWidth.value = newImg.width;
-        dom.resizeHeight.value = newImg.height;
-        dom.canvasWidth.value = newImg.width;
-        dom.canvasHeight.value = newImg.height;
-        dom.canvasWidth.placeholder = newImg.width;
-        dom.canvasHeight.placeholder = newImg.height;
+    if (items.length === 0) {
+        showToast('Спочатку виберіть зображення', 'warning');
+        return;
+    }
 
-        showToast(`Застосовано: ${mode} (${finalW}x${finalH})`, 'success');
-    };
-    newImg.src = dataUrl;
+    for (const item of items) {
+        const maxSide = Math.max(item.width, item.height);
+        await transformItem(item, 'canvas', maxSide, maxSide);
+    }
+
+    const dom = getImageDom();
+    const activeItem = imageState.files.find(f => f.id === imageState.activeId);
+    if (activeItem) {
+        updateCanvasDisplay(activeItem.image);
+        dom.resizeWidth.value = activeItem.width;
+        dom.resizeHeight.value = activeItem.height;
+        dom.canvasWidth.value = activeItem.width;
+        dom.canvasHeight.value = activeItem.height;
+        dom.canvasWidth.placeholder = activeItem.width;
+        dom.canvasHeight.placeholder = activeItem.height;
+    }
+
+    renderThumbnails();
+    showToast(`Квадратизовано ${items.length} зобр.`, 'success');
 }
 
 /**

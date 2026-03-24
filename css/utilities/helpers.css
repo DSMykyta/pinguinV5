@@ -46,6 +46,11 @@
     display: none !important;
 }
 
+.footer:empty,
+div:empty {
+    display: none;
+}
+
 /**
  * Ховає елемент візуально, але зберігає місце в layout (visibility: hidden)
  * Використовується для кнопок очищення пошуку та подібних елементів

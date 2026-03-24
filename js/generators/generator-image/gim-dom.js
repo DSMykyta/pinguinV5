@@ -44,6 +44,8 @@ export function getImageDom() {
         canvasHeight: document.getElementById('gim-canvas-height'),
 
         applyCanvasBtn: document.getElementById('gim-apply-canvas'),
+
+        squarifyBtn: document.getElementById('gim-squarify-btn'),
     };
 
     return domCache;

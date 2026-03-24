@@ -15,7 +15,7 @@
 import { getImageDom } from './gim-dom.js';
 import { resetState, getImageState } from './gim-state.js';
 import { setupFileHandlers } from './gim-loader.js';
-import { updateResizeProportions, updateCanvasProportions, applyTransformation } from './gim-transformer.js';
+import { updateResizeProportions, updateCanvasProportions, applyTransformation, squarifyImages } from './gim-transformer.js';
 import { handleSave } from './gim-saver.js';
 import { updateCanvasDisplay } from './gim-renderer.js';
 import { showToast } from '../../components/feedback/toast.js';
@@ -84,4 +84,8 @@ function setupToolHandlers() {
     });
 
     dom.saveBtn.addEventListener('click', handleSave);
+
+    if (dom.squarifyBtn) {
+        dom.squarifyBtn.addEventListener('click', squarifyImages);
+    }
 }
