@@ -29,6 +29,15 @@ function localNow() {
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
 }
 
+function formatShortDate(dateStr) {
+    if (!dateStr) return '';
+    const [date, time] = dateStr.split(' ');
+    if (!date) return escapeHtml(dateStr);
+    const [y, m, d] = date.split('-');
+    const shortTime = time ? time.slice(0, 5) : '';
+    return `${d}.${m}.${y?.slice(2)} ${shortTime}`.trim();
+}
+
 const STATUS_TAG = {
     new:         { label: 'Нове',      color: 'c-yellow' },
     in_progress: { label: 'В роботі',  color: 'c-blue' },
@@ -339,8 +348,8 @@ function commentsExtension({ plugins, data }) {
         container.innerHTML = comments.map(c => `
             <div class="dialogue-message">
                 <div class="dialogue-header">
-                    <span class="label-l">${escapeHtml(c.display_name || c.author || '')}</span>
-                    <span class="body-s">${escapeHtml(c.created_at || '')}</span>
+                    <span class="body-s">${escapeHtml(c.display_name || c.author || '')}</span>
+                    <span class="body-s">${formatShortDate(c.created_at)}</span>
                 </div>
                 <p class="dialogue-text">${escapeHtml(c.text || '')}</p>
             </div>

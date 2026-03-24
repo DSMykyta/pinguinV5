@@ -73,6 +73,7 @@
 .dialogue-header {
     display: flex;
     align-items: baseline;
+    justify-content: space-between;
     gap: 8px;
     margin-bottom: 2px;
 }
