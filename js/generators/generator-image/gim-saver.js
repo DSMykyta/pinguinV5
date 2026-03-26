@@ -66,6 +66,13 @@ export async function handleSave() {
 
         tempCanvas.width = finalW;
         tempCanvas.height = finalH;
+
+        // JPEG не підтримує прозорість — заливаємо білим фоном
+        if (mimeType === 'image/jpeg') {
+            tempCtx.fillStyle = '#ffffff';
+            tempCtx.fillRect(0, 0, finalW, finalH);
+        }
+
         tempCtx.drawImage(item.image, 0, 0, finalW, finalH);
 
         const dataUrl = tempCanvas.toDataURL(mimeType, quality);

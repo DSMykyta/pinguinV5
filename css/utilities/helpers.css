@@ -46,8 +46,7 @@
     display: none !important;
 }
 
-.footer:empty,
-div:empty {
+.footer:empty {
     display: none;
 }
 
