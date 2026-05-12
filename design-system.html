@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дизайн-система — Pinguin V5</title>
+    <meta name="description" content="Огляд дизайн-системи Pinguin V5: токени, типографіка, компоненти, патерни інтерфейсу та правила використання.">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
+    <script src="js/theme-init.js"></script>
+    <style>
+        body.design-system-page {
+            display: block;
+            height: auto;
+            min-height: 100dvh;
+            overflow: auto;
+            background:
+                radial-gradient(circle at top left, var(--color-secondary-c), transparent 32rem),
+                radial-gradient(circle at 90% 10%, var(--color-tertiary-c), transparent 28rem),
+                var(--color-surface);
+        }
+
+        .ds-shell {
+            display: grid;
+            grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+            min-height: 100dvh;
+        }
+
+        .ds-sidebar {
+            position: sticky;
+            top: 0;
+            height: 100dvh;
+            overflow-y: auto;
+            padding: 24px 18px;
+            border-right: 1px solid var(--color-outline);
+            background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+            backdrop-filter: var(--blur-m);
+        }
+
+        .ds-brand {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 12px 14px 22px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--color-outline);
+        }
+
+        .ds-brand strong {
+            font-family: var(--font-display);
+            font-size: 28px;
+            line-height: 1;
+            color: var(--color-on-surface);
+        }
+
+        .ds-brand span,
+        .ds-nav-label,
+        .ds-eyebrow,
+        .ds-token-name,
+        .ds-code {
+            font-family: var(--font-mono);
+        }
+
+        .ds-brand span {
+            color: var(--color-on-surface-v);
+            font-size: 12px;
+        }
+
+        .ds-nav-label {
+            margin: 18px 14px 8px;
+            color: var(--color-on-surface-v);
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .ds-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: var(--radius-full);
+            color: var(--color-on-surface);
+            text-decoration: none;
+            transition: background var(--transition-standard), color var(--transition-standard), transform var(--transition-standard);
+        }
+
+        .ds-nav-link:hover {
+            color: var(--color-main);
+            background: var(--color-main-c);
+            transform: translateX(2px);
+        }
+
+        .ds-nav-link .material-symbols-outlined {
+            font-size: 20px;
+        }
+
+        .ds-main {
+            width: min(1180px, 100%);
+            margin: 0 auto;
+            padding: 40px clamp(18px, 4vw, 56px) 80px;
+        }
+
+        .ds-hero {
+            position: relative;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+            gap: 28px;
+            align-items: stretch;
+            padding: clamp(28px, 5vw, 56px);
+            border: 1px solid var(--color-outline);
+            border-radius: 32px;
+            background: linear-gradient(135deg, var(--color-main), color-mix(in srgb, var(--color-secondary), var(--color-main) 24%));
+            color: var(--color-on-main);
+            box-shadow: var(--shadow-2);
+        }
+
+        .ds-hero::after {
+            content: "";
+            position: absolute;
+            inset: auto -12% -38% auto;
+            width: 360px;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: color-mix(in srgb, var(--color-tertiary) 50%, transparent);
+            filter: blur(4px);
+        }
+
+        .ds-hero-content,
+        .ds-hero-card {
+            position: relative;
+            z-index: 1;
+        }
+
+        .ds-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 18px;
+            padding: 6px 12px;
+            border-radius: var(--radius-full);
+            background: rgba(255, 255, 255, 0.14);
+            font-size: 12px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .ds-hero h1 {
+            margin: 0 0 16px;
+            max-width: 720px;
+            font-family: var(--font-display);
+            font-size: clamp(42px, 8vw, 92px);
+            font-weight: 500;
+            line-height: 0.9;
+            color: inherit;
+        }
+
+        .ds-hero p {
+            margin: 0;
+            max-width: 680px;
+            color: color-mix(in srgb, var(--color-on-main), transparent 16%);
+            font-size: clamp(16px, 2vw, 20px);
+            line-height: 1.6;
+        }
+
+        .ds-hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        .ds-hero-actions a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 42px;
+            padding: 8px 16px;
+            border-radius: var(--radius-full);
+            text-decoration: none;
+            color: var(--color-on-main);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .ds-hero-card {
+            display: grid;
+            gap: 14px;
+            align-content: start;
+            padding: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: var(--blur-m);
+        }
+
+        .ds-stat {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 14px;
+            border-radius: var(--radius-l);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .ds-stat span {
+            color: color-mix(in srgb, var(--color-on-main), transparent 24%);
+        }
+
+        .ds-stat strong {
+            font-family: var(--font-mono);
+            font-size: 18px;
+        }
+
+        .ds-section {
+            scroll-margin-top: 24px;
+            margin-top: 42px;
+        }
+
+        .ds-section-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 24px;
+            align-items: end;
+            margin-bottom: 18px;
+        }
+
+        .ds-section h2 {
+            margin: 0;
+            font-family: var(--font-display);
+            font-size: clamp(30px, 4vw, 52px);
+            color: var(--color-on-surface);
+        }
+
+        .ds-section-header p {
+            max-width: 620px;
+            margin: 8px 0 0;
+            color: var(--color-on-surface-v);
+            line-height: 1.7;
+        }
+
+        .ds-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 16px;
+        }
+
+        .ds-card {
+            grid-column: span 4;
+            padding: 20px;
+            border: 1px solid var(--color-outline);
+            border-radius: 22px;
+            background: color-mix(in srgb, var(--color-surface) 86%, transparent);
+            box-shadow: 0 20px 70px color-mix(in srgb, var(--color-on-surface) 8%, transparent);
+        }
+
+        .ds-card-wide {
+            grid-column: span 8;
+        }
+
+        .ds-card-full {
+            grid-column: 1 / -1;
+        }
+
+        .ds-card h3 {
+            margin: 0 0 8px;
+            font-size: 18px;
+            color: var(--color-on-surface);
+        }
+
+        .ds-card p {
+            margin: 0 0 16px;
+            color: var(--color-on-surface-v);
+            line-height: 1.6;
+        }
+
+        .ds-token-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .ds-token {
+            display: grid;
+            grid-template-columns: 48px 1fr;
+            gap: 12px;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid var(--color-outline);
+            border-radius: var(--radius-l);
+            background: var(--color-surface-c-low);
+        }
+
+        .ds-swatch {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-m);
+            border: 1px solid var(--color-outline);
+        }
+
+        .ds-token-name {
+            display: block;
+            font-size: 12px;
+            color: var(--color-on-surface);
+        }
+
+        .ds-token-role {
+            display: block;
+            margin-top: 2px;
+            color: var(--color-on-surface-v);
+            font-size: 12px;
+        }
+
+        .ds-type-row {
+            display: grid;
+            grid-template-columns: 140px minmax(0, 1fr) 90px;
+            gap: 14px;
+            align-items: baseline;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--color-outline);
+        }
+
+        .ds-type-row:last-child {
+            border-bottom: 0;
+        }
+
+        .ds-type-sample {
+            margin: 0;
+            color: var(--color-on-surface);
+        }
+
+        .ds-font-display {
+            font-family: var(--font-display);
+            font-size: 38px;
+            line-height: 1.05;
+        }
+
+        .ds-font-body {
+            font-family: var(--font-body);
+            font-size: 18px;
+        }
+
+        .ds-font-mono {
+            font-family: var(--font-mono);
+            font-size: 14px;
+        }
+
+        .ds-scale {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(72px, 1fr));
+            gap: 10px;
+        }
+
+        .ds-scale-item {
+            display: grid;
+            place-items: center;
+            min-height: 72px;
+            border-radius: var(--radius-l);
+            background: var(--color-surface-c-low);
+            border: 1px solid var(--color-outline);
+            text-align: center;
+        }
+
+        .ds-scale-item code {
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+
+        .ds-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            padding: 18px;
+            border-radius: var(--radius-l);
+            background: var(--color-surface-c-low);
+            border: 1px dashed var(--color-outline-v);
+        }
+
+        .ds-code {
+            display: block;
+            margin-top: 16px;
+            padding: 14px;
+            overflow-x: auto;
+            border-radius: var(--radius-m);
+            background: color-mix(in srgb, var(--color-on-surface) 92%, var(--color-main));
+            color: var(--color-surface);
+            font-size: 12px;
+            line-height: 1.6;
+            white-space: pre;
+        }
+
+        .ds-principles {
+            counter-reset: principle;
+            display: grid;
+            gap: 12px;
+        }
+
+        .ds-principle {
+            counter-increment: principle;
+            position: relative;
+            padding: 18px 18px 18px 64px;
+            border-radius: var(--radius-l);
+            background: var(--color-surface-c-low);
+            border: 1px solid var(--color-outline);
+        }
+
+        .ds-principle::before {
+            content: counter(principle, decimal-leading-zero);
+            position: absolute;
+            left: 16px;
+            top: 18px;
+            font-family: var(--font-mono);
+            color: var(--color-main);
+        }
+
+        .ds-principle strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .ds-do-dont {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .ds-note {
+            padding: 18px;
+            border-radius: var(--radius-l);
+            background: var(--color-main-c);
+            border: 1px solid color-mix(in srgb, var(--color-main) 22%, transparent);
+            color: var(--color-on-surface);
+        }
+
+        .ds-note strong {
+            color: var(--color-main);
+        }
+
+        .ds-mini-layout {
+            display: grid;
+            grid-template-columns: 70px 1fr 110px;
+            gap: 10px;
+            min-height: 220px;
+            padding: 12px;
+            border-radius: var(--radius-l);
+            background: var(--color-surface-c-low);
+            border: 1px solid var(--color-outline);
+        }
+
+        .ds-mini-layout div {
+            border-radius: var(--radius-m);
+            background: var(--color-surface);
+            border: 1px solid var(--color-outline);
+            padding: 12px;
+            color: var(--color-on-surface-v);
+            font-size: 12px;
+        }
+
+        .ds-theme-button {
+            position: fixed;
+            right: 22px;
+            bottom: 22px;
+            z-index: var(--z-fab);
+            box-shadow: var(--shadow-2);
+        }
+
+        @media (max-width: 980px) {
+            .ds-shell {
+                grid-template-columns: 1fr;
+            }
+
+            .ds-sidebar {
+                position: relative;
+                height: auto;
+                border-right: 0;
+                border-bottom: 1px solid var(--color-outline);
+            }
+
+            .ds-nav-group {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            .ds-nav-label {
+                width: 100%;
+            }
+
+            .ds-hero {
+                grid-template-columns: 1fr;
+            }
+
+            .ds-card,
+            .ds-card-wide {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .ds-main {
+                padding-inline: 14px;
+            }
+
+            .ds-section-header,
+            .ds-do-dont {
+                display: block;
+            }
+
+            .ds-type-row {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+
+            .ds-scale {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+    </style>
+</head>
+
+<body class="design-system-page">
+    <div class="ds-shell">
+        <aside class="ds-sidebar" aria-label="Навігація дизайн-системи">
+            <div class="ds-brand">
+                <strong>Pinguin DS</strong>
+                <span>дизайн-система v5</span>
+            </div>
+
+            <div class="ds-nav-label">Основи</div>
+            <nav class="ds-nav-group">
+                <a class="ds-nav-link" href="#tokens"><span class="material-symbols-outlined">palette</span>Токени</a>
+                <a class="ds-nav-link" href="#typography"><span class="material-symbols-outlined">text_fields</span>Типографіка</a>
+                <a class="ds-nav-link" href="#components"><span class="material-symbols-outlined">widgets</span>Компоненти</a>
+            </nav>
+
+            <div class="ds-nav-label">Практика</div>
+            <nav class="ds-nav-group">
+                <a class="ds-nav-link" href="#layout"><span class="material-symbols-outlined">dashboard</span>Макет</a>
+                <a class="ds-nav-link" href="#principles"><span class="material-symbols-outlined">rule</span>Правила</a>
+                <a class="ds-nav-link" href="#resources"><span class="material-symbols-outlined">folder_open</span>Ресурси</a>
+            </nav>
+        </aside>
+
+        <main class="ds-main">
+            <section class="ds-hero" aria-labelledby="ds-title">
+                <div class="ds-hero-content">
+                    <span class="ds-eyebrow"><span class="material-symbols-outlined">auto_awesome</span>Design system</span>
+                    <h1 id="ds-title">Єдина мова інтерфейсу Pinguin V5</h1>
+                    <p>Сторінка збирає базові правила, CSS-токени, приклади компонентів і патерни макета, щоб нові екрани виглядали послідовно та швидко збиралися з готових частин.</p>
+                    <div class="ds-hero-actions" aria-label="Швидкі переходи">
+                        <a href="#components"><span class="material-symbols-outlined">play_circle</span>Дивитись компоненти</a>
+                        <a href="styleguide.html"><span class="material-symbols-outlined">article</span>Повний style guide</a>
+                    </div>
+                </div>
+
+                <div class="ds-hero-card" aria-label="Стан системи">
+                    <div class="ds-stat"><span>CSS архітектура</span><strong>4 layers</strong></div>
+                    <div class="ds-stat"><span>Теми</span><strong>light / dark</strong></div>
+                    <div class="ds-stat"><span>Джерело токенів</span><strong>root.css</strong></div>
+                    <div class="ds-stat"><span>Компоненти</span><strong>reusable</strong></div>
+                </div>
+            </section>
+
+            <section class="ds-section" id="tokens">
+                <div class="ds-section-header">
+                    <div>
+                        <span class="ds-eyebrow">01 / foundation</span>
+                        <h2>Токени</h2>
+                    </div>
+                    <p>Всі інтерфейсні рішення мають починатися з токенів: кольорів, радіусів, відступів, шрифтів, тіней і переходів. Це дозволяє змінювати бренд або тему без переписування компонентів.</p>
+                </div>
+
+                <div class="ds-grid">
+                    <article class="ds-card ds-card-wide">
+                        <h3>Кольорова система</h3>
+                        <p>Кожен основний колір має роль для тексту поверх нього та container-версію для мʼяких фонів.</p>
+                        <div class="ds-token-list">
+                            <div class="ds-token"><span class="ds-swatch" style="background: var(--color-main);"></span><span><code class="ds-token-name">--color-main</code><span class="ds-token-role">Primary actions, активні стани, ключова навігація</span></span></div>
+                            <div class="ds-token"><span class="ds-swatch" style="background: var(--color-secondary);"></span><span><code class="ds-token-name">--color-secondary</code><span class="ds-token-role">Додаткові акценти, посилання, інформаційні дії</span></span></div>
+                            <div class="ds-token"><span class="ds-swatch" style="background: var(--color-tertiary);"></span><span><code class="ds-token-name">--color-tertiary</code><span class="ds-token-role">Промо-акценти, виділення, CTA другого рівня</span></span></div>
+                            <div class="ds-token"><span class="ds-swatch" style="background: var(--color-surface-c);"></span><span><code class="ds-token-name">--color-surface-c</code><span class="ds-token-role">Панелі, картки, hover-фони та вкладені поверхні</span></span></div>
+                        </div>
+                    </article>
+
+                    <article class="ds-card">
+                        <h3>Форма</h3>
+                        <p>Базова геометрія інтерфейсу: компактні кути для полів, мʼякі картки та повністю круглі pill-елементи.</p>
+                        <div class="ds-scale">
+                            <div class="ds-scale-item" style="border-radius: var(--radius-xs);"><code>xs<br>4px</code></div>
+                            <div class="ds-scale-item" style="border-radius: var(--radius-s);"><code>s<br>8px</code></div>
+                            <div class="ds-scale-item" style="border-radius: var(--radius-m);"><code>m<br>12px</code></div>
+                            <div class="ds-scale-item" style="border-radius: var(--radius-l);"><code>l<br>16px</code></div>
+                            <div class="ds-scale-item" style="border-radius: var(--radius-full);"><code>full<br>999px</code></div>
+                        </div>
+                    </article>
+
+                    <article class="ds-card ds-card-full">
+                        <h3>Швидке правило</h3>
+                        <div class="ds-note"><strong>Не додавай випадкові значення.</strong> Якщо потрібен новий колір, відступ або радіус — спочатку перевір, чи його можна описати існуючим токеном. Новий токен додається тільки як системна роль, а не як одноразовий стиль.</div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="ds-section" id="typography">
+                <div class="ds-section-header">
+                    <div>
+                        <span class="ds-eyebrow">02 / type</span>
+                        <h2>Типографіка</h2>
+                    </div>
+                    <p>Система використовує виразний display-шрифт для великих заголовків, Geologica для інтерфейсу та Roboto Mono для технічних підписів і коду.</p>
+                </div>
+
+                <div class="ds-grid">
+                    <article class="ds-card ds-card-full">
+                        <div class="ds-type-row">
+                            <code class="ds-token-name">--font-display</code>
+                            <p class="ds-type-sample ds-font-display">Пінгвін будує чітку ієрархію</p>
+                            <span>Hero / H1</span>
+                        </div>
+                        <div class="ds-type-row">
+                            <code class="ds-token-name">--font-body</code>
+                            <p class="ds-type-sample ds-font-body">Основний текст має бути спокійним, читабельним і практичним.</p>
+                            <span>UI / Body</span>
+                        </div>
+                        <div class="ds-type-row">
+                            <code class="ds-token-name">--font-mono</code>
+                            <p class="ds-type-sample ds-font-mono">--token-name · component-class · 12/16</p>
+                            <span>Code / Meta</span>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="ds-section" id="components">
+                <div class="ds-section-header">
+                    <div>
+                        <span class="ds-eyebrow">03 / components</span>
+                        <h2>Компоненти</h2>
+                    </div>
+                    <p>Компоненти мають бути незалежними, повторно використовуваними та привʼязаними до токенів. Нижче — базовий стартовий набір для нових сторінок.</p>
+                </div>
+
+                <div class="ds-grid">
+                    <article class="ds-card ds-card-wide">
+                        <h3>Buttons</h3>
+                        <p>Primary — головна дія. Secondary, outline та ghost — допоміжні дії з меншою візуальною вагою.</p>
+                        <div class="ds-preview">
+                            <button class="btn-primary"><span class="material-symbols-outlined">add</span>Створити</button>
+                            <button class="btn-secondary">Зберегти</button>
+                            <button class="btn-outline">Експорт</button>
+                            <button class="btn-ghost"><span class="material-symbols-outlined">more_horiz</span>Більше</button>
+                            <button class="btn-icon" aria-label="Налаштування"><span class="material-symbols-outlined">settings</span></button>
+                        </div>
+                        <code class="ds-code">&lt;button class="btn-primary"&gt;
+  &lt;span class="material-symbols-outlined"&gt;add&lt;/span&gt;
+  Створити
+&lt;/button&gt;</code>
+                    </article>
+
+                    <article class="ds-card">
+                        <h3>Feedback</h3>
+                        <p>Для статусів використовуй семантичні кольори: success, warning, error та info.</p>
+                        <div class="ds-preview">
+                            <span class="chip" style="background: var(--color-success-c); color: var(--color-success);">Готово</span>
+                            <span class="chip" style="background: var(--color-warning-c); color: var(--color-warning);">Увага</span>
+                            <span class="chip" style="background: var(--color-error-c); color: var(--color-error);">Помилка</span>
+                            <span class="badge" style="background: var(--color-info-c); color: var(--color-info);">12</span>
+                        </div>
+                    </article>
+
+                    <article class="ds-card">
+                        <h3>Forms</h3>
+                        <p>Поля мають чіткий focus state, плейсхолдер і підтримку помилок через атрибут <code>error</code>.</p>
+                        <div class="ds-preview" style="display: grid;">
+                            <input class="input-main" type="text" placeholder="Назва товару">
+                            <input class="input-main" type="text" error value="Потрібна унікальна назва">
+                        </div>
+                    </article>
+
+                    <article class="ds-card ds-card-wide">
+                        <h3>Cards & surfaces</h3>
+                        <p>Картки групують повʼязаний контент, але не мають конкурувати з основною дією. Використовуй поверхні від low до high для вкладеності.</p>
+                        <div class="ds-preview">
+                            <div class="ds-token" style="min-width: 220px;"><span class="ds-swatch" style="background: var(--color-surface-c-low);"></span><span><code class="ds-token-name">surface low</code><span class="ds-token-role">фон секції</span></span></div>
+                            <div class="ds-token" style="min-width: 220px;"><span class="ds-swatch" style="background: var(--color-surface-c);"></span><span><code class="ds-token-name">surface</code><span class="ds-token-role">картка</span></span></div>
+                            <div class="ds-token" style="min-width: 220px;"><span class="ds-swatch" style="background: var(--color-surface-c-high);"></span><span><code class="ds-token-name">surface high</code><span class="ds-token-role">активний блок</span></span></div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="ds-section" id="layout">
+                <div class="ds-section-header">
+                    <div>
+                        <span class="ds-eyebrow">04 / layout</span>
+                        <h2>Макет</h2>
+                    </div>
+                    <p>Базова структура застосунку — ліва навігація, центральний робочий простір і контекстна панель. Нові сторінки мають зберігати цю модель, якщо задача не потребує окремого документаційного режиму.</p>
+                </div>
+
+                <div class="ds-grid">
+                    <article class="ds-card ds-card-wide">
+                        <h3>App shell</h3>
+                        <div class="ds-mini-layout" aria-hidden="true">
+                            <div>nav<br>60–180px</div>
+                            <div>main<br>scrollable content</div>
+                            <div>aside<br>320px</div>
+                        </div>
+                    </article>
+                    <article class="ds-card">
+                        <h3>Простір</h3>
+                        <p>Системні відступи: <code>--space-s</code> 12px, <code>--space-m</code> 16px, <code>--space-l</code> 24px. Для великих документаційних блоків дозволено clamp на основі цих значень.</p>
+                        <div class="ds-note"><strong>Ритм:</strong> всередині компонента менший крок, між секціями — більший.</div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="ds-section" id="principles">
+                <div class="ds-section-header">
+                    <div>
+                        <span class="ds-eyebrow">05 / rules</span>
+                        <h2>Правила використання</h2>
+                    </div>
+                    <p>Ці принципи допомагають не перетворити систему на набір схожих, але несумісних елементів.</p>
+                </div>
+
+                <div class="ds-grid">
+                    <article class="ds-card ds-card-wide">
+                        <div class="ds-principles">
+                            <div class="ds-principle"><strong>Одна роль — один стиль.</strong> Якщо елемент виконує ту саму функцію, він має виглядати так само на всіх сторінках.</div>
+                            <div class="ds-principle"><strong>Компонент не знає сторінку.</strong> Уникай селекторів, привʼязаних до конкретного екрану, якщо це не page-specific стиль.</div>
+                            <div class="ds-principle"><strong>Стан важливіший за декор.</strong> Hover, focus, disabled, error та loading мають бути спроєктовані одразу.</div>
+                        </div>
+                    </article>
+                    <article class="ds-card">
+                        <h3>Do / Donʼt</h3>
+                        <div class="ds-do-dont">
+                            <div class="ds-note"><strong>Do:</strong><br>використовуй токени, існуючі класи, семантичні назви.</div>
+                            <div class="ds-note" style="background: var(--color-error-c); border-color: color-mix(in srgb, var(--color-error) 22%, transparent);"><strong style="color: var(--color-error);">Donʼt:</strong><br>дублюй кнопки, hardcode-кольори, випадкові z-index.</div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="ds-section" id="resources">
+                <div class="ds-section-header">
+                    <div>
+                        <span class="ds-eyebrow">06 / resources</span>
+                        <h2>Ресурси</h2>
+                    </div>
+                    <p>Для деталізації використовуй технічні документи та повний каталог компонентів. Ця сторінка — швидкий вхід у систему, а не заміна документації кожного CSS-файлу.</p>
+                </div>
+
+                <div class="ds-grid">
+                    <article class="ds-card">
+                        <h3>Повний каталог</h3>
+                        <p>Style Guide містить ширший набір прикладів компонентів та варіацій.</p>
+                        <a class="ds-nav-link" href="styleguide.html"><span class="material-symbols-outlined">open_in_new</span>Відкрити styleguide.html</a>
+                    </article>
+                    <article class="ds-card">
+                        <h3>Документація</h3>
+                        <p>Опис принципів і дослідження дизайн-системи зберігаються в директорії docs.</p>
+                        <a class="ds-nav-link" href="docs/DESIGN-SYSTEM-DOCS.html"><span class="material-symbols-outlined">open_in_new</span>DESIGN-SYSTEM-DOCS</a>
+                    </article>
+                    <article class="ds-card">
+                        <h3>CSS entrypoint</h3>
+                        <p>Всі production-стилі збираються через головний файл імпортів.</p>
+                        <code class="ds-code" style="margin-top: 0;">css/main.css
+css/root.css
+css/components/**</code>
+                    </article>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <button class="fab ds-theme-button" type="button" aria-label="Перемкнути тему" onclick="document.documentElement.toggleAttribute('data-theme', !document.documentElement.hasAttribute('data-theme')); localStorage.setItem('theme-mode', document.documentElement.hasAttribute('data-theme') ? 'dark' : 'light');">
+        <span class="material-symbols-outlined">contrast</span>
+    </button>
+</body>
+
+</html>
