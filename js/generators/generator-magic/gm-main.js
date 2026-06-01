@@ -47,7 +47,9 @@ import {
  */
 const PLUGINS = [
     () => import('./gm-cleanup.js'),
-    () => import('./gm-normalize.js'),
+    // gm-normalize вимкнений: плагін погано себе показав у роботі,
+    // бо змінював введені назви нутрієнтів і переставляв рядки у фіксованому порядку.
+    // () => import('./gm-normalize.js'),
     () => import('./gm-serving.js'),
     () => import('./gm-merge.js'),
     () => import('./gm-headers.js'),
@@ -56,7 +58,7 @@ const PLUGINS = [
 
 const PLUGIN_NAMES = [
     'gm-cleanup',
-    'gm-normalize',
+    // 'gm-normalize', // вимкнено разом із import вище, щоб індекси PLUGINS/PLUGIN_NAMES збігалися
     'gm-serving',
     'gm-merge',
     'gm-headers',
