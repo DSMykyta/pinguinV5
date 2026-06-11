@@ -8,7 +8,7 @@
  */
 
 import { MAIN_SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
-import { getOptions, loadOptions } from '../../data/entities-data.js';
+import { loadPublicOptionLabels } from '../../data/public-options-data.js';
 
 let triggersData = [];
 let brandsData = {};
@@ -24,6 +24,7 @@ export function getBrandsData() {
 export async function fetchData() {
     const triggersSheetUrl = `https://docs.google.com/spreadsheets/d/${MAIN_SPREADSHEET_ID}/export?format=csv&gid=90240383`;
     const brandsSheetUrl = `https://docs.google.com/spreadsheets/d/${MAIN_SPREADSHEET_ID}/export?format=csv&gid=653695455`;
+    const optionLabelsPromise = loadPublicOptionLabels().catch(() => new Map());
 
     try {
         const settled1 = await Promise.allSettled([
@@ -51,9 +52,7 @@ export async function fetchData() {
         const parsedBrands = Papa.parse(brandsCsv, { header: true, skipEmptyLines: true }).data;
 
         // Резолв opt-ID → назва країни
-        if (getOptions().length === 0) await loadOptions().catch(() => {});
-        const optMap = {};
-        getOptions().forEach(o => { optMap[o.id] = o.value_ua || o.id; });
+        const optionLabels = await optionLabelsPromise;
 
         brandsData = parsedBrands.reduce((acc, row) => {
             // Збираємо ВСІ можливі назви бренду
@@ -72,7 +71,7 @@ export async function fetchData() {
             if (primaryName && allNames.length > 0) {
                 const rawCountry = row.country_option_id || '';
                 acc[primaryName] = {
-                    country: optMap[rawCountry] || rawCountry,
+                    country: optionLabels.get(rawCountry) || rawCountry,
                     // Зберігаємо список ВСІХ назв для пошуку
                     searchNames: allNames
                 };

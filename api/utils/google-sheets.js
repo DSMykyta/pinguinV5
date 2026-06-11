@@ -27,9 +27,11 @@
 // ТИПИ ТАБЛИЦЬ (spreadsheetType):
 // - 'main': основна таблиця (SPREADSHEET_ID)
 // - 'texts': таблиця текстів (SPREADSHEET_ID_TEXTS)
-// - 'users': таблиця користувачів (SPREADSHEET_ID_USERS)
+// - 'users': таблиця користувачів (тільки внутрішній auth API)
+// - 'tasks': аркуш Tasks у SPREADSHEET_ID_USERS
 // - 'price': таблиця прайсу/чекліста (SPREADSHEET_ID_PRICE)
 // - 'products': таблиця товарів (SPREADSHEET_ID_PRODUCTS)
+// - 'banned': alias основної таблиці для заборонених слів
 //
 // ФОРМАТИ ДІАПАЗОНІВ:
 // - "Sheet1!A1:B10" - конкретний діапазон
@@ -75,27 +77,21 @@ function getGoogleSheetsClient() {
  * @returns {string} ID Google Spreadsheet
  */
 function getSpreadsheetId(type = 'main') {
-  if (type === 'texts') {
-    return SPREADSHEET_ID_TEXTS;
+  const spreadsheetIds = {
+    main: SPREADSHEET_ID,
+    banned: SPREADSHEET_ID,
+    texts: SPREADSHEET_ID_TEXTS,
+    users: SPREADSHEET_ID_USERS,
+    tasks: SPREADSHEET_ID_USERS,
+    price: SPREADSHEET_ID_PRICE,
+    products: SPREADSHEET_ID_PRODUCTS,
+  };
+
+  if (!Object.hasOwn(spreadsheetIds, type)) {
+    throw new Error(`Unsupported spreadsheet type: ${type}`);
   }
-  if (type === 'users') {
-    // Логуємо для діагностики
-    console.log('📊 SPREADSHEET_ID_USERS:', SPREADSHEET_ID_USERS ? 'налаштовано' : 'НЕ НАЛАШТОВАНО');
-    if (!SPREADSHEET_ID_USERS) {
-      console.error('❌ SPREADSHEET_ID_USERS не налаштовано в Vercel Environment Variables!');
-    }
-    return SPREADSHEET_ID_USERS;
-  }
-  if (type === 'price') {
-    return SPREADSHEET_ID_PRICE;
-  }
-  if (type === 'products') {
-    return SPREADSHEET_ID_PRODUCTS;
-  }
-  if (type === 'tasks') {
-    return SPREADSHEET_ID_USERS;
-  }
-  return SPREADSHEET_ID;
+
+  return spreadsheetIds[type];
 }
 
 // =========================================================================

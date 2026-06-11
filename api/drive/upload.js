@@ -9,6 +9,7 @@
 //
 // ЕНДПОІНТ:
 // - POST /api/drive/upload
+// - Авторизація: валідний access JWT
 //
 // РЕЖИМИ:
 // 1. multipart/form-data → завантаження файлу (drag-and-drop, file input)
@@ -17,6 +18,7 @@
 //
 // 2. application/json → завантаження з URL
 //    - { url: "https://...", brandName: "..." }
+//    - URL проходить DNS/IP/redirect/timeout/size SSRF-перевірки
 //
 // ОБМЕЖЕННЯ:
 // - Вхідні формати: PNG, JPG, WebP, AVIF, GIF, TIFF, SVG
@@ -26,7 +28,9 @@
 // =========================================================================
 
 const { corsMiddleware } = require('../utils/cors');
+const { requireAccessToken } = require('../utils/auth-guard');
 const { uploadBrandLogo } = require('../utils/google-drive');
+const { SafeUrlError, safeFetchBuffer } = require('../utils/safe-url-fetch');
 const sharp = require('sharp');
 
 const ALLOWED_TYPES = [
@@ -94,6 +98,8 @@ async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  if (!requireAccessToken(req, res)) return;
 
   try {
     const contentType = req.headers['content-type'] || '';
@@ -218,21 +224,26 @@ async function handleUrlUpload(req, res) {
     return res.status(400).json({ error: 'brandName є обов\'язковим полем' });
   }
 
-  const response = await fetch(url);
-  if (!response.ok) {
-    return res.status(400).json({
-      error: `Не вдалося завантажити зображення з URL: ${response.status}`,
+  let remoteFile;
+  try {
+    remoteFile = await safeFetchBuffer(url, {
+      maxSize: MAX_SIZE,
+      maxRedirects: 3,
+      timeoutMs: 10000,
     });
+  } catch (error) {
+    if (error instanceof SafeUrlError) {
+      return res.status(400).json({ error: error.message });
+    }
+    throw error;
   }
 
-  const arrayBuffer = await response.arrayBuffer();
-  const fileBuffer = Buffer.from(arrayBuffer);
-
-  if (fileBuffer.length > MAX_SIZE) {
-    return res.status(400).json({ error: 'Зображення занадто велике. Максимум 4 MB' });
+  const contentType = remoteFile.contentType.split(';')[0].trim().toLowerCase();
+  if (!ALLOWED_TYPES.includes(contentType)) {
+    return res.status(400).json({ error: `Непідтримуваний формат: ${contentType || 'unknown'}` });
   }
 
-  const contentType = response.headers.get('content-type') || 'image/jpeg';
+  const fileBuffer = remoteFile.buffer;
   const { buffer: outputBuffer, ext, mime } = await convertImage(fileBuffer, contentType);
   const driveName = `${normalizeBrandName(brandName)}.${ext}`;
 

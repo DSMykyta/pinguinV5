@@ -10,7 +10,7 @@
  */
 
 import { priceState } from './price-state.js';
-import { callSheetsAPI } from '../../utils/utils-api-client.js';
+import { callSheetsAPI, getUserDirectory } from '../../utils/utils-api-client.js';
 import { PRICE_SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
 import { formatDate } from '../../utils/utils-date.js';
 
@@ -554,60 +554,18 @@ export async function updateItemFields(code, fields) {
  */
 export async function loadUsersData() {
     try {
-
-        // Пробуємо різні назви аркушів
-        const sheetNames = ['Users', 'Sheet1', 'Лист1', 'Аркуш1', 'users'];
-        let result = null;
-        let foundSheet = null;
-
-        for (const sheetName of sheetNames) {
-            try {
-                result = await callSheetsAPI('get', {
-                    range: `${sheetName}!A1:H`,
-                    spreadsheetType: 'users'
-                });
-                if (result && result.length > 0) {
-                    foundSheet = sheetName;
-                    break;
-                }
-            } catch (e) {
-            }
-        }
-
-        if (!foundSheet) {
-            console.error('❌ Жоден аркуш не знайдено в таблиці users!');
-            return {};
-        }
-
-
-        const rows = result || [];
-        if (rows.length <= 1) {
-            console.warn('⚠️ Таблиця користувачів порожня');
-            return {};
-        }
-
-        // Перший рядок - заголовки (trim для видалення пробілів!)
-        const headers = rows[0];
-        const displayNameIdx = headers.findIndex(h => h?.trim().toLowerCase() === 'display_name');
-        const avatarIdx = headers.findIndex(h => h?.trim().toLowerCase() === 'avatar');
-
-        if (displayNameIdx === -1 || avatarIdx === -1) {
-            console.warn('⚠️ Не знайдено колонки display_name або avatar');
-            return {};
-        }
-
+        const users = await getUserDirectory();
         const usersMap = {};
-        for (let i = 1; i < rows.length; i++) {
-            const row = rows[i];
-            const displayName = row[displayNameIdx]?.trim();
-            const avatar = row[avatarIdx]?.trim();
 
+        users.forEach(user => {
+            const displayName = user.display_name?.trim();
+            const avatar = user.avatar?.trim();
             if (displayName && avatar) {
                 // Зберігаємо з оригінальним ключем та lowercase для пошуку
                 usersMap[displayName] = avatar;
                 usersMap[displayName.toLowerCase()] = avatar;
             }
-        }
+        });
 
         priceState.usersMap = usersMap;
 

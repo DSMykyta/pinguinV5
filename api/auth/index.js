@@ -155,7 +155,7 @@ async function handleVerify(req, res) {
     // Верифікуємо токен
     const decoded = verifyToken(token);
 
-    if (!decoded) {
+    if (!decoded || decoded.type !== 'access') {
       return res.status(401).json({
         valid: false,
         error: 'Invalid or expired token'

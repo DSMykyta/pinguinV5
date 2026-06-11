@@ -24,6 +24,10 @@
 
 const { corsMiddleware } = require('../utils/cors');
 const { getValues } = require('../utils/google-sheets');
+const {
+  PUBLIC_DATA_SHEETS,
+  isExactAllowedSheet,
+} = require('../utils/sheet-security');
 
 /**
  * Handler для публічного читання даних з Google Sheets
@@ -50,20 +54,12 @@ async function handler(req, res) {
       });
     }
 
-    // Білий список дозволених аркушів (БЕЗ авторизації)
-    const allowedSheets = [
-      'Banned',               // Заборонені слова
-      'Links',                // Посилання на сайти
-      'Mapper_MP_Categories', // Категорії для маппера
-    ];
-
-    // Перевіряємо чи аркуш в білому списку
-    const isAllowed = allowedSheets.some(allowed => sheet.startsWith(allowed));
+    const isAllowed = isExactAllowedSheet(sheet, PUBLIC_DATA_SHEETS);
 
     if (!isAllowed) {
       return res.status(403).json({
         error: 'Access denied to this sheet',
-        allowedSheets
+        allowedSheets: Array.from(PUBLIC_DATA_SHEETS)
       });
     }
 

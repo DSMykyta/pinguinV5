@@ -9,17 +9,11 @@
 // Генерує bcrypt хеш для нового пароля користувача.
 // Використовується адміністратором для створення/оновлення користувачів.
 //
-// ЕНДПОІНТ: GET /api/auth/hash-password
-// АВТОРИЗАЦІЯ: Не потрібна (!)
+// ЕНДПОІНТ: POST /api/auth/hash-password
+// АВТОРИЗАЦІЯ: Валідний access JWT з роллю admin
 //
-// ⚠️ ПРОБЛЕМИ БЕЗПЕКИ:
-// - GET запит показує пароль в URL (видно в логах)
-// - Немає перевірки авторизації
-// - РЕКОМЕНДОВАНО: Використовувати тільки в development
-// - TODO: Змінити на POST з авторизацією для production
-//
-// QUERY ПАРАМЕТРИ:
-// - pwd: пароль (plaintext)
+// BODY:
+// - password або pwd: пароль (plaintext)
 //
 // ВІДПОВІДЬ:
 // {
@@ -29,35 +23,38 @@
 // }
 //
 // ВИКОРИСТАННЯ:
-// 1. Викликати GET /api/auth/hash-password?pwd=новий_пароль
+// 1. Викликати POST /api/auth/hash-password з JSON body та admin JWT
 // 2. Скопіювати згенерований hash
 // 3. Вставити в Google Sheets (Users!C колонка)
 // =========================================================================
 
 const bcrypt = require('bcryptjs');
 const { corsMiddleware } = require('../utils/cors');
+const { requireAccessToken } = require('../utils/auth-guard');
 
 /**
  * Handler для генерації bcrypt хешу пароля
  * @param {Object} req - Express request об'єкт
- * @param {Object} req.query - Query параметри
- * @param {string} req.query.pwd - Пароль для хешування
+ * @param {Object} req.body - JSON body
+ * @param {string} req.body.password - Пароль для хешування
  * @param {Object} res - Express response об'єкт
  * @returns {Promise<Object>} JSON з bcrypt хешем
  */
 async function handler(req, res) {
-  if (req.method !== 'GET') {
+  if (!requireAccessToken(req, res, { roles: ['admin'] })) return;
+
+  if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const { pwd } = req.query;
+    const pwd = req.body?.password || req.body?.pwd;
 
     // Валідація
     if (!pwd) {
       return res.status(400).json({
         error: 'Password is required',
-        usage: 'GET /api/auth/hash-password?pwd=your_password'
+        usage: 'POST /api/auth/hash-password with JSON body { "password": "your_password" }'
       });
     }
 

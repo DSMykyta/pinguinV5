@@ -9,12 +9,18 @@
 //
 // ЕНДПОІНТ:
 // - GET /api/drive/images  -> список всіх зображень
+// - Авторизація: валідний access JWT
+//
+// ПРИМІТКА:
+// Endpoint повертає приватний індекс структури Drive, а не самі зображення.
+// Публічні thumbnailUrl продовжують відкриватися напряму через Google.
 //
 // ВІДПОВІДЬ:
 // { success: true, images: [{ fileId, name, mimeType, size, modifiedTime, thumbnailUrl, folder }] }
 // =========================================================================
 
 const { corsMiddleware } = require('../utils/cors');
+const { requireAccessToken } = require('../utils/auth-guard');
 
 const { google } = require('googleapis');
 
@@ -100,6 +106,8 @@ async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  if (!requireAccessToken(req, res)) return;
 
   try {
     if (!ROOT_FOLDER_ID) {

@@ -8,7 +8,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { callSheetsAPI } from '../../utils/utils-api-client.js';
+import { callSheetsAPI, getUserDirectory } from '../../utils/utils-api-client.js';
 import { escapeHtml } from '../../utils/utils-text.js';
 import { safeJsonParse } from '../../utils/utils-json.js';
 import { populateSelect } from '../../components/forms/select.js';
@@ -524,30 +524,11 @@ async function loadTasksViaApi(state, data) {
 
 async function loadUsersForTasks(state) {
     try {
-        const sheetNames = ['Users', 'Sheet1', 'Лист1', 'Аркуш1', 'users'];
-        let result = null;
-        for (const sheetName of sheetNames) {
-            try {
-                result = await callSheetsAPI('get', { range: `${sheetName}!A1:H`, spreadsheetType: 'users' });
-                if (result && result.length > 0) break;
-            } catch (e) { /* next */ }
-        }
-        if (!result || result.length <= 1) return;
-
-        const headers = result[0];
-        const usernameIdx = headers.findIndex(h => h?.trim().toLowerCase() === 'username');
-        const displayNameIdx = headers.findIndex(h => h?.trim().toLowerCase() === 'display_name');
-
-        const usersList = [];
-        for (let i = 1; i < result.length; i++) {
-            const row = result[i];
-            const username = usernameIdx >= 0 ? row[usernameIdx]?.trim() : '';
-            const displayName = displayNameIdx >= 0 ? row[displayNameIdx]?.trim() : '';
-            if (username || displayName) {
-                usersList.push({ username, display_name: displayName });
-            }
-        }
-        state.usersList = usersList;
+        const users = await getUserDirectory();
+        state.usersList = users.map(user => ({
+            username: user.username,
+            display_name: user.display_name || user.username,
+        }));
     } catch (error) {
         console.error('❌ Помилка завантаження юзерів:', error);
     }

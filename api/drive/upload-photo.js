@@ -9,6 +9,7 @@
 //
 // ЕНДПОІНТ:
 // - POST /api/drive/upload-photo
+// - Авторизація: валідний access JWT
 //
 // РЕЖИМ:
 // multipart/form-data
@@ -22,6 +23,7 @@
 // =========================================================================
 
 const { corsMiddleware } = require('../utils/cors');
+const { requireAccessToken } = require('../utils/auth-guard');
 const { uploadProductPhoto } = require('../utils/google-drive');
 const sharp = require('sharp');
 
@@ -63,6 +65,8 @@ async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  if (!requireAccessToken(req, res)) return;
 
   try {
     const contentType = req.headers['content-type'] || '';

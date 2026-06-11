@@ -4,11 +4,11 @@
 // SHEETS API - UNIFIED ENDPOINT
 // =========================================================================
 // ПРИЗНАЧЕННЯ:
-// Об'єднаний ендпоінт для всіх операцій з Google Sheets.
-// ВСІ операції доступні БЕЗ авторизації.
+// Об'єднаний ендпоінт для операцій з Google Sheets.
+// Приватні POST-операції вимагають валідний access JWT.
 //
 // ЕНДПОІНТИ:
-// - POST /api/sheets                       → всі операції з Google Sheets (БЕЗ авторизації)
+// - POST /api/sheets                       → приватні операції з access JWT
 // - GET  /api/sheets?type=public&range=... → публічне читання даних
 // - GET  /api/sheets?type=csv&gid=...      → CSV export
 //
@@ -18,6 +18,13 @@
 // =========================================================================
 
 const { corsMiddleware } = require('../utils/cors');
+const { requireAccessToken } = require('../utils/auth-guard');
+const {
+  PUBLIC_SHEETS,
+  extractSheetName,
+  isExactAllowedSheet,
+  validateUniversalSheetsRequest,
+} = require('../utils/sheet-security');
 const {
   getValues,
   batchGetValues,
@@ -41,7 +48,7 @@ const {
 async function handler(req, res) {
   try {
     if (req.method === 'POST') {
-      // POST /api/sheets → захищений proxy
+      if (!requireAccessToken(req, res)) return;
       return await handleProxy(req, res);
     } else if (req.method === 'GET') {
       const { type } = req.query;
@@ -78,12 +85,13 @@ async function handler(req, res) {
 // =========================================================================
 
 /**
- * Proxy для операцій з Google Sheets API (БЕЗ авторизації)
+ * Proxy для авторизованих операцій з Google Sheets API
  * @returns {Promise<Object>} JSON з результатом операції
  */
 async function handleProxy(req, res) {
   try {
-    const { action, range, ranges, values, data, requests, spreadsheetType } = req.body;
+    const body = req.body || {};
+    const { action, range, ranges, values, data, requests } = body;
 
     // Валідація action
     const validActions = [
@@ -99,6 +107,12 @@ async function handleProxy(req, res) {
     if (!validActions.includes(action)) {
       return res.status(400).json({ error: 'Invalid action' });
     }
+
+    const access = validateUniversalSheetsRequest(body);
+    if (!access.allowed) {
+      return res.status(access.status).json({ error: access.error });
+    }
+    const spreadsheetType = access.spreadsheetType;
 
     // Виконання операції
     let result;
@@ -177,7 +191,7 @@ async function handleProxy(req, res) {
  */
 async function handlePublic(req, res) {
   try {
-    const { range, spreadsheetType } = req.query;
+    const { range } = req.query;
 
     // Валідація
     if (!range) {
@@ -187,33 +201,18 @@ async function handlePublic(req, res) {
       });
     }
 
-    // Обмеження доступу тільки до певних аркушів (для безпеки)
-    const allowedSheets = [
-      'SEO',
-      'Тригери',
-      'Співставлення',
-      'Глосарій',
-      'Сутності',
-      'Тексти',
-      'Посилання',
-      'Заборонені'
-    ];
-
-    // Перевіряємо чи range починається з дозволеного аркушу
-    const sheetName = range.split('!')[0];
-    const isAllowed = allowedSheets.some(allowed =>
-      sheetName === allowed || sheetName.includes(allowed)
-    );
+    const sheetName = extractSheetName(range);
+    const isAllowed = isExactAllowedSheet(sheetName, PUBLIC_SHEETS);
 
     if (!isAllowed) {
       return res.status(403).json({
         error: 'Access to this sheet is restricted',
-        allowedSheets
+        allowedSheets: Array.from(PUBLIC_SHEETS)
       });
     }
 
     // Отримуємо дані
-    const result = await getValues(range, spreadsheetType);
+    const result = await getValues(range, 'main');
 
     return res.status(200).json({
       success: true,

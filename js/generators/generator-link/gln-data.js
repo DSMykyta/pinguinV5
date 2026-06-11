@@ -20,7 +20,7 @@
 
 import { MAIN_SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
 import { safeJsonParse } from '../../utils/utils-json.js';
-import { getOptions, loadOptions } from '../../data/entities-data.js';
+import { loadPublicOptionLabels } from '../../data/public-options-data.js';
 
 let linksData = [];
 let countriesData = {};
@@ -36,6 +36,7 @@ export async function fetchLinksData() {
     const sheetGid = '653695455'; // GID для Brands
     const csvUrlLinksBase = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${sheetGid}`;
     const csvUrlLinks = `${csvUrlLinksBase}&_=${Date.now()}`; // Anti-cache
+    const optionLabelsPromise = loadPublicOptionLabels().catch(() => new Map());
 
     try {
         const response = await fetch(csvUrlLinks);
@@ -44,9 +45,7 @@ export async function fetchLinksData() {
         const parsedData = Papa.parse(csvText, { header: true, skipEmptyLines: true }).data;
 
         // Резолв opt-ID → назва країни
-        if (getOptions().length === 0) await loadOptions().catch(() => {});
-        const optMap = {};
-        getOptions().forEach(o => { optMap[o.id] = o.value_ua || o.id; });
+        const optionLabels = await optionLabelsPromise;
 
         // Очищаємо масив
         linksData = [];
@@ -55,7 +54,7 @@ export async function fetchLinksData() {
         parsedData.forEach(row => {
             const brandName = (row.name_uk || '').trim();
             const rawCountry = (row.country_option_id || '').trim();
-            const country = optMap[rawCountry] || rawCountry;
+            const country = optionLabels.get(rawCountry) || rawCountry;
 
             if (!brandName) return;
 

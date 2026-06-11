@@ -20,7 +20,7 @@
 
 import { getAvatarPath } from '../../components/avatar/avatar-user.js';
 import { formatDate } from '../../utils/utils-date.js';
-import { callSheetsAPI } from '../../utils/utils-api-client.js';
+import { getUserDirectory } from '../../utils/utils-api-client.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // USERS CACHE
@@ -31,46 +31,19 @@ let _usersCache = null; // { username: { display_name, avatar } }
 async function loadUsersCache() {
     if (_usersCache) return _usersCache;
 
-    const sheetNames = ['Users', 'Sheet1', 'Лист1', 'Аркуш1', 'users'];
-    let result = null;
-
-    for (const sheetName of sheetNames) {
-        try {
-            result = await callSheetsAPI('get', {
-                range: `${sheetName}!A1:H`,
-                spreadsheetType: 'users'
-            });
-            if (result && result.length > 0) break;
-        } catch { /* next sheet */ }
-    }
-
-    if (!result || result.length <= 1) {
-        _usersCache = {};
-        return _usersCache;
-    }
-
-    const headers = result[0];
-    const usernameIdx = headers.findIndex(h => h?.trim().toLowerCase() === 'username');
-    const displayNameIdx = headers.findIndex(h => h?.trim().toLowerCase() === 'display_name');
-    const avatarIdx = headers.findIndex(h => h?.trim().toLowerCase() === 'avatar');
-
     _usersCache = {};
 
-    if (usernameIdx === -1 || displayNameIdx === -1 || avatarIdx === -1) {
-        return _usersCache;
-    }
-
-    for (let i = 1; i < result.length; i++) {
-        const row = result[i];
-        const username = row[usernameIdx]?.trim();
-        const displayName = row[displayNameIdx]?.trim();
-        const avatar = row[avatarIdx]?.trim();
-
+    const users = await getUserDirectory();
+    users.forEach(user => {
+        const username = user.username?.trim();
         if (username) {
-            _usersCache[username] = { display_name: displayName || username, avatar: avatar || '' };
+            _usersCache[username] = {
+                display_name: user.display_name?.trim() || username,
+                avatar: user.avatar?.trim() || '',
+            };
             _usersCache[username.toLowerCase()] = _usersCache[username];
         }
-    }
+    });
 
     return _usersCache;
 }

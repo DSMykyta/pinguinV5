@@ -11,6 +11,7 @@
 // - POST   /api/drive/references             → завантажити файл (multipart: file + marketplaceSlug)
 // - GET    /api/drive/references?marketplace= → список файлів маркетплейсу
 // - DELETE /api/drive/references              → видалити файл (JSON: { fileId })
+// - Авторизація: валідний access JWT для всіх операцій
 //
 // ОБМЕЖЕННЯ:
 // - Формати: xlsx, xls, csv, json, txt, pdf
@@ -18,6 +19,7 @@
 // =========================================================================
 
 const { corsMiddleware } = require('../utils/cors');
+const { requireAccessToken } = require('../utils/auth-guard');
 const { uploadFile, listFiles, deleteFile } = require('../utils/google-drive');
 
 const ALLOWED_TYPES = [
@@ -55,6 +57,12 @@ function parseJsonBody(req) {
 
 async function handler(req, res) {
   try {
+    if (!['POST', 'GET', 'DELETE'].includes(req.method)) {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    if (!requireAccessToken(req, res)) return;
+
     if (req.method === 'POST') {
       return await handleUpload(req, res);
     } else if (req.method === 'GET') {
@@ -62,8 +70,6 @@ async function handler(req, res) {
     } else if (req.method === 'DELETE') {
       return await handleDelete(req, res);
     }
-
-    return res.status(405).json({ error: 'Method not allowed' });
   } catch (error) {
     console.error('Drive references error:', error);
     return res.status(500).json({

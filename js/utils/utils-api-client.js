@@ -20,6 +20,8 @@
  * ║  ├── uploadReferenceFile / listReferenceFiles / deleteReferenceFile       ║
  * ║  └── listDriveImages — список зображень з папки                          ║
  * ║                                                                          ║
+ * ║  📋 Users API: getUserDirectory — безпечний каталог користувачів          ║
+ * ║                                                                          ║
  * ║  🎯 Використання:                                                        ║
  * ║  import { callSheetsAPI } from '../utils/utils-api-client.js';           ║
  * ║                                                                          ║
@@ -29,24 +31,37 @@
 const API_BASE = window.location.origin;
 const API_SHEETS_PROXY = `${API_BASE}/api/sheets`; // Unified endpoint
 
+function getAccessToken() {
+  const token = window.getAuthToken?.() || localStorage.getItem('auth_token');
+
+  if (!token) {
+    throw new Error('Authorization required. Please login first.');
+  }
+
+  return token;
+}
+
+function authenticatedFetch(url, options = {}) {
+  return fetch(url, {
+    ...options,
+    headers: {
+      ...options.headers,
+      'Authorization': `Bearer ${getAccessToken()}`,
+    },
+  });
+}
+
 /**
  * Виконує запит до backend з автоматичним додаванням токена
  */
 async function apiRequest(url, options = {}) {
-  const token = window.getAuthToken?.() || localStorage.getItem('auth_token');
-
-  if (!token) {
-    throw new Error('Not authorized');
-  }
-
   const headers = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
     ...options.headers,
   };
 
   try {
-    const response = await fetch(url, {
+    const response = await authenticatedFetch(url, {
       ...options,
       headers,
     });
@@ -318,7 +333,7 @@ async function httpDelete(url, data) {
  * @param {Array} params.values - Дані для запису (для update, append)
  * @param {Array} params.data - Дані для batch оновлення (для batchUpdate)
  * @param {Array} params.requests - Запити (для batchUpdateSpreadsheet)
- * @param {string} params.spreadsheetType - Тип таблиці: 'main', 'texts', 'users' (за замовчуванням 'main')
+ * @param {string} params.spreadsheetType - Дозволений тип таблиці (за замовчуванням 'main'); 'users' тут заборонений
  * @returns {Promise<any>} Результат операції
  *
  * @example
@@ -342,17 +357,10 @@ async function httpDelete(url, data) {
  * });
  */
 async function callSheetsAPI(action, params = {}) {
-  const token = window.getAuthToken?.() || localStorage.getItem('auth_token');
-
-  if (!token) {
-    throw new Error('Authorization required. Please login first.');
-  }
-
-  const response = await fetch(API_SHEETS_PROXY, {
+  const response = await authenticatedFetch(API_SHEETS_PROXY, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({ action, ...params })
   });
@@ -381,7 +389,7 @@ async function uploadBrandLogoFile(file, brandName) {
   formData.append('file', file);
   formData.append('brandName', brandName);
 
-  const response = await fetch(API_DRIVE_UPLOAD, {
+  const response = await authenticatedFetch(API_DRIVE_UPLOAD, {
     method: 'POST',
     body: formData,
     // НЕ встановлюємо Content-Type — браузер сам додасть boundary для FormData
@@ -399,7 +407,7 @@ async function uploadBrandLogoFile(file, brandName) {
  * @returns {Promise<{success: boolean, thumbnailUrl: string, fileId: string}>}
  */
 async function uploadBrandLogoUrl(imageUrl, brandName) {
-  const response = await fetch(API_DRIVE_UPLOAD, {
+  const response = await authenticatedFetch(API_DRIVE_UPLOAD, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -427,7 +435,7 @@ async function uploadReferenceFile(file, marketplaceSlug) {
   formData.append('file', file);
   formData.append('marketplaceSlug', marketplaceSlug);
 
-  const response = await fetch(API_DRIVE_REFERENCES, {
+  const response = await authenticatedFetch(API_DRIVE_REFERENCES, {
     method: 'POST',
     body: formData,
   });
@@ -443,7 +451,7 @@ async function uploadReferenceFile(file, marketplaceSlug) {
  * @returns {Promise<Array<{fileId: string, name: string, mimeType: string, size: string, modifiedTime: string, downloadUrl: string}>>}
  */
 async function listReferenceFiles(marketplaceSlug) {
-  const response = await fetch(`${API_DRIVE_REFERENCES}?marketplace=${encodeURIComponent(marketplaceSlug)}`);
+  const response = await authenticatedFetch(`${API_DRIVE_REFERENCES}?marketplace=${encodeURIComponent(marketplaceSlug)}`);
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || 'Failed to list files');
   return data.files || [];
@@ -455,7 +463,7 @@ async function listReferenceFiles(marketplaceSlug) {
  * @returns {Promise<{success: boolean}>}
  */
 async function deleteReferenceFile(fileId) {
-  const response = await fetch(API_DRIVE_REFERENCES, {
+  const response = await authenticatedFetch(API_DRIVE_REFERENCES, {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ fileId }),
@@ -475,7 +483,7 @@ const API_DRIVE_IMAGES = `${API_BASE}/api/drive/images`;
  * @returns {Promise<Array<{fileId: string, name: string, mimeType: string, size: string, modifiedTime: string, thumbnailUrl: string, folder: string, width: number|null, height: number|null}>>}
  */
 async function listDriveImages() {
-  const response = await fetch(API_DRIVE_IMAGES);
+  const response = await authenticatedFetch(API_DRIVE_IMAGES);
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || 'Failed to list images');
   return data.images || [];
@@ -503,7 +511,7 @@ async function uploadProductPhotoFile(file, brandId, productId, photoIndex, { br
   if (brandName) formData.append('brandName', brandName);
   if (productName) formData.append('productName', productName);
 
-  const response = await fetch(API_DRIVE_PHOTO, {
+  const response = await authenticatedFetch(API_DRIVE_PHOTO, {
     method: 'POST',
     body: formData,
   });
@@ -511,6 +519,21 @@ async function uploadProductPhotoFile(file, brandId, productId, photoIndex, { br
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || 'Upload failed');
   return data;
+}
+
+// ============= Users Directory API =============
+
+const API_USERS_DIRECTORY = `${API_BASE}/api/users/directory`;
+
+/**
+ * Отримати безпечний каталог користувачів без приватних полів.
+ * @returns {Promise<Array<{id: string, username: string, display_name: string, avatar: string}>>}
+ */
+async function getUserDirectory() {
+  const response = await authenticatedFetch(API_USERS_DIRECTORY);
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Failed to load users directory');
+  return data.users || [];
 }
 
 // ============= Експорт =============
@@ -533,7 +556,8 @@ export {
   listReferenceFiles,
   deleteReferenceFile,
   uploadProductPhotoFile,
-  listDriveImages
+  listDriveImages,
+  getUserDirectory
 };
 
 // Глобальний об'єкт для доступу до API
@@ -572,6 +596,10 @@ window.apiClient = {
     listDriveImages,
   },
 
+  users: {
+    directory: getUserDirectory,
+  },
+
   // Утиліти
   showError,
   handleApiError,
@@ -586,4 +614,3 @@ window.sheetsAppend = sheetsAppend;
 window.sheetsBatchUpdate = sheetsBatchUpdate;
 window.sheetsBatchUpdateSpreadsheet = sheetsBatchUpdateSpreadsheet;
 window.sheetsGetSheetNames = sheetsGetSheetNames;
-

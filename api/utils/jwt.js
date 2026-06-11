@@ -25,9 +25,23 @@
 
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
 const JWT_EXPIRES_IN = '8h'; // 8 hours
 const JWT_REFRESH_EXPIRES_IN = '30d'; // 30 days
+
+class JwtConfigurationError extends Error {
+  constructor() {
+    super('JWT_SECRET environment variable is required');
+    this.name = 'JwtConfigurationError';
+  }
+}
+
+function getJwtSecret() {
+  const secret = process.env.JWT_SECRET;
+  if (typeof secret !== 'string' || !secret.trim()) {
+    throw new JwtConfigurationError();
+  }
+  return secret;
+}
 
 // =========================================================================
 // ГЕНЕРАЦІЯ ТОКЕНІВ
@@ -49,7 +63,7 @@ function generateToken(user) {
     type: 'access'
   };
 
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+  return jwt.sign(payload, getJwtSecret(), { expiresIn: JWT_EXPIRES_IN });
 }
 
 /**
@@ -66,7 +80,7 @@ function generateRefreshToken(user) {
     type: 'refresh'
   };
 
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_REFRESH_EXPIRES_IN });
+  return jwt.sign(payload, getJwtSecret(), { expiresIn: JWT_REFRESH_EXPIRES_IN });
 }
 
 // =========================================================================
@@ -79,8 +93,9 @@ function generateRefreshToken(user) {
  * @returns {Object|null} Декодований payload або null якщо невалідний
  */
 function verifyToken(token) {
+  const secret = getJwtSecret();
   try {
-    return jwt.verify(token, JWT_SECRET);
+    return jwt.verify(token, secret);
   } catch (error) {
     return null;
   }
@@ -103,8 +118,10 @@ function extractTokenFromHeader(authHeader) {
 }
 
 module.exports = {
+  JwtConfigurationError,
   generateToken,
   generateRefreshToken,
+  getJwtSecret,
   verifyToken,
   extractTokenFromHeader
 };
