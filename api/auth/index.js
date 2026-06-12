@@ -46,6 +46,10 @@ const {
 } = require('../../server/utils/jwt');
 const { updateValues } = require('../../server/utils/google-sheets');
 const { loadUsersDirectory } = require('../../server/users-directory');
+const {
+  CAPABILITIES,
+  isKnownRole,
+} = require('../../server/access-policy');
 
 const LOGIN_WINDOW_MS = 15 * 60 * 1000;
 const LOGIN_MAX_ATTEMPTS = 8;
@@ -139,7 +143,7 @@ async function handleLogin(req, res) {
   }
 
   const account = await findAccountByUsername(username);
-  if (!account || account.status !== 'active') {
+  if (!account || account.status !== 'active' || !isKnownRole(account.role)) {
     await bcrypt.compare(password, DUMMY_PASSWORD_HASH);
     recordLoginFailure(attemptKey);
     return res.status(401).json({ error: 'Invalid username or password' });
@@ -313,7 +317,7 @@ async function handleChangePassword(req, res) {
 // =========================================================================
 
 async function handleListAccounts(req, res) {
-  if (!await authenticateAccount(req, res, { roles: ['admin'] })) return;
+  if (!await authenticateAccount(req, res, { capability: CAPABILITIES.ACCOUNTS_MANAGE })) return;
 
   const accounts = await loadAccounts();
   return res.status(200).json({
@@ -323,7 +327,7 @@ async function handleListAccounts(req, res) {
 }
 
 async function handleCreateAccount(req, res) {
-  const actor = await authenticateAccount(req, res, { roles: ['admin'] });
+  const actor = await authenticateAccount(req, res, { capability: CAPABILITIES.ACCOUNTS_MANAGE });
   if (!actor) return;
 
   const account = await createAccount(req.body || {}, actor);
@@ -331,7 +335,7 @@ async function handleCreateAccount(req, res) {
 }
 
 async function handleUpdateAccount(req, res) {
-  const actor = await authenticateAccount(req, res, { roles: ['admin'] });
+  const actor = await authenticateAccount(req, res, { capability: CAPABILITIES.ACCOUNTS_MANAGE });
   if (!actor) return;
 
   const account = await updateAccount(req.body?.id, req.body || {}, actor);
@@ -339,7 +343,7 @@ async function handleUpdateAccount(req, res) {
 }
 
 async function handleResetPassword(req, res) {
-  const actor = await authenticateAccount(req, res, { roles: ['admin'] });
+  const actor = await authenticateAccount(req, res, { capability: CAPABILITIES.ACCOUNTS_MANAGE });
   if (!actor) return;
 
   await resetPassword(req.body?.id, req.body?.newPassword, actor);

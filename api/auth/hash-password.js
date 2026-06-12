@@ -30,7 +30,12 @@
 
 const bcrypt = require('bcryptjs');
 const { corsMiddleware } = require('../../server/utils/cors');
-const { authenticateAccount } = require('../../server/accounts');
+const {
+  AccountError,
+  authenticateAccount,
+  validatePassword,
+} = require('../../server/accounts');
+const { CAPABILITIES } = require('../../server/access-policy');
 
 /**
  * Handler для генерації bcrypt хешу пароля
@@ -41,7 +46,7 @@ const { authenticateAccount } = require('../../server/accounts');
  * @returns {Promise<Object>} JSON з bcrypt хешем
  */
 async function handler(req, res) {
-  if (!await authenticateAccount(req, res, { roles: ['admin'] })) return;
+  if (!await authenticateAccount(req, res, { capability: CAPABILITIES.ACCOUNTS_MANAGE })) return;
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -58,11 +63,7 @@ async function handler(req, res) {
       });
     }
 
-    if (pwd.length < 6) {
-      return res.status(400).json({
-        error: 'Password must be at least 6 characters long'
-      });
-    }
+    validatePassword(pwd);
 
     // Генерація хешу
     const saltRounds = 12;
@@ -74,6 +75,9 @@ async function handler(req, res) {
       note: 'Copy this hash to the Users sheet in Google Sheets',
     });
   } catch (error) {
+    if (error instanceof AccountError) {
+      return res.status(error.status).json({ error: error.message });
+    }
     console.error('Hash password error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }

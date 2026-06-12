@@ -20,7 +20,7 @@
 // =========================================================================
 
 const { corsMiddleware } = require('../../server/utils/cors');
-const { requireAccessToken } = require('../../server/utils/auth-guard');
+const { authenticateAccount } = require('../../server/accounts');
 const { loadUsersDirectory } = require('../../server/users-directory');
 
 async function handler(req, res) {
@@ -28,7 +28,7 @@ async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  if (!requireAccessToken(req, res)) return;
+  if (!await authenticateAccount(req, res)) return;
 
   try {
     const users = await loadUsersDirectory();

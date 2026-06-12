@@ -104,6 +104,48 @@ const testUserRows = [
     '',
     '1',
   ],
+  [
+    'invalid-role-1',
+    'invalid-role',
+    bcrypt.hashSync('invalid-role-password', 4),
+    'viewr',
+    '2026-01-01T00:00:00.000Z',
+    '',
+    'Invalid Role',
+    'beaver',
+    'FALSE',
+    '',
+    '',
+    '',
+    '',
+    '',
+    'active',
+    '',
+    '',
+    '',
+    '1',
+  ],
+  [
+    'blank-role-1',
+    'blank-role',
+    bcrypt.hashSync('blank-role-password', 4),
+    '',
+    '2026-01-01T00:00:00.000Z',
+    '',
+    'Blank Role',
+    'otter',
+    'FALSE',
+    '',
+    '',
+    '',
+    '',
+    '',
+    'active',
+    '',
+    '',
+    '',
+    '1',
+  ],
 ];
 const appendedUserRows = [];
 const accountBatchUpdates = [];
@@ -123,6 +165,9 @@ require.cache[googleSheetsPath] = {
     batchGetValues: async (ranges, spreadsheetType) => ranges.map(range => {
       if (spreadsheetType === 'users' && range === 'Users!A2:B1000') {
         return { range, values: testUserRows.map(row => row.slice(0, 2)) };
+      }
+      if (spreadsheetType === 'users' && range === 'Users!D2:D1000') {
+        return { range, values: testUserRows.map(row => row.slice(3, 4)) };
       }
       if (spreadsheetType === 'users' && range === 'Users!G2:H1000') {
         return { range, values: testUserRows.map(row => row.slice(6, 8)) };
@@ -150,6 +195,12 @@ const { corsMiddleware } = require('../server/utils/cors');
 const { requireAccessToken } = require('../server/utils/auth-guard');
 const { generateRefreshToken, generateToken } = require('../server/utils/jwt');
 const {
+  CAPABILITIES,
+  getCapabilities,
+  hasCapability,
+  isKnownRole,
+} = require('../server/access-policy');
+const {
   PUBLIC_DATA_SHEETS,
   PUBLIC_SHEETS,
   TASKS_SHEET_ID,
@@ -173,6 +224,7 @@ const drivePhotoHandler = require('../api/drive/upload-photo');
 const driveReferencesHandler = require('../api/drive/references');
 const driveImagesHandler = require('../api/drive/images');
 const hashPasswordHandler = require('../api/auth/hash-password');
+const usersDirectoryHandler = require('../api/users/directory');
 
 const accessToken = generateToken({
   id: 'user-1',
@@ -199,6 +251,16 @@ const disabledToken = generateToken({
 const viewerToken = generateToken({
   id: 'viewer-1',
   username: 'viewer',
+  role: 'viewer',
+});
+const invalidRoleToken = generateToken({
+  id: 'invalid-role-1',
+  username: 'invalid-role',
+  role: 'viewr',
+});
+const blankRoleToken = generateToken({
+  id: 'blank-role-1',
+  username: 'blank-role',
   role: 'viewer',
 });
 const refreshToken = generateRefreshToken({
@@ -353,6 +415,14 @@ test('access guard accepts access JWT and rejects missing or refresh JWT', () =>
   assert.equal(requireAccessToken(accessRequest, accessResponse).username, 'tester');
 });
 
+test('backend capability policy is explicit and fails closed for unknown roles', () => {
+  assert.equal(isKnownRole('admin'), true);
+  assert.equal(isKnownRole('viewr'), false);
+  assert.equal(hasCapability('editor', CAPABILITIES.SHEETS_WRITE), true);
+  assert.equal(hasCapability('viewer', CAPABILITIES.SHEETS_WRITE), false);
+  assert.deepEqual(getCapabilities('viewr'), []);
+});
+
 test('admin role guard returns 403 for a valid non-admin access JWT', () => {
   const response = createResponse();
   const request = createRequest({
@@ -492,6 +562,28 @@ test('private Sheets rejects disabled and stale sessions', async () => {
   assert.equal(stale.statusCode, 401);
 });
 
+test('unknown stored roles cannot log in or use an existing access token', async () => {
+  for (const token of [invalidRoleToken, blankRoleToken]) {
+    const sheetsResponse = await invoke(sheetsHandler, createRequest({
+      method: 'POST',
+      headers: { authorization: `Bearer ${token}` },
+      body: { action: 'get', range: 'Brands!A:F', spreadsheetType: 'main' },
+    }));
+    assert.equal(sheetsResponse.statusCode, 401);
+  }
+
+  for (const [username, password] of [
+    ['invalid-role', 'invalid-role-password'],
+    ['blank-role', 'blank-role-password'],
+  ]) {
+    const loginResponse = await invoke(authHandler, createRequest({
+      method: 'POST',
+      body: { action: 'login', username, password },
+    }));
+    assert.equal(loginResponse.statusCode, 401);
+  }
+});
+
 test('viewer role can read Sheets but cannot write or upload to Drive', async () => {
   const read = await invoke(sheetsHandler, createRequest({
     method: 'POST',
@@ -629,6 +721,23 @@ test('auth users directory requires access JWT and returns only allowed fields',
   assert.equal(JSON.stringify(authorized.body).includes('"role"'), false);
 });
 
+test('standalone users directory also rejects disabled and unknown-role sessions', async () => {
+  for (const token of [disabledToken, invalidRoleToken, blankRoleToken]) {
+    const response = await invoke(usersDirectoryHandler, createRequest({
+      method: 'GET',
+      headers: { authorization: `Bearer ${token}` },
+    }));
+    assert.equal(response.statusCode, 401);
+  }
+
+  const authorized = await invoke(usersDirectoryHandler, createRequest({
+    method: 'GET',
+    headers: { authorization: `Bearer ${accessToken}` },
+  }));
+  assert.equal(authorized.statusCode, 200);
+  assert.equal(authorized.body.users.length, 3);
+});
+
 test('auth rejects disabled accounts and stale auth versions', async () => {
   const disabled = await invoke(authHandler, createRequest({
     method: 'POST',
@@ -656,6 +765,7 @@ test('login returns an access token and blocks disabled accounts', async () => {
   }));
   assert.equal(login.statusCode, 200);
   assert.equal(login.body.user.status, 'active');
+  assert.equal(login.body.user.capabilities.includes(CAPABILITIES.SHEETS_WRITE), true);
   assert.equal(requireAccessToken(createRequest({
     headers: { authorization: `Bearer ${login.body.token}` },
   }), createResponse()).type, 'access');
@@ -743,7 +853,7 @@ test('account management is admin-only and never returns password hashes', async
     body: { action: 'listAccounts' },
   }));
   assert.equal(adminList.statusCode, 200);
-  assert.equal(adminList.body.accounts.length, 4);
+  assert.equal(adminList.body.accounts.length, testUserRows.length);
   assert.equal(JSON.stringify(adminList.body).includes('passwordHash'), false);
 
   const create = await invoke(authHandler, createRequest({
@@ -836,6 +946,13 @@ test('hash-password requires admin access JWT', async () => {
     headers: { authorization: `Bearer ${adminToken}` },
   }));
   assert.equal(adminWrongMethod.statusCode, 405);
+
+  const weakPassword = await invoke(hashPasswordHandler, createRequest({
+    method: 'POST',
+    headers: { authorization: `Bearer ${adminToken}` },
+    body: { password: '123456789' },
+  }));
+  assert.equal(weakPassword.statusCode, 400);
 });
 
 test('SSRF policy blocks unsafe protocols, credentials and private IP ranges', () => {

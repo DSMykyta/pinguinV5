@@ -24,6 +24,7 @@
 
 const { corsMiddleware } = require('../../server/utils/cors');
 const { authenticateAccount } = require('../../server/accounts');
+const { CAPABILITIES } = require('../../server/access-policy');
 const { uploadProductPhoto } = require('../../server/utils/google-drive');
 const sharp = require('sharp');
 
@@ -66,7 +67,7 @@ async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  if (!await authenticateAccount(req, res, { roles: ['admin', 'editor'] })) return;
+  if (!await authenticateAccount(req, res, { capability: CAPABILITIES.DRIVE_WRITE })) return;
 
   try {
     const contentType = req.headers['content-type'] || '';

@@ -19,6 +19,7 @@
 
 const { corsMiddleware } = require('../../server/utils/cors');
 const { authenticateAccount } = require('../../server/accounts');
+const { CAPABILITIES, hasCapability } = require('../../server/access-policy');
 const {
   PUBLIC_SHEETS,
   extractSheetName,
@@ -57,8 +58,11 @@ async function handler(req, res) {
         'batchUpdate',
         'batchUpdateSpreadsheet',
       ]);
-      if (account.role === 'viewer' && writeActions.has(req.body?.action)) {
-        return res.status(403).json({ error: 'Viewers can only read spreadsheet data' });
+      if (
+        writeActions.has(req.body?.action)
+        && !hasCapability(account.role, CAPABILITIES.SHEETS_WRITE)
+      ) {
+        return res.status(403).json({ error: 'This account can only read spreadsheet data' });
       }
 
       return await handleProxy(req, res);

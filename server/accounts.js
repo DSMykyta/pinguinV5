@@ -24,10 +24,14 @@ const {
   getValues,
 } = require('./utils/google-sheets');
 const { requireAccessToken } = require('./utils/auth-guard');
+const {
+  getCapabilities,
+  hasCapability,
+  isKnownRole,
+} = require('./access-policy');
 
 const USERS_RANGE = 'Users!A2:S1000';
 const USER_APPEND_RANGE = 'Users!A:S';
-const ALLOWED_ROLES = new Set(['admin', 'editor', 'viewer']);
 const ALLOWED_STATUSES = new Set(['active', 'disabled']);
 const ALLOWED_AVATARS = new Set(['', 'koala', 'otter', 'penguin', 'beaver', 'panda', 'lion']);
 
@@ -72,6 +76,7 @@ function toProfile(account) {
     status: account.status,
     created_at: account.createdAt,
     last_login: account.lastLogin,
+    capabilities: getCapabilities(account.role),
   };
 }
 
@@ -124,6 +129,11 @@ async function authenticateAccount(req, res, options = {}) {
     return null;
   }
 
+  if (options.capability && !hasCapability(account.role, options.capability)) {
+    res.status(403).json({ error: 'Insufficient permissions' });
+    return null;
+  }
+
   req.user = {
     id: account.id,
     username: account.username,
@@ -139,6 +149,10 @@ async function resolveActiveAccount(tokenUser) {
   const account = await findAccountById(tokenUser?.id);
   if (!account || account.status !== 'active') {
     throw new AccountError(401, 'Account is disabled or no longer exists');
+  }
+
+  if (!isKnownRole(account.role)) {
+    throw new AccountError(401, 'Account role is not allowed');
   }
 
   const tokenVersion = normalizeAuthVersion(tokenUser.authVersion);
@@ -356,7 +370,7 @@ function validateDisplayName(value) {
 
 function validateRole(value) {
   const role = normalizeRole(value);
-  if (!ALLOWED_ROLES.has(role)) {
+  if (!isKnownRole(role)) {
     throw new AccountError(400, 'Role must be admin, editor or viewer');
   }
   return role;
@@ -379,7 +393,7 @@ function validateAvatar(value) {
 }
 
 function normalizeRole(value) {
-  return String(value || 'viewer').trim().toLowerCase();
+  return String(value || '').trim().toLowerCase();
 }
 
 function normalizeStatus(value) {

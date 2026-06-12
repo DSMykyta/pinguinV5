@@ -21,6 +21,7 @@
 
 const { corsMiddleware } = require('../../server/utils/cors');
 const { authenticateAccount } = require('../../server/accounts');
+const { CAPABILITIES } = require('../../server/access-policy');
 
 const { google } = require('googleapis');
 
@@ -107,7 +108,7 @@ async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  if (!await authenticateAccount(req, res)) return;
+  if (!await authenticateAccount(req, res, { capability: CAPABILITIES.DRIVE_READ })) return;
 
   try {
     if (!ROOT_FOLDER_ID) {

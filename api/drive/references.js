@@ -20,6 +20,7 @@
 
 const { corsMiddleware } = require('../../server/utils/cors');
 const { authenticateAccount } = require('../../server/accounts');
+const { CAPABILITIES } = require('../../server/access-policy');
 const { uploadFile, listFiles, deleteFile } = require('../../server/utils/google-drive');
 
 const ALLOWED_TYPES = [
@@ -61,10 +62,10 @@ async function handler(req, res) {
       return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const roles = req.method === 'GET'
-      ? ['admin', 'editor', 'viewer']
-      : ['admin', 'editor'];
-    if (!await authenticateAccount(req, res, { roles })) return;
+    const capability = req.method === 'GET'
+      ? CAPABILITIES.DRIVE_READ
+      : CAPABILITIES.DRIVE_WRITE;
+    if (!await authenticateAccount(req, res, { capability })) return;
 
     if (req.method === 'POST') {
       return await handleUpload(req, res);
