@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<!--
+    USERS PAGE
+    Окрема admin-only сторінка створення та керування акаунтами.
+    Не відкриває Users sheet через універсальний Sheets API.
+-->
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Користувачі</title>
+    <link rel="icon" type="image/png" href="icon/dy_Dark_Pinguin.png">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <script src="js/theme-init.js"></script>
+</head>
+
+<body>
+    <div class="nav column" id="main-nav"></div>
+
+    <main id="content-main" class="content-main">
+        <section>
+            <div class="section-header">
+                <div class="section-name-block">
+                    <div class="section-name">
+                        <h2 class="display-l section-upper">Користувачі</h2>
+                    </div>
+                    <span class="body-s">Створення акаунтів, ролі та доступ</span>
+                </div>
+                <div class="group">
+                    <button class="btn-icon" id="users-refresh" aria-label="Оновити">
+                        <span class="material-symbols-outlined">refresh</span>
+                    </button>
+                    <button class="btn-primary" id="users-create">
+                        <span class="material-symbols-outlined">person_add</span>
+                        Новий акаунт
+                    </button>
+                </div>
+            </div>
+
+            <div class="section-content">
+                <div id="users-access-state" class="account-access-state u-hidden"></div>
+
+                <div id="users-workspace" class="grid accounts-workspace">
+                    <div class="group column col-7">
+                        <input class="input-main" id="users-search" type="search"
+                            placeholder="Пошук за логіном або ім’ям">
+                        <div id="users-list" class="accounts-list"></div>
+                    </div>
+
+                    <form id="users-editor-form" class="group column col-5 account-editor">
+                        <input id="users-account-id" type="hidden">
+                        <div class="account-editor-heading">
+                            <div>
+                                <h3 id="users-editor-title">Новий акаунт</h3>
+                                <span class="body-s" id="users-editor-subtitle">Заповніть дані користувача</span>
+                            </div>
+                            <button class="btn-ghost u-hidden" id="users-editor-cancel" type="button">Скасувати</button>
+                        </div>
+
+                        <div class="group column">
+                            <label class="label-l" for="users-username">Логін</label>
+                            <input class="input-main" id="users-username" type="text"
+                                minlength="3" maxlength="40" autocomplete="off" required>
+                        </div>
+                        <div class="group column">
+                            <label class="label-l" for="users-display-name">Ім’я для відображення</label>
+                            <input class="input-main" id="users-display-name" type="text"
+                                maxlength="80" required>
+                        </div>
+                        <div class="grid">
+                            <div class="group column col-6">
+                                <label class="label-l" for="users-role">Роль</label>
+                                <select class="input-main" id="users-role">
+                                    <option value="viewer">Переглядач</option>
+                                    <option value="editor">Редактор</option>
+                                    <option value="admin">Адміністратор</option>
+                                </select>
+                            </div>
+                            <div class="group column col-6">
+                                <label class="label-l" for="users-status">Статус</label>
+                                <select class="input-main" id="users-status">
+                                    <option value="active">Активний</option>
+                                    <option value="disabled">Вимкнений</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="group column">
+                            <label class="label-l">Аватар</label>
+                            <input id="users-avatar" type="hidden">
+                            <div id="users-avatar-selector"></div>
+                        </div>
+                        <label class="account-checkbox">
+                            <input id="users-menu" type="checkbox">
+                            <span>Розгортати меню після входу</span>
+                        </label>
+
+                        <div class="group column" id="users-create-password-group">
+                            <label class="label-l" for="users-create-password">Початковий пароль</label>
+                            <input class="input-main" id="users-create-password" type="password"
+                                minlength="10" maxlength="72" autocomplete="new-password">
+                        </div>
+
+                        <div class="account-form-actions">
+                            <button class="btn-primary" id="users-save" type="submit">Створити акаунт</button>
+                        </div>
+
+                        <div class="account-password-reset u-hidden" id="users-password-reset">
+                            <div class="group column">
+                                <label class="label-l" for="users-reset-password">Новий пароль</label>
+                                <input class="input-main" id="users-reset-password" type="password"
+                                    minlength="10" maxlength="72" autocomplete="new-password">
+                            </div>
+                            <button class="btn-outline" id="users-reset-password-btn" type="button">
+                                Скинути пароль
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer"></footer>
+    </main>
+
+    <div id="modal-placeholder"></div>
+    <script type="module" src="js/main-users.js"></script>
+</body>
+
+</html>

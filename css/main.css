@@ -70,6 +70,7 @@
 @import url('components/tables/table-states.css');
 /* table-row-inputs.css — перенесено в forms/input-box.css */
 @import url('components/permissions-matrix.css');
+@import url('components/account-management.css');
 
 /* === COMPONENTS - OVERLAYS === */
 @import url('components/overlays/modal.css');

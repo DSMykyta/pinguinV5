@@ -11,6 +11,13 @@
 import { showModal, closeModal } from '../components/modal/modal-main.js';
 import { getAvatarPath } from '../components/avatar/avatar-user.js';
 import { renderAvatarState, getAvatarState } from '../components/avatar/avatar-ui-states.js';
+import {
+  login,
+  logout,
+  refreshSession,
+  verifyAccessToken,
+} from './auth-api.js';
+import { getRoleLabel } from './auth-permissions.js';
 
 // Константи
 const AUTH_TOKEN_KEY = 'auth_token';
@@ -19,11 +26,6 @@ const USER_DATA_KEY = 'user_data';
 const TOKEN_EXPIRY_KEY = 'token_expiry';
 
 // API endpoints
-const AUTH_API_BASE = window.location.origin;
-const API_LOGIN = `${AUTH_API_BASE}/api/auth`; // Unified endpoint
-const API_VERIFY = `${AUTH_API_BASE}/api/auth`; // Unified endpoint (with action: 'verify')
-const API_LOGOUT = `${AUTH_API_BASE}/api/auth`; // Unified endpoint
-
 // Глобальний стан авторизації
 window.isAuthorized = false;
 window.currentUser = null;
@@ -59,7 +61,7 @@ async function initCustomAuth() {
     if (isValid) {
       window.isAuthorized = true;
       window.currentUser = getUserData();
-      updateAuthUI(true);
+      await updateAuthUI(true);
 
       // Генеруємо подію зміни стану авторизації
       document.dispatchEvent(new CustomEvent('auth-state-changed', {
@@ -72,10 +74,12 @@ async function initCustomAuth() {
       }
     } else {
       clearAuthData();
-      updateAuthUI(false);
+      await updateAuthUI(false);
+      await promptSignIn();
     }
   } else {
-    updateAuthUI(false);
+    await updateAuthUI(false);
+    await promptSignIn();
   }
 
   // Слухаємо зміни в localStorage (синхронізація між вкладками)
@@ -87,19 +91,7 @@ async function initCustomAuth() {
  */
 async function handleSignIn(username, password) {
   try {
-    const response = await fetch(API_LOGIN, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Login failed');
-    }
+    const data = await login(username, password);
 
     // Зберігаємо токени та дані користувача
     setAuthToken(data.token);
@@ -111,7 +103,7 @@ async function handleSignIn(username, password) {
     window.currentUser = data.user;
 
     // Оновлюємо UI
-    updateAuthUI(true);
+    await updateAuthUI(true);
 
     // Генеруємо подію зміни стану авторизації
     document.dispatchEvent(new CustomEvent('auth-state-changed', {
@@ -142,14 +134,7 @@ async function handleSignOut() {
 
     if (token) {
       // Повідомляємо backend про вихід
-      await fetch(API_LOGOUT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ action: 'logout' }),
-      });
+      await logout();
     }
   } catch (error) {
     console.error('Sign out error:', error);
@@ -158,7 +143,7 @@ async function handleSignOut() {
     clearAuthData();
     window.isAuthorized = false;
     window.currentUser = null;
-    updateAuthUI(false);
+    await updateAuthUI(false);
 
     // Генеруємо подію зміни стану авторизації
     document.dispatchEvent(new CustomEvent('auth-state-changed', {
@@ -175,18 +160,10 @@ async function handleSignOut() {
  */
 async function verifyToken(token) {
   try {
-    const response = await fetch(API_VERIFY, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ action: 'verify' }),
-    });
-
-    const data = await response.json();
+    const data = await verifyAccessToken(token);
 
     if (data.valid) {
+      if (data.token) setAuthToken(data.token);
       // Оновлюємо дані користувача
       setUserData(data.user);
       return true;
@@ -194,8 +171,16 @@ async function verifyToken(token) {
 
     return false;
   } catch (error) {
-    console.error('Token verification error:', error);
-    return false;
+    try {
+      const session = await refreshSession();
+      setRefreshToken(session.refreshToken);
+      setUserData(session.user);
+      return true;
+    } catch (refreshError) {
+      console.error('Token verification error:', error);
+      console.error('Session refresh error:', refreshError);
+      return false;
+    }
   }
 }
 
@@ -220,6 +205,7 @@ async function updateAuthUI(isAuthorized) {
     await loadHTML('templates/partials/nav.html', tmp);
     const navMainEl = tmp.querySelector('.nav-main');
     if (navMainEl) {
+      applyRoleVisibility(navMainEl, getUserData());
       const footer = nav.querySelector('.nav-footer');
       nav.insertBefore(navMainEl, footer);
       // Підсвітити активну сторінку
@@ -245,12 +231,7 @@ async function updateAuthUI(isAuthorized) {
     if (usernameDisplay) usernameDisplay.textContent = displayText;
 
     if (userRoleDisplay) {
-      const roleLabels = {
-        admin: 'Адміністратор',
-        editor: 'Редактор',
-        viewer: 'Переглядач',
-      };
-      userRoleDisplay.textContent = roleLabels[user.role] || user.role;
+      userRoleDisplay.textContent = getRoleLabel(user.role);
     }
 
     // Оновлюємо аватар
@@ -260,6 +241,13 @@ async function updateAuthUI(isAuthorized) {
     if (loginTriggerButton) loginTriggerButton.classList.remove('u-hidden');
     if (userInfo) userInfo.classList.add('u-hidden');
   }
+}
+
+function applyRoleVisibility(container, user) {
+  container.querySelectorAll('[data-auth-role]').forEach(element => {
+    const roles = element.dataset.authRole.split(',').map(role => role.trim());
+    element.classList.toggle('u-hidden', !roles.includes(user?.role));
+  });
 }
 
 /**
@@ -303,9 +291,7 @@ function setupLoginTrigger() {
   if (loginTriggerButton) {
     loginTriggerButton.addEventListener('click', (e) => {
       e.preventDefault();
-
-      // Відкриваємо модал (розмір вже вказаний в шаблоні)
-      showModal('auth-login-modal');
+      promptSignIn();
     });
   } else {
     console.warn('⚠️ Кнопка "Увійти" (#auth-login-trigger-btn) НЕ ЗНАЙДЕНА!');
@@ -343,25 +329,40 @@ function handleModalOpened(event) {
   // Фокус на логін
   setTimeout(() => usernameInput?.focus(), 100);
 
-  // Клік на кнопку "Увійти"
-  if (loginButton) {
-    loginButton.onclick = async () => {
-      const username = usernameInput?.value?.trim();
-      const password = passwordInput?.value;
-      if (!username || !password) return;
+  const submitLogin = async () => {
+    const username = usernameInput?.value?.trim();
+    const password = passwordInput?.value;
+    if (!username || !password || loginButton?.disabled) return;
 
-      loginButton.disabled = true;
-      if (statusMessage) statusMessage.textContent = '';
+    loginButton.disabled = true;
+    if (statusMessage) statusMessage.textContent = '';
 
-      const result = await handleSignIn(username, password);
+    const result = await handleSignIn(username, password);
 
-      if (!result.success) {
-        if (statusMessage) statusMessage.textContent = result.error || 'Невірний логін або пароль';
-        loginButton.disabled = false;
-        if (passwordInput) passwordInput.value = '';
-      }
-    };
-  }
+    if (!result.success) {
+      if (statusMessage) statusMessage.textContent = result.error || 'Невірний логін або пароль';
+      loginButton.disabled = false;
+      if (passwordInput) passwordInput.value = '';
+      passwordInput?.focus();
+    }
+  };
+
+  if (loginButton) loginButton.onclick = submitLogin;
+
+  const submitOnEnter = (keyboardEvent) => {
+    if (keyboardEvent.key !== 'Enter') return;
+    keyboardEvent.preventDefault();
+    submitLogin();
+  };
+
+  if (usernameInput) usernameInput.onkeydown = submitOnEnter;
+  if (passwordInput) passwordInput.onkeydown = submitOnEnter;
+}
+
+async function promptSignIn() {
+  const existingModal = document.getElementById('modal-auth-login-modal');
+  if (existingModal?.classList.contains('open')) return;
+  await showModal('auth-login-modal');
 }
 
 /**
@@ -384,13 +385,9 @@ function setupLogoutButton() {
  */
 function handleStorageChange(event) {
   if (event.key === AUTH_TOKEN_KEY) {
-    if (!event.newValue) {
-      // Токен видалено - виходимо
-      window.location.reload();
-    } else {
-      // Токен оновлено - перевіряємо його
-      initCustomAuth();
-    }
+    // Повна ініціалізація вже захищена прапорцем, тому між вкладками
+    // синхронізуємо стан через чисте перезавантаження.
+    window.location.reload();
   }
 }
 
@@ -402,9 +399,19 @@ function getAuthToken() {
 
 function setAuthToken(token) {
   localStorage.setItem(AUTH_TOKEN_KEY, token);
-  // Зберігаємо час експірації (8 годин)
-  const expiryTime = Date.now() + (8 * 60 * 60 * 1000);
+  const expiryTime = getTokenExpiry(token) || Date.now();
   localStorage.setItem(TOKEN_EXPIRY_KEY, expiryTime.toString());
+}
+
+function getTokenExpiry(token) {
+  try {
+    const encoded = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = encoded.padEnd(Math.ceil(encoded.length / 4) * 4, '=');
+    const payload = JSON.parse(atob(padded));
+    return Number.isFinite(payload.exp) ? payload.exp * 1000 : null;
+  } catch {
+    return null;
+  }
 }
 
 function getRefreshToken() {
@@ -424,6 +431,18 @@ function setUserData(user) {
   localStorage.setItem(USER_DATA_KEY, JSON.stringify(user));
 }
 
+async function syncCurrentUser(user, token = null) {
+  if (token) setAuthToken(token);
+  setUserData(user);
+  window.currentUser = user;
+  window.isAuthorized = true;
+  await updateAuthUI(true);
+
+  document.dispatchEvent(new CustomEvent('auth-user-updated', {
+    detail: { user }
+  }));
+}
+
 function clearAuthData() {
   localStorage.removeItem(AUTH_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
@@ -434,7 +453,15 @@ function clearAuthData() {
 // ============= Експорт функцій =============
 
 // ES6 модульні експорти
-export { initCustomAuth, handleSignIn, handleSignOut, getAuthToken, getUserData };
+export {
+  initCustomAuth,
+  handleSignIn,
+  handleSignOut,
+  getAuthToken,
+  getUserData,
+  promptSignIn,
+  syncCurrentUser,
+};
 
 // Залишаємо window.* для backward compatibility з існуючим кодом
 window.initCustomAuth = initCustomAuth;
@@ -442,4 +469,5 @@ window.handleSignIn = handleSignIn;
 window.handleSignOut = handleSignOut;
 window.getAuthToken = getAuthToken;
 window.getUserData = getUserData;
-
+window.promptSignIn = promptSignIn;
+window.syncCurrentUser = syncCurrentUser;

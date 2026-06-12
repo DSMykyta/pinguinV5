@@ -28,6 +28,8 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
+import { refreshSession } from '../auth/auth-api.js';
+
 const API_BASE = window.location.origin;
 const API_SHEETS_PROXY = `${API_BASE}/api/sheets`; // Unified endpoint
 
@@ -41,14 +43,24 @@ function getAccessToken() {
   return token;
 }
 
-function authenticatedFetch(url, options = {}) {
-  return fetch(url, {
+async function authenticatedFetch(url, options = {}) {
+  const execute = (token) => fetch(url, {
     ...options,
     headers: {
       ...options.headers,
-      'Authorization': `Bearer ${getAccessToken()}`,
+      'Authorization': `Bearer ${token}`,
     },
   });
+
+  const response = await execute(getAccessToken());
+  if (response.status !== 401) return response;
+
+  try {
+    const session = await refreshSession();
+    return await execute(session.token);
+  } catch {
+    return response;
+  }
 }
 
 /**

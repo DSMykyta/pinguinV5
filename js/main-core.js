@@ -42,7 +42,7 @@ export async function initCore() {
 
     initAvatarSystem();
     initEventHandlers();
-    initCustomAuth();
+    await initCustomAuth();
     initTooltips();
     initImageShow();
     initSearchClearCharm();

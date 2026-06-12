@@ -97,6 +97,15 @@ export async function initAvatarSystem() {
         }
     });
 
+    document.addEventListener('auth-user-updated', (event) => {
+        const user = event.detail?.user;
+        if (!user) return;
+        setCurrentUser({
+            avatar: user.avatar,
+            displayName: user.display_name || user.username
+        });
+    });
+
     // Перевіряємо чи є вже залогінений користувач
     if (typeof window.getUserData === 'function') {
         const userData = window.getUserData();

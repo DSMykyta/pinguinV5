@@ -17,6 +17,8 @@ const APP_PAGES = [
     'images.html',
     'price.html',
     'tasks.html',
+    'account.html',
+    'users.html',
     'design-system.html',
     'redirect-target.html',
     'MIGRATION-GUIDE.html',

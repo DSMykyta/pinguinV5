@@ -63,7 +63,10 @@ export async function showModal(modalId, triggerElement = null) {
         // Вставка HTML в DOM
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = templateHtml.trim();
-        const modalElement = tempDiv.firstElementChild;
+        const modalElement = tempDiv.querySelector('.modal-overlay');
+        if (!modalElement) {
+            throw new Error(`Шаблон "${modalId}" не містить .modal-overlay`);
+        }
 
         modalElement.id = `modal-${modalId}`;
         modalElement.dataset.modalId = modalId;

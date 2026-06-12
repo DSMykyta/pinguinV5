@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<!--
+    ACCOUNT PAGE
+    Особистий кабінет поточного користувача. Дані завантажуються тільки
+    через приватні action-и об'єднаного /api/auth endpoint.
+-->
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Особистий кабінет</title>
+    <link rel="icon" type="image/png" href="icon/dy_Dark_Pinguin.png">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <script src="js/theme-init.js"></script>
+</head>
+
+<body>
+    <div class="nav column" id="main-nav"></div>
+
+    <main id="content-main" class="content-main tabbed-page">
+        <nav class="nav row" role="group" aria-label="Розділи кабінету" data-tabs-container>
+            <button class="btn-icon expand active" data-tab-target="tab-account-profile">
+                <span class="material-symbols-outlined">person</span>
+                <span class="btn-icon-label">Профіль</span>
+            </button>
+            <button class="btn-icon expand" data-tab-target="tab-account-security">
+                <span class="material-symbols-outlined">lock</span>
+                <span class="btn-icon-label">Безпека</span>
+            </button>
+        </nav>
+
+        <div class="tab-content active" data-tab-content="tab-account-profile" id="tab-account-profile">
+            <div class="section-header">
+                <div class="section-name-block">
+                    <div class="section-name">
+                        <h2 class="display-l section-upper">Особистий кабінет</h2>
+                    </div>
+                    <span class="body-s">Профіль і персональні налаштування</span>
+                </div>
+            </div>
+
+            <div class="section-content">
+                <div class="grid account-profile-grid">
+                    <div class="group column col-4 account-summary">
+                        <div id="account-summary-avatar" class="account-summary-avatar"></div>
+                        <div>
+                            <h3 id="account-summary-name">—</h3>
+                            <div id="account-summary-username" class="body-s">—</div>
+                        </div>
+                        <div class="account-meta">
+                            <span class="badge" id="account-summary-role">—</span>
+                            <span class="dot c-green" title="Активний"></span>
+                        </div>
+                        <dl class="account-details">
+                            <div>
+                                <dt>Створено</dt>
+                                <dd id="account-created-at">—</dd>
+                            </div>
+                            <div>
+                                <dt>Останній вхід</dt>
+                                <dd id="account-last-login">—</dd>
+                            </div>
+                        </dl>
+                    </div>
+
+                    <form id="account-profile-form" class="group column col-8 account-form">
+                        <div class="grid">
+                            <div class="group column col-6">
+                                <label class="label-l" for="account-username">Логін</label>
+                                <input class="input-main" id="account-username" type="text" disabled>
+                            </div>
+                            <div class="group column col-6">
+                                <label class="label-l" for="account-display-name">Ім’я для відображення</label>
+                                <input class="input-main" id="account-display-name" type="text"
+                                    maxlength="80" autocomplete="name" required>
+                            </div>
+                            <div class="group column col-12">
+                                <label class="label-l">Аватар</label>
+                                <input id="account-avatar" type="hidden">
+                                <div id="account-avatar-selector"></div>
+                            </div>
+                            <label class="account-checkbox col-12">
+                                <input id="account-menu" type="checkbox">
+                                <span>Автоматично розгортати головне меню</span>
+                            </label>
+                        </div>
+
+                        <div class="account-form-actions">
+                            <button class="btn-primary" id="account-profile-save" type="submit">
+                                Зберегти профіль
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" data-tab-content="tab-account-security" id="tab-account-security">
+            <div class="section-header">
+                <div class="section-name-block">
+                    <div class="section-name">
+                        <h2 class="display-l section-upper">Безпека</h2>
+                    </div>
+                    <span class="body-s">Зміна пароля поточного акаунта</span>
+                </div>
+            </div>
+
+            <div class="section-content">
+                <form id="account-password-form" class="group column account-form account-form-narrow">
+                    <div class="group column">
+                        <label class="label-l" for="account-current-password">Поточний пароль</label>
+                        <input class="input-main" id="account-current-password" type="password"
+                            autocomplete="current-password" required>
+                    </div>
+                    <div class="group column">
+                        <label class="label-l" for="account-new-password">Новий пароль</label>
+                        <input class="input-main" id="account-new-password" type="password"
+                            minlength="10" maxlength="72" autocomplete="new-password" required>
+                        <span class="body-s">Щонайменше 10 символів, не більше 72 UTF-8 байтів.</span>
+                    </div>
+                    <div class="group column">
+                        <label class="label-l" for="account-confirm-password">Повторіть новий пароль</label>
+                        <input class="input-main" id="account-confirm-password" type="password"
+                            minlength="10" maxlength="72" autocomplete="new-password" required>
+                    </div>
+                    <div class="account-form-actions">
+                        <button class="btn-primary" id="account-password-save" type="submit">
+                            Змінити пароль
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <footer class="footer"></footer>
+    </main>
+
+    <div id="modal-placeholder"></div>
+    <script type="module" src="js/main-account.js"></script>
+</body>
+
+</html>
