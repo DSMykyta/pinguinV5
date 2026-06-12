@@ -17,14 +17,14 @@
 // Головний handler роутить запити до відповідних функцій.
 // =========================================================================
 
-const { corsMiddleware } = require('../utils/cors');
-const { requireAccessToken } = require('../utils/auth-guard');
+const { corsMiddleware } = require('../../server/utils/cors');
+const { requireAccessToken } = require('../../server/utils/auth-guard');
 const {
   PUBLIC_SHEETS,
   extractSheetName,
   isExactAllowedSheet,
   validateUniversalSheetsRequest,
-} = require('../utils/sheet-security');
+} = require('../../server/utils/sheet-security');
 const {
   getValues,
   batchGetValues,
@@ -33,7 +33,7 @@ const {
   batchUpdate,
   batchUpdateSpreadsheet,
   getSheetNames,
-} = require('../utils/google-sheets');
+} = require('../../server/utils/google-sheets');
 
 // =========================================================================
 // MAIN ROUTER

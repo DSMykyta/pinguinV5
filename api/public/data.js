@@ -22,12 +22,12 @@
 // GET /api/public/data?sheet=Banned&range=A1:Z1000
 // =========================================================================
 
-const { corsMiddleware } = require('../utils/cors');
-const { getValues } = require('../utils/google-sheets');
+const { corsMiddleware } = require('../../server/utils/cors');
+const { getValues } = require('../../server/utils/google-sheets');
 const {
   PUBLIC_DATA_SHEETS,
   isExactAllowedSheet,
-} = require('../utils/sheet-security');
+} = require('../../server/utils/sheet-security');
 
 /**
  * Handler для публічного читання даних з Google Sheets

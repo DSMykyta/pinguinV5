@@ -22,9 +22,9 @@
 // pinguin-v5/товари/{brandId}/{productId}/{productId}_{index}.{jpg|png}
 // =========================================================================
 
-const { corsMiddleware } = require('../utils/cors');
-const { requireAccessToken } = require('../utils/auth-guard');
-const { uploadProductPhoto } = require('../utils/google-drive');
+const { corsMiddleware } = require('../../server/utils/cors');
+const { requireAccessToken } = require('../../server/utils/auth-guard');
+const { uploadProductPhoto } = require('../../server/utils/google-drive');
 const sharp = require('sharp');
 
 const ALLOWED_TYPES = [

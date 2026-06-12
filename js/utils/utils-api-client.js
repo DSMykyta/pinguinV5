@@ -523,14 +523,20 @@ async function uploadProductPhotoFile(file, brandId, productId, photoIndex, { br
 
 // ============= Users Directory API =============
 
-const API_USERS_DIRECTORY = `${API_BASE}/api/users/directory`;
+const API_USERS_DIRECTORY = `${API_BASE}/api/auth`;
 
 /**
  * Отримати безпечний каталог користувачів без приватних полів.
  * @returns {Promise<Array<{id: string, username: string, display_name: string, avatar: string}>>}
  */
 async function getUserDirectory() {
-  const response = await authenticatedFetch(API_USERS_DIRECTORY);
+  const response = await authenticatedFetch(API_USERS_DIRECTORY, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ action: 'directory' }),
+  });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || 'Failed to load users directory');
   return data.users || [];

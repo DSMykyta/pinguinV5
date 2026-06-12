@@ -19,9 +19,9 @@
 // - універсальний /api/sheets як і раніше забороняє spreadsheetType "users".
 // =========================================================================
 
-const { corsMiddleware } = require('../utils/cors');
-const { requireAccessToken } = require('../utils/auth-guard');
-const { getValues } = require('../utils/google-sheets');
+const { corsMiddleware } = require('../../server/utils/cors');
+const { requireAccessToken } = require('../../server/utils/auth-guard');
+const { loadUsersDirectory } = require('../../server/users-directory');
 
 async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -31,23 +31,7 @@ async function handler(req, res) {
   if (!requireAccessToken(req, res)) return;
 
   try {
-    const [identityRows, profileRows] = await Promise.all([
-      getValues('Users!A2:B1000', 'users'),
-      getValues('Users!G2:H1000', 'users'),
-    ]);
-
-    const users = identityRows
-      .map((identityRow, index) => {
-        const profileRow = profileRows[index] || [];
-
-        return {
-          id: identityRow[0] || '',
-          username: identityRow[1] || '',
-          display_name: profileRow[0] || identityRow[1] || '',
-          avatar: profileRow[1] || '',
-        };
-      })
-      .filter(user => user.id || user.username);
+    const users = await loadUsersDirectory();
 
     return res.status(200).json({
       success: true,

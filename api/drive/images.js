@@ -19,8 +19,8 @@
 // { success: true, images: [{ fileId, name, mimeType, size, modifiedTime, thumbnailUrl, folder }] }
 // =========================================================================
 
-const { corsMiddleware } = require('../utils/cors');
-const { requireAccessToken } = require('../utils/auth-guard');
+const { corsMiddleware } = require('../../server/utils/cors');
+const { requireAccessToken } = require('../../server/utils/auth-guard');
 
 const { google } = require('googleapis');
 

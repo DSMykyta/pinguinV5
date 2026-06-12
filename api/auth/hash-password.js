@@ -29,8 +29,8 @@
 // =========================================================================
 
 const bcrypt = require('bcryptjs');
-const { corsMiddleware } = require('../utils/cors');
-const { requireAccessToken } = require('../utils/auth-guard');
+const { corsMiddleware } = require('../../server/utils/cors');
+const { requireAccessToken } = require('../../server/utils/auth-guard');
 
 /**
  * Handler для генерації bcrypt хешу пароля

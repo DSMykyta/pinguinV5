@@ -18,7 +18,7 @@ const test = require('node:test');
 
 process.env.JWT_SECRET = 'api-security-test-secret';
 
-const googleSheetsPath = require.resolve('../api/utils/google-sheets');
+const googleSheetsPath = require.resolve('../server/utils/google-sheets');
 require.cache[googleSheetsPath] = {
   id: googleSheetsPath,
   filename: googleSheetsPath,
@@ -42,9 +42,9 @@ require.cache[googleSheetsPath] = {
   },
 };
 
-const { corsMiddleware } = require('../api/utils/cors');
-const { requireAccessToken } = require('../api/utils/auth-guard');
-const { generateRefreshToken, generateToken } = require('../api/utils/jwt');
+const { corsMiddleware } = require('../server/utils/cors');
+const { requireAccessToken } = require('../server/utils/auth-guard');
+const { generateRefreshToken, generateToken } = require('../server/utils/jwt');
 const {
   PUBLIC_DATA_SHEETS,
   PUBLIC_SHEETS,
@@ -52,15 +52,16 @@ const {
   extractSheetName,
   isExactAllowedSheet,
   validateUniversalSheetsRequest,
-} = require('../api/utils/sheet-security');
+} = require('../server/utils/sheet-security');
 const {
   SafeUrlError,
   isPublicIp,
   parseSafeUrl,
   resolveSafeTarget,
   safeFetchBuffer,
-} = require('../api/utils/safe-url-fetch');
+} = require('../server/utils/safe-url-fetch');
 
+const authHandler = require('../api/auth');
 const sheetsHandler = require('../api/sheets');
 const publicDataHandler = require('../api/public/data');
 const driveUploadHandler = require('../api/drive/upload');
@@ -68,7 +69,6 @@ const drivePhotoHandler = require('../api/drive/upload-photo');
 const driveReferencesHandler = require('../api/drive/references');
 const driveImagesHandler = require('../api/drive/images');
 const hashPasswordHandler = require('../api/auth/hash-password');
-const usersDirectoryHandler = require('../api/users/directory');
 
 const accessToken = generateToken({
   id: 'user-1',
@@ -130,7 +130,7 @@ async function invoke(handler, request) {
 }
 
 test('JWT_SECRET is mandatory without breaking this test process', () => {
-  const jwtPath = path.resolve(__dirname, '../api/utils/jwt.js');
+  const jwtPath = path.resolve(__dirname, '../server/utils/jwt.js');
   const script = `
     delete process.env.JWT_SECRET;
     const { generateToken } = require(${JSON.stringify(jwtPath)});
@@ -154,7 +154,7 @@ test('JWT_SECRET is mandatory without breaking this test process', () => {
 });
 
 test('missing JWT_SECRET produces an explicit server configuration error', () => {
-  const guardPath = path.resolve(__dirname, '../api/utils/auth-guard.js');
+  const guardPath = path.resolve(__dirname, '../server/utils/auth-guard.js');
   const script = `
     delete process.env.JWT_SECRET;
     const { requireAccessToken } = require(${JSON.stringify(guardPath)});
@@ -234,7 +234,7 @@ test('OPTIONS remains open on every protected endpoint', async () => {
     driveReferencesHandler,
     driveImagesHandler,
     hashPasswordHandler,
-    usersDirectoryHandler,
+    authHandler,
   ];
 
   for (const handler of handlers) {
@@ -381,15 +381,17 @@ test('Drive upload, list and delete endpoints require access JWT', async () => {
   }
 });
 
-test('users directory requires access JWT and returns only allowed fields', async () => {
-  const noToken = await invoke(usersDirectoryHandler, createRequest({
-    method: 'GET',
+test('auth users directory requires access JWT and returns only allowed fields', async () => {
+  const noToken = await invoke(authHandler, createRequest({
+    method: 'POST',
+    body: { action: 'directory' },
   }));
   assert.equal(noToken.statusCode, 401);
 
-  const authorized = await invoke(usersDirectoryHandler, createRequest({
-    method: 'GET',
+  const authorized = await invoke(authHandler, createRequest({
+    method: 'POST',
     headers: { authorization: `Bearer ${accessToken}` },
+    body: { action: 'directory' },
   }));
   assert.equal(authorized.statusCode, 200);
   assert.deepEqual(authorized.body.users, [{

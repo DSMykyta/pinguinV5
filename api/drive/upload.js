@@ -27,10 +27,10 @@
 // - Ім'я файлу на Drive: "{normalized_brand_name}.{jpg|png}"
 // =========================================================================
 
-const { corsMiddleware } = require('../utils/cors');
-const { requireAccessToken } = require('../utils/auth-guard');
-const { uploadBrandLogo } = require('../utils/google-drive');
-const { SafeUrlError, safeFetchBuffer } = require('../utils/safe-url-fetch');
+const { corsMiddleware } = require('../../server/utils/cors');
+const { requireAccessToken } = require('../../server/utils/auth-guard');
+const { uploadBrandLogo } = require('../../server/utils/google-drive');
+const { SafeUrlError, safeFetchBuffer } = require('../../server/utils/safe-url-fetch');
 const sharp = require('sharp');
 
 const ALLOWED_TYPES = [

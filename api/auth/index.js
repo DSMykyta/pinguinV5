@@ -11,6 +11,7 @@
 // - POST /api/auth { action: 'login' }  → авторизація користувача
 // - POST /api/auth { action: 'logout' } → вихід користувача
 // - POST /api/auth { action: 'verify' } → верифікація токена
+// - POST /api/auth { action: 'directory' } → безпечний каталог користувачів
 // - GET  /api/auth/verify               → верифікація токена (legacy)
 //
 // СТРУКТУРА:
@@ -19,9 +20,16 @@
 // =========================================================================
 
 const bcrypt = require('bcryptjs');
-const { corsMiddleware } = require('../utils/cors');
-const { generateToken, generateRefreshToken, verifyToken, extractTokenFromHeader } = require('../utils/jwt');
-const { getValues, updateValues } = require('../utils/google-sheets');
+const { corsMiddleware } = require('../../server/utils/cors');
+const { requireAccessToken } = require('../../server/utils/auth-guard');
+const {
+  generateToken,
+  generateRefreshToken,
+  verifyToken,
+  extractTokenFromHeader,
+} = require('../../server/utils/jwt');
+const { getValues, updateValues } = require('../../server/utils/google-sheets');
+const { loadUsersDirectory } = require('../../server/users-directory');
 
 // =========================================================================
 // MAIN ROUTER
@@ -51,8 +59,12 @@ async function handler(req, res) {
         return await handleLogout(req, res);
       } else if (action === 'verify') {
         return await handleVerify(req, res);
+      } else if (action === 'directory') {
+        return await handleDirectory(req, res);
       } else {
-        return res.status(400).json({ error: 'Invalid action. Use "login", "logout", or "verify"' });
+        return res.status(400).json({
+          error: 'Invalid action. Use "login", "logout", "verify", or "directory"',
+        });
       }
     }
 
@@ -193,6 +205,32 @@ async function handleVerify(req, res) {
     return res.status(500).json({
       valid: false,
       error: 'Internal server error'
+    });
+  }
+}
+
+// =========================================================================
+// HANDLER: USERS DIRECTORY
+// =========================================================================
+
+/**
+ * Повертає тільки поля, потрібні frontend для підписів, аватарів і задач.
+ * @returns {Promise<Object>} Безпечний каталог користувачів
+ */
+async function handleDirectory(req, res) {
+  if (!requireAccessToken(req, res)) return;
+
+  try {
+    const users = await loadUsersDirectory();
+    return res.status(200).json({
+      success: true,
+      users,
+    });
+  } catch (error) {
+    console.error('Users directory error:', error);
+    return res.status(500).json({
+      error: 'Failed to load users directory',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
 }
