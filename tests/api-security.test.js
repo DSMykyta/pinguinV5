@@ -376,11 +376,11 @@ test('OPTIONS remains open on every protected endpoint', async () => {
 });
 
 test('sheet names are extracted and whitelisted by exact match only', () => {
-  assert.equal(extractSheetName('SEO!A:E'), 'SEO');
+  assert.equal(extractSheetName('Brands!A:E'), 'Brands');
   assert.equal(extractSheetName("'My Sheet'!A1:B2"), 'My Sheet');
   assert.equal(extractSheetName("'Owner''s Sheet'!A1"), "Owner's Sheet");
-  assert.equal(isExactAllowedSheet('SEO', PUBLIC_SHEETS), true);
-  assert.equal(isExactAllowedSheet('SEO-private', PUBLIC_SHEETS), false);
+  assert.equal(isExactAllowedSheet('Brands', PUBLIC_SHEETS), true);
+  assert.equal(isExactAllowedSheet('Brands-private', PUBLIC_SHEETS), false);
   assert.equal(isExactAllowedSheet('Banned', PUBLIC_DATA_SHEETS), true);
   assert.equal(isExactAllowedSheet('BannedPrivate', PUBLIC_DATA_SHEETS), false);
 });
@@ -502,7 +502,7 @@ test('viewer role can read Sheets but cannot write or upload to Drive', async ()
 test('public Sheets GET type=public and type=csv remain open', async () => {
   const publicResponse = await invoke(sheetsHandler, createRequest({
     method: 'GET',
-    query: { type: 'public', range: 'SEO!A:E' },
+    query: { type: 'public', range: 'Brands!A:E' },
   }));
   assert.equal(publicResponse.statusCode, 200);
   assert.equal(publicResponse.body.success, true);

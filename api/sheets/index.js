@@ -75,7 +75,7 @@ async function handler(req, res) {
         return res.status(400).json({
           error: 'Invalid type parameter. Use "public" or "csv"',
           examples: [
-            '/api/sheets?type=public&range=SEO!A:E',
+            '/api/sheets?type=public&range=Brands!A:E',
             '/api/sheets?type=csv&gid=1742878044'
           ]
         });
@@ -209,7 +209,7 @@ async function handlePublic(req, res) {
     if (!range) {
       return res.status(400).json({
         error: 'Range parameter is required',
-        example: '/api/sheets?type=public&range=SEO!A:E'
+        example: '/api/sheets?type=public&range=Brands!A:E'
       });
     }
 

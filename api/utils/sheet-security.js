@@ -20,6 +20,10 @@
 // =========================================================================
 
 const PUBLIC_SHEETS = new Set([
+  'Brands',
+  'Banned',
+  'Glossary',
+  'Mapper_MP_Categories',
   'SEO',
   'Тригери',
   'Співставлення',
