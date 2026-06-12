@@ -260,6 +260,26 @@ async function invoke(handler, request) {
   return response;
 }
 
+test('legacy api utilities forward the canonical module export objects', () => {
+  const utilityNames = [
+    'auth-guard',
+    'cors',
+    'google-drive',
+    'google-sheets',
+    'jwt',
+    'safe-url-fetch',
+    'sheet-security',
+  ];
+
+  for (const utilityName of utilityNames) {
+    assert.strictEqual(
+      require(`../api/utils/${utilityName}`),
+      require(`../server/utils/${utilityName}`),
+      utilityName,
+    );
+  }
+});
+
 test('JWT_SECRET is mandatory without breaking this test process', () => {
   const jwtPath = path.resolve(__dirname, '../server/utils/jwt.js');
   const script = `
