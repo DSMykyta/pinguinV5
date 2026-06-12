@@ -11,13 +11,15 @@
 // - id, username, display_name, avatar
 // =========================================================================
 
-const { getValues } = require('./utils/google-sheets');
+const { batchGetValues } = require('./utils/google-sheets');
 
 async function loadUsersDirectory() {
-  const [identityRows, profileRows] = await Promise.all([
-    getValues('Users!A2:B1000', 'users'),
-    getValues('Users!G2:H1000', 'users'),
-  ]);
+  const valueRanges = await batchGetValues([
+    'Users!A2:B1000',
+    'Users!G2:J1000',
+  ], 'users');
+  const identityRows = valueRanges[0]?.values || [];
+  const profileRows = valueRanges[1]?.values || [];
 
   return identityRows
     .map((identityRow, index) => {
@@ -28,9 +30,11 @@ async function loadUsersDirectory() {
         username: identityRow[1] || '',
         display_name: profileRow[0] || identityRow[1] || '',
         avatar: profileRow[1] || '',
+        status: String(profileRow[3] || 'active').trim().toLowerCase(),
       };
     })
-    .filter(user => user.id || user.username);
+    .filter(user => (user.id || user.username) && user.status === 'active')
+    .map(({ status, ...user }) => user);
 }
 
 module.exports = {

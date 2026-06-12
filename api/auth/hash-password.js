@@ -30,7 +30,7 @@
 
 const bcrypt = require('bcryptjs');
 const { corsMiddleware } = require('../../server/utils/cors');
-const { requireAccessToken } = require('../../server/utils/auth-guard');
+const { authenticateAccount } = require('../../server/accounts');
 
 /**
  * Handler для генерації bcrypt хешу пароля
@@ -41,7 +41,7 @@ const { requireAccessToken } = require('../../server/utils/auth-guard');
  * @returns {Promise<Object>} JSON з bcrypt хешем
  */
 async function handler(req, res) {
-  if (!requireAccessToken(req, res, { roles: ['admin'] })) return;
+  if (!await authenticateAccount(req, res, { roles: ['admin'] })) return;
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });

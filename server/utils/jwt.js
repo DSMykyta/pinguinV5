@@ -19,8 +19,8 @@
 // - REFRESH TOKEN: expires in 30 days
 //
 // PAYLOAD СТРУКТУРА:
-// Access token: { id, username, role, type: 'access' }
-// Refresh token: { id, username, type: 'refresh' }
+// Access token: { id, username, role, authVersion, type: 'access' }
+// Refresh token: { id, username, authVersion, type: 'refresh' }
 // =========================================================================
 
 const jwt = require('jsonwebtoken');
@@ -60,6 +60,7 @@ function generateToken(user) {
     id: user.id,
     username: user.username,
     role: user.role,
+    authVersion: user.authVersion || 1,
     type: 'access'
   };
 
@@ -77,6 +78,7 @@ function generateRefreshToken(user) {
   const payload = {
     id: user.id,
     username: user.username,
+    authVersion: user.authVersion || 1,
     type: 'refresh'
   };
 

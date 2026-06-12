@@ -12,6 +12,9 @@
 // - POST /api/auth { action: 'logout' } → вихід користувача
 // - POST /api/auth { action: 'verify' } → верифікація токена
 // - POST /api/auth { action: 'directory' } → безпечний каталог користувачів
+// - POST /api/auth { action: 'profile' | 'updateProfile' | 'changePassword' }
+// - POST /api/auth { action: 'listAccounts' | 'createAccount' }
+// - POST /api/auth { action: 'updateAccount' | 'resetPassword' }
 // - GET  /api/auth/verify               → верифікація токена (legacy)
 //
 // СТРУКТУРА:
@@ -21,14 +24,24 @@
 
 const bcrypt = require('bcryptjs');
 const { corsMiddleware } = require('../../server/utils/cors');
-const { requireAccessToken } = require('../../server/utils/auth-guard');
+const {
+  AccountError,
+  authenticateAccount,
+  changePassword,
+  createAccount,
+  findAccountByUsername,
+  loadAccounts,
+  resetPassword,
+  toAdminAccount,
+  toProfile,
+  updateAccount,
+  updateProfile,
+} = require('../../server/accounts');
 const {
   generateToken,
   generateRefreshToken,
-  verifyToken,
-  extractTokenFromHeader,
 } = require('../../server/utils/jwt');
-const { getValues, updateValues } = require('../../server/utils/google-sheets');
+const { updateValues } = require('../../server/utils/google-sheets');
 const { loadUsersDirectory } = require('../../server/users-directory');
 
 // =========================================================================
@@ -61,15 +74,30 @@ async function handler(req, res) {
         return await handleVerify(req, res);
       } else if (action === 'directory') {
         return await handleDirectory(req, res);
+      } else if (action === 'profile') {
+        return await handleProfile(req, res);
+      } else if (action === 'updateProfile') {
+        return await handleUpdateProfile(req, res);
+      } else if (action === 'changePassword') {
+        return await handleChangePassword(req, res);
+      } else if (action === 'listAccounts') {
+        return await handleListAccounts(req, res);
+      } else if (action === 'createAccount') {
+        return await handleCreateAccount(req, res);
+      } else if (action === 'updateAccount') {
+        return await handleUpdateAccount(req, res);
+      } else if (action === 'resetPassword') {
+        return await handleResetPassword(req, res);
       } else {
-        return res.status(400).json({
-          error: 'Invalid action. Use "login", "logout", "verify", or "directory"',
-        });
+        return res.status(400).json({ error: 'Invalid auth action' });
       }
     }
 
     return res.status(405).json({ error: 'Method not allowed' });
   } catch (error) {
+    if (error instanceof AccountError) {
+      return res.status(error.status).json({ error: error.message });
+    }
     console.error('Auth API error:', error);
     return res.status(500).json({
       error: 'Internal server error',
@@ -87,61 +115,34 @@ async function handler(req, res) {
  * @returns {Promise<Object>} JSON з токенами та інформацією про користувача
  */
 async function handleLogin(req, res) {
-  try {
-    const { username, password } = req.body;
+  const { username, password } = req.body || {};
 
-    // Валідація вхідних даних
-    if (!username || !password) {
-      return res.status(400).json({ error: 'Username and password are required' });
-    }
-
-    // Читання користувачів з Users Database (включно з display_name, avatar, menu)
-    const usersData = await getValues('Users!A2:I1000', 'users');
-
-    // Пошук користувача
-    const userRow = usersData.find(row => row[1] === username);
-
-    if (!userRow) {
-      return res.status(401).json({ error: 'Invalid username or password' });
-    }
-
-    const [id, storedUsername, passwordHash, role, createdAt, lastLogin, displayName, avatar, menu] = userRow;
-
-    // Перевірка пароля
-    const isPasswordValid = await bcrypt.compare(password, passwordHash);
-
-    if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Invalid username or password' });
-    }
-
-    // Генерація токенів
-    const user = { id, username: storedUsername, role };
-    const token = generateToken(user);
-    const refreshToken = generateRefreshToken(user);
-
-    // Оновлення last_login в Users Database
-    const userRowIndex = usersData.indexOf(userRow) + 2;
-    const now = new Date().toISOString();
-    await updateValues(`Users!F${userRowIndex}`, [[now]], 'users');
-
-    // Повернення токенів та інформації про користувача
-    return res.status(200).json({
-      success: true,
-      token,
-      refreshToken,
-      user: {
-        id,
-        username: storedUsername,
-        role,
-        display_name: displayName || '',
-        avatar: avatar || '',
-        menu: menu === 'TRUE',
-      },
-    });
-  } catch (error) {
-    console.error('Login error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password are required' });
   }
+
+  const account = await findAccountByUsername(username);
+  if (!account || account.status !== 'active') {
+    return res.status(401).json({ error: 'Invalid username or password' });
+  }
+
+  const isPasswordValid = await bcrypt.compare(password, account.passwordHash);
+  if (!isPasswordValid) {
+    return res.status(401).json({ error: 'Invalid username or password' });
+  }
+
+  const now = new Date().toISOString();
+  await updateValues(`Users!F${account.rowIndex}`, [[now]], 'users');
+
+  return res.status(200).json({
+    success: true,
+    token: generateToken(account),
+    refreshToken: generateRefreshToken(account),
+    user: {
+      ...toProfile(account),
+      last_login: now,
+    },
+  });
 }
 
 // =========================================================================
@@ -153,60 +154,14 @@ async function handleLogin(req, res) {
  * @returns {Promise<Object>} JSON з результатом верифікації
  */
 async function handleVerify(req, res) {
-  try {
-    // Витягуємо токен з заголовка
-    const token = extractTokenFromHeader(req.headers.authorization);
+  const account = await authenticateAccount(req, res);
+  if (!account) return;
 
-    if (!token) {
-      return res.status(401).json({
-        valid: false,
-        error: 'No token provided'
-      });
-    }
-
-    // Верифікуємо токен
-    const decoded = verifyToken(token);
-
-    if (!decoded || decoded.type !== 'access') {
-      return res.status(401).json({
-        valid: false,
-        error: 'Invalid or expired token'
-      });
-    }
-
-    // Читаємо свіжі дані користувача з Google Sheets (включно з display_name, avatar, menu)
-    const usersData = await getValues('Users!A2:I1000', 'users');
-    const userRow = usersData.find(row => row[0] === decoded.id);
-
-    let displayName = '';
-    let avatar = '';
-    let menu = false;
-
-    if (userRow) {
-      displayName = userRow[6] || ''; // column G
-      avatar = userRow[7] || '';       // column H
-      menu = userRow[8] === 'TRUE';   // column I
-    }
-
-    // Повертаємо інформацію про користувача
-    return res.status(200).json({
-      valid: true,
-      user: {
-        id: decoded.id,
-        username: decoded.username,
-        role: decoded.role,
-        display_name: displayName,
-        avatar: avatar,
-        menu,
-      },
-    });
-  } catch (error) {
-    console.error('Verify error:', error);
-    return res.status(500).json({
-      valid: false,
-      error: 'Internal server error'
-    });
-  }
+  return res.status(200).json({
+    valid: true,
+    token: generateToken(account),
+    user: toProfile(account),
+  });
 }
 
 // =========================================================================
@@ -218,7 +173,7 @@ async function handleVerify(req, res) {
  * @returns {Promise<Object>} Безпечний каталог користувачів
  */
 async function handleDirectory(req, res) {
-  if (!requireAccessToken(req, res)) return;
+  if (!await authenticateAccount(req, res)) return;
 
   try {
     const users = await loadUsersDirectory();
@@ -233,6 +188,77 @@ async function handleDirectory(req, res) {
       details: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
+}
+
+// =========================================================================
+// HANDLERS: PROFILE
+// =========================================================================
+
+async function handleProfile(req, res) {
+  const account = await authenticateAccount(req, res);
+  if (!account) return;
+
+  return res.status(200).json({
+    success: true,
+    user: toProfile(account),
+  });
+}
+
+async function handleUpdateProfile(req, res) {
+  const account = await authenticateAccount(req, res);
+  if (!account) return;
+
+  const user = await updateProfile(account, req.body || {});
+  return res.status(200).json({ success: true, user });
+}
+
+async function handleChangePassword(req, res) {
+  const account = await authenticateAccount(req, res);
+  if (!account) return;
+
+  await changePassword(account, req.body?.currentPassword, req.body?.newPassword);
+  return res.status(200).json({
+    success: true,
+    message: 'Password changed. Please sign in again.',
+  });
+}
+
+// =========================================================================
+// HANDLERS: ADMIN ACCOUNT MANAGEMENT
+// =========================================================================
+
+async function handleListAccounts(req, res) {
+  if (!await authenticateAccount(req, res, { roles: ['admin'] })) return;
+
+  const accounts = await loadAccounts();
+  return res.status(200).json({
+    success: true,
+    accounts: accounts.map(toAdminAccount),
+  });
+}
+
+async function handleCreateAccount(req, res) {
+  const actor = await authenticateAccount(req, res, { roles: ['admin'] });
+  if (!actor) return;
+
+  const account = await createAccount(req.body || {}, actor);
+  return res.status(201).json({ success: true, account });
+}
+
+async function handleUpdateAccount(req, res) {
+  const actor = await authenticateAccount(req, res, { roles: ['admin'] });
+  if (!actor) return;
+
+  const account = await updateAccount(req.body?.id, req.body || {}, actor);
+  return res.status(200).json({ success: true, account });
+}
+
+async function handleResetPassword(req, res) {
+  const actor = await authenticateAccount(req, res, { roles: ['admin'] });
+  if (!actor) return;
+
+  await resetPassword(req.body?.id, req.body?.newPassword, actor);
+  return res.status(200).json({ success: true });
 }
 
 // =========================================================================
