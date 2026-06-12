@@ -18,7 +18,7 @@
 // =========================================================================
 
 const { corsMiddleware } = require('../../server/utils/cors');
-const { requireAccessToken } = require('../../server/utils/auth-guard');
+const { authenticateAccount } = require('../../server/accounts');
 const {
   PUBLIC_SHEETS,
   extractSheetName,
@@ -48,7 +48,19 @@ const {
 async function handler(req, res) {
   try {
     if (req.method === 'POST') {
-      if (!requireAccessToken(req, res)) return;
+      const account = await authenticateAccount(req, res);
+      if (!account) return;
+
+      const writeActions = new Set([
+        'update',
+        'append',
+        'batchUpdate',
+        'batchUpdateSpreadsheet',
+      ]);
+      if (account.role === 'viewer' && writeActions.has(req.body?.action)) {
+        return res.status(403).json({ error: 'Viewers can only read spreadsheet data' });
+      }
+
       return await handleProxy(req, res);
     } else if (req.method === 'GET') {
       const { type } = req.query;

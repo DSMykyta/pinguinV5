@@ -9,6 +9,7 @@
 //
 // ЕНДПОІНТИ:
 // - POST /api/auth { action: 'login' }  → авторизація користувача
+// - POST /api/auth { action: 'refresh' } → оновлення access/refresh токенів
 // - POST /api/auth { action: 'logout' } → вихід користувача
 // - POST /api/auth { action: 'verify' } → верифікація токена
 // - POST /api/auth { action: 'directory' } → безпечний каталог користувачів
@@ -32,6 +33,7 @@ const {
   findAccountByUsername,
   loadAccounts,
   resetPassword,
+  resolveActiveAccount,
   toAdminAccount,
   toProfile,
   updateAccount,
@@ -40,9 +42,15 @@ const {
 const {
   generateToken,
   generateRefreshToken,
+  verifyToken,
 } = require('../../server/utils/jwt');
 const { updateValues } = require('../../server/utils/google-sheets');
 const { loadUsersDirectory } = require('../../server/users-directory');
+
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+const LOGIN_MAX_ATTEMPTS = 8;
+const DUMMY_PASSWORD_HASH = '$2a$12$xewujj83nIrUng90T3MRDOEyobqVuxRX2MY2j/4BwtF3mHRGBgZKa';
+const loginAttempts = new Map();
 
 // =========================================================================
 // MAIN ROUTER
@@ -68,6 +76,8 @@ async function handler(req, res) {
       if (action === 'login' || !action) {
         // POST /api/auth or POST /api/auth { action: 'login' }
         return await handleLogin(req, res);
+      } else if (action === 'refresh') {
+        return await handleRefresh(req, res);
       } else if (action === 'logout') {
         return await handleLogout(req, res);
       } else if (action === 'verify') {
@@ -121,16 +131,27 @@ async function handleLogin(req, res) {
     return res.status(400).json({ error: 'Username and password are required' });
   }
 
+  const attemptKey = getLoginAttemptKey(req, username);
+  const retryAfter = getLoginRetryAfter(attemptKey);
+  if (retryAfter > 0) {
+    res.setHeader('Retry-After', String(retryAfter));
+    return res.status(429).json({ error: 'Too many login attempts. Try again later.' });
+  }
+
   const account = await findAccountByUsername(username);
   if (!account || account.status !== 'active') {
+    await bcrypt.compare(password, DUMMY_PASSWORD_HASH);
+    recordLoginFailure(attemptKey);
     return res.status(401).json({ error: 'Invalid username or password' });
   }
 
   const isPasswordValid = await bcrypt.compare(password, account.passwordHash);
   if (!isPasswordValid) {
+    recordLoginFailure(attemptKey);
     return res.status(401).json({ error: 'Invalid username or password' });
   }
 
+  loginAttempts.delete(attemptKey);
   const now = new Date().toISOString();
   await updateValues(`Users!F${account.rowIndex}`, [[now]], 'users');
 
@@ -142,6 +163,70 @@ async function handleLogin(req, res) {
       ...toProfile(account),
       last_login: now,
     },
+  });
+}
+
+function getLoginAttemptKey(req, username) {
+  const forwarded = String(req.headers?.['x-forwarded-for'] || '').split(',')[0].trim();
+  const ip = forwarded || req.headers?.['x-real-ip'] || req.socket?.remoteAddress || 'unknown';
+  return `${ip}:${String(username).trim().toLowerCase()}`;
+}
+
+function getLoginRetryAfter(key) {
+  pruneLoginAttempts();
+  const attempt = loginAttempts.get(key);
+  if (!attempt || attempt.count < LOGIN_MAX_ATTEMPTS) return 0;
+
+  const remaining = LOGIN_WINDOW_MS - (Date.now() - attempt.startedAt);
+  if (remaining <= 0) {
+    loginAttempts.delete(key);
+    return 0;
+  }
+
+  return Math.ceil(remaining / 1000);
+}
+
+function recordLoginFailure(key) {
+  const now = Date.now();
+  const attempt = loginAttempts.get(key);
+
+  if (!attempt || now - attempt.startedAt >= LOGIN_WINDOW_MS) {
+    loginAttempts.set(key, { count: 1, startedAt: now });
+    return;
+  }
+
+  attempt.count += 1;
+}
+
+function pruneLoginAttempts() {
+  if (loginAttempts.size < 1000) return;
+
+  const now = Date.now();
+  for (const [key, attempt] of loginAttempts) {
+    if (now - attempt.startedAt >= LOGIN_WINDOW_MS) {
+      loginAttempts.delete(key);
+    }
+  }
+}
+
+// =========================================================================
+// HANDLER: REFRESH SESSION
+// =========================================================================
+
+async function handleRefresh(req, res) {
+  const token = req.body?.refreshToken;
+  const tokenUser = token ? verifyToken(token) : null;
+
+  if (!tokenUser || tokenUser.type !== 'refresh') {
+    return res.status(401).json({ error: 'Invalid or expired refresh token' });
+  }
+
+  const account = await resolveActiveAccount(tokenUser);
+  return res.status(200).json({
+    success: true,
+    token: generateToken(account),
+    refreshToken: generateRefreshToken(account),
+    user: toProfile(account),
   });
 }
 

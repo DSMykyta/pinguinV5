@@ -30,6 +30,11 @@ const testUserRows = [
     'Test User',
     'avatar-id',
     'FALSE',
+    '38666871',
+    '',
+    '',
+    '',
+    '',
     'active',
     '',
     '',
@@ -46,6 +51,11 @@ const testUserRows = [
     'Admin User',
     'penguin',
     'TRUE',
+    '951753',
+    '',
+    '',
+    '',
+    '',
     'active',
     '',
     '',
@@ -62,11 +72,37 @@ const testUserRows = [
     'Disabled User',
     'panda',
     'FALSE',
+    '123456',
+    '',
+    '',
+    '',
+    '',
     'disabled',
     '',
     '',
     '',
     '2',
+  ],
+  [
+    'viewer-1',
+    'viewer',
+    bcrypt.hashSync('viewer-password', 4),
+    'viewer',
+    '2026-01-01T00:00:00.000Z',
+    '',
+    'View User',
+    'koala',
+    'FALSE',
+    'legacy-value',
+    '',
+    '',
+    '',
+    '',
+    'active',
+    '',
+    '',
+    '',
+    '1',
   ],
 ];
 const appendedUserRows = [];
@@ -79,7 +115,7 @@ require.cache[googleSheetsPath] = {
   loaded: true,
   exports: {
     getValues: async (range, spreadsheetType) => {
-      if (spreadsheetType === 'users' && range === 'Users!A2:N1000') {
+      if (spreadsheetType === 'users' && range === 'Users!A2:S1000') {
         return testUserRows.map(row => [...row]);
       }
       return [[range, 'test-value']];
@@ -88,8 +124,11 @@ require.cache[googleSheetsPath] = {
       if (spreadsheetType === 'users' && range === 'Users!A2:B1000') {
         return { range, values: testUserRows.map(row => row.slice(0, 2)) };
       }
-      if (spreadsheetType === 'users' && range === 'Users!G2:J1000') {
-        return { range, values: testUserRows.map(row => row.slice(6, 10)) };
+      if (spreadsheetType === 'users' && range === 'Users!G2:H1000') {
+        return { range, values: testUserRows.map(row => row.slice(6, 8)) };
+      }
+      if (spreadsheetType === 'users' && range === 'Users!O2:O1000') {
+        return { range, values: testUserRows.map(row => row.slice(14, 15)) };
       }
       return { range, values: [] };
     }),
@@ -157,9 +196,24 @@ const disabledToken = generateToken({
   role: 'viewer',
   authVersion: 2,
 });
+const viewerToken = generateToken({
+  id: 'viewer-1',
+  username: 'viewer',
+  role: 'viewer',
+});
 const refreshToken = generateRefreshToken({
   id: 'user-1',
   username: 'tester',
+});
+const staleRefreshToken = generateRefreshToken({
+  id: 'admin-1',
+  username: 'admin',
+  authVersion: 2,
+});
+const disabledRefreshToken = generateRefreshToken({
+  id: 'disabled-1',
+  username: 'disabled',
+  authVersion: 2,
 });
 
 function createRequest(overrides = {}) {
@@ -402,6 +456,49 @@ test('private Sheets POST requires JWT and blocks users with a valid JWT', async
   assert.equal(usersRequest.statusCode, 403);
 });
 
+test('private Sheets rejects disabled and stale sessions', async () => {
+  const disabled = await invoke(sheetsHandler, createRequest({
+    method: 'POST',
+    headers: { authorization: `Bearer ${disabledToken}` },
+    body: { action: 'get', range: 'Brands!A:F', spreadsheetType: 'main' },
+  }));
+  assert.equal(disabled.statusCode, 401);
+
+  const stale = await invoke(sheetsHandler, createRequest({
+    method: 'POST',
+    headers: { authorization: `Bearer ${staleAdminToken}` },
+    body: { action: 'get', range: 'Brands!A:F', spreadsheetType: 'main' },
+  }));
+  assert.equal(stale.statusCode, 401);
+});
+
+test('viewer role can read Sheets but cannot write or upload to Drive', async () => {
+  const read = await invoke(sheetsHandler, createRequest({
+    method: 'POST',
+    headers: { authorization: `Bearer ${viewerToken}` },
+    body: { action: 'get', range: 'Brands!A:F', spreadsheetType: 'main' },
+  }));
+  assert.equal(read.statusCode, 200);
+
+  const write = await invoke(sheetsHandler, createRequest({
+    method: 'POST',
+    headers: { authorization: `Bearer ${viewerToken}` },
+    body: {
+      action: 'update',
+      range: 'Brands!A2:F2',
+      values: [['test']],
+      spreadsheetType: 'main',
+    },
+  }));
+  assert.equal(write.statusCode, 403);
+
+  const upload = await invoke(driveUploadHandler, createRequest({
+    method: 'POST',
+    headers: { authorization: `Bearer ${viewerToken}` },
+  }));
+  assert.equal(upload.statusCode, 403);
+});
+
 test('public Sheets GET type=public and type=csv remain open', async () => {
   const publicResponse = await invoke(sheetsHandler, createRequest({
     method: 'GET',
@@ -458,6 +555,23 @@ test('Drive upload, list and delete endpoints require access JWT', async () => {
   }
 });
 
+test('Drive endpoints reject disabled sessions before touching Drive', async () => {
+  const cases = [
+    [driveUploadHandler, createRequest({ method: 'POST' })],
+    [drivePhotoHandler, createRequest({ method: 'POST' })],
+    [driveReferencesHandler, createRequest({ method: 'POST' })],
+    [driveReferencesHandler, createRequest({ method: 'GET' })],
+    [driveReferencesHandler, createRequest({ method: 'DELETE' })],
+    [driveImagesHandler, createRequest({ method: 'GET' })],
+  ];
+
+  for (const [handler, request] of cases) {
+    request.headers = { authorization: `Bearer ${disabledToken}` };
+    const response = await invoke(handler, request);
+    assert.equal(response.statusCode, 401);
+  }
+});
+
 test('auth users directory requires access JWT and returns only allowed fields', async () => {
   const noToken = await invoke(authHandler, createRequest({
     method: 'POST',
@@ -483,6 +597,12 @@ test('auth users directory requires access JWT and returns only allowed fields',
       username: 'admin',
       display_name: 'Admin User',
       avatar: 'penguin',
+    },
+    {
+      id: 'viewer-1',
+      username: 'viewer',
+      display_name: 'View User',
+      avatar: 'koala',
     },
   ]);
   assert.equal(JSON.stringify(authorized.body).includes('password'), false);
@@ -531,6 +651,64 @@ test('login returns an access token and blocks disabled accounts', async () => {
   assert.equal(disabledLogin.statusCode, 401);
 });
 
+test('login rate limit returns 429 after repeated invalid attempts', async () => {
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const response = await invoke(authHandler, createRequest({
+      method: 'POST',
+      headers: { 'x-forwarded-for': '203.0.113.10' },
+      body: {
+        action: 'login',
+        username: 'rate-limited-user',
+        password: 'wrong-password',
+      },
+    }));
+    assert.equal(response.statusCode, 401);
+  }
+
+  const blocked = await invoke(authHandler, createRequest({
+    method: 'POST',
+    headers: { 'x-forwarded-for': '203.0.113.10' },
+    body: {
+      action: 'login',
+      username: 'rate-limited-user',
+      password: 'wrong-password',
+    },
+  }));
+  assert.equal(blocked.statusCode, 429);
+  assert.ok(Number(blocked.headers['Retry-After']) > 0);
+});
+
+test('refresh rotates tokens and rejects stale, disabled or wrong token types', async () => {
+  const refreshed = await invoke(authHandler, createRequest({
+    method: 'POST',
+    body: {
+      action: 'refresh',
+      refreshToken,
+    },
+  }));
+  assert.equal(refreshed.statusCode, 200);
+  assert.equal(refreshed.body.user.username, 'tester');
+  assert.equal(requireAccessToken(createRequest({
+    headers: { authorization: `Bearer ${refreshed.body.token}` },
+  }), createResponse()).type, 'access');
+
+  const invalidCases = [
+    staleRefreshToken,
+    disabledRefreshToken,
+    accessToken,
+  ];
+  for (const token of invalidCases) {
+    const response = await invoke(authHandler, createRequest({
+      method: 'POST',
+      body: {
+        action: 'refresh',
+        refreshToken: token,
+      },
+    }));
+    assert.equal(response.statusCode, 401);
+  }
+});
+
 test('account management is admin-only and never returns password hashes', async () => {
   const editorList = await invoke(authHandler, createRequest({
     method: 'POST',
@@ -545,7 +723,7 @@ test('account management is admin-only and never returns password hashes', async
     body: { action: 'listAccounts' },
   }));
   assert.equal(adminList.statusCode, 200);
-  assert.equal(adminList.body.accounts.length, 3);
+  assert.equal(adminList.body.accounts.length, 4);
   assert.equal(JSON.stringify(adminList.body).includes('passwordHash'), false);
 
   const create = await invoke(authHandler, createRequest({

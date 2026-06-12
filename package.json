@@ -17,7 +17,7 @@
     "sharp": "^0.34.5"
   },
   "engines": {
-    "node": ">=18.x"
+    "node": "24.x"
   },
   "devDependencies": {
     "vite": "^7.3.1"

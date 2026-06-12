@@ -9,11 +9,11 @@
 //
 // СХЕМА USERS:
 // A id, B username, C password_hash, D role, E created_at, F last_login,
-// G display_name, H avatar, I menu, J status, K updated_at, L updated_by,
-// M password_changed_at, N auth_version.
+// G display_name, H avatar, I menu, J:N legacy/reserved,
+// O status, P updated_at, Q updated_by, R password_changed_at, S auth_version.
 //
 // СУМІСНІСТЬ:
-// Старі рядки без J:N вважаються active з auth_version=1.
+// Старі рядки без O:S вважаються active з auth_version=1.
 // =========================================================================
 
 const bcrypt = require('bcryptjs');
@@ -25,8 +25,8 @@ const {
 } = require('./utils/google-sheets');
 const { requireAccessToken } = require('./utils/auth-guard');
 
-const USERS_RANGE = 'Users!A2:N1000';
-const USER_APPEND_RANGE = 'Users!A:N';
+const USERS_RANGE = 'Users!A2:S1000';
+const USER_APPEND_RANGE = 'Users!A:S';
 const ALLOWED_ROLES = new Set(['admin', 'editor', 'viewer']);
 const ALLOWED_STATUSES = new Set(['active', 'disabled']);
 const ALLOWED_AVATARS = new Set(['', 'koala', 'otter', 'penguin', 'beaver', 'panda', 'lion']);
@@ -40,7 +40,7 @@ class AccountError extends Error {
 }
 
 function parseAccount(row, index) {
-  const authVersion = Number.parseInt(row[13], 10);
+  const authVersion = Number.parseInt(row[18], 10);
 
   return {
     rowIndex: index + 2,
@@ -53,10 +53,10 @@ function parseAccount(row, index) {
     displayName: String(row[6] || '').trim(),
     avatar: normalizeAvatar(row[7]),
     menu: parseSheetBoolean(row[8]),
-    status: normalizeStatus(row[9]),
-    updatedAt: String(row[10] || ''),
-    updatedBy: String(row[11] || ''),
-    passwordChangedAt: String(row[12] || ''),
+    status: normalizeStatus(row[14]),
+    updatedAt: String(row[15] || ''),
+    updatedBy: String(row[16] || ''),
+    passwordChangedAt: String(row[17] || ''),
     authVersion: Number.isInteger(authVersion) && authVersion > 0 ? authVersion : 1,
   };
 }
@@ -108,16 +108,15 @@ async function authenticateAccount(req, res, options = {}) {
   const tokenUser = requireAccessToken(req, res);
   if (!tokenUser) return null;
 
-  const account = await findAccountById(tokenUser.id);
-  if (!account || account.status !== 'active') {
-    res.status(401).json({ error: 'Account is disabled or no longer exists' });
-    return null;
-  }
-
-  const tokenVersion = normalizeAuthVersion(tokenUser.authVersion);
-  if (tokenVersion !== account.authVersion) {
-    res.status(401).json({ error: 'Session is no longer valid' });
-    return null;
+  let account;
+  try {
+    account = await resolveActiveAccount(tokenUser);
+  } catch (error) {
+    if (error instanceof AccountError) {
+      res.status(error.status).json({ error: error.message });
+      return null;
+    }
+    throw error;
   }
 
   if (options.roles && !options.roles.includes(account.role)) {
@@ -132,6 +131,20 @@ async function authenticateAccount(req, res, options = {}) {
     authVersion: account.authVersion,
     type: 'access',
   };
+
+  return account;
+}
+
+async function resolveActiveAccount(tokenUser) {
+  const account = await findAccountById(tokenUser?.id);
+  if (!account || account.status !== 'active') {
+    throw new AccountError(401, 'Account is disabled or no longer exists');
+  }
+
+  const tokenVersion = normalizeAuthVersion(tokenUser.authVersion);
+  if (tokenVersion !== account.authVersion) {
+    throw new AccountError(401, 'Session is no longer valid');
+  }
 
   return account;
 }
@@ -177,6 +190,11 @@ async function createAccount(input, actor) {
     account.displayName,
     account.avatar,
     toSheetBoolean(account.menu),
+    '',
+    '',
+    '',
+    '',
+    '',
     account.status,
     account.updatedAt,
     account.updatedBy,
@@ -222,14 +240,15 @@ async function updateAccount(id, input, actor) {
   await batchUpdate([
     { range: `Users!D${account.rowIndex}`, values: [[nextRole]] },
     {
-      range: `Users!G${account.rowIndex}:J${account.rowIndex}`,
-      values: [[nextDisplayName, nextAvatar, toSheetBoolean(nextMenu), nextStatus]],
+      range: `Users!G${account.rowIndex}:I${account.rowIndex}`,
+      values: [[nextDisplayName, nextAvatar, toSheetBoolean(nextMenu)]],
     },
+    { range: `Users!O${account.rowIndex}`, values: [[nextStatus]] },
     {
-      range: `Users!K${account.rowIndex}:L${account.rowIndex}`,
+      range: `Users!P${account.rowIndex}:Q${account.rowIndex}`,
       values: [[now, actor.username]],
     },
-    { range: `Users!N${account.rowIndex}`, values: [[String(authVersion)]] },
+    { range: `Users!S${account.rowIndex}`, values: [[String(authVersion)]] },
   ], 'users');
 
   return toAdminAccount({
@@ -259,7 +278,7 @@ async function updateProfile(account, input) {
       values: [[displayName, avatar, toSheetBoolean(menu)]],
     },
     {
-      range: `Users!K${account.rowIndex}:L${account.rowIndex}`,
+      range: `Users!P${account.rowIndex}:Q${account.rowIndex}`,
       values: [[now, account.username]],
     },
   ], 'users');
@@ -300,7 +319,7 @@ async function writePassword(account, password, updatedBy) {
   await batchUpdate([
     { range: `Users!C${account.rowIndex}`, values: [[hash]] },
     {
-      range: `Users!K${account.rowIndex}:N${account.rowIndex}`,
+      range: `Users!P${account.rowIndex}:S${account.rowIndex}`,
       values: [[now, updatedBy, now, String(nextAuthVersion)]],
     },
   ], 'users');
@@ -393,6 +412,7 @@ module.exports = {
   findAccountByUsername,
   loadAccounts,
   resetPassword,
+  resolveActiveAccount,
   toAdminAccount,
   toProfile,
   updateAccount,

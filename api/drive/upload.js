@@ -28,7 +28,7 @@
 // =========================================================================
 
 const { corsMiddleware } = require('../../server/utils/cors');
-const { requireAccessToken } = require('../../server/utils/auth-guard');
+const { authenticateAccount } = require('../../server/accounts');
 const { uploadBrandLogo } = require('../../server/utils/google-drive');
 const { SafeUrlError, safeFetchBuffer } = require('../../server/utils/safe-url-fetch');
 const sharp = require('sharp');
@@ -99,7 +99,7 @@ async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  if (!requireAccessToken(req, res)) return;
+  if (!await authenticateAccount(req, res, { roles: ['admin', 'editor'] })) return;
 
   try {
     const contentType = req.headers['content-type'] || '';

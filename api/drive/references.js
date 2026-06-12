@@ -19,7 +19,7 @@
 // =========================================================================
 
 const { corsMiddleware } = require('../../server/utils/cors');
-const { requireAccessToken } = require('../../server/utils/auth-guard');
+const { authenticateAccount } = require('../../server/accounts');
 const { uploadFile, listFiles, deleteFile } = require('../../server/utils/google-drive');
 
 const ALLOWED_TYPES = [
@@ -61,7 +61,10 @@ async function handler(req, res) {
       return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    if (!requireAccessToken(req, res)) return;
+    const roles = req.method === 'GET'
+      ? ['admin', 'editor', 'viewer']
+      : ['admin', 'editor'];
+    if (!await authenticateAccount(req, res, { roles })) return;
 
     if (req.method === 'POST') {
       return await handleUpload(req, res);
