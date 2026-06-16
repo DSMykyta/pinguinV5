@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "vercel-dev": "vercel dev"
+    "vercel-dev": "vercel dev",
+    "functions:check": "node scripts/check-vercel-functions.js",
+    "test": "node --test tests/*.test.js",
+    "check": "npm run functions:check && npm test && npm run build"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
