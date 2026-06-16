@@ -54,6 +54,8 @@ function columnLetter(index) {
  * @param {string[]} dataSource.columns — Назви колонок по порядку
  * @param {string} dataSource.stateKey — Ключ в state для збереження даних
  * @param {Object} [dataSource.autoFields] — Автозаповнення при створенні { field: () => value }
+ * @param {Function} [dataSource.generateId] - Optional custom ID generator.
+ * @param {Function} [dataSource.getNextRowIndex] - Optional physical row resolver after append.
  * @param {Object} state — State об'єкт сторінки
  * @returns {{ load, getAll, getById, add, update, remove }}
  */
@@ -67,6 +69,8 @@ export function createEntityData(dataSource, state) {
         columns,
         stateKey,
         autoFields = {},
+        generateId = null,
+        getNextRowIndex = null,
     } = dataSource;
 
     const spreadsheetId = SPREADSHEET_IDS[spreadsheetType] || SPREADSHEET_IDS.main;
@@ -132,7 +136,9 @@ export function createEntityData(dataSource, state) {
 
             const autoPopulated = {};
             if (!entityData[idField]) {
-                autoPopulated[idField] = generateNextId(idPrefix, existingIds);
+                autoPopulated[idField] = generateId
+                    ? generateId(existingIds)
+                    : generateNextId(idPrefix, existingIds);
             }
             for (const [field, fn] of Object.entries(autoFields)) {
                 if (!entityData[field]) {
@@ -145,15 +151,23 @@ export function createEntityData(dataSource, state) {
                 ...autoPopulated,
             });
 
-            await callSheetsAPI('append', {
+            const appendResult = await callSheetsAPI('append', {
                 range: sheetRange,
                 values: [buildRow(normalized)],
                 spreadsheetType
             });
+            const appendedRowIndex = extractAppendedRowIndex(appendResult);
 
             const newEntry = {
                 ...normalized,
-                _rowIndex: getAll().length + 2
+                _rowIndex: getNextRowIndex
+                    ? getNextRowIndex({
+                        state,
+                        items: getAll(),
+                        appendResult,
+                        appendedRowIndex
+                    })
+                    : appendedRowIndex || getAll().length + 2
             };
             getAll().push(newEntry);
             return newEntry;
@@ -199,6 +213,7 @@ export function createEntityData(dataSource, state) {
             const rowIndex = entry._rowIndex;
 
             await callSheetsAPI('batchUpdateSpreadsheet', {
+                entityId,
                 requests: [{
                     deleteDimension: {
                         range: {
@@ -225,4 +240,12 @@ export function createEntityData(dataSource, state) {
     }
 
     return { load, getAll, getById, add, update, remove };
+}
+
+function extractAppendedRowIndex(result) {
+    const updatedRange = result?.updates?.updatedRange;
+    const match = typeof updatedRange === 'string'
+        ? updatedRange.match(/!\$?[A-Z]+\$?(\d+)(?::\$?[A-Z]+\$?\d+)?$/i)
+        : null;
+    return match ? Number.parseInt(match[1], 10) : null;
 }

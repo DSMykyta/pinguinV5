@@ -48,6 +48,20 @@ export default {
         sheetGid: '2095262750',
         idField: 'task_id',
         idPrefix: 'task-',
+        generateId: () => {
+            const uuid = globalThis.crypto?.randomUUID?.();
+            return uuid
+                ? `task-${uuid}`
+                : `task-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+        },
+        getNextRowIndex: ({ state, appendedRowIndex }) => {
+            const rowIndex = appendedRowIndex || (state._tasksPhysicalRowCount || 0) + 2;
+            state._tasksPhysicalRowCount = Math.max(
+                (state._tasksPhysicalRowCount || 0) + 1,
+                rowIndex - 1
+            );
+            return rowIndex;
+        },
         stateKey: 'tasks',
         columns: COLUMN_IDS,
         autoFields: {
@@ -279,6 +293,7 @@ function cardsExtension({ state, plugins, data, config }) {
                             callSheetsAPI('update', {
                                 range: `${SHEET_NAME}!N${task._rowIndex}`,
                                 values: [['0']],
+                                taskId: task.task_id,
                                 spreadsheetType: 'tasks'
                             }).catch(() => {});
                         }
@@ -496,11 +511,13 @@ async function loadTasksViaApi(state, data) {
 
     if (!result || result.length <= 1) {
         state.tasks = [];
+        state._tasksPhysicalRowCount = 0;
         state._dataLoaded = true;
         return;
     }
 
     const rows = result.slice(1);
+    state._tasksPhysicalRowCount = rows.length;
     const username = window.currentUser?.username;
     const isAdmin = window.currentUser?.role === 'admin';
 

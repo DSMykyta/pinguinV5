@@ -21,6 +21,10 @@ const { corsMiddleware } = require('../../server/utils/cors');
 const { authenticateAccount } = require('../../server/accounts');
 const { CAPABILITIES, hasCapability } = require('../../server/access-policy');
 const {
+  TasksAccessError,
+  executeTasksRequest,
+} = require('../../server/tasks-access');
+const {
   PUBLIC_SHEETS,
   extractSheetName,
   isExactAllowedSheet,
@@ -65,7 +69,7 @@ async function handler(req, res) {
         return res.status(403).json({ error: 'This account can only read spreadsheet data' });
       }
 
-      return await handleProxy(req, res);
+      return await handleProxy(req, res, account);
     } else if (req.method === 'GET') {
       const { type } = req.query;
 
@@ -104,7 +108,7 @@ async function handler(req, res) {
  * Proxy для авторизованих операцій з Google Sheets API
  * @returns {Promise<Object>} JSON з результатом операції
  */
-async function handleProxy(req, res) {
+async function handleProxy(req, res, account) {
   try {
     const body = req.body || {};
     const { action, range, ranges, values, data, requests } = body;
@@ -132,6 +136,20 @@ async function handleProxy(req, res) {
 
     // Виконання операції
     let result;
+
+    if (spreadsheetType === 'tasks') {
+      result = await executeTasksRequest(body, account, {
+        getValues,
+        updateValues,
+        appendValues,
+        batchUpdateSpreadsheet,
+      });
+
+      return res.status(200).json({
+        success: true,
+        data: result,
+      });
+    }
 
     switch (action) {
       case 'get':
@@ -189,6 +207,9 @@ async function handleProxy(req, res) {
       data: result,
     });
   } catch (error) {
+    if (error instanceof TasksAccessError) {
+      return res.status(error.status).json({ error: error.message });
+    }
     console.error('Sheets proxy error:', error);
     return res.status(500).json({
       error: 'Internal server error',

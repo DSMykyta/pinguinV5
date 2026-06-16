@@ -149,6 +149,75 @@ const testUserRows = [
 ];
 const appendedUserRows = [];
 const accountBatchUpdates = [];
+const taskRows = [
+  [
+    'task_id',
+    'title',
+    'description',
+    'category',
+    'status',
+    'created_by',
+    'assigned_to',
+    'due_date',
+    'created_at',
+    'updated_at',
+    'updated_by',
+    'comments',
+    'created_by_display',
+    'is_new',
+  ],
+  [
+    'task-000001',
+    'Own task',
+    '',
+    'task',
+    'new',
+    'tester',
+    'viewer',
+    '',
+    '2026-01-01T00:00:00.000Z',
+    '',
+    '',
+    '',
+    'Test User',
+    '1',
+  ],
+  [
+    'task-000002',
+    'Assigned task',
+    '',
+    'task',
+    'new',
+    'admin',
+    'tester',
+    '',
+    '2026-01-01T00:00:00.000Z',
+    '',
+    '',
+    '',
+    'Admin User',
+    '1',
+  ],
+  [
+    'task-000003',
+    'Unrelated task',
+    '',
+    'task',
+    'new',
+    'admin',
+    'viewer',
+    '',
+    '2026-01-01T00:00:00.000Z',
+    '',
+    '',
+    '',
+    'Admin User',
+    '1',
+  ],
+];
+const appendedTaskRows = [];
+const taskValueUpdates = [];
+const taskStructuralUpdates = [];
 
 const googleSheetsPath = require.resolve('../server/utils/google-sheets');
 require.cache[googleSheetsPath] = {
@@ -159,6 +228,16 @@ require.cache[googleSheetsPath] = {
     getValues: async (range, spreadsheetType) => {
       if (spreadsheetType === 'users' && range === 'Users!A2:S1000') {
         return testUserRows.map(row => [...row]);
+      }
+      if (spreadsheetType === 'tasks' && range === 'Tasks!A:N') {
+        return taskRows.map(row => [...row]);
+      }
+      const taskRowMatch = spreadsheetType === 'tasks'
+        ? range.match(/^Tasks!A(\d+):N\1$/)
+        : null;
+      if (taskRowMatch) {
+        const row = taskRows[Number.parseInt(taskRowMatch[1], 10) - 1];
+        return row ? [[...row]] : [];
       }
       return [[range, 'test-value']];
     },
@@ -177,8 +256,17 @@ require.cache[googleSheetsPath] = {
       }
       return { range, values: [] };
     }),
-    updateValues: async () => ({ updatedRows: 1 }),
-    appendValues: async (_range, values) => {
+    updateValues: async (range, values, spreadsheetType) => {
+      if (spreadsheetType === 'tasks') {
+        taskValueUpdates.push({ range, values: values.map(row => [...row]) });
+      }
+      return { updatedRows: 1 };
+    },
+    appendValues: async (_range, values, spreadsheetType) => {
+      if (spreadsheetType === 'tasks') {
+        appendedTaskRows.push(...values.map(row => [...row]));
+        return { updates: { updatedRows: values.length } };
+      }
       appendedUserRows.push(...values.map(row => [...row]));
       return { updates: { updatedRows: values.length } };
     },
@@ -186,7 +274,12 @@ require.cache[googleSheetsPath] = {
       accountBatchUpdates.push(...data);
       return { totalUpdatedRows: data.length };
     },
-    batchUpdateSpreadsheet: async () => ({ replies: [] }),
+    batchUpdateSpreadsheet: async (requests, spreadsheetType) => {
+      if (spreadsheetType === 'tasks') {
+        taskStructuralUpdates.push(...requests);
+      }
+      return { replies: [] };
+    },
     getSheetNames: async () => [{ title: 'Test', sheetId: 1 }],
   },
 };
@@ -215,6 +308,7 @@ const {
   resolveSafeTarget,
   safeFetchBuffer,
 } = require('../server/utils/safe-url-fetch');
+const { parseTasksRange } = require('../server/tasks-access');
 
 const authHandler = require('../api/auth');
 const sheetsHandler = require('../api/sheets');
@@ -529,6 +623,230 @@ test('universal Sheets policy blocks users, unknown types and Tasks escape paths
       },
     }],
   }).status, 403);
+});
+
+test('task ranges are parsed strictly', () => {
+  assert.deepEqual(parseTasksRange('Tasks!A:N'), {
+    startColumn: 'A',
+    endColumn: 'N',
+    rowNumber: null,
+  });
+  assert.deepEqual(parseTasksRange('Tasks!A3:N3'), {
+    startColumn: 'A',
+    endColumn: 'N',
+    rowNumber: 3,
+  });
+  assert.equal(parseTasksRange('Tasks!A3:N4'), null);
+  assert.equal(parseTasksRange('Other!A:N'), null);
+});
+
+test('tasks endpoint filters private rows while administrators can read all tasks', async () => {
+  const editorRead = await invoke(sheetsHandler, createRequest({
+    method: 'POST',
+    headers: { authorization: `Bearer ${accessToken}` },
+    body: { action: 'get', range: 'Tasks!A:N', spreadsheetType: 'tasks' },
+  }));
+  assert.equal(editorRead.statusCode, 200);
+  assert.deepEqual(editorRead.body.data.map(row => row[0]), [
+    'task_id',
+    'task-000001',
+    'task-000002',
+    '',
+  ]);
+
+  const adminRead = await invoke(sheetsHandler, createRequest({
+    method: 'POST',
+    headers: { authorization: `Bearer ${adminToken}` },
+    body: { action: 'get', range: 'Tasks!A:N', spreadsheetType: 'tasks' },
+  }));
+  assert.equal(adminRead.statusCode, 200);
+  assert.equal(adminRead.body.data.length, taskRows.length);
+
+  const partialRead = await invoke(sheetsHandler, createRequest({
+    method: 'POST',
+    headers: { authorization: `Bearer ${accessToken}` },
+    body: { action: 'get', range: 'Tasks!A:M', spreadsheetType: 'tasks' },
+  }));
+  assert.equal(partialRead.statusCode, 403);
+});
+
+test('tasks endpoint enforces author and assignee mutation rules', async () => {
+  const updateCount = taskValueUpdates.length;
+  const assignedUpdate = [...taskRows[2]];
+  assignedUpdate[4] = 'in_progress';
+  assignedUpdate[9] = 'client-time';
+  assignedUpdate[10] = 'spoofed-user';
+
+  const allowedStatus = await invoke(sheetsHandler, createRequest({
+    method: 'POST',
+    headers: { authorization: `Bearer ${accessToken}` },
+    body: {
+      action: 'update',
+      range: 'Tasks!A3:N3',
+      values: [assignedUpdate],
+      spreadsheetType: 'tasks',
+    },
+  }));
+  assert.equal(allowedStatus.statusCode, 200);
+  assert.equal(taskValueUpdates.length, updateCount + 1);
+  assert.equal(taskValueUpdates.at(-1).values[0][4], 'in_progress');
+  assert.equal(taskValueUpdates.at(-1).values[0][5], 'admin');
+  assert.equal(taskValueUpdates.at(-1).values[0][10], 'tester');
+
+  const ownershipSpoof = [...assignedUpdate];
+  ownershipSpoof[5] = 'tester';
+  const blockedOwnership = await invoke(sheetsHandler, createRequest({
+    method: 'POST',
+    headers: { authorization: `Bearer ${accessToken}` },
+    body: {
+      action: 'update',
+      range: 'Tasks!A3:N3',
+      values: [ownershipSpoof],
+      spreadsheetType: 'tasks',
+    },
+  }));
+  assert.equal(blockedOwnership.statusCode, 403);
+
+  const unrelatedUpdate = await invoke(sheetsHandler, createRequest({
+    method: 'POST',
+    headers: { authorization: `Bearer ${accessToken}` },
+    body: {
+      action: 'update',
+      range: 'Tasks!A4:N4',
+      values: [[...taskRows[3]]],
+      spreadsheetType: 'tasks',
+    },
+  }));
+  assert.equal(unrelatedUpdate.statusCode, 403);
+
+  const viewed = await invoke(sheetsHandler, createRequest({
+    method: 'POST',
+    headers: { authorization: `Bearer ${accessToken}` },
+    body: {
+      action: 'update',
+      range: 'Tasks!N3',
+      values: [['0']],
+      taskId: 'task-000002',
+      spreadsheetType: 'tasks',
+    },
+  }));
+  assert.equal(viewed.statusCode, 200);
+
+  const staleViewed = await invoke(sheetsHandler, createRequest({
+    method: 'POST',
+    headers: { authorization: `Bearer ${accessToken}` },
+    body: {
+      action: 'update',
+      range: 'Tasks!N3',
+      values: [['0']],
+      taskId: 'task-000001',
+      spreadsheetType: 'tasks',
+    },
+  }));
+  assert.equal(staleViewed.statusCode, 409);
+
+  const commentUpdate = [...taskRows[2]];
+  commentUpdate[11] = JSON.stringify([{
+    author: 'admin',
+    display_name: 'Admin User',
+    text: 'Checked',
+    created_at: 'fake-time',
+  }]);
+  const allowedComment = await invoke(sheetsHandler, createRequest({
+    method: 'POST',
+    headers: { authorization: `Bearer ${accessToken}` },
+    body: {
+      action: 'update',
+      range: 'Tasks!A3:N3',
+      values: [commentUpdate],
+      spreadsheetType: 'tasks',
+    },
+  }));
+  assert.equal(allowedComment.statusCode, 200);
+  const savedComments = JSON.parse(taskValueUpdates.at(-1).values[0][11]);
+  assert.equal(savedComments[0].author, 'tester');
+  assert.equal(savedComments[0].display_name, 'Test User');
+  assert.equal(savedComments[0].text, 'Checked');
+});
+
+test('tasks endpoint stamps authorship and restricts deletion to author or admin', async () => {
+  const appendCount = appendedTaskRows.length;
+  const newTask = [
+    'task-000004',
+    'New task',
+    '',
+    'task',
+    'new',
+    'admin',
+    'viewer',
+    '',
+    'fake-created',
+    '',
+    'admin',
+    '',
+    'Admin User',
+    '0',
+  ];
+  const append = await invoke(sheetsHandler, createRequest({
+    method: 'POST',
+    headers: { authorization: `Bearer ${accessToken}` },
+    body: {
+      action: 'append',
+      range: 'Tasks!A:N',
+      values: [newTask],
+      spreadsheetType: 'tasks',
+    },
+  }));
+  assert.equal(append.statusCode, 200);
+  assert.equal(appendedTaskRows.length, appendCount + 1);
+  assert.equal(appendedTaskRows.at(-1)[5], 'tester');
+  assert.equal(appendedTaskRows.at(-1)[10], 'tester');
+  assert.equal(appendedTaskRows.at(-1)[12], 'Test User');
+  assert.equal(appendedTaskRows.at(-1)[13], '1');
+
+  const structuralCount = taskStructuralUpdates.length;
+  const deleteOwn = await invoke(sheetsHandler, createRequest({
+    method: 'POST',
+    headers: { authorization: `Bearer ${accessToken}` },
+    body: {
+      action: 'batchUpdateSpreadsheet',
+      entityId: 'task-000001',
+      spreadsheetType: 'tasks',
+      requests: [{
+        deleteDimension: {
+          range: {
+            sheetId: TASKS_SHEET_ID,
+            dimension: 'ROWS',
+            startIndex: 1,
+            endIndex: 2,
+          },
+        },
+      }],
+    },
+  }));
+  assert.equal(deleteOwn.statusCode, 200);
+  assert.equal(taskStructuralUpdates.length, structuralCount + 1);
+
+  const deleteUnrelated = await invoke(sheetsHandler, createRequest({
+    method: 'POST',
+    headers: { authorization: `Bearer ${accessToken}` },
+    body: {
+      action: 'batchUpdateSpreadsheet',
+      entityId: 'task-000003',
+      spreadsheetType: 'tasks',
+      requests: [{
+        deleteDimension: {
+          range: {
+            sheetId: TASKS_SHEET_ID,
+            dimension: 'ROWS',
+            startIndex: 3,
+            endIndex: 4,
+          },
+        },
+      }],
+    },
+  }));
+  assert.equal(deleteUnrelated.statusCode, 403);
 });
 
 test('private Sheets POST requires JWT and blocks users with a valid JWT', async () => {
