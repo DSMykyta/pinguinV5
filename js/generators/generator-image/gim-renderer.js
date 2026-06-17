@@ -18,6 +18,7 @@
 import { getImageDom } from './gim-dom.js';
 import { getImageState, resetCanvasState } from './gim-state.js';
 import { updateSaveButtonText } from './gim-saver.js';
+import { setImageSelected, syncSelectAllControl } from './gim-selection.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { extractExtension } from '../../utils/utils-file.js';
 
@@ -100,6 +101,7 @@ export function renderThumbnails() {
     if (imageState.files.length === 0) {
         dom.thumbnailsArea.appendChild(dom.emptyState);
         dom.emptyState.classList.remove('u-hidden');
+        syncSelectAllControl();
         resetCanvasState();
         return;
     }
@@ -140,11 +142,7 @@ export function renderThumbnails() {
         });
 
         div.querySelector('.row-checkbox').addEventListener('change', (e) => {
-            if (e.target.checked) {
-                imageState.selectedIds.add(item.id);
-            } else {
-                imageState.selectedIds.delete(item.id);
-            }
+            setImageSelected(item.id, e.target.checked);
             updateSaveButtonText();
         });
 
@@ -155,6 +153,8 @@ export function renderThumbnails() {
 
         dom.thumbnailsArea.appendChild(div);
     });
+
+    syncSelectAllControl();
 }
 
 /**

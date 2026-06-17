@@ -1,0 +1,68 @@
+/**
+ * COMPONENT: Photo Upload
+ *
+ * Shared layout for image upload rows and photo lists.
+ * Keeps upload controls fixed, makes long photo lists scroll inside the block,
+ * and hides native scrollbars to match the app chrome.
+ */
+
+.photo-upload-column {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.photo-upload-zone {
+    flex-shrink: 0;
+}
+
+.photo-upload-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: min(420px, calc(100dvh - 260px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.photo-upload-list .content-line.main {
+    background-color: var(--color-main-c);
+}
+
+.photo-upload-list::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+.section-content-full-height .photo-upload-column {
+    height: 100%;
+}
+
+.section-content-full-height .photo-upload-column > .photo-upload-list {
+    max-height: none;
+}
+
+.photo-select-all {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 40px;
+    width: 40px;
+    min-width: 0;
+    height: 40px;
+    padding: 0 0 0 8px;
+}
+
+.group.column .photo-select-all {
+    min-width: 0;
+    padding: 0 0 0 8px;
+}
+
+.photo-select-all input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+}

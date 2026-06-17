@@ -16,8 +16,9 @@ import { getImageDom } from './gim-dom.js';
 import { resetState, getImageState } from './gim-state.js';
 import { setupFileHandlers } from './gim-loader.js';
 import { updateResizeProportions, updateCanvasProportions, applyTransformation, squarifyImages } from './gim-transformer.js';
-import { handleSave } from './gim-saver.js';
-import { updateCanvasDisplay } from './gim-renderer.js';
+import { handleSave, updateSaveButtonText } from './gim-saver.js';
+import { renderThumbnails, updateCanvasDisplay } from './gim-renderer.js';
+import { setAllImagesSelected } from './gim-selection.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { initCustomSelects } from '../../components/forms/select.js';
 import { debounce } from '../../utils/utils-debounce.js';
@@ -84,6 +85,12 @@ function setupToolHandlers() {
     });
 
     dom.saveBtn.addEventListener('click', handleSave);
+
+    dom.selectAll?.addEventListener('change', () => {
+        setAllImagesSelected(dom.selectAll.checked);
+        renderThumbnails();
+        updateSaveButtonText();
+    });
 
     if (dom.squarifyBtn) {
         dom.squarifyBtn.addEventListener('click', squarifyImages);

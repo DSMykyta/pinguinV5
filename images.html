@@ -76,11 +76,15 @@
                         </div>
                     </div>
 
-                    <div class="group column col-4">
+                    <div class="group column col-4 photo-upload-column">
                         <label class="label-l">Галерея</label>
 
-                        <div class="content-bloc" id="gim-dropzone" data-dropzone>
+                        <div class="content-bloc photo-upload-zone" id="gim-dropzone" data-dropzone>
                             <div class="content-line">
+                                <label class="photo-select-all u-hidden" id="gim-select-all-wrap" for="gim-select-all"
+                                    data-tooltip="Вибрати всі" data-tooltip-always>
+                                    <input type="checkbox" id="gim-select-all" aria-label="Вибрати всі зображення">
+                                </label>
                                 <div class="input-box">
                                     <input type="url" id="gim-image-url"
                                         placeholder="URL або перетягніть файл...">
@@ -99,7 +103,7 @@
                                 class="u-hidden" multiple>
                         </div>
 
-                        <div class="content-bloc-container photos" id="gim-thumbnails-area">
+                        <div class="content-bloc-container photo-upload-list" id="gim-thumbnails-area">
                             <div class="loading-state" id="gim-empty-state">
                                 <span class="material-symbols-outlined">image</span>
                                 <p>Завантажте зображення</p>
@@ -128,7 +132,7 @@
                     </div>
 
                     <div class="cmp-photos-area" data-slots="2">
-                        <div class="content-bloc cmp-photo-slot" id="cmp-preview-0" data-side="0" data-dropzone>
+                        <div class="content-bloc cmp-photo-slot photo-upload-zone" id="cmp-preview-0" data-side="0" data-dropzone>
                             <div class="content-line">
                                 <div class="input-box">
                                     <input type="url" id="cmp-url-0" placeholder="URL або перетягніть файл...">
@@ -141,7 +145,7 @@
                             <input type="file" id="cmp-file-0" accept="image/*" class="u-hidden">
                         </div>
                         <img class="cmp-arrow" id="cmp-arrow-0" src="icon/arrow-narrow-right.svg" alt="→">
-                        <div class="content-bloc cmp-photo-slot" id="cmp-preview-1" data-side="1" data-dropzone>
+                        <div class="content-bloc cmp-photo-slot photo-upload-zone" id="cmp-preview-1" data-side="1" data-dropzone>
                             <div class="content-line">
                                 <div class="input-box">
                                     <input type="url" id="cmp-url-1" placeholder="URL або перетягніть файл...">
@@ -154,7 +158,7 @@
                             <input type="file" id="cmp-file-1" accept="image/*" class="u-hidden">
                         </div>
                         <img class="cmp-arrow u-hidden" id="cmp-arrow-1" src="icon/arrow-narrow-right.svg" alt="→">
-                        <div class="content-bloc cmp-photo-slot u-hidden" id="cmp-preview-2" data-side="2" data-dropzone>
+                        <div class="content-bloc cmp-photo-slot photo-upload-zone u-hidden" id="cmp-preview-2" data-side="2" data-dropzone>
                             <div class="content-line">
                                 <div class="input-box">
                                     <input type="url" id="cmp-url-2" placeholder="URL або перетягніть файл...">

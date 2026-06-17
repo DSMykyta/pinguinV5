@@ -45,6 +45,11 @@ export function resetState() {
     imageState.counter = 0;
     dom.imageInput.value = '';
     dom.imageUrlInput.value = '';
+    if (dom.selectAll) {
+        dom.selectAll.checked = false;
+        dom.selectAll.indeterminate = false;
+    }
+    dom.selectAllWrap?.classList.add('u-hidden');
     dom.thumbnailsArea.innerHTML = '';
     if (dom.emptyState) {
         dom.thumbnailsArea.appendChild(dom.emptyState);

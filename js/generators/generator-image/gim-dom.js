@@ -20,6 +20,8 @@ export function getImageDom() {
         thumbnailsArea: document.getElementById('gim-thumbnails-area'),
         emptyState: document.getElementById('gim-empty-state'),
         dropzone: document.getElementById('gim-dropzone'),
+        selectAllWrap: document.getElementById('gim-select-all-wrap'),
+        selectAll: document.getElementById('gim-select-all'),
         selectFileBtn: document.getElementById('gim-select-file-btn'),
         imageUrlInput: document.getElementById('gim-image-url'),
         loadUrlBtn: document.getElementById('gim-load-url-btn'),

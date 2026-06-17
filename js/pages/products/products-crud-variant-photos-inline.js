@@ -313,11 +313,11 @@ registerHook('onCharsRender', (container) => {
     if (container.querySelector(`#${CSS.escape(rowId)}-photos-list`)) return;
 
     const photoField = document.createElement('div');
-    photoField.className = 'group column col-3';
+    photoField.className = 'group column col-3 photo-upload-column';
     photoField.id = `${rowId}-photos-list`;
     photoField.innerHTML = `
         <label class="label-l">Фото</label>
-        <div class="content-bloc" id="${rowId}-photo-dropzone" data-dropzone>
+        <div class="content-bloc photo-upload-zone" id="${rowId}-photo-dropzone" data-dropzone>
             <div class="content-line">
                 <div class="input-box">
                     <input type="url" id="${rowId}-photo-url-field" placeholder="URL або перетягніть файл...">
@@ -331,7 +331,7 @@ registerHook('onCharsRender', (container) => {
             </div>
             <input type="file" id="${rowId}-photo-file-input" accept="image/*" multiple hidden>
         </div>
-        <div class="content-bloc-container photos" id="${rowId}-photos-grid"></div>
+        <div class="content-bloc-container photo-upload-list" id="${rowId}-photos-grid"></div>
     `;
 
     const grid = container.querySelector('.grid');

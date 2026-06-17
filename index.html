@@ -216,12 +216,16 @@
                     </div>
 
                     <!-- Завантаження + список зображень -->
-                    <div class="group column col-4">
+                    <div class="group column col-4 photo-upload-column">
                         <label class="label-l">Галерея</label>
 
                         <!-- Upload zone -->
-                        <div class="content-bloc" id="gim-dropzone" data-dropzone>
+                        <div class="content-bloc photo-upload-zone" id="gim-dropzone" data-dropzone>
                             <div class="content-line">
+                                <label class="photo-select-all u-hidden" id="gim-select-all-wrap" for="gim-select-all"
+                                    data-tooltip="Вибрати всі" data-tooltip-always>
+                                    <input type="checkbox" id="gim-select-all" aria-label="Вибрати всі зображення">
+                                </label>
                                 <div class="input-box">
                                     <input type="url" id="gim-image-url"
                                         placeholder="URL або перетягніть файл...">
@@ -241,7 +245,7 @@
                         </div>
 
                         <!-- Зображення-картки -->
-                        <div class="content-bloc-container photos" id="gim-thumbnails-area">
+                        <div class="content-bloc-container photo-upload-list" id="gim-thumbnails-area">
                             <div class="loading-state" id="gim-empty-state">
                                 <span class="material-symbols-outlined">image</span>
                                 <p>Завантажте зображення</p>
