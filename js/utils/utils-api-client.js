@@ -83,11 +83,12 @@ async function apiRequest(url, options = {}) {
     if (!response.ok) {
       // Якщо токен протермінований - перезавантажуємо сторінку
       if (response.status === 401) {
-        console.error('Token expired, reloading page');
+        console.error('Token expired, opening login modal');
         if (typeof window.handleSignOut === 'function') {
-          window.handleSignOut();
+          await window.handleSignOut({ reload: false, skipServer: true });
         } else {
-          window.location.reload();
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('refresh_token');
         }
         throw new Error('Token expired');
       }

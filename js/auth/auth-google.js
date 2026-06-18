@@ -128,11 +128,13 @@ async function handleSignIn(username, password) {
 /**
  * Вихід користувача
  */
-async function handleSignOut() {
+async function handleSignOut(options = {}) {
+  const { reload = true, skipServer = false } = options || {};
+
   try {
     const token = getAuthToken();
 
-    if (token) {
+    if (token && !skipServer) {
       // Повідомляємо backend про вихід
       await logout();
     }
@@ -151,7 +153,11 @@ async function handleSignOut() {
     }));
 
     // Перезавантажуємо сторінку
-    window.location.reload();
+    if (reload) {
+      window.location.reload();
+    } else {
+      await promptSignIn();
+    }
   }
 }
 
@@ -385,6 +391,13 @@ function setupLogoutButton() {
  */
 function handleStorageChange(event) {
   if (event.key === AUTH_TOKEN_KEY) {
+    if (!event.newValue) {
+      window.isAuthorized = false;
+      window.currentUser = null;
+      updateAuthUI(false).then(promptSignIn);
+      return;
+    }
+
     // Повна ініціалізація вже захищена прапорцем, тому між вкладками
     // синхронізуємо стан через чисте перезавантаження.
     window.location.reload();
