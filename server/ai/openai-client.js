@@ -32,12 +32,8 @@ async function generateProductContent(source) {
       parts: [{ text: prompt }],
     }],
     generationConfig: {
-      responseFormat: {
-        text: {
-          mimeType: 'application/json',
-          schema: productContentSchema,
-        },
-      },
+      responseMimeType: 'application/json',
+      responseJsonSchema: productContentSchema,
     },
   };
 

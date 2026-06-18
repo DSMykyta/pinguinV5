@@ -1098,8 +1098,8 @@ test('AI provider client uses Gemini key and structured JSON response format', a
     const body = JSON.parse(capturedRequest.options.body);
     assert.equal(capturedRequest.url, 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent');
     assert.equal(capturedRequest.options.headers['x-goog-api-key'], 'test-gemini-key');
-    assert.equal(body.generationConfig.responseFormat.text.mimeType, 'application/json');
-    assert.equal(body.generationConfig.responseFormat.text.schema.required.includes('manual_check_notes'), true);
+    assert.equal(body.generationConfig.responseMimeType, 'application/json');
+    assert.equal(body.generationConfig.responseJsonSchema.required.includes('manual_check_notes'), true);
     assert.equal(result.source.product_name_original, 'Test Product');
   } finally {
     global.fetch = originalFetch;
