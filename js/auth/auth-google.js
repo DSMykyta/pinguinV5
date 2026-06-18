@@ -129,7 +129,7 @@ async function handleSignIn(username, password) {
  * Вихід користувача
  */
 async function handleSignOut(options = {}) {
-  const { reload = true, skipServer = false } = options || {};
+  const { skipServer = false, prompt = true } = options || {};
 
   try {
     const token = getAuthToken();
@@ -152,10 +152,8 @@ async function handleSignOut(options = {}) {
       detail: { isAuthorized: false, user: null }
     }));
 
-    // Перезавантажуємо сторінку
-    if (reload) {
-      window.location.reload();
-    } else {
+    // Повертаємо сторінку в гостьовий стан без hard reload.
+    if (prompt) {
       await promptSignIn();
     }
   }
@@ -389,18 +387,35 @@ function setupLogoutButton() {
 /**
  * Обробка змін в localStorage (синхронізація між вкладками)
  */
-function handleStorageChange(event) {
+async function handleStorageChange(event) {
   if (event.key === AUTH_TOKEN_KEY) {
     if (!event.newValue) {
       window.isAuthorized = false;
       window.currentUser = null;
-      updateAuthUI(false).then(promptSignIn);
+      await updateAuthUI(false);
+      await promptSignIn();
       return;
     }
 
     // Повна ініціалізація вже захищена прапорцем, тому між вкладками
-    // синхронізуємо стан через чисте перезавантаження.
-    window.location.reload();
+    // синхронізуємо auth state без hard reload.
+    const isValid = await verifyToken(event.newValue);
+    if (!isValid) {
+      clearAuthData();
+      window.isAuthorized = false;
+      window.currentUser = null;
+      await updateAuthUI(false);
+      await promptSignIn();
+      return;
+    }
+
+    window.isAuthorized = true;
+    window.currentUser = getUserData();
+    await updateAuthUI(true);
+
+    document.dispatchEvent(new CustomEvent('auth-state-changed', {
+      detail: { isAuthorized: true, user: window.currentUser }
+    }));
   }
 }
 
