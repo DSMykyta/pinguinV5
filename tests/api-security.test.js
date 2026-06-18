@@ -319,6 +319,7 @@ const driveReferencesHandler = require('../api/drive/references');
 const driveImagesHandler = require('../api/drive/images');
 const hashPasswordHandler = require('../api/auth/hash-password');
 const usersDirectoryHandler = require('../api/users/directory');
+const aiHandler = require('../api/ai');
 
 const accessToken = generateToken({
   id: 'user-1',
@@ -549,6 +550,7 @@ test('OPTIONS remains open on every protected endpoint', async () => {
     driveReferencesHandler,
     driveImagesHandler,
     hashPasswordHandler,
+    aiHandler,
     authHandler,
   ];
 
@@ -982,6 +984,44 @@ test('Drive upload, list and delete endpoints require access JWT', async () => {
   for (const [handler, request] of cases) {
     const response = await invoke(handler, request);
     assert.equal(response.statusCode, 401);
+  }
+});
+
+test('AI endpoint requires editor access and keeps URL fetching SSRF-safe', async () => {
+  const noToken = await invoke(aiHandler, createRequest({
+    method: 'POST',
+    body: { action: 'generateProductContent', input: 'Optimum Nutrition Whey' },
+  }));
+  assert.equal(noToken.statusCode, 401);
+
+  const viewer = await invoke(aiHandler, createRequest({
+    method: 'POST',
+    headers: { authorization: `Bearer ${viewerToken}` },
+    body: { action: 'generateProductContent', input: 'Optimum Nutrition Whey' },
+  }));
+  assert.equal(viewer.statusCode, 403);
+
+  const ssrf = await invoke(aiHandler, createRequest({
+    method: 'POST',
+    headers: { authorization: `Bearer ${accessToken}` },
+    body: { action: 'generateProductContent', input: 'http://127.0.0.1/private' },
+  }));
+  assert.equal(ssrf.statusCode, 400);
+
+  const originalOpenAiKey = process.env.OPENAI_API_KEY;
+  delete process.env.OPENAI_API_KEY;
+  try {
+    const missingConfig = await invoke(aiHandler, createRequest({
+      method: 'POST',
+      headers: { authorization: `Bearer ${accessToken}` },
+      body: { action: 'generateProductContent', input: 'Optimum Nutrition Whey' },
+    }));
+    assert.equal(missingConfig.statusCode, 500);
+    assert.match(missingConfig.body.error, /OPENAI_API_KEY/);
+  } finally {
+    if (originalOpenAiKey) {
+      process.env.OPENAI_API_KEY = originalOpenAiKey;
+    }
   }
 });
 

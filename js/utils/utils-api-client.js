@@ -554,6 +554,25 @@ async function getUserDirectory() {
   return data.users || [];
 }
 
+// ============= AI API =============
+
+const API_AI = `${API_BASE}/api/ai`;
+
+/**
+ * Згенерувати двомовний контент для сторінки Інструменти.
+ * @param {{input: string, sourceText?: string, rules?: string}} payload
+ * @returns {Promise<{result: Object, meta: Object}>}
+ */
+async function generateAiMagicContent(payload = {}) {
+  return apiRequest(API_AI, {
+    method: 'POST',
+    body: JSON.stringify({
+      action: 'generateProductContent',
+      ...payload,
+    }),
+  });
+}
+
 // ============= Експорт =============
 
 // ES6 модульні експорти
@@ -575,7 +594,8 @@ export {
   deleteReferenceFile,
   uploadProductPhotoFile,
   listDriveImages,
-  getUserDirectory
+  getUserDirectory,
+  generateAiMagicContent
 };
 
 // Глобальний об'єкт для доступу до API
@@ -616,6 +636,10 @@ window.apiClient = {
 
   users: {
     directory: getUserDirectory,
+  },
+
+  ai: {
+    generateMagicContent: generateAiMagicContent,
   },
 
   // Утиліти

@@ -17,6 +17,7 @@ import './generators/generator-seo/gse-main.js'
 import './generators/generator-link/gln-main.js';
 import './generators/generator-translate/gtr-main.js';
 import './generators/generator-image/gim-main.js';
+import './generators/generator-ai-magic/aim-main.js';
 
 async function initializeApp() {
     try {

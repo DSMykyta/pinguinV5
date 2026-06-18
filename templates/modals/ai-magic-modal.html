@@ -1,0 +1,201 @@
+<!-- templates/modals/ai-magic-modal.html -->
+
+<div class="modal-overlay modal-full ai-magic-modal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <div class="modal-left">
+                <h2>AI Magic</h2>
+            </div>
+            <div class="modal-center">
+                <span class="body-s">iHerb, офіційний сайт або назва товару</span>
+            </div>
+            <div class="modal-right">
+                <button class="btn-icon touch modal-close-btn" aria-label="Закрити" data-modal-close>
+                    <div class="state-layer">
+                        <span class="material-symbols-outlined">close</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <div class="modal-body">
+            <main>
+                <section class="ai-magic-hero">
+                    <div class="modal-confirm-body">
+                        <div id="ai-magic-avatar-container"></div>
+                        <div class="speech-bubble body-s" id="ai-magic-avatar-message">Давай зроблю магію.</div>
+                    </div>
+
+                    <div class="content-bloc-container spaced">
+                        <div class="content-bloc">
+                            <div class="content-line panel">
+                                <span class="material-symbols-outlined">auto_awesome</span>
+                                <div class="input-box">
+                                    <input type="text" id="ai-magic-source"
+                                        placeholder="Встав iHerb URL, офіційний сайт або назву товару">
+                                </div>
+                                <button class="btn-primary" id="ai-magic-generate-btn">Заповнити</button>
+                            </div>
+                        </div>
+
+                        <div class="content-bloc">
+                            <div class="content-line">
+                                <div class="input-box">
+                                    <textarea id="ai-magic-source-text" rows="4"
+                                        placeholder="Опційно: встав HTML або текст сторінки, якщо сайт не дає себе прочитати автоматично"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="content-bloc">
+                            <div class="content-line">
+                                <div class="input-box">
+                                    <textarea id="ai-magic-rules" rows="3"
+                                        placeholder="Опційно: правила для текстів і таблиць"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="ai-magic-result u-hidden" id="ai-magic-result">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">Результат</h2>
+                            </div>
+                            <span class="body-s">Перевір перед застосуванням. Невпевнені місця винесені в нотатки.</span>
+                        </div>
+                        <div class="group">
+                            <label class="switch-label">
+                                <input type="radio" name="ai-magic-apply-lang" value="ua" checked>
+                                <span>UA</span>
+                            </label>
+                            <label class="switch-label">
+                                <input type="radio" name="ai-magic-apply-lang" value="ru">
+                                <span>RU</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="grid">
+                        <div class="group column col-6">
+                            <label class="label-l">SEO UA</label>
+                            <div class="content-bloc-container">
+                                <div class="content-bloc">
+                                    <div class="content-line">
+                                        <div class="input-box">
+                                            <input type="text" id="ai-magic-h1-ua" placeholder="H1 UA">
+                                            <span class="tag c-secondary">UA</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="content-bloc">
+                                    <div class="content-line">
+                                        <div class="input-box">
+                                            <input type="text" id="ai-magic-seo-title-ua" placeholder="SEO Title UA">
+                                            <span class="tag c-secondary">UA</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="content-bloc">
+                                    <div class="content-line">
+                                        <div class="input-box">
+                                            <textarea id="ai-magic-seo-description-ua" rows="3"
+                                                placeholder="SEO Description UA"></textarea>
+                                            <span class="tag c-secondary">UA</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="content-bloc">
+                                    <div class="content-line">
+                                        <div class="input-box">
+                                            <input type="text" id="ai-magic-seo-keywords-ua" placeholder="Keywords UA">
+                                            <span class="tag c-secondary">UA</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="group column col-6">
+                            <label class="label-l">SEO RU</label>
+                            <div class="content-bloc-container">
+                                <div class="content-bloc">
+                                    <div class="content-line">
+                                        <div class="input-box">
+                                            <input type="text" id="ai-magic-h1-ru" placeholder="H1 RU">
+                                            <span class="tag c-secondary">RU</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="content-bloc">
+                                    <div class="content-line">
+                                        <div class="input-box">
+                                            <input type="text" id="ai-magic-seo-title-ru" placeholder="SEO Title RU">
+                                            <span class="tag c-secondary">RU</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="content-bloc">
+                                    <div class="content-line">
+                                        <div class="input-box">
+                                            <textarea id="ai-magic-seo-description-ru" rows="3"
+                                                placeholder="SEO Description RU"></textarea>
+                                            <span class="tag c-secondary">RU</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="content-bloc">
+                                    <div class="content-line">
+                                        <div class="input-box">
+                                            <input type="text" id="ai-magic-seo-keywords-ru" placeholder="Keywords RU">
+                                            <span class="tag c-secondary">RU</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="group column col-6">
+                            <label class="label-l">Текст UA</label>
+                            <textarea id="ai-magic-description-ua" class="input-main ai-magic-textarea" rows="10"></textarea>
+                        </div>
+
+                        <div class="group column col-6">
+                            <label class="label-l">Текст RU</label>
+                            <textarea id="ai-magic-description-ru" class="input-main ai-magic-textarea" rows="10"></textarea>
+                        </div>
+
+                        <div class="group column col-6">
+                            <label class="label-l">Таблиця UA</label>
+                            <textarea id="ai-magic-table-ua" class="input-main ai-magic-textarea" rows="10"></textarea>
+                        </div>
+
+                        <div class="group column col-6">
+                            <label class="label-l">Таблиця RU</label>
+                            <textarea id="ai-magic-table-ru" class="input-main ai-magic-textarea" rows="10"></textarea>
+                        </div>
+
+                        <div class="group column col-12">
+                            <label class="label-l">Нотатки для ручної перевірки</label>
+                            <div class="content-bloc ai-magic-notes" id="ai-magic-notes"></div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <div class="modal-footer">
+            <div class="modal-left">
+                <span class="body-s" id="ai-magic-status"></span>
+            </div>
+            <div class="modal-right">
+                <button class="btn-ghost" id="ai-magic-apply-seo-btn">SEO</button>
+                <button class="btn-ghost" id="ai-magic-apply-text-btn">Текст</button>
+                <button class="btn-ghost" id="ai-magic-apply-table-btn">Таблицю</button>
+                <button class="btn-primary" id="ai-magic-apply-all-btn">Застосувати все</button>
+            </div>
+        </div>
+    </div>
+</div>
