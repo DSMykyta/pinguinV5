@@ -320,7 +320,7 @@ const driveImagesHandler = require('../api/drive/images');
 const hashPasswordHandler = require('../api/auth/hash-password');
 const usersDirectoryHandler = require('../api/users/directory');
 const aiHandler = require('../api/ai');
-const { generateProductContent: generateAiProductContent } = require('../server/ai/openai-client');
+const { generateProductContent: generateAiProductContent } = require('../server/ai/google-client');
 
 const accessToken = generateToken({
   id: 'user-1',
@@ -416,6 +416,53 @@ async function invoke(handler, request) {
   const response = createResponse();
   await handler(request, response);
   return response;
+}
+
+function createGeminiSuccessEnvelope(productName = 'Test Product') {
+  return JSON.stringify({
+    candidates: [{
+      content: {
+        parts: [{
+          text: JSON.stringify({
+            source: {
+              source_type: 'query',
+              source_url: '',
+              product_name_original: productName,
+              brand: 'Test Brand',
+              packaging: '',
+              barcode: '',
+            },
+            ua: {
+              h1: '',
+              seo_title: '',
+              seo_description: '',
+              seo_keywords: [],
+              description_html: '',
+              ingredients: '',
+              directions: '',
+              warnings: '',
+            },
+            ru: {
+              h1: '',
+              seo_title: '',
+              seo_description: '',
+              seo_keywords: [],
+              description_html: '',
+              ingredients: '',
+              directions: '',
+              warnings: '',
+            },
+            table: {
+              ua_text: '',
+              ru_text: '',
+              rows: [],
+            },
+            manual_check_notes: [],
+          }),
+        }],
+      },
+    }],
+  });
 }
 
 test('legacy api utilities forward the canonical module export objects', () => {
@@ -1038,50 +1085,7 @@ test('AI provider client uses Gemini key and structured JSON response format', a
     capturedRequest = { url, options };
     return {
       ok: true,
-      text: async () => JSON.stringify({
-        candidates: [{
-          content: {
-            parts: [{
-              text: JSON.stringify({
-                source: {
-                  source_type: 'query',
-                  source_url: '',
-                  product_name_original: 'Test Product',
-                  brand: 'Test Brand',
-                  packaging: '',
-                  barcode: '',
-                },
-                ua: {
-                  h1: '',
-                  seo_title: '',
-                  seo_description: '',
-                  seo_keywords: [],
-                  description_html: '',
-                  ingredients: '',
-                  directions: '',
-                  warnings: '',
-                },
-                ru: {
-                  h1: '',
-                  seo_title: '',
-                  seo_description: '',
-                  seo_keywords: [],
-                  description_html: '',
-                  ingredients: '',
-                  directions: '',
-                  warnings: '',
-                },
-                table: {
-                  ua_text: '',
-                  ru_text: '',
-                  rows: [],
-                },
-                manual_check_notes: [],
-              }),
-            }],
-          },
-        }],
-      }),
+      text: async () => createGeminiSuccessEnvelope('Test Product'),
     };
   };
 
@@ -1101,6 +1105,66 @@ test('AI provider client uses Gemini key and structured JSON response format', a
     assert.equal(body.generationConfig.responseMimeType, 'application/json');
     assert.equal(body.generationConfig.responseJsonSchema.required.includes('manual_check_notes'), true);
     assert.equal(result.source.product_name_original, 'Test Product');
+  } finally {
+    global.fetch = originalFetch;
+    if (originalGeminiKey) {
+      process.env.GEMINI_API_KEY = originalGeminiKey;
+    } else {
+      delete process.env.GEMINI_API_KEY;
+    }
+    if (originalGeminiModel) {
+      process.env.GEMINI_MODEL = originalGeminiModel;
+    } else {
+      delete process.env.GEMINI_MODEL;
+    }
+  }
+});
+
+test('AI provider client falls back when the primary Gemini model is temporarily unavailable', async () => {
+  const originalGeminiKey = process.env.GEMINI_API_KEY;
+  const originalGeminiModel = process.env.GEMINI_MODEL;
+  const originalFetch = global.fetch;
+  const requestedUrls = [];
+
+  process.env.GEMINI_API_KEY = 'test-gemini-key';
+  process.env.GEMINI_MODEL = 'gemini-3.5-flash';
+  global.fetch = async (url) => {
+    requestedUrls.push(String(url));
+
+    if (requestedUrls.length === 1) {
+      return {
+        ok: false,
+        status: 503,
+        text: async () => JSON.stringify({
+          error: {
+            message: 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.',
+          },
+        }),
+      };
+    }
+
+    return {
+      ok: true,
+      status: 200,
+      text: async () => createGeminiSuccessEnvelope('Fallback Product'),
+    };
+  };
+
+  try {
+    const result = await generateAiProductContent({
+      userInput: 'Fallback Product',
+      sourceText: '',
+      rules: '',
+      sourceType: 'query',
+      finalUrl: '',
+      fetchWarning: '',
+    });
+
+    assert.deepEqual(requestedUrls, [
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
+    ]);
+    assert.equal(result.source.product_name_original, 'Fallback Product');
   } finally {
     global.fetch = originalFetch;
     if (originalGeminiKey) {

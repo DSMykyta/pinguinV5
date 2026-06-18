@@ -1,4 +1,4 @@
-// server/ai/openai-client.js
+// server/ai/google-client.js
 
 // =========================================================================
 // GEMINI GENERATECONTENT CLIENT
@@ -13,6 +13,10 @@ const { buildInstructions, buildUserPrompt } = require('./prompt');
 
 const GEMINI_API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 const DEFAULT_GEMINI_MODEL = 'gemini-3.5-flash';
+const FALLBACK_GEMINI_MODELS = [
+  'gemini-2.5-flash',
+  'gemini-2.5-flash-lite',
+];
 
 async function generateProductContent(source) {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -20,14 +24,35 @@ async function generateProductContent(source) {
     throw new AiConfigError('GEMINI_API_KEY environment variable is required');
   }
 
-  const model = normalizeModel(process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL);
+  const models = getCandidateModels(process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL);
   const prompt = [
     buildInstructions(),
     '',
     buildUserPrompt(source),
   ].join('\n');
 
-  const body = {
+  const body = buildGeminiRequestBody(prompt);
+
+  for (let index = 0; index < models.length; index += 1) {
+    const model = models[index];
+
+    try {
+      return await requestProductContent({ apiKey, model, body });
+    } catch (error) {
+      const isLastAttempt = index === models.length - 1;
+      if (!isRetryableProviderError(error) || isLastAttempt) {
+        throw error;
+      }
+
+      console.warn(`Gemini model ${model} failed transiently, trying fallback: ${error.message}`);
+    }
+  }
+
+  throw new AiProviderError('Gemini request failed before a provider call was made');
+}
+
+function buildGeminiRequestBody(prompt) {
+  return {
     contents: [{
       parts: [{ text: prompt }],
     }],
@@ -36,7 +61,9 @@ async function generateProductContent(source) {
       responseJsonSchema: productContentSchema,
     },
   };
+}
 
+async function requestProductContent({ apiKey, model, body }) {
   const response = await fetch(`${GEMINI_API_BASE_URL}/${model}:generateContent`, {
     method: 'POST',
     headers: {
@@ -51,7 +78,7 @@ async function generateProductContent(source) {
 
   if (!response.ok) {
     const message = data?.error?.message || `Gemini request failed with HTTP ${response.status}`;
-    throw new AiProviderError(message, response.status === 429 ? 429 : 502);
+    throw createProviderError(message, response.status);
   }
 
   const outputText = extractOutputText(data);
@@ -65,6 +92,23 @@ async function generateProductContent(source) {
   }
 
   return parseJson(outputText, 'Gemini returned invalid structured content');
+}
+
+function createProviderError(message, providerStatus) {
+  const status = providerStatus === 429 ? 429 : providerStatus >= 500 ? 503 : 502;
+  const error = new AiProviderError(message, status);
+  error.providerStatus = providerStatus;
+  error.retryable = isRetryableProviderStatus(providerStatus)
+    || /high demand|try again later|temporar/i.test(message);
+  return error;
+}
+
+function isRetryableProviderError(error) {
+  return error instanceof AiProviderError && error.retryable === true;
+}
+
+function isRetryableProviderStatus(status) {
+  return status === 429 || (status >= 500 && status <= 504);
 }
 
 function parseJson(value, fallbackMessage) {
@@ -100,6 +144,13 @@ function normalizeModel(model) {
     throw new AiConfigError('GEMINI_MODEL contains unsupported characters');
   }
   return normalized;
+}
+
+function getCandidateModels(primaryModel) {
+  return [...new Set([
+    primaryModel,
+    ...FALLBACK_GEMINI_MODELS,
+  ].map(normalizeModel))];
 }
 
 module.exports = {

@@ -21,7 +21,7 @@ const { authenticateAccount } = require('../../server/accounts');
 const { CAPABILITIES } = require('../../server/access-policy');
 const { AiConfigError, AiInputError, AiProviderError } = require('../../server/ai/errors');
 const { readProductSource } = require('../../server/ai/source-reader');
-const { generateProductContent } = require('../../server/ai/openai-client');
+const { generateProductContent } = require('../../server/ai/google-client');
 
 async function handler(req, res) {
   if (req.method !== 'POST') {
