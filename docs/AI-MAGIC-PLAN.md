@@ -28,8 +28,8 @@ If the feature misbehaves, revert the AI Magic commit and remove only those inte
 - Add one Vercel function: `POST /api/ai`.
 - Require a valid access JWT with editor/admin write permissions.
 - Keep `OPTIONS` open through the existing CORS middleware.
-- Keep `OPENAI_API_KEY` server-only.
-- Use the OpenAI Responses API with Structured Outputs.
+- Keep `GEMINI_API_KEY` server-only.
+- Use the Gemini `generateContent` API with structured JSON output.
 - Fetch external source URLs only through the existing SSRF-safe `safeFetchBuffer`.
 
 ## Phase 3: Apply Strategy

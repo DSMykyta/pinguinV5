@@ -4,7 +4,7 @@
 // AI API - UNIFIED ENDPOINT
 // =========================================================================
 // PURPOSE:
-// Server-side AI generation for the Instruments page. Keeps OpenAI secrets out
+// Server-side AI generation for the Instruments page. Keeps AI secrets out
 // of the browser and routes all AI actions through one Vercel Function.
 //
 // ENDPOINT:

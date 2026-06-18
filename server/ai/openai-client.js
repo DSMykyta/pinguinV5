@@ -1,74 +1,74 @@
 // server/ai/openai-client.js
 
 // =========================================================================
-// OPENAI RESPONSES CLIENT
+// GEMINI GENERATECONTENT CLIENT
 // =========================================================================
-// Uses native fetch to avoid adding a frontend/server dependency. The API key
-// stays server-side and the response is constrained by a JSON schema.
+// Uses native fetch to avoid adding a dependency. The API key stays server-side
+// and the response is constrained by a JSON schema.
 // =========================================================================
 
 const { AiConfigError, AiProviderError } = require('./errors');
 const { productContentSchema } = require('./product-content-schema');
 const { buildInstructions, buildUserPrompt } = require('./prompt');
 
-const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
+const GEMINI_API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
+const DEFAULT_GEMINI_MODEL = 'gemini-3.5-flash';
 
 async function generateProductContent(source) {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    throw new AiConfigError('OPENAI_API_KEY environment variable is required');
+    throw new AiConfigError('GEMINI_API_KEY environment variable is required');
   }
 
+  const model = normalizeModel(process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL);
+  const prompt = [
+    buildInstructions(),
+    '',
+    buildUserPrompt(source),
+  ].join('\n');
+
   const body = {
-    model: process.env.OPENAI_MODEL || 'gpt-5.5',
-    input: [
-      {
-        role: 'system',
-        content: buildInstructions(),
-      },
-      {
-        role: 'user',
-        content: buildUserPrompt(source),
-      },
-    ],
-    text: {
-      format: {
-        type: 'json_schema',
-        name: 'ai_product_content',
-        schema: productContentSchema,
-        strict: true,
+    contents: [{
+      parts: [{ text: prompt }],
+    }],
+    generationConfig: {
+      responseFormat: {
+        text: {
+          mimeType: 'application/json',
+          schema: productContentSchema,
+        },
       },
     },
   };
 
-  const effort = process.env.OPENAI_REASONING_EFFORT;
-  if (effort) {
-    body.reasoning = { effort };
-  }
-
-  const response = await fetch(OPENAI_RESPONSES_URL, {
+  const response = await fetch(`${GEMINI_API_BASE_URL}/${model}:generateContent`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      'x-goog-api-key': apiKey,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
   });
 
   const rawText = await response.text();
-  const data = parseJson(rawText, 'OpenAI returned an invalid JSON envelope');
+  const data = parseJson(rawText, 'Gemini returned an invalid JSON envelope');
 
   if (!response.ok) {
-    const message = data?.error?.message || `OpenAI request failed with HTTP ${response.status}`;
+    const message = data?.error?.message || `Gemini request failed with HTTP ${response.status}`;
     throw new AiProviderError(message, response.status === 429 ? 429 : 502);
   }
 
   const outputText = extractOutputText(data);
   if (!outputText) {
-    throw new AiProviderError('OpenAI response did not include output text');
+    const blockReason = data?.promptFeedback?.blockReason;
+    const finishReason = data?.candidates?.[0]?.finishReason;
+    const reason = blockReason || finishReason;
+    throw new AiProviderError(reason
+      ? `Gemini response did not include output text: ${reason}`
+      : 'Gemini response did not include output text');
   }
 
-  return parseJson(outputText, 'OpenAI returned invalid structured content');
+  return parseJson(outputText, 'Gemini returned invalid structured content');
 }
 
 function parseJson(value, fallbackMessage) {
@@ -80,28 +80,30 @@ function parseJson(value, fallbackMessage) {
 }
 
 function extractOutputText(data) {
-  if (typeof data.output_text === 'string') {
-    return data.output_text;
-  }
-
-  if (!Array.isArray(data.output)) {
+  if (!Array.isArray(data.candidates)) {
     return '';
   }
 
-  for (const item of data.output) {
-    if (!Array.isArray(item.content)) continue;
+  for (const candidate of data.candidates) {
+    const parts = candidate?.content?.parts;
+    if (!Array.isArray(parts)) continue;
 
-    for (const content of item.content) {
-      if (typeof content.text === 'string') {
-        return content.text;
-      }
-      if (typeof content.output_text === 'string') {
-        return content.output_text;
+    for (const part of parts) {
+      if (typeof part.text === 'string') {
+        return part.text;
       }
     }
   }
 
   return '';
+}
+
+function normalizeModel(model) {
+  const normalized = String(model || '').replace(/^models\//, '').trim();
+  if (!/^[a-zA-Z0-9_.-]+$/.test(normalized)) {
+    throw new AiConfigError('GEMINI_MODEL contains unsupported characters');
+  }
+  return normalized;
 }
 
 module.exports = {

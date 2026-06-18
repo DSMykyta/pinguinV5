@@ -320,6 +320,7 @@ const driveImagesHandler = require('../api/drive/images');
 const hashPasswordHandler = require('../api/auth/hash-password');
 const usersDirectoryHandler = require('../api/users/directory');
 const aiHandler = require('../api/ai');
+const { generateProductContent: generateAiProductContent } = require('../server/ai/openai-client');
 
 const accessToken = generateToken({
   id: 'user-1',
@@ -1008,8 +1009,8 @@ test('AI endpoint requires editor access and keeps URL fetching SSRF-safe', asyn
   }));
   assert.equal(ssrf.statusCode, 400);
 
-  const originalOpenAiKey = process.env.OPENAI_API_KEY;
-  delete process.env.OPENAI_API_KEY;
+  const originalGeminiKey = process.env.GEMINI_API_KEY;
+  delete process.env.GEMINI_API_KEY;
   try {
     const missingConfig = await invoke(aiHandler, createRequest({
       method: 'POST',
@@ -1017,10 +1018,100 @@ test('AI endpoint requires editor access and keeps URL fetching SSRF-safe', asyn
       body: { action: 'generateProductContent', input: 'Optimum Nutrition Whey' },
     }));
     assert.equal(missingConfig.statusCode, 500);
-    assert.match(missingConfig.body.error, /OPENAI_API_KEY/);
+    assert.match(missingConfig.body.error, /GEMINI_API_KEY/);
   } finally {
-    if (originalOpenAiKey) {
-      process.env.OPENAI_API_KEY = originalOpenAiKey;
+    if (originalGeminiKey) {
+      process.env.GEMINI_API_KEY = originalGeminiKey;
+    }
+  }
+});
+
+test('AI provider client uses Gemini key and structured JSON response format', async () => {
+  const originalGeminiKey = process.env.GEMINI_API_KEY;
+  const originalGeminiModel = process.env.GEMINI_MODEL;
+  const originalFetch = global.fetch;
+  let capturedRequest;
+
+  process.env.GEMINI_API_KEY = 'test-gemini-key';
+  process.env.GEMINI_MODEL = 'gemini-3.5-flash';
+  global.fetch = async (url, options) => {
+    capturedRequest = { url, options };
+    return {
+      ok: true,
+      text: async () => JSON.stringify({
+        candidates: [{
+          content: {
+            parts: [{
+              text: JSON.stringify({
+                source: {
+                  source_type: 'query',
+                  source_url: '',
+                  product_name_original: 'Test Product',
+                  brand: 'Test Brand',
+                  packaging: '',
+                  barcode: '',
+                },
+                ua: {
+                  h1: '',
+                  seo_title: '',
+                  seo_description: '',
+                  seo_keywords: [],
+                  description_html: '',
+                  ingredients: '',
+                  directions: '',
+                  warnings: '',
+                },
+                ru: {
+                  h1: '',
+                  seo_title: '',
+                  seo_description: '',
+                  seo_keywords: [],
+                  description_html: '',
+                  ingredients: '',
+                  directions: '',
+                  warnings: '',
+                },
+                table: {
+                  ua_text: '',
+                  ru_text: '',
+                  rows: [],
+                },
+                manual_check_notes: [],
+              }),
+            }],
+          },
+        }],
+      }),
+    };
+  };
+
+  try {
+    const result = await generateAiProductContent({
+      userInput: 'Test Product',
+      sourceText: '',
+      rules: '',
+      sourceType: 'query',
+      finalUrl: '',
+      fetchWarning: '',
+    });
+
+    const body = JSON.parse(capturedRequest.options.body);
+    assert.equal(capturedRequest.url, 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent');
+    assert.equal(capturedRequest.options.headers['x-goog-api-key'], 'test-gemini-key');
+    assert.equal(body.generationConfig.responseFormat.text.mimeType, 'application/json');
+    assert.equal(body.generationConfig.responseFormat.text.schema.required.includes('manual_check_notes'), true);
+    assert.equal(result.source.product_name_original, 'Test Product');
+  } finally {
+    global.fetch = originalFetch;
+    if (originalGeminiKey) {
+      process.env.GEMINI_API_KEY = originalGeminiKey;
+    } else {
+      delete process.env.GEMINI_API_KEY;
+    }
+    if (originalGeminiModel) {
+      process.env.GEMINI_MODEL = originalGeminiModel;
+    } else {
+      delete process.env.GEMINI_MODEL;
     }
   }
 });
