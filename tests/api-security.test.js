@@ -327,7 +327,7 @@ const hashPasswordHandler = require('../api/auth/hash-password');
 const usersDirectoryHandler = require('../api/users/directory');
 const aiHandler = require('../api/ai');
 const { generateProductContent: generateAiProductContent } = require('../server/ai/google-client');
-const { buildUrlFallbackText } = require('../server/ai/source-reader');
+const { buildUrlFallbackText, readProductSource } = require('../server/ai/source-reader');
 
 const accessToken = generateToken({
   id: 'user-1',
@@ -438,6 +438,7 @@ function createGeminiSuccessEnvelope(productName = 'Test Product') {
               brand: 'Test Brand',
               packaging: '',
               barcode: '',
+              image_urls: [],
             },
             ua: {
               h1: '',
@@ -1100,6 +1101,56 @@ test('AI source reader builds a product-name fallback from blocked product URLs'
   assert.doesNotMatch(fallback, /12345/);
 });
 
+test('AI source reader extracts facts and image URLs before calling AI', async () => {
+  const source = await readProductSource({
+    input: 'Swanson Policosanol 20 mg',
+    sourceText: `
+      <html>
+        <head>
+          <meta property="og:title" content="Swanson Policosanol 20 mg">
+          <meta property="og:image" content="/images/policosanol.jpg">
+          <script type="application/ld+json">
+            {
+              "@context": "https://schema.org",
+              "@type": "Product",
+              "name": "Swanson Policosanol 20 mg",
+              "brand": { "name": "Swanson" },
+              "description": "Policosanol supplement.",
+              "gtin12": "087614210000",
+              "image": ["https://cdn.example.com/policosanol-front.webp"]
+            }
+          </script>
+          <script>
+            {
+              "productName": "Swanson Policosanol 20 mg",
+              "supplementFacts": {
+                "Serving Size": "1 Capsule",
+                "Policosanol": "20 mg"
+              },
+              "otherIngredients": "Gelatin, rice flour",
+              "suggestedUse": "Take one capsule daily.",
+              "warnings": "For adults only."
+            }
+          </script>
+        </head>
+        <body>
+          <img src="https://cdn.example.com/policosanol-side.jpg">
+        </body>
+      </html>
+    `,
+  });
+
+  assert.match(source.sourceText, /Product name: Swanson Policosanol 20 mg/);
+  assert.match(source.sourceText, /Barcode\/GTIN: 087614210000/);
+  assert.match(source.sourceText, /supplementFacts/i);
+  assert.match(source.sourceText, /otherIngredients/i);
+  assert.deepEqual(source.imageUrls, [
+    'https://example.invalid/images/policosanol.jpg',
+    'https://cdn.example.com/policosanol-front.webp',
+    'https://cdn.example.com/policosanol-side.jpg',
+  ]);
+});
+
 test('AI provider client uses Gemini key and structured JSON response format', async () => {
   const originalGeminiKey = process.env.GEMINI_API_KEY;
   const originalGeminiModel = process.env.GEMINI_MODEL;
@@ -1132,6 +1183,7 @@ test('AI provider client uses Gemini key and structured JSON response format', a
     assert.equal(capturedRequest.options.headers['x-goog-api-key'], 'test-gemini-key');
     assert.equal(body.generationConfig.responseMimeType, 'application/json');
     assert.equal(body.generationConfig.responseJsonSchema.required.includes('manual_check_notes'), true);
+    assert.equal(body.generationConfig.responseJsonSchema.properties.source.required.includes('image_urls'), true);
     assert.match(prompt, /Banned words from the database/);
     assert.match(prompt, /лікує/);
     assert.equal(result.source.product_name_original, 'Test Product');
@@ -1167,6 +1219,7 @@ test('AI provider sanitizes generated content with banned words from the databas
         brand: 'Test Brand',
         packaging: '',
         barcode: '',
+        image_urls: [],
       },
       ua: {
         h1: 'Risky Product',

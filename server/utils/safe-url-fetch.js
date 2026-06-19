@@ -60,6 +60,7 @@ async function safeFetchBuffer(input, options = {}) {
     }
 
     const response = await requester(currentUrl, target, {
+      headers: options.headers,
       maxSize,
       timeoutMs: remainingTime,
     });
@@ -160,6 +161,7 @@ function requestOnce(url, target, options) {
       method: 'GET',
       headers: {
         Accept: 'image/*',
+        ...options.headers,
         Host: url.host,
       },
       lookup: createPinnedLookup(target),

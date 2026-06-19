@@ -67,6 +67,7 @@ const productContentSchema = {
         'brand',
         'packaging',
         'barcode',
+        'image_urls',
       ],
       properties: {
         source_type: {
@@ -78,6 +79,10 @@ const productContentSchema = {
         brand: { type: 'string' },
         packaging: { type: 'string' },
         barcode: { type: 'string' },
+        image_urls: {
+          type: 'array',
+          items: { type: 'string' },
+        },
       },
     },
     ua: localizedContentSchema,

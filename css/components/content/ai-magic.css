@@ -88,6 +88,7 @@
 .ai-magic-modal:not(.has-result) #ai-magic-apply-seo-btn,
 .ai-magic-modal:not(.has-result) #ai-magic-apply-text-btn,
 .ai-magic-modal:not(.has-result) #ai-magic-apply-table-btn,
+.ai-magic-modal:not(.has-result) #ai-magic-apply-images-btn,
 .ai-magic-modal:not(.has-result) #ai-magic-apply-all-btn {
     pointer-events: none;
     opacity: 0.5;

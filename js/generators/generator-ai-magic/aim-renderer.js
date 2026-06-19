@@ -42,6 +42,7 @@ export function renderResult(modal) {
 
     setField(modal, 'ai-magic-table-ua', result.table?.ua_text || '');
     setField(modal, 'ai-magic-table-ru', result.table?.ru_text || '');
+    setField(modal, 'ai-magic-images', Array.isArray(result.source?.image_urls) ? result.source.image_urls.join('\n') : '');
     renderNotes(dom, result.manual_check_notes || []);
 
     if (!hasResultContent(result)) {
@@ -89,6 +90,7 @@ function hasResultContent(result) {
         result?.ru?.description_html,
         result?.table?.ua_text,
         result?.table?.ru_text,
+        ...(Array.isArray(result?.source?.image_urls) ? result.source.image_urls : []),
     ].some(value => String(value || '').trim());
 }
 

@@ -13,6 +13,13 @@ const { AiInputError } = require('./errors');
 const MAX_INPUT_LENGTH = 20000;
 const MAX_FETCH_SIZE = 1500 * 1024;
 const MAX_SOURCE_TEXT_LENGTH = 30000;
+const MAX_IMAGE_URLS = 12;
+const HTML_FETCH_HEADERS = {
+  Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,text/plain;q=0.8,*/*;q=0.5',
+  'Accept-Language': 'en-US,en;q=0.9,uk;q=0.8,ru;q=0.7',
+  'Accept-Encoding': 'identity',
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+};
 
 async function readProductSource(payload = {}) {
   const userInput = normalizeText(payload.input || payload.source || '');
@@ -34,10 +41,15 @@ async function readProductSource(payload = {}) {
     sourceType: pastedText ? 'text' : 'query',
     finalUrl: '',
     fetchWarning: '',
+    imageUrls: [],
   };
 
   if (pastedText) {
-    source.sourceText = htmlToReadableText(pastedText);
+    const baseUrl = isLikelyUrl(userInput) ? userInput : 'https://example.invalid/';
+    const pageSignals = extractPageSignals(pastedText, baseUrl);
+    source.imageUrls = pageSignals.imageUrls.slice(0, MAX_IMAGE_URLS);
+    source.sourceText = mergeText(source.sourceText, pageSignals.text);
+    source.sourceText = mergeText(source.sourceText, htmlToReadableText(pastedText));
   }
 
   if (isLikelyUrl(userInput)) {
@@ -53,6 +65,7 @@ async function readProductSource(payload = {}) {
 async function attachUrlText(source, input) {
   try {
     const fetched = await safeFetchBuffer(input, {
+      headers: HTML_FETCH_HEADERS,
       maxSize: MAX_FETCH_SIZE,
       maxRedirects: 3,
       timeoutMs: 12000,
@@ -66,7 +79,14 @@ async function attachUrlText(source, input) {
       return;
     }
 
-    const fetchedText = htmlToReadableText(fetched.buffer.toString('utf8'));
+    const html = fetched.buffer.toString('utf8');
+    const pageSignals = extractPageSignals(html, fetched.finalUrl);
+    const fetchedText = htmlToReadableText(html);
+    source.imageUrls = uniqueStrings([
+      ...source.imageUrls,
+      ...pageSignals.imageUrls,
+    ]).slice(0, MAX_IMAGE_URLS);
+    source.sourceText = mergeText(source.sourceText, pageSignals.text);
     source.sourceText = mergeText(source.sourceText, fetchedText);
   } catch (error) {
     if (error instanceof SafeUrlError && isUnsafeUrlError(error.message)) {
@@ -95,6 +115,261 @@ function htmlToReadableText(value) {
     .filter(Boolean)
     .join('\n'))
     .slice(0, MAX_SOURCE_TEXT_LENGTH);
+}
+
+function extractPageSignals(html, finalUrl) {
+  const blocks = [];
+  const imageUrls = [];
+
+  const meta = extractMetaTags(html);
+  const metaTitle = meta['og:title'] || meta['twitter:title'];
+  const metaDescription = meta.description || meta['og:description'] || meta['twitter:description'];
+
+  if (metaTitle) blocks.push(`Meta title: ${metaTitle}`);
+  if (metaDescription) blocks.push(`Meta description: ${metaDescription}`);
+
+  imageUrls.push(
+    meta['og:image'],
+    meta['og:image:secure_url'],
+    meta['twitter:image'],
+  );
+
+  for (const product of extractJsonLdProducts(html)) {
+    const lines = [];
+    if (product.name) lines.push(`Product name: ${product.name}`);
+    if (product.brand) lines.push(`Brand: ${product.brand}`);
+    if (product.description) lines.push(`Description: ${product.description}`);
+    if (product.sku) lines.push(`SKU: ${product.sku}`);
+    if (product.gtin) lines.push(`Barcode/GTIN: ${product.gtin}`);
+    if (lines.length) blocks.push(`Structured product data:\n${lines.join('\n')}`);
+    imageUrls.push(...product.images);
+  }
+
+  const embedded = extractEmbeddedJsonSignals(html);
+  if (embedded.text) blocks.push(`Embedded product data:\n${embedded.text}`);
+  imageUrls.push(...embedded.imageUrls);
+  imageUrls.push(...extractImageTags(html));
+
+  return {
+    text: blocks.join('\n\n'),
+    imageUrls: uniqueStrings(imageUrls)
+      .map(url => resolvePageUrl(url, finalUrl))
+      .filter(Boolean),
+  };
+}
+
+function extractMetaTags(html) {
+  const meta = {};
+  const pattern = /<meta\b[^>]*>/gi;
+  const tags = String(html || '').match(pattern) || [];
+
+  for (const tag of tags) {
+    const key = getHtmlAttribute(tag, 'property') || getHtmlAttribute(tag, 'name');
+    const content = getHtmlAttribute(tag, 'content');
+    if (!key || !content) continue;
+    meta[key.toLowerCase()] = decodeBasicEntities(content);
+  }
+
+  return meta;
+}
+
+function extractJsonLdProducts(html) {
+  const products = [];
+  const pattern = /<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+  let match;
+
+  while ((match = pattern.exec(String(html || ''))) !== null) {
+    const rawJson = decodeBasicEntities(match[1]).trim();
+    if (!rawJson) continue;
+
+    try {
+      collectProductNodes(JSON.parse(rawJson), products);
+    } catch {
+      // Ignore invalid JSON-LD blocks; the readable HTML fallback still applies.
+    }
+  }
+
+  return products;
+}
+
+function collectProductNodes(node, products) {
+  if (!node) return;
+
+  if (Array.isArray(node)) {
+    node.forEach(item => collectProductNodes(item, products));
+    return;
+  }
+
+  if (typeof node !== 'object') return;
+
+  const type = node['@type'];
+  const types = Array.isArray(type) ? type : [type];
+  if (types.some(value => String(value || '').toLowerCase() === 'product')) {
+    products.push(normalizeProductNode(node));
+  }
+
+  collectProductNodes(node['@graph'], products);
+}
+
+function normalizeProductNode(node) {
+  const brand = typeof node.brand === 'string'
+    ? node.brand
+    : node.brand?.name;
+  const images = Array.isArray(node.image) ? node.image : [node.image];
+
+  return {
+    name: normalizeText(node.name),
+    brand: normalizeText(brand),
+    description: normalizeText(node.description),
+    sku: normalizeText(node.sku || node.mpn),
+    gtin: normalizeText(node.gtin || node.gtin8 || node.gtin12 || node.gtin13 || node.gtin14),
+    images: images.map(normalizeText).filter(Boolean),
+  };
+}
+
+function extractImageTags(html) {
+  const urls = [];
+  const pattern = /<img\b[^>]*>/gi;
+  const tags = String(html || '').match(pattern) || [];
+
+  for (const tag of tags) {
+    urls.push(getHtmlAttribute(tag, 'src'));
+    const srcset = getHtmlAttribute(tag, 'srcset');
+    if (srcset) {
+      srcset.split(',').forEach(part => {
+        const [url] = part.trim().split(/\s+/);
+        urls.push(url);
+      });
+    }
+  }
+
+  return urls;
+}
+
+function extractEmbeddedJsonSignals(html) {
+  const lines = [];
+  const imageUrls = [];
+  const pattern = /<script\b(?![^>]*type=["']application\/ld\+json["'])[^>]*>([\s\S]*?)<\/script>/gi;
+  let match;
+
+  while ((match = pattern.exec(String(html || ''))) !== null) {
+    const raw = decodeBasicEntities(match[1]).trim();
+    if (!raw || !/^[\[{]/.test(raw)) continue;
+
+    try {
+      collectEmbeddedSignals(JSON.parse(raw), lines, imageUrls);
+    } catch {
+      // Ignore non-JSON scripts.
+    }
+
+    if (lines.length >= 120 && imageUrls.length >= MAX_IMAGE_URLS) break;
+  }
+
+  return {
+    text: uniqueStrings(lines).slice(0, 120).join('\n'),
+    imageUrls: uniqueStrings(imageUrls).slice(0, MAX_IMAGE_URLS),
+  };
+}
+
+function collectEmbeddedSignals(node, lines, imageUrls, keyPath = []) {
+  if (!node || lines.length >= 160) return;
+
+  if (Array.isArray(node)) {
+    node.forEach((item, index) => collectEmbeddedSignals(item, lines, imageUrls, [...keyPath, String(index)]));
+    return;
+  }
+
+  if (typeof node !== 'object') return;
+
+  for (const [key, value] of Object.entries(node)) {
+    const path = [...keyPath, key];
+    const keyLabel = path.join('.');
+
+    if (typeof value === 'string') {
+      const cleanValue = normalizeText(stripHtml(value));
+      if (!cleanValue) continue;
+
+      if (isLikelyImageUrl(cleanValue) || isImageKey(key)) {
+        imageUrls.push(cleanValue);
+      }
+
+      if (isProductFactKey(key) || isProductFactText(cleanValue)) {
+        lines.push(`${humanizeKey(keyLabel)}: ${cleanValue.slice(0, 1800)}`);
+      }
+    } else if (value && typeof value === 'object') {
+      if (isProductFactKey(key)) {
+        const compact = compactJsonValue(value);
+        if (compact) lines.push(`${humanizeKey(keyLabel)}: ${compact}`);
+      }
+      collectEmbeddedSignals(value, lines, imageUrls, path);
+    }
+  }
+}
+
+function isProductFactKey(key) {
+  return /supplement|nutrition|ingredient|otheringredient|suggested|direction|warning|serving|dosage|barcode|gtin|upc|sku|brand|productname|displayname|description/i.test(key);
+}
+
+function isProductFactText(value) {
+  return /supplement facts|nutrition facts|other ingredients|suggested use|directions|warnings|serving size|servings per container/i.test(value);
+}
+
+function isImageKey(key) {
+  return /image|thumbnail|photo|picture/i.test(key);
+}
+
+function isLikelyImageUrl(value) {
+  return /^https?:\/\/\S+\.(png|jpe?g|webp|avif)(\?\S*)?$/i.test(value)
+    || /^https?:\/\/(cloudinary|s3|static|images|media|cdn|cloudfront|i\d?\.|s\.|www\.)/i.test(value);
+}
+
+function stripHtml(value) {
+  return String(value || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function compactJsonValue(value) {
+  try {
+    return JSON.stringify(value)
+      .replace(/\s+/g, ' ')
+      .slice(0, 1800);
+  } catch {
+    return '';
+  }
+}
+
+function humanizeKey(key) {
+  return String(key || '')
+    .replace(/\.\d+\./g, '.')
+    .replace(/[._-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function getHtmlAttribute(tag, name) {
+  const pattern = new RegExp(`\\b${escapeRegExp(name)}\\s*=\\s*("([^"]*)"|'([^']*)'|([^\\s>]+))`, 'i');
+  const match = String(tag || '').match(pattern);
+  return decodeBasicEntities(match?.[2] || match?.[3] || match?.[4] || '');
+}
+
+function resolvePageUrl(value, baseUrl) {
+  const raw = normalizeText(value);
+  if (!raw || raw.startsWith('data:') || raw.startsWith('blob:')) return '';
+
+  try {
+    const url = new URL(raw, baseUrl);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return '';
+    return url.toString();
+  } catch {
+    return '';
+  }
+}
+
+function uniqueStrings(values) {
+  return [...new Set(values.map(normalizeText).filter(Boolean))];
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function decodeBasicEntities(value) {

@@ -50,11 +50,29 @@ export async function applyTable(modal, lang) {
     return 1;
 }
 
+export function applyImages(modal) {
+    const urls = fieldValue(modal, 'ai-magic-images')
+        .split(/\r?\n/)
+        .map(url => url.trim())
+        .filter(Boolean);
+    if (!urls.length) return 0;
+
+    const imageUrlInput = document.getElementById('gim-image-url');
+    const loadUrlBtn = document.getElementById('gim-load-url-btn');
+    if (!imageUrlInput || !loadUrlBtn) return 0;
+
+    imageUrlInput.value = urls[0];
+    imageUrlInput.dispatchEvent(new Event('input', { bubbles: true }));
+    loadUrlBtn.click();
+    return 1;
+}
+
 export async function applyAll(modal, lang) {
     let applied = 0;
     applied += applyText(modal, lang);
     applied += await applySeo(modal, lang);
     applied += await applyTable(modal, lang);
+    applied += applyImages(modal);
     return applied;
 }
 

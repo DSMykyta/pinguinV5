@@ -10,7 +10,7 @@ import { generateAiMagicContent } from '../../utils/utils-api-client.js';
 import { closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { getModalDOM, getSelectedLanguage } from './aim-dom.js';
-import { applyAll, applySeo, applyTable, applyText } from './aim-apply.js';
+import { applyAll, applyImages, applySeo, applyTable, applyText } from './aim-apply.js';
 import { initAvatar, renderResult, setLoadingUI, setStatus } from './aim-renderer.js';
 import { setLoading, setResult } from './aim-state.js';
 
@@ -38,6 +38,7 @@ function initModal(modal) {
     dom.applySeoBtn?.addEventListener('click', () => handleApply(dom, 'seo'));
     dom.applyTextBtn?.addEventListener('click', () => handleApply(dom, 'text'));
     dom.applyTableBtn?.addEventListener('click', () => handleApply(dom, 'table'));
+    dom.applyImagesBtn?.addEventListener('click', () => handleApply(dom, 'images'));
     dom.applyAllBtn?.addEventListener('click', () => handleApply(dom, 'all'));
 }
 
@@ -83,6 +84,7 @@ async function handleApply(dom, target) {
     if (target === 'seo') applied = await applySeo(dom.modal, lang);
     if (target === 'text') applied = applyText(dom.modal, lang);
     if (target === 'table') applied = await applyTable(dom.modal, lang);
+    if (target === 'images') applied = applyImages(dom.modal);
     if (target === 'all') applied = await applyAll(dom.modal, lang);
 
     if (!applied) {

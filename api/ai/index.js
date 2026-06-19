@@ -46,6 +46,7 @@ async function handler(req, res) {
         sourceType: source.sourceType,
         finalUrl: source.finalUrl,
         fetchWarning: source.fetchWarning,
+        imageUrls: source.imageUrls,
       },
     });
   } catch (error) {

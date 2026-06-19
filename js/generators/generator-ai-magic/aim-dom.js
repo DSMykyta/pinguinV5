@@ -21,6 +21,7 @@ export function getModalDOM(modal = document.getElementById('modal-ai-magic-moda
         applySeoBtn: modal.querySelector('#ai-magic-apply-seo-btn'),
         applyTextBtn: modal.querySelector('#ai-magic-apply-text-btn'),
         applyTableBtn: modal.querySelector('#ai-magic-apply-table-btn'),
+        applyImagesBtn: modal.querySelector('#ai-magic-apply-images-btn'),
         applyAllBtn: modal.querySelector('#ai-magic-apply-all-btn'),
     };
 }

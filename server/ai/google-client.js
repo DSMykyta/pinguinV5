@@ -40,7 +40,7 @@ async function generateProductContent(source) {
 
     try {
       const result = await requestProductContent({ apiKey, model, body });
-      return sanitizeResultWithBannedWords(result, bannedWordsPolicy);
+      return sanitizeResultWithBannedWords(mergeSourceHints(result, source), bannedWordsPolicy);
     } catch (error) {
       const isLastAttempt = index === models.length - 1;
       if (!isRetryableProviderError(error) || isLastAttempt) {
@@ -52,6 +52,31 @@ async function generateProductContent(source) {
   }
 
   throw new AiProviderError('Gemini request failed before a provider call was made');
+}
+
+function mergeSourceHints(result, source) {
+  if (!result || typeof result !== 'object') return result;
+
+  if (!result.source || typeof result.source !== 'object') {
+    result.source = {};
+  }
+
+  if (!result.source.source_type) {
+    result.source.source_type = source.sourceType || '';
+  }
+
+  if (!result.source.source_url && source.finalUrl) {
+    result.source.source_url = source.finalUrl;
+  }
+
+  const modelImages = Array.isArray(result.source.image_urls) ? result.source.image_urls : [];
+  const sourceImages = Array.isArray(source.imageUrls) ? source.imageUrls : [];
+  result.source.image_urls = [...new Set([...modelImages, ...sourceImages]
+    .map(value => String(value || '').trim())
+    .filter(Boolean))]
+    .slice(0, 12);
+
+  return result;
 }
 
 function buildGeminiRequestBody(prompt) {
