@@ -13,43 +13,49 @@ import { state } from './aim-state.js';
 
 export async function applySeo(modal, lang) {
     const result = state.result;
-    if (!result) return;
+    if (!result) return 0;
 
     const page = getPageDOM();
     const data = result[lang] || result.ua || {};
     const source = result.source || {};
+    let applied = 0;
 
-    setInput(page.brandName, source.brand);
-    setInput(page.productName, data.h1 || source.product_name_original);
-    setInput(page.packaging, source.packaging);
+    applied += setInput(page.brandName, source.brand);
+    applied += setInput(page.productName, data.h1 || source.product_name_original);
+    applied += setInput(page.packaging, source.packaging);
 
-    setInput(page.seoTitle, fieldValue(modal, `ai-magic-seo-title-${lang}`));
-    setInput(page.seoDescription, fieldValue(modal, `ai-magic-seo-description-${lang}`));
-    setInput(page.seoKeywords, fieldValue(modal, `ai-magic-seo-keywords-${lang}`));
+    applied += setInput(page.seoTitle, fieldValue(modal, `ai-magic-seo-title-${lang}`));
+    applied += setInput(page.seoDescription, fieldValue(modal, `ai-magic-seo-description-${lang}`));
+    applied += setInput(page.seoKeywords, fieldValue(modal, `ai-magic-seo-keywords-${lang}`));
 
-    updateCounters();
+    if (applied > 0) updateCounters();
+    return applied;
 }
 
 export function applyText(modal, lang) {
     const page = getPageDOM();
     const html = fieldValue(modal, `ai-magic-description-${lang}`);
 
-    if (!page.textEditor || !html) return;
+    if (!page.textEditor || !html) return 0;
     page.textEditor.innerHTML = html;
     page.textEditor.dispatchEvent(new Event('input', { bubbles: true }));
+    return 1;
 }
 
 export async function applyTable(modal, lang) {
     const tableText = fieldValue(modal, `ai-magic-table-${lang}`);
-    if (!tableText) return;
+    if (!tableText) return 0;
     await processAndFillInputs(tableText);
     document.getElementById('rows-container')?.dispatchEvent(new Event('input', { bubbles: true }));
+    return 1;
 }
 
 export async function applyAll(modal, lang) {
-    applyText(modal, lang);
-    await applySeo(modal, lang);
-    await applyTable(modal, lang);
+    let applied = 0;
+    applied += applyText(modal, lang);
+    applied += await applySeo(modal, lang);
+    applied += await applyTable(modal, lang);
+    return applied;
 }
 
 function fieldValue(modal, id) {
@@ -57,7 +63,9 @@ function fieldValue(modal, id) {
 }
 
 function setInput(input, value) {
-    if (!input || value === undefined || value === null) return;
-    input.value = value;
+    const nextValue = String(value ?? '').trim();
+    if (!input || !nextValue) return 0;
+    input.value = nextValue;
     input.dispatchEvent(new Event('input', { bubbles: true }));
+    return 1;
 }

@@ -35,7 +35,7 @@ export function setLoadingUI(dom, isLoading) {
 export function renderResult(modal) {
     const dom = getModalDOM(modal);
     const result = state.result;
-    if (!dom || !result) return;
+    if (!dom || !result) return false;
 
     fillLanguage(modal, 'ua', result.ua);
     fillLanguage(modal, 'ru', result.ru);
@@ -44,9 +44,18 @@ export function renderResult(modal) {
     setField(modal, 'ai-magic-table-ru', result.table?.ru_text || '');
     renderNotes(dom, result.manual_check_notes || []);
 
+    if (!hasResultContent(result)) {
+        dom.resultSection?.classList.add('u-hidden');
+        dom.modal.classList.remove('has-result');
+        setStatus(dom, 'AI повернув відповідь, але без полів для заповнення. Спробуй вставити текст/HTML сторінки або точну назву товару.', 'c-yellow');
+        return false;
+    }
+
     dom.resultSection?.classList.remove('u-hidden');
     dom.modal.classList.add('has-result');
     setStatus(dom, 'Готово. Перевір результат перед застосуванням.', 'c-green');
+    requestAnimationFrame(() => dom.resultSection?.scrollIntoView({ block: 'start', behavior: 'smooth' }));
+    return true;
 }
 
 function fillLanguage(modal, lang, data = {}) {
@@ -61,6 +70,26 @@ function fillLanguage(modal, lang, data = {}) {
 function setField(modal, id, value) {
     const field = getField(modal, id);
     if (field) field.value = value || '';
+}
+
+function hasResultContent(result) {
+    return [
+        result?.source?.product_name_original,
+        result?.source?.brand,
+        result?.source?.packaging,
+        result?.ua?.h1,
+        result?.ua?.seo_title,
+        result?.ua?.seo_description,
+        ...(Array.isArray(result?.ua?.seo_keywords) ? result.ua.seo_keywords : []),
+        result?.ua?.description_html,
+        result?.ru?.h1,
+        result?.ru?.seo_title,
+        result?.ru?.seo_description,
+        ...(Array.isArray(result?.ru?.seo_keywords) ? result.ru.seo_keywords : []),
+        result?.ru?.description_html,
+        result?.table?.ua_text,
+        result?.table?.ru_text,
+    ].some(value => String(value || '').trim());
 }
 
 function renderNotes(dom, notes) {

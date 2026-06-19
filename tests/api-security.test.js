@@ -321,6 +321,7 @@ const hashPasswordHandler = require('../api/auth/hash-password');
 const usersDirectoryHandler = require('../api/users/directory');
 const aiHandler = require('../api/ai');
 const { generateProductContent: generateAiProductContent } = require('../server/ai/google-client');
+const { buildUrlFallbackText } = require('../server/ai/source-reader');
 
 const accessToken = generateToken({
   id: 'user-1',
@@ -1071,6 +1072,14 @@ test('AI endpoint requires editor access and keeps URL fetching SSRF-safe', asyn
       process.env.GEMINI_API_KEY = originalGeminiKey;
     }
   }
+});
+
+test('AI source reader builds a product-name fallback from blocked product URLs', () => {
+  const fallback = buildUrlFallbackText('https://www.iherb.com/pr/Optimum-Nutrition-Essential-Amino-Energy-Fruit-Punch-9-5-oz-270-g/12345');
+
+  assert.match(fallback, /URL host: iherb\.com/);
+  assert.match(fallback, /Optimum Nutrition Essential Amino Energy Fruit Punch 9 5 oz 270 g/);
+  assert.doesNotMatch(fallback, /12345/);
 });
 
 test('AI provider client uses Gemini key and structured JSON response format', async () => {

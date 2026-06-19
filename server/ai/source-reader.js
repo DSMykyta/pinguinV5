@@ -42,6 +42,8 @@ async function readProductSource(payload = {}) {
 
   if (isLikelyUrl(userInput)) {
     source.sourceType = 'url';
+    source.finalUrl = userInput;
+    source.sourceText = mergeText(source.sourceText, buildUrlFallbackText(userInput));
     await attachUrlText(source, userInput);
   }
 
@@ -113,6 +115,72 @@ function mergeText(first, second) {
     .slice(0, MAX_SOURCE_TEXT_LENGTH);
 }
 
+function buildUrlFallbackText(input) {
+  try {
+    const url = new URL(input);
+    const host = url.hostname.replace(/^www\./i, '');
+    const pathHint = url.pathname
+      .split('/')
+      .map(decodeUrlPart)
+      .map(normalizeUrlPart)
+      .filter(isUsefulUrlPart)
+      .join(' ');
+    const searchHint = [
+      url.searchParams.get('q'),
+      url.searchParams.get('query'),
+      url.searchParams.get('search'),
+      url.searchParams.get('keyword'),
+    ]
+      .map(normalizeText)
+      .find(Boolean);
+
+    return [
+      `URL host: ${host}`,
+      pathHint ? `URL product/name hint: ${pathHint}` : '',
+      searchHint ? `URL search hint: ${searchHint}` : '',
+    ]
+      .filter(Boolean)
+      .join('\n');
+  } catch {
+    return '';
+  }
+}
+
+function decodeUrlPart(part) {
+  try {
+    return decodeURIComponent(part);
+  } catch {
+    return part;
+  }
+}
+
+function normalizeUrlPart(part) {
+  return normalizeText(part)
+    .replace(/\.[a-z0-9]{2,5}$/i, '')
+    .replace(/[_-]+/g, ' ')
+    .replace(/[^\p{L}\p{N}\s.,+%()]/gu, ' ')
+    .replace(/\s+/g, ' ');
+}
+
+function isUsefulUrlPart(part) {
+  const normalized = normalizeText(part).toLowerCase();
+  if (!normalized || normalized.length < 2) return false;
+  if (/^\d+$/.test(normalized)) return false;
+  return ![
+    'pr',
+    'product',
+    'products',
+    'p',
+    'shop',
+    'ua',
+    'uk',
+    'ru',
+    'en',
+    'en us',
+    'catalog',
+  ].includes(normalized);
+}
+
 function normalizeText(value) {
   return String(value || '').trim();
 }
@@ -129,6 +197,7 @@ function isUnsafeUrlError(message) {
 }
 
 module.exports = {
+  buildUrlFallbackText,
   htmlToReadableText,
   readProductSource,
 };

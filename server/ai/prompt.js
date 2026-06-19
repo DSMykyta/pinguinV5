@@ -18,6 +18,7 @@ function buildInstructions() {
     'For table.ua_text and table.ru_text, return plain parser-compatible lines. Use one row per line. Use a tab between name and value when a value exists.',
     'For table headers, put the header text on a single line. For separators, use an empty line only if needed.',
     'If the input is only a product name without source facts, produce a cautious draft and clearly mark what needs manual verification.',
+    'If a URL could not be fetched but URL host/path hints are available, use those hints like a product-name query for SEO and description drafts; do not invent supplement facts, dosages, barcode, directions, warnings, or ingredients.',
   ].join('\n');
 }
 

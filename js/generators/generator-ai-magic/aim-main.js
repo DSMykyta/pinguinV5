@@ -7,6 +7,8 @@
  */
 
 import { generateAiMagicContent } from '../../utils/utils-api-client.js';
+import { closeModal } from '../../components/modal/modal-main.js';
+import { showToast } from '../../components/feedback/toast.js';
 import { getModalDOM, getSelectedLanguage } from './aim-dom.js';
 import { applyAll, applySeo, applyTable, applyText } from './aim-apply.js';
 import { initAvatar, renderResult, setLoadingUI, setStatus } from './aim-renderer.js';
@@ -33,10 +35,10 @@ function initModal(modal) {
     setStatus(dom, 'Встав джерело і натисни "Заповнити".');
 
     dom.generateBtn?.addEventListener('click', () => handleGenerate(dom));
-    dom.applySeoBtn?.addEventListener('click', () => applySeo(dom.modal, getSelectedLanguage(dom.modal)));
-    dom.applyTextBtn?.addEventListener('click', () => applyText(dom.modal, getSelectedLanguage(dom.modal)));
-    dom.applyTableBtn?.addEventListener('click', () => applyTable(dom.modal, getSelectedLanguage(dom.modal)));
-    dom.applyAllBtn?.addEventListener('click', () => applyAll(dom.modal, getSelectedLanguage(dom.modal)));
+    dom.applySeoBtn?.addEventListener('click', () => handleApply(dom, 'seo'));
+    dom.applyTextBtn?.addEventListener('click', () => handleApply(dom, 'text'));
+    dom.applyTableBtn?.addEventListener('click', () => handleApply(dom, 'table'));
+    dom.applyAllBtn?.addEventListener('click', () => handleApply(dom, 'all'));
 }
 
 async function handleGenerate(dom) {
@@ -56,7 +58,11 @@ async function handleGenerate(dom) {
     try {
         const data = await generateAiMagicContent({ input, sourceText, rules });
         setResult(data.result, data.meta);
-        renderResult(dom.modal);
+        const hasResult = renderResult(dom.modal);
+
+        if (!hasResult) {
+            return;
+        }
 
         if (data.meta?.fetchWarning) {
             setStatus(dom, `Готово, але джерело не вдалося повністю прочитати: ${data.meta.fetchWarning}`, 'c-yellow');
@@ -67,6 +73,29 @@ async function handleGenerate(dom) {
     } finally {
         setLoading(false);
         setLoadingUI(dom, false);
+    }
+}
+
+async function handleApply(dom, target) {
+    const lang = getSelectedLanguage(dom.modal);
+    let applied = 0;
+
+    if (target === 'seo') applied = await applySeo(dom.modal, lang);
+    if (target === 'text') applied = applyText(dom.modal, lang);
+    if (target === 'table') applied = await applyTable(dom.modal, lang);
+    if (target === 'all') applied = await applyAll(dom.modal, lang);
+
+    if (!applied) {
+        setStatus(dom, 'Немає непорожніх AI-полів для застосування. Спробуй точнішу назву або встав HTML/текст сторінки.', 'c-yellow');
+        return;
+    }
+
+    const message = `Застосовано AI Magic: ${applied} пол.`;
+    setStatus(dom, message, 'c-green');
+    showToast(message, 'success', 3500);
+
+    if (target === 'all') {
+        closeModal('ai-magic-modal');
     }
 }
 
