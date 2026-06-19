@@ -229,6 +229,12 @@ require.cache[googleSheetsPath] = {
       if (spreadsheetType === 'users' && range === 'Users!A2:S1000') {
         return testUserRows.map(row => [...row]);
       }
+      if (spreadsheetType === 'banned' && range === 'Banned!A:I') {
+        return [
+          ['local_id', 'group_name_ua', 'name_uk', 'name_ru', 'banned_type', 'banned_explaine', 'banned_hint', 'severity', 'cheaked_line'],
+          ['ban-1', 'Медичні обіцянки', 'лікує', 'лечит', 'medical_claim', '', 'підтримує нормальний стан', 'high', 'TRUE'],
+        ];
+      }
       if (spreadsheetType === 'tasks' && range === 'Tasks!A:N') {
         return taskRows.map(row => [...row]);
       }
@@ -460,6 +466,18 @@ function createGeminiSuccessEnvelope(productName = 'Test Product') {
             },
             manual_check_notes: [],
           }),
+        }],
+      },
+    }],
+  });
+}
+
+function createGeminiEnvelopeFromResult(result) {
+  return JSON.stringify({
+    candidates: [{
+      content: {
+        parts: [{
+          text: JSON.stringify(result),
         }],
       },
     }],
@@ -1109,11 +1127,89 @@ test('AI provider client uses Gemini key and structured JSON response format', a
     });
 
     const body = JSON.parse(capturedRequest.options.body);
+    const prompt = body.contents[0].parts[0].text;
     assert.equal(capturedRequest.url, 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent');
     assert.equal(capturedRequest.options.headers['x-goog-api-key'], 'test-gemini-key');
     assert.equal(body.generationConfig.responseMimeType, 'application/json');
     assert.equal(body.generationConfig.responseJsonSchema.required.includes('manual_check_notes'), true);
+    assert.match(prompt, /Banned words from the database/);
+    assert.match(prompt, /лікує/);
     assert.equal(result.source.product_name_original, 'Test Product');
+  } finally {
+    global.fetch = originalFetch;
+    if (originalGeminiKey) {
+      process.env.GEMINI_API_KEY = originalGeminiKey;
+    } else {
+      delete process.env.GEMINI_API_KEY;
+    }
+    if (originalGeminiModel) {
+      process.env.GEMINI_MODEL = originalGeminiModel;
+    } else {
+      delete process.env.GEMINI_MODEL;
+    }
+  }
+});
+
+test('AI provider sanitizes generated content with banned words from the database', async () => {
+  const originalGeminiKey = process.env.GEMINI_API_KEY;
+  const originalGeminiModel = process.env.GEMINI_MODEL;
+  const originalFetch = global.fetch;
+
+  process.env.GEMINI_API_KEY = 'test-gemini-key';
+  process.env.GEMINI_MODEL = 'gemini-3.5-flash';
+  global.fetch = async () => ({
+    ok: true,
+    text: async () => createGeminiEnvelopeFromResult({
+      source: {
+        source_type: 'query',
+        source_url: '',
+        product_name_original: 'Risky Product',
+        brand: 'Test Brand',
+        packaging: '',
+        barcode: '',
+      },
+      ua: {
+        h1: 'Risky Product',
+        seo_title: 'Risky Product',
+        seo_description: 'Risky Product підтримує раціон',
+        seo_keywords: ['risky product'],
+        description_html: '<p>Risky Product лікує суглоби.</p>',
+        ingredients: '',
+        directions: '',
+        warnings: '',
+      },
+      ru: {
+        h1: 'Risky Product',
+        seo_title: 'Risky Product',
+        seo_description: 'Risky Product для рациона',
+        seo_keywords: ['risky product'],
+        description_html: '<p>Risky Product лечит суставы.</p>',
+        ingredients: '',
+        directions: '',
+        warnings: '',
+      },
+      table: {
+        ua_text: '',
+        ru_text: '',
+        rows: [],
+      },
+      manual_check_notes: [],
+    }),
+  });
+
+  try {
+    const result = await generateAiProductContent({
+      userInput: 'Risky Product',
+      sourceText: '',
+      rules: '',
+      sourceType: 'query',
+      finalUrl: '',
+      fetchWarning: '',
+    });
+
+    assert.doesNotMatch(result.ua.description_html, /лікує/i);
+    assert.match(result.ua.description_html, /підтримує нормальний стан/i);
+    assert.match(result.manual_check_notes.join('\n'), /очищено від заборонених слів/);
   } finally {
     global.fetch = originalFetch;
     if (originalGeminiKey) {

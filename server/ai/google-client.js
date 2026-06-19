@@ -8,6 +8,7 @@
 // =========================================================================
 
 const { AiConfigError, AiProviderError } = require('./errors');
+const { loadBannedWordsPolicy, sanitizeResultWithBannedWords } = require('./banned-words');
 const { productContentSchema } = require('./product-content-schema');
 const { buildInstructions, buildUserPrompt } = require('./prompt');
 
@@ -25,8 +26,9 @@ async function generateProductContent(source) {
   }
 
   const models = getCandidateModels(process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL);
+  const bannedWordsPolicy = await loadBannedWordsPolicy();
   const prompt = [
-    buildInstructions(),
+    buildInstructions({ bannedWordsPrompt: bannedWordsPolicy.promptText }),
     '',
     buildUserPrompt(source),
   ].join('\n');
@@ -37,7 +39,8 @@ async function generateProductContent(source) {
     const model = models[index];
 
     try {
-      return await requestProductContent({ apiKey, model, body });
+      const result = await requestProductContent({ apiKey, model, body });
+      return sanitizeResultWithBannedWords(result, bannedWordsPolicy);
     } catch (error) {
       const isLastAttempt = index === models.length - 1;
       if (!isRetryableProviderError(error) || isLastAttempt) {

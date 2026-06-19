@@ -7,19 +7,33 @@
 // table rules can be passed from the UI later without changing endpoint shape.
 // =========================================================================
 
-function buildInstructions() {
-  return [
+function buildInstructions(options = {}) {
+  const instructions = [
     'You generate bilingual ecommerce content for dietary supplement products.',
     'Return only data that fits the provided JSON schema.',
     'Do not invent factual product details. If a detail is missing or uncertain, leave the field empty and add a manual_check_notes item.',
     'Write Ukrainian fields in Ukrainian and Russian fields in Russian.',
+    'Generate all fillable non-factual fields whenever possible: source.product_name_original, source.brand when known, ua/ru h1, SEO title, SEO description, SEO keywords, and description_html.',
+    'Write client-oriented text, not bureaucratic filler: clearly explain what this product is, what it is for, and what can be understood from verified facts.',
+    'Avoid medical promises, disease-treatment claims, prevention claims, guaranteed results, price/discount claims, aggressive calls to buy, and manipulative marketing language.',
+    'Before returning, self-check generated text for banned or risky wording. If unsure, use neutral wording like "can be part of a balanced diet", "supports normal functioning", or "nutritional support".',
     'Keep SEO title concise, SEO description suitable for a meta description, and keywords as short keyword phrases.',
     'description_html may use simple safe tags only: p, ul, li, strong, em, br.',
-    'For table.ua_text and table.ru_text, return plain parser-compatible lines. Use one row per line. Use a tab between name and value when a value exists.',
-    'For table headers, put the header text on a single line. For separators, use an empty line only if needed.',
-    'If the input is only a product name without source facts, produce a cautious draft and clearly mark what needs manual verification.',
+    'description_html must not be empty when a product name or URL hint is available. Write a cautious useful description based only on available facts.',
+    'For table.ua_text and table.ru_text, return plain parser-compatible text for the existing table generator, not HTML or markdown.',
+    'Table format: one row per line; nutrient name, then a single tab, then value. Example: "Vitamin C\t500 mg".',
+    'Table headers must be a single line without markdown. Use "Харчова цінність" for Ukrainian nutrition facts and "Пищевая ценность" for Russian nutrition facts. Use "Інгредієнти"/"Ингредиенты" and "Склад"/"Состав" only when that source data exists.',
+    'Use one empty line only to separate table blocks. Do not use pipes, bullet markers, JSON, HTML, or percent daily value columns in table text.',
+    'If no supplement facts are available, leave table text empty and add a manual_check_notes item instead of inventing rows.',
+    'If the input is only a product name without source facts, produce a cautious SEO and description draft and clearly mark what needs manual verification.',
     'If a URL could not be fetched but URL host/path hints are available, use those hints like a product-name query for SEO and description drafts; do not invent supplement facts, dosages, barcode, directions, warnings, or ingredients.',
-  ].join('\n');
+  ];
+
+  if (options.bannedWordsPrompt) {
+    instructions.push(options.bannedWordsPrompt);
+  }
+
+  return instructions.join('\n');
 }
 
 function buildUserPrompt(source) {
