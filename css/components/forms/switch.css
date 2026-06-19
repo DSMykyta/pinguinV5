@@ -3,11 +3,7 @@
  *
  * ПРИЗНАЧЕННЯ:
  * Pill-shaped перемикач для всіх контекстів.
- * Base: тихий (без solid fill), pill-shaped.
- *
- * ВИКОРИСТАННЯ:
- * Використовується для вибору одного з кількох варіантів (radio-group).
- * Мінімалістичний дизайн: неактивні опції тихі, активна — з фоном та тінню.
+ * Активна плашка плавно перепливає з опції на опцію.
  *
  * HTML ПРИКЛАД:
  * <div class="switch">
@@ -18,26 +14,53 @@
  * </div>
  *
  * КЛАСИ:
- * - .switch — базовий контейнер (pill, --color-outline фон)
+ * - .switch — базовий контейнер
  * - .switch-label — окрема опція
- * - input:checked + .switch-label — активний стан (surface фон, тінь)
- *
- * ЧАРМИ (charms):
- * - .switch-outline — квадратний з бордером (як інпути), тихий активний стан
- * - .switch-fit     — width: fit-content
- * - .switch-compact — compact (менша висота)
- *
- * ЗАЛЕЖНОСТІ:
- * - root.css (--color-main, --color-on-main, --color-outline, --color-surface, --color-on-surface, --shadow-1)
+ * - .switch-outline — квадратний з бордером
+ * - .switch-fit — width: fit-content
+ * - .switch-compact — compact
+ * - .switch-disabled — disabled
  */
 
 .switch {
+    --switch-gap: 2px;
+    --switch-padding: 3px;
+    --switch-items: 2;
+    --switch-active: 0;
+    --switch-plate-radius: 17px;
+
+    position: relative;
+    isolation: isolate;
     display: flex;
     align-items: center;
-    gap: 2px;
-    padding: 3px;
+    gap: var(--switch-gap);
+    padding: var(--switch-padding);
     background: var(--color-outline);
     border-radius: 20px;
+    overflow: hidden;
+}
+
+.switch::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    top: var(--switch-padding);
+    bottom: var(--switch-padding);
+    left: var(--switch-padding);
+    width: calc(
+        (100% - (var(--switch-padding) * 2) - (var(--switch-gap) * (var(--switch-items) - 1)))
+        / var(--switch-items)
+    );
+    border-radius: var(--switch-plate-radius);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-1);
+    transform: translateX(calc(var(--switch-active) * (100% + var(--switch-gap))));
+    transition:
+        transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+        width 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+        background 0.2s,
+        box-shadow 0.2s;
+    pointer-events: none;
 }
 
 .switch input[type="radio"] {
@@ -45,15 +68,17 @@
 }
 
 .switch-label {
-    flex: 1;
+    position: relative;
+    z-index: 1;
+    flex: 1 1 0;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 6px 14px;
-    border-radius: 17px;
+    border-radius: var(--switch-plate-radius);
     color: var(--color-on-surface-v);
     cursor: pointer;
-    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    transition: color 0.2s;
     white-space: nowrap;
 }
 
@@ -62,10 +87,24 @@
 }
 
 .switch input[type="radio"]:checked + .switch-label {
-    background: var(--color-surface);
     color: var(--color-on-surface);
-    box-shadow: var(--shadow-1);
 }
+
+/* Кількість опцій */
+.switch:has(input[type="radio"]:nth-of-type(1):last-of-type) { --switch-items: 1; }
+.switch:has(input[type="radio"]:nth-of-type(2):last-of-type) { --switch-items: 2; }
+.switch:has(input[type="radio"]:nth-of-type(3):last-of-type) { --switch-items: 3; }
+.switch:has(input[type="radio"]:nth-of-type(4):last-of-type) { --switch-items: 4; }
+.switch:has(input[type="radio"]:nth-of-type(5):last-of-type) { --switch-items: 5; }
+.switch:has(input[type="radio"]:nth-of-type(6):last-of-type) { --switch-items: 6; }
+
+/* Активна позиція */
+.switch:has(input[type="radio"]:nth-of-type(1):checked) { --switch-active: 0; }
+.switch:has(input[type="radio"]:nth-of-type(2):checked) { --switch-active: 1; }
+.switch:has(input[type="radio"]:nth-of-type(3):checked) { --switch-active: 2; }
+.switch:has(input[type="radio"]:nth-of-type(4):checked) { --switch-active: 3; }
+.switch:has(input[type="radio"]:nth-of-type(5):checked) { --switch-active: 4; }
+.switch:has(input[type="radio"]:nth-of-type(6):checked) { --switch-active: 5; }
 
 /* Чарм: outline — квадратний як інпути, тихий стан */
 .switch-outline {
@@ -73,7 +112,10 @@
     border: 1px solid var(--color-outline);
     border-radius: var(--radius-s);
     min-height: 40px;
-    padding: 3px;
+}
+
+.switch-outline::before {
+    --switch-plate-radius: calc(var(--radius-s) - 2px);
 }
 
 .switch-outline .switch-label {
@@ -87,7 +129,8 @@
 
 /* Чарм: compact */
 .switch-compact {
-    padding: 2px;
+    --switch-padding: 2px;
+    --switch-plate-radius: 14px;
 }
 
 .switch-compact .switch-label {
@@ -99,4 +142,11 @@
 .switch-disabled {
     opacity: 0.5;
     pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .switch::before,
+    .switch-label {
+        transition: none;
+    }
 }
