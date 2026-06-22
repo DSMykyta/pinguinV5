@@ -25,6 +25,10 @@ registerAsideInitializer('aside-text', () => {
     initAsideFab('fab-text-aside', {});
 });
 
+registerAsideInitializer('aside-highlight', () => {
+    initAsideFab('fab-highlight-aside', {});
+});
+
 async function initializeApp() {
     try {
         await initCore();
