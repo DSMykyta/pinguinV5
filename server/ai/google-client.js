@@ -77,6 +77,7 @@ function enforceSourceFactBoundaries(result, source) {
     result[lang].ingredients = '';
     result[lang].directions = '';
     result[lang].warnings = '';
+    result[lang].description_html = sanitizeFactlessDescription(result[lang].description_html, lang);
   }
 
   if (!Array.isArray(result.manual_check_notes)) {
@@ -89,6 +90,48 @@ function enforceSourceFactBoundaries(result, source) {
   }
 
   return result;
+}
+
+function sanitizeFactlessDescription(html, lang) {
+  const value = String(html || '').trim();
+  if (!value) return value;
+
+  const withoutSpeculativeUsage = removeSpeculativeUsageSentences(value, lang)
+    .replace(/<p>\s*<\/p>/giu, '')
+    .trim();
+
+  return replaceUsageSection(withoutSpeculativeUsage, lang);
+}
+
+function removeSpeculativeUsageSentences(html, lang) {
+  const patterns = lang === 'ru'
+    ? [
+      /[^.?!<>]*(?:обычно|как правило|ориентировочно|типично)[^.?!<>]*(?:принима|капсул|вод|ед|доз)[.?!]?/giu,
+      /[^.?!<>]*(?:принимают|употребляют)[^.?!<>]*(?:во время еды|запивая водой)[.?!]?/giu,
+    ]
+    : [
+      /[^.?!<>]*(?:зазвичай|як правило|орієнтовно|типово)[^.?!<>]*(?:прийма|вжива|капсул|вод|їж|доз)[.?!]?/giu,
+      /[^.?!<>]*(?:приймають|вживають)[^.?!<>]*(?:під час їжі|запиваючи водою)[.?!]?/giu,
+    ];
+
+  return patterns.reduce((nextHtml, pattern) => nextHtml.replace(pattern, ''), html);
+}
+
+function replaceUsageSection(html, lang) {
+  const isRu = lang === 'ru';
+  const headingPattern = isRu
+    ? '(?:Как\\s+принимать|Способ\\s+применения)'
+    : '(?:Як\\s+приймати|Спосіб\\s+застосування)';
+  const safeSection = isRu
+    ? '<h3>Как принимать</h3><p>Способ применения нужно проверить по этикетке продукта или официальному источнику. Не используйте ориентировочные дозировки без проверки.</p>'
+    : '<h3>Як приймати</h3><p>Спосіб прийому потрібно перевірити за етикеткою продукту або офіційним джерелом. Не використовуйте орієнтовні дозування без перевірки.</p>';
+  const sectionRegex = new RegExp(`<h3[^>]*>\\s*${headingPattern}[^<]*<\\/h3>[\\s\\S]*?(?=<h3[^>]*>|$)`, 'iu');
+
+  if (sectionRegex.test(html)) {
+    return html.replace(sectionRegex, safeSection);
+  }
+
+  return `${html}${safeSection}`;
 }
 
 function mergeSourceHints(result, source) {

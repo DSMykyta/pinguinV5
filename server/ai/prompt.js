@@ -24,6 +24,7 @@ function buildInstructions(options = {}) {
     'description_html must not be empty when a product name or URL hint is available. Write a substantial cautious draft based on the product name, verified source facts, and safe category-level context.',
     'Description structure for each language: intro paragraph with product name; h3 Features; 3-5 bullet features; 1-2 explanatory paragraphs; h3 Benefits; 3-5 neutral bullets; h3 How to use; directions paragraph.',
     'If verified directions are missing, the How to use paragraph must say to follow the label/official source and consult a specialist when relevant. Do not invent a dose.',
+    'If verified directions are missing, never add typical or generic usage claims such as "usually capsules are taken with meals", "take with water", "зазвичай приймають", "під час їжі", "обычно принимают", or "во время еды".',
     'Do not output thin descriptions. Aim for 220-450 words per language when a product name or URL hint exists.',
     'For table.ua_text and table.ru_text, return plain parser-compatible text for the existing table generator, not HTML or markdown.',
     'Table text format: one row per line; nutrient name, then a single tab, then value. Example: "Vitamin C\t500 mg". Use one empty line only to separate blocks. Do not use pipes, bullets, JSON, HTML, or percent daily value columns in table text.',
