@@ -142,7 +142,7 @@ function sanitizeResultWithBannedWords(result, policy) {
 }
 
 function sanitizeText(value, terms, violations, path) {
-  let nextValue = String(value || '');
+  let nextValue = stripReplacementInstructions(String(value || ''));
   if (!nextValue) return nextValue;
 
   for (const item of terms) {
@@ -152,7 +152,7 @@ function sanitizeText(value, terms, violations, path) {
     if (!regex.test(nextValue)) continue;
 
     violations.push({ path, term: item.term });
-    const replacement = item.hint || '';
+    const replacement = getSafeReplacement(item.hint, terms);
     nextValue = nextValue.replace(createTermRegex(item.term), (_match, prefix, suffix) => (
       `${prefix}${replacement}${suffix}`
     ));
@@ -163,6 +163,12 @@ function sanitizeText(value, terms, violations, path) {
     .replace(/\s{2,}/g, ' ')
     .replace(/>\s+</g, '><')
     .trim();
+}
+
+function stripReplacementInstructions(value) {
+  return String(value || '')
+    .replace(/(^|[\s>])(?:замінити|заменить|replace)\s+на\s*:?\s*(?:"[^"]+"|“[^”]+”|«[^»]+»)(?:\s*,\s*(?:"[^"]+"|“[^”]+”|«[^»]+»))*\.?/giu, '$1')
+    .replace(/(^|[\s>])(?:замінити|заменить|replace)\s+на\s*:?\s*[^.<>]*(?=\.|<|$)/giu, '$1');
 }
 
 function collectTextTargets(result) {
@@ -193,16 +199,13 @@ function collectTextTargets(result) {
   }
 
   if (result.table) {
-    targets.push({
-      path: 'table.ua_text',
-      get: () => result.table.ua_text || '',
-      set: value => { result.table.ua_text = value; },
-    });
-    targets.push({
-      path: 'table.ru_text',
-      get: () => result.table.ru_text || '',
-      set: value => { result.table.ru_text = value; },
-    });
+    for (const field of ['ua_text', 'ru_text', 'composition_code_ua', 'composition_code_ru', 'serving_notes_ua', 'serving_notes_ru']) {
+      targets.push({
+        path: `table.${field}`,
+        get: () => result.table[field] || '',
+        set: value => { result.table[field] = value; },
+      });
+    }
   }
 
   return targets;
@@ -222,6 +225,51 @@ function formatViolations(violations) {
   return [...new Set(violations.map(item => `${item.path}: ${item.term}`))]
     .slice(0, 10)
     .join('; ');
+}
+
+function getSafeReplacement(hint, terms) {
+  const candidates = extractReplacementCandidates(hint);
+
+  for (const candidate of candidates) {
+    if (isSafeReplacement(candidate, terms)) {
+      return candidate;
+    }
+  }
+
+  return '';
+}
+
+function extractReplacementCandidates(hint) {
+  const cleanHint = String(hint || '').trim();
+  if (!cleanHint) return [];
+
+  const quoted = [];
+  const quotePattern = /["“«]([^"”»]{2,80})["”»]/g;
+  let match;
+  while ((match = quotePattern.exec(cleanHint)) !== null) {
+    quoted.push(match[1]);
+  }
+
+  const withoutInstruction = cleanHint
+    .replace(/^(замінити|заменить|replace)\s+на\s*:?/i, '')
+    .replace(/^(підказка|подсказка|safe hint)\s*:?/i, '');
+
+  return [
+    ...quoted,
+    ...withoutInstruction.split(/[;,]/),
+  ]
+    .map(value => value.replace(/^["“«\s]+|["”»\s]+$/g, '').trim())
+    .filter(Boolean);
+}
+
+function isSafeReplacement(candidate, terms) {
+  if (!candidate || candidate.length > 80) return false;
+  if (/замінити|заменить|replace|safe hint|підказка|подсказка|:/i.test(candidate)) return false;
+
+  return !terms.some(item => {
+    if (!item.term) return false;
+    return createTermRegex(item.term).test(candidate);
+  });
 }
 
 function splitTerms(value) {

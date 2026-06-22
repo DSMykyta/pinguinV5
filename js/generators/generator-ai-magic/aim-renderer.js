@@ -42,6 +42,10 @@ export function renderResult(surface) {
 
     setField(surface, 'ai-magic-table-ua', result.table?.ua_text || '');
     setField(surface, 'ai-magic-table-ru', result.table?.ru_text || '');
+    setEditor(surface, 'compositionCodeUa', result.table?.composition_code_ua || '');
+    setEditor(surface, 'compositionCodeRu', result.table?.composition_code_ru || '');
+    setEditor(surface, 'servingNotesUa', result.table?.serving_notes_ua || '');
+    setEditor(surface, 'servingNotesRu', result.table?.serving_notes_ru || '');
     setField(surface, 'ai-magic-images', Array.isArray(result.source?.image_urls) ? result.source.image_urls.join('\n') : '');
     renderNotes(dom, result.manual_check_notes || []);
 
@@ -65,12 +69,20 @@ function fillLanguage(surface, lang, data = {}) {
     setField(surface, `ai-magic-seo-title-${suffix}`, data.seo_title || '');
     setField(surface, `ai-magic-seo-description-${suffix}`, data.seo_description || '');
     setField(surface, `ai-magic-seo-keywords-${suffix}`, Array.isArray(data.seo_keywords) ? data.seo_keywords.join(', ') : '');
+    setEditor(surface, suffix === 'ru' ? 'descriptionRu' : 'descriptionUa', data.description_html || '');
     setField(surface, `ai-magic-description-${suffix}`, data.description_html || '');
 }
 
 function setField(surface, id, value) {
     const field = getField(surface, id);
     if (field) field.value = value || '';
+}
+
+function setEditor(surface, key, value) {
+    const editor = surface?.aiMagicEditors?.[key];
+    if (editor?.setValue) {
+        editor.setValue(value || '');
+    }
 }
 
 function hasResultContent(result) {
@@ -90,6 +102,10 @@ function hasResultContent(result) {
         result?.ru?.description_html,
         result?.table?.ua_text,
         result?.table?.ru_text,
+        result?.table?.composition_code_ua,
+        result?.table?.composition_code_ru,
+        result?.table?.serving_notes_ua,
+        result?.table?.serving_notes_ru,
         ...(Array.isArray(result?.source?.image_urls) ? result.source.image_urls : []),
     ].some(value => String(value || '').trim());
 }

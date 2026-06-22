@@ -42,14 +42,17 @@ async function readProductSource(payload = {}) {
     finalUrl: '',
     fetchWarning: '',
     imageUrls: [],
+    hasVerifiedFactText: false,
   };
 
   if (pastedText) {
     const baseUrl = isLikelyUrl(userInput) ? userInput : 'https://example.invalid/';
     const pageSignals = extractPageSignals(pastedText, baseUrl);
+    const pastedReadableText = htmlToReadableText(pastedText);
     source.imageUrls = pageSignals.imageUrls.slice(0, MAX_IMAGE_URLS);
     source.sourceText = mergeText(source.sourceText, pageSignals.text);
-    source.sourceText = mergeText(source.sourceText, htmlToReadableText(pastedText));
+    source.sourceText = mergeText(source.sourceText, pastedReadableText);
+    source.hasVerifiedFactText = hasProductFactText(`${pageSignals.text}\n${pastedReadableText}`);
   }
 
   if (isLikelyUrl(userInput)) {
@@ -88,6 +91,8 @@ async function attachUrlText(source, input) {
     ]).slice(0, MAX_IMAGE_URLS);
     source.sourceText = mergeText(source.sourceText, pageSignals.text);
     source.sourceText = mergeText(source.sourceText, fetchedText);
+    source.hasVerifiedFactText = source.hasVerifiedFactText
+      || hasProductFactText(`${pageSignals.text}\n${fetchedText}`);
   } catch (error) {
     if (error instanceof SafeUrlError && isUnsafeUrlError(error.message)) {
       throw new AiInputError(error.message, 400);
@@ -95,6 +100,11 @@ async function attachUrlText(source, input) {
 
     source.fetchWarning = error.message || 'Could not fetch source URL';
   }
+}
+
+function hasProductFactText(value) {
+  return /supplement facts|nutrition facts|other ingredients|ingredients|suggested use|directions|warnings|serving size|servings per container|amount per serving|dosage|склад|інгредієнт|ингредиент|спосіб прийому|способ применения|порці[яї]|порци[яи]/i
+    .test(String(value || ''));
 }
 
 function isLikelyUrl(value) {

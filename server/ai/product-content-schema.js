@@ -90,10 +90,22 @@ const productContentSchema = {
     table: {
       type: 'object',
       additionalProperties: false,
-      required: ['ua_text', 'ru_text', 'rows'],
+      required: [
+        'ua_text',
+        'ru_text',
+        'composition_code_ua',
+        'composition_code_ru',
+        'serving_notes_ua',
+        'serving_notes_ru',
+        'rows',
+      ],
       properties: {
         ua_text: { type: 'string' },
         ru_text: { type: 'string' },
+        composition_code_ua: { type: 'string' },
+        composition_code_ru: { type: 'string' },
+        serving_notes_ua: { type: 'string' },
+        serving_notes_ru: { type: 'string' },
         rows: {
           type: 'array',
           items: tableRowSchema,

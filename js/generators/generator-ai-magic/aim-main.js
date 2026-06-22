@@ -8,6 +8,7 @@
 
 import { generateAiMagicContent } from '../../utils/utils-api-client.js';
 import { showLoader } from '../../components/feedback/loading.js';
+import { createHighlightEditor } from '../../components/editor/editor-main.js';
 import { getAiMagicDOM } from './aim-dom.js';
 import { initAvatar, renderResult, setLoadingUI, setStatus } from './aim-renderer.js';
 import { setLoading, setResult } from './aim-state.js';
@@ -21,10 +22,34 @@ function initSurface(root) {
     if (!dom || dom.surface.dataset.aiMagicInit === 'true') return;
 
     dom.surface.dataset.aiMagicInit = 'true';
+    initResultEditors(dom.surface);
     initAvatar(dom);
     setStatus(dom, 'Встав джерело і натисни "Заповнити".');
 
     dom.generateBtn?.addEventListener('click', () => handleGenerate(dom));
+}
+
+function initResultEditors(surface) {
+    const editorIds = {
+        descriptionUa: 'ai-magic-description-ua-editor',
+        descriptionRu: 'ai-magic-description-ru-editor',
+        compositionCodeUa: 'ai-magic-composition-code-ua-editor',
+        compositionCodeRu: 'ai-magic-composition-code-ru-editor',
+        servingNotesUa: 'ai-magic-serving-notes-ua-editor',
+        servingNotesRu: 'ai-magic-serving-notes-ru-editor',
+    };
+
+    surface.aiMagicEditors = surface.aiMagicEditors || {};
+
+    Object.entries(editorIds).forEach(([key, id]) => {
+        if (surface.aiMagicEditors[key]) return;
+
+        const container = surface.querySelector(`#${id}`);
+        if (!container) return;
+
+        container.innerHTML = '';
+        surface.aiMagicEditors[key] = createHighlightEditor(container);
+    });
 }
 
 async function handleGenerate(dom) {

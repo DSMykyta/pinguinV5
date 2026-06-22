@@ -37,10 +37,12 @@
                             <div class="speech-bubble body-s" id="ai-magic-avatar-message">Давай зроблю магію.</div>
                         </div>
 
-                        <div class="group">
+                        <div class="group column">
+                            <label class="label-s" for="ai-magic-source">Назва, iHerb або офіційне посилання</label>
                             <input type="text" id="ai-magic-source" class="input-main"
                                 placeholder="iHerb, офіційний сайт або назва товару">
                             <button class="btn-primary" id="ai-magic-generate-btn">Заповнити</button>
+                            <span class="body-s">Якщо сайт повертає 403, встав нижче HTML або текст сторінки. Без прочитаних фактів склад і порція не вигадуються.</span>
                         </div>
 
                         <div class="grid">
@@ -67,10 +69,14 @@
                         <div class="content-bloc">
                             <div class="group column">
                                 <h3 class="display-s">SEO UA</h3>
+                                <label class="label-s" for="ai-magic-h1-ua">H1 / текст перед назвою</label>
                                 <input type="text" id="ai-magic-h1-ua" class="input-main" placeholder="H1 UA">
+                                <label class="label-s" for="ai-magic-seo-title-ua">SEO Title</label>
                                 <input type="text" id="ai-magic-seo-title-ua" class="input-main" placeholder="SEO Title UA">
+                                <label class="label-s" for="ai-magic-seo-description-ua">SEO Description</label>
                                 <textarea id="ai-magic-seo-description-ua" class="input-main" rows="3"
                                     placeholder="SEO Description UA"></textarea>
+                                <label class="label-s" for="ai-magic-seo-keywords-ua">SEO Keywords</label>
                                 <input type="text" id="ai-magic-seo-keywords-ua" class="input-main" placeholder="SEO Keywords UA">
                             </div>
                         </div>
@@ -78,10 +84,14 @@
                         <div class="content-bloc">
                             <div class="group column">
                                 <h3 class="display-s">SEO RU</h3>
+                                <label class="label-s" for="ai-magic-h1-ru">H1 / текст перед названием</label>
                                 <input type="text" id="ai-magic-h1-ru" class="input-main" placeholder="H1 RU">
+                                <label class="label-s" for="ai-magic-seo-title-ru">SEO Title</label>
                                 <input type="text" id="ai-magic-seo-title-ru" class="input-main" placeholder="SEO Title RU">
+                                <label class="label-s" for="ai-magic-seo-description-ru">SEO Description</label>
                                 <textarea id="ai-magic-seo-description-ru" class="input-main" rows="3"
                                     placeholder="SEO Description RU"></textarea>
+                                <label class="label-s" for="ai-magic-seo-keywords-ru">SEO Keywords</label>
                                 <input type="text" id="ai-magic-seo-keywords-ru" class="input-main" placeholder="SEO Keywords RU">
                             </div>
                         </div>
@@ -91,14 +101,20 @@
                         <div class="content-bloc">
                             <div class="group column">
                                 <h3 class="display-s">Текст UA</h3>
-                                <textarea id="ai-magic-description-ua" class="input-main ai-magic-textarea" rows="14"></textarea>
+                                <div id="ai-magic-description-ua-editor" class="section-content-full-height" editor
+                                    tools code check stats cleanup-links cleanup-styles cleanup-images
+                                    data-placeholder="Опис українською..." data-min-height="320" data-tag="UA">
+                                </div>
                             </div>
                         </div>
 
                         <div class="content-bloc">
                             <div class="group column">
                                 <h3 class="display-s">Текст RU</h3>
-                                <textarea id="ai-magic-description-ru" class="input-main ai-magic-textarea" rows="14"></textarea>
+                                <div id="ai-magic-description-ru-editor" class="section-content-full-height" editor
+                                    tools code check stats cleanup-links cleanup-styles cleanup-images
+                                    data-placeholder="Опис російською..." data-min-height="320" data-tag="RU">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -106,15 +122,37 @@
                     <div class="content-bloc-container">
                         <div class="content-bloc">
                             <div class="group column">
-                                <h3 class="display-s">Таблиця UA</h3>
-                                <textarea id="ai-magic-table-ua" class="input-main ai-magic-textarea" rows="12"></textarea>
+                                <h3 class="display-s">Склад UA</h3>
+                                <label class="label-s">Код складу для товару</label>
+                                <div id="ai-magic-composition-code-ua-editor" class="section-content-full-height" editor
+                                    tools code data-placeholder="HTML-код складу українською..." data-min-height="220"
+                                    data-tag="UA">
+                                </div>
+                                <label class="label-s">Вміст 1 порції</label>
+                                <div id="ai-magic-serving-notes-ua-editor" class="section-content-full-height" editor
+                                    tools code br data-placeholder="1 порція українською..." data-min-height="160"
+                                    data-tag="UA">
+                                </div>
+                                <label class="label-s">Текст для генератора таблиць</label>
+                                <textarea id="ai-magic-table-ua" class="input-main ai-magic-textarea" rows="8"></textarea>
                             </div>
                         </div>
 
                         <div class="content-bloc">
                             <div class="group column">
-                                <h3 class="display-s">Таблиця RU</h3>
-                                <textarea id="ai-magic-table-ru" class="input-main ai-magic-textarea" rows="12"></textarea>
+                                <h3 class="display-s">Состав RU</h3>
+                                <label class="label-s">Код состава для товара</label>
+                                <div id="ai-magic-composition-code-ru-editor" class="section-content-full-height" editor
+                                    tools code data-placeholder="HTML-код состава на русском..." data-min-height="220"
+                                    data-tag="RU">
+                                </div>
+                                <label class="label-s">Содержание 1 порции</label>
+                                <div id="ai-magic-serving-notes-ru-editor" class="section-content-full-height" editor
+                                    tools code br data-placeholder="1 порция на русском..." data-min-height="160"
+                                    data-tag="RU">
+                                </div>
+                                <label class="label-s">Текст для генератора таблиц</label>
+                                <textarea id="ai-magic-table-ru" class="input-main ai-magic-textarea" rows="8"></textarea>
                             </div>
                         </div>
                     </div>

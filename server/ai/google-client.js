@@ -40,7 +40,10 @@ async function generateProductContent(source) {
 
     try {
       const result = await requestProductContent({ apiKey, model, body });
-      return sanitizeResultWithBannedWords(mergeSourceHints(result, source), bannedWordsPolicy);
+      return sanitizeResultWithBannedWords(
+        enforceSourceFactBoundaries(mergeSourceHints(result, source), source),
+        bannedWordsPolicy,
+      );
     } catch (error) {
       const isLastAttempt = index === models.length - 1;
       if (!isRetryableProviderError(error) || isLastAttempt) {
@@ -52,6 +55,40 @@ async function generateProductContent(source) {
   }
 
   throw new AiProviderError('Gemini request failed before a provider call was made');
+}
+
+function enforceSourceFactBoundaries(result, source) {
+  if (!result || typeof result !== 'object' || source?.hasVerifiedFactText) {
+    return result;
+  }
+
+  if (result.table && typeof result.table === 'object') {
+    result.table.ua_text = '';
+    result.table.ru_text = '';
+    result.table.composition_code_ua = '';
+    result.table.composition_code_ru = '';
+    result.table.serving_notes_ua = '';
+    result.table.serving_notes_ru = '';
+    result.table.rows = [];
+  }
+
+  for (const lang of ['ua', 'ru']) {
+    if (!result[lang] || typeof result[lang] !== 'object') continue;
+    result[lang].ingredients = '';
+    result[lang].directions = '';
+    result[lang].warnings = '';
+  }
+
+  if (!Array.isArray(result.manual_check_notes)) {
+    result.manual_check_notes = [];
+  }
+
+  const note = 'Склад, дозування, спосіб прийому і таблицю не заповнено: у джерелі немає перевірених фактів або сторінку не вдалося прочитати.';
+  if (!result.manual_check_notes.includes(note)) {
+    result.manual_check_notes.push(note);
+  }
+
+  return result;
 }
 
 function mergeSourceHints(result, source) {
