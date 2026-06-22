@@ -560,7 +560,7 @@ async function getUserDirectory() {
 const API_AI = `${API_BASE}/api/ai`;
 
 /**
- * Згенерувати двомовний контент для сторінки Інструменти.
+ * Згенерувати двомовний контент для сторінки ШІ.
  * @param {{input: string, sourceText?: string, rules?: string}} payload
  * @returns {Promise<{result: Object, meta: Object}>}
  */

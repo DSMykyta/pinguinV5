@@ -5,6 +5,7 @@ import { cpSync, existsSync, mkdirSync } from 'fs';
 // Сторінки додатку (entry points)
 const APP_PAGES = [
     'index.html',
+    'ai.html',
     'products.html',
     'brands.html',
     'entities.html',

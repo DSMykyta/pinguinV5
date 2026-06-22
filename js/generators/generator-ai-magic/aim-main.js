@@ -1,45 +1,30 @@
 // js/generators/generator-ai-magic/aim-main.js
 
 /*
- * AI Magic entry point for the Instruments page.
- * The module owns only the AI modal and delegates existing page behavior to
- * existing generators: SEO counters, highlight editor, and table magic parser.
+ * AI Magic entry point.
+ * The module owns only the AI generation surface. It does not depend on the
+ * Instruments page generators, so the AI page can stay isolated.
  */
 
 import { generateAiMagicContent } from '../../utils/utils-api-client.js';
-import { closeModal } from '../../components/modal/modal-main.js';
-import { showToast } from '../../components/feedback/toast.js';
-import { getModalDOM, getSelectedLanguage } from './aim-dom.js';
-import { applyAll, applyImages, applySeo, applyTable, applyText } from './aim-apply.js';
+import { showLoader } from '../../components/feedback/loading.js';
+import { getAiMagicDOM } from './aim-dom.js';
 import { initAvatar, renderResult, setLoadingUI, setStatus } from './aim-renderer.js';
 import { setLoading, setResult } from './aim-state.js';
 
-let initialized = false;
-
-export function initAiMagic() {
-    if (initialized) return;
-    initialized = true;
-
-    document.addEventListener('modal-opened', (event) => {
-        if (event.detail?.modalId !== 'ai-magic-modal') return;
-        initModal(event.detail.modalElement);
-    });
+export function initAiMagicPage(root = document.getElementById('ai-magic-surface')) {
+    initSurface(root);
 }
 
-function initModal(modal) {
-    const dom = getModalDOM(modal);
-    if (!dom || dom.modal.dataset.aiMagicInit === 'true') return;
+function initSurface(root) {
+    const dom = getAiMagicDOM(root);
+    if (!dom || dom.surface.dataset.aiMagicInit === 'true') return;
 
-    dom.modal.dataset.aiMagicInit = 'true';
+    dom.surface.dataset.aiMagicInit = 'true';
     initAvatar(dom);
     setStatus(dom, 'Встав джерело і натисни "Заповнити".');
 
     dom.generateBtn?.addEventListener('click', () => handleGenerate(dom));
-    dom.applySeoBtn?.addEventListener('click', () => handleApply(dom, 'seo'));
-    dom.applyTextBtn?.addEventListener('click', () => handleApply(dom, 'text'));
-    dom.applyTableBtn?.addEventListener('click', () => handleApply(dom, 'table'));
-    dom.applyImagesBtn?.addEventListener('click', () => handleApply(dom, 'images'));
-    dom.applyAllBtn?.addEventListener('click', () => handleApply(dom, 'all'));
 }
 
 async function handleGenerate(dom) {
@@ -55,11 +40,18 @@ async function handleGenerate(dom) {
     setLoading(true);
     setLoadingUI(dom, true);
     setStatus(dom, 'Генерую структурований двомовний результат...', 'c-yellow');
+    const loader = showLoader(dom.loaderContainer || dom.surface, {
+        type: 'progress',
+        message: 'Підготовка запиту до Google AI...',
+    });
+    loader?.updateProgress(20, 'Читаю джерело і правила...');
 
     try {
+        loader?.updateProgress(45, 'Генерую текст, SEO, таблицю і фото...');
         const data = await generateAiMagicContent({ input, sourceText, rules });
+        loader?.updateProgress(85, 'Розкладаю результат по полях...');
         setResult(data.result, data.meta);
-        const hasResult = renderResult(dom.modal);
+        const hasResult = renderResult(dom.surface);
 
         if (!hasResult) {
             return;
@@ -68,37 +60,13 @@ async function handleGenerate(dom) {
         if (data.meta?.fetchWarning) {
             setStatus(dom, `Готово, але джерело не вдалося повністю прочитати: ${data.meta.fetchWarning}`, 'c-yellow');
         }
+        loader?.updateProgress(100, 'Готово!');
     } catch (error) {
         setResult(null, null);
         setStatus(dom, error.message || 'Не вдалося виконати AI-запит.', 'c-red');
     } finally {
+        loader?.hide();
         setLoading(false);
         setLoadingUI(dom, false);
     }
 }
-
-async function handleApply(dom, target) {
-    const lang = getSelectedLanguage(dom.modal);
-    let applied = 0;
-
-    if (target === 'seo') applied = await applySeo(dom.modal, lang);
-    if (target === 'text') applied = applyText(dom.modal, lang);
-    if (target === 'table') applied = await applyTable(dom.modal, lang);
-    if (target === 'images') applied = applyImages(dom.modal);
-    if (target === 'all') applied = await applyAll(dom.modal, lang);
-
-    if (!applied) {
-        setStatus(dom, 'Немає непорожніх AI-полів для застосування. Спробуй точнішу назву або встав HTML/текст сторінки.', 'c-yellow');
-        return;
-    }
-
-    const message = `Застосовано AI Magic: ${applied} пол.`;
-    setStatus(dom, message, 'c-green');
-    showToast(message, 'success', 3500);
-
-    if (target === 'all') {
-        closeModal('ai-magic-modal');
-    }
-}
-
-initAiMagic();

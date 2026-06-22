@@ -1,11 +1,11 @@
 // js/generators/generator-ai-magic/aim-renderer.js
 
 /**
- * Renders AI Magic results inside the modal preview.
+ * Renders AI Magic results into standalone copy fields.
  */
 
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
-import { getField, getModalDOM } from './aim-dom.js';
+import { getAiMagicDOM, getField } from './aim-dom.js';
 import { state } from './aim-state.js';
 
 export function initAvatar(dom) {
@@ -26,50 +26,50 @@ export function setStatus(dom, message, type = '') {
 }
 
 export function setLoadingUI(dom, isLoading) {
-    dom?.modal?.classList.toggle('is-loading', isLoading);
+    dom?.surface?.classList.toggle('is-loading', isLoading);
     if (dom?.generateBtn) {
         dom.generateBtn.textContent = isLoading ? 'Генерую...' : 'Заповнити';
     }
 }
 
-export function renderResult(modal) {
-    const dom = getModalDOM(modal);
+export function renderResult(surface) {
+    const dom = getAiMagicDOM(surface);
     const result = state.result;
     if (!dom || !result) return false;
 
-    fillLanguage(modal, 'ua', result.ua);
-    fillLanguage(modal, 'ru', result.ru);
+    fillLanguage(surface, 'ua', result.ua);
+    fillLanguage(surface, 'ru', result.ru);
 
-    setField(modal, 'ai-magic-table-ua', result.table?.ua_text || '');
-    setField(modal, 'ai-magic-table-ru', result.table?.ru_text || '');
-    setField(modal, 'ai-magic-images', Array.isArray(result.source?.image_urls) ? result.source.image_urls.join('\n') : '');
+    setField(surface, 'ai-magic-table-ua', result.table?.ua_text || '');
+    setField(surface, 'ai-magic-table-ru', result.table?.ru_text || '');
+    setField(surface, 'ai-magic-images', Array.isArray(result.source?.image_urls) ? result.source.image_urls.join('\n') : '');
     renderNotes(dom, result.manual_check_notes || []);
 
     if (!hasResultContent(result)) {
         dom.resultSection?.classList.add('u-hidden');
-        dom.modal.classList.remove('has-result');
+        dom.surface.classList.remove('has-result');
         setStatus(dom, 'AI повернув відповідь, але без полів для заповнення. Спробуй вставити текст/HTML сторінки або точну назву товару.', 'c-yellow');
         return false;
     }
 
     dom.resultSection?.classList.remove('u-hidden');
-    dom.modal.classList.add('has-result');
-    setStatus(dom, 'Готово. Перевір результат перед застосуванням.', 'c-green');
+    dom.surface.classList.add('has-result');
+    setStatus(dom, 'Готово. Перевір результат перед копіюванням.', 'c-green');
     requestAnimationFrame(() => dom.resultSection?.scrollIntoView({ block: 'start', behavior: 'smooth' }));
     return true;
 }
 
-function fillLanguage(modal, lang, data = {}) {
+function fillLanguage(surface, lang, data = {}) {
     const suffix = lang === 'ru' ? 'ru' : 'ua';
-    setField(modal, `ai-magic-h1-${suffix}`, data.h1 || '');
-    setField(modal, `ai-magic-seo-title-${suffix}`, data.seo_title || '');
-    setField(modal, `ai-magic-seo-description-${suffix}`, data.seo_description || '');
-    setField(modal, `ai-magic-seo-keywords-${suffix}`, Array.isArray(data.seo_keywords) ? data.seo_keywords.join(', ') : '');
-    setField(modal, `ai-magic-description-${suffix}`, data.description_html || '');
+    setField(surface, `ai-magic-h1-${suffix}`, data.h1 || '');
+    setField(surface, `ai-magic-seo-title-${suffix}`, data.seo_title || '');
+    setField(surface, `ai-magic-seo-description-${suffix}`, data.seo_description || '');
+    setField(surface, `ai-magic-seo-keywords-${suffix}`, Array.isArray(data.seo_keywords) ? data.seo_keywords.join(', ') : '');
+    setField(surface, `ai-magic-description-${suffix}`, data.description_html || '');
 }
 
-function setField(modal, id, value) {
-    const field = getField(modal, id);
+function setField(surface, id, value) {
+    const field = getField(surface, id);
     if (field) field.value = value || '';
 }
 

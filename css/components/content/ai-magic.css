@@ -1,59 +1,10 @@
 /**
  * COMPONENT: AI Magic
  *
- * Isolated styles for the Instruments AI assistant modal and top navigation
- * trigger. The classes do not change generic modal, group, grid or button
- * behavior.
+ * Isolated styles for the AI assistant surface. The classes do not change
+ * generic modal, group, grid or button behavior.
  */
 
-.btn-icon.ai-magic-trigger {
-    position: relative;
-    overflow: visible;
-    color: var(--color-main);
-    background:
-        radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--color-main) 40%, white), transparent 45%),
-        color-mix(in srgb, var(--color-main) 12%, transparent);
-}
-
-.btn-icon.ai-magic-trigger::before {
-    content: '';
-    position: absolute;
-    inset: -4px;
-    border-radius: var(--radius-full);
-    background: conic-gradient(
-        from 0deg,
-        transparent,
-        color-mix(in srgb, var(--color-main) 60%, transparent),
-        transparent,
-        color-mix(in srgb, var(--color-accent) 55%, transparent),
-        transparent
-    );
-    opacity: 0.55;
-    z-index: -1;
-    animation: ai-magic-spin 3.2s linear infinite;
-}
-
-.btn-icon.ai-magic-trigger:hover {
-    max-width: 400px;
-    background: var(--color-main-c);
-}
-
-.ai-magic-modal .modal-body > main {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 8px;
-    scroll-snap-type: none;
-}
-
-.ai-magic-modal .modal-body > main section {
-    height: auto;
-    min-height: 0;
-    overflow: visible;
-    scroll-snap-align: none;
-}
-
-.ai-magic-hero,
 .ai-magic-result {
     display: flex;
     flex-direction: column;
@@ -83,19 +34,7 @@
     color: var(--color-on-surface-v);
 }
 
-.ai-magic-modal.is-loading #ai-magic-generate-btn,
-.ai-magic-modal.is-loading #ai-magic-apply-all-btn,
-.ai-magic-modal:not(.has-result) #ai-magic-apply-seo-btn,
-.ai-magic-modal:not(.has-result) #ai-magic-apply-text-btn,
-.ai-magic-modal:not(.has-result) #ai-magic-apply-table-btn,
-.ai-magic-modal:not(.has-result) #ai-magic-apply-images-btn,
-.ai-magic-modal:not(.has-result) #ai-magic-apply-all-btn {
+.ai-magic-surface.is-loading #ai-magic-generate-btn {
     pointer-events: none;
     opacity: 0.5;
-}
-
-@keyframes ai-magic-spin {
-    to {
-        transform: rotate(360deg);
-    }
 }
