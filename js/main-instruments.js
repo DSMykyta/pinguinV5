@@ -21,10 +21,6 @@ import './generators/generator-translate/gtr-main.js';
 import './generators/generator-image/gim-main.js';
 import './generators/generator-ai-magic/aim-main.js';
 
-registerAsideInitializer('aside-text', () => {
-    initAsideFab('fab-text-aside', {});
-});
-
 registerAsideInitializer('aside-highlight', () => {
     initAsideFab('fab-highlight-aside', {});
 });
