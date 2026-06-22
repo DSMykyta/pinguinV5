@@ -45,6 +45,8 @@ export function initFabMenu(container, { items, value, onChange, formatLabel = S
         container.appendChild(menu);
     }
 
+    applyFabItemDelays(menu);
+
     // Ідемпотентний: вже ініціалізовано — тільки додати callback
     if (menu._fabMenuState) {
         menu._fabMenuState.callbacks.push(onChange);
@@ -95,6 +97,8 @@ export function initAsideFab(fabMenuId, handlers) {
     const fabMenu = document.getElementById(fabMenuId);
     if (!fabMenu) return;
 
+    applyFabItemDelays(fabMenu);
+
     fabMenu.addEventListener('click', async (e) => {
         if (e.target.closest('.fab-menu-trigger')) {
             fabMenu.classList.toggle('open');
@@ -125,6 +129,18 @@ function makeAPI(menu, formatLabel) {
             if (label) label.textContent = formatLabel(value);
         }
     };
+}
+
+function applyFabItemDelays(menu) {
+    const items = Array.from(menu.querySelectorAll('.fab-menu-item'));
+    const stepMs = Number(menu.dataset.staggerStep || 50);
+    const safeStepMs = Number.isFinite(stepMs) && stepMs >= 0 ? stepMs : 50;
+    const lastIndex = Math.max(items.length - 1, 0);
+
+    items.forEach((item, index) => {
+        item.style.setProperty('--fab-open-delay', `${index * safeStepMs}ms`);
+        item.style.setProperty('--fab-close-delay', `${(lastIndex - index) * safeStepMs}ms`);
+    });
 }
 
 function buildMenu(items, currentValue, formatLabel) {
