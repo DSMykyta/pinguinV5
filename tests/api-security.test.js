@@ -1452,6 +1452,19 @@ test('login returns an access token and blocks disabled accounts', async () => {
   assert.equal(disabledLogin.statusCode, 401);
 });
 
+test('verify validates the session without rotating the access token', async () => {
+  const verified = await invoke(authHandler, createRequest({
+    method: 'POST',
+    headers: { authorization: `Bearer ${accessToken}` },
+    body: { action: 'verify' },
+  }));
+
+  assert.equal(verified.statusCode, 200);
+  assert.equal(verified.body.valid, true);
+  assert.equal(verified.body.user.username, 'tester');
+  assert.equal(Object.hasOwn(verified.body, 'token'), false);
+});
+
 test('login rate limit returns 429 after repeated invalid attempts', async () => {
   for (let attempt = 0; attempt < 8; attempt += 1) {
     const response = await invoke(authHandler, createRequest({

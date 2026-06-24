@@ -42,7 +42,11 @@ export async function initCore() {
 
     initAvatarSystem();
     initEventHandlers();
-    await initCustomAuth();
+    // Auth verification can include a live account lookup. Keep page startup
+    // responsive while the authenticated UI is synchronized in the background.
+    void initCustomAuth().catch(error => {
+        console.error('Auth initialization error:', error);
+    });
     initTooltips();
     initImageShow();
     initSearchClearCharm();

@@ -248,7 +248,6 @@ async function handleVerify(req, res) {
 
   return res.status(200).json({
     valid: true,
-    token: generateToken(account),
     user: toProfile(account),
   });
 }

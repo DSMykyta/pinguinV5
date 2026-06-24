@@ -34,6 +34,8 @@ import { initDropdowns } from '../components/forms/dropdown.js';
 // ═══════════════════════════════════════════════════════════════════════════
 
 const asideInitializers = {};
+const initializedAsides = new Set();
+const initializingAsides = new Map();
 
 /**
  * Реєструє ініціалізатор для шаблону aside.
@@ -42,6 +44,25 @@ const asideInitializers = {};
  */
 export function registerAsideInitializer(templateName, initFn) {
     asideInitializers[templateName] = initFn;
+}
+
+async function ensureAsideInitialized(templateName) {
+    const initFn = asideInitializers[templateName];
+    if (!initFn || initializedAsides.has(templateName)) return;
+    if (initializingAsides.has(templateName)) {
+        return initializingAsides.get(templateName);
+    }
+
+    const initPromise = Promise.resolve()
+        .then(() => initFn())
+        .then(() => initializedAsides.add(templateName))
+        .catch(error => {
+            console.error(`[Aside] ${templateName} init error:`, error);
+        })
+        .finally(() => initializingAsides.delete(templateName));
+
+    initializingAsides.set(templateName, initPromise);
+    return initPromise;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -76,9 +97,8 @@ async function loadTemplate(name, body, fab, active = false) {
         }
     }
 
-    // Ініціалізатор
-    if (asideInitializers[name]) {
-        asideInitializers[name]();
+    if (active) {
+        await ensureAsideInitialized(name);
     }
 }
 
@@ -116,7 +136,13 @@ export async function init() {
 export async function loadSingleAsideTemplate(templateName) {
     const body = document.querySelector('.aside .aside-body');
     const fab = document.querySelector('.aside-fab');
-    if (!body || document.getElementById(templateName)) return;
+    if (!body) return;
+
+    if (document.getElementById(templateName)) {
+        await ensureAsideInitialized(templateName);
+        showAsidePanel(templateName);
+        return;
+    }
 
     await loadTemplate(templateName, body, fab, true);
     initDropdowns();
@@ -150,4 +176,6 @@ export function showAsidePanel(templateName) {
         const activeFab = fab.querySelector(`[data-for="${templateName}"]`);
         if (activeFab) activeFab.classList.add('active');
     }
+
+    void ensureAsideInitialized(templateName);
 }

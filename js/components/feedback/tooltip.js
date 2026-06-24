@@ -36,12 +36,16 @@
 
 let tooltipElement;
 let tooltipTimeout;
+let initialized = false;
 
 /**
  * Ініціалізує систему кастомних спливаючих підказок.
  * Викликається один раз з main-core.js.
  */
 export function initTooltips() {
+    if (initialized) return;
+    initialized = true;
+
     document.addEventListener('mouseover', handleMouseOver);
     document.addEventListener('mouseout', handleMouseOut);
     document.addEventListener('mousemove', handleMouseMove);

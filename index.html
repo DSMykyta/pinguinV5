@@ -27,7 +27,7 @@
                 <span class="material-symbols-outlined">edit_note</span>
                 <span class="btn-icon-label">Текст</span>
             </a>
-            <a href="#section-seo" class="btn-icon expand" aria-label="Сео">
+            <a href="#section-seo" class="btn-icon expand" aria-label="Сео" hidden aria-hidden="true">
                 <span class="material-symbols-outlined">search</span>
                 <span class="btn-icon-label">Сео</span>
             </a>
@@ -43,10 +43,6 @@
                 <span class="btn-icon-label">Обробка зображень</span>
             </a>
 
-            <a href="#section-links" class="btn-icon expand" aria-label="Офіційні сайти">
-                <span class="material-symbols-outlined">web</span>
-                <span class="btn-icon-label">Офіційні сайти</span>
-            </a>
         </nav>
 
         <section id="section-table" data-aside-template="aside-table" refresh>
@@ -88,7 +84,7 @@
             </div>
         </section>
 
-        <section id="section-seo" data-aside-template="aside-seo" refresh>
+        <section id="section-seo" hidden inert>
             <div class="section-header">
                 <div class="section-name-block">
                     <div class="section-name">
@@ -258,25 +254,6 @@
             </div>
         </section>
 
-        <section id="section-links" data-aside-template="aside-links" refresh>
-
-            <div class="section-header">
-                <div class="section-name-block">
-                    <div class="section-name">
-                        <h2 class="display-l section-upper">Офіційні сайти</h2>
-                        <button class="btn-icon" aria-label="Інформація">
-                            <span class="material-symbols-outlined">info</span>
-                        </button>
-                    </div>
-                    <span class="body-s">Список посилань на сайти виробників</span>
-                </div>
-            </div>
-            <div class="section-content section-content-full-height">
-                <div id="links-buttons-container" class="chip-list scroll u-p-8" scroll-fade>
-                </div>
-            </div>
-        </section>
-
     </main>
 
     <!-- CONTROLS -->
@@ -297,8 +274,6 @@
     <script type="module" src="js/main-instruments.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
 </body>
 
 </html>

@@ -46,7 +46,7 @@ export function initEditorMode(state) {
     });
 
     dom.editor?.addEventListener('keyup', () => {
-        state.runHook('onInput');
+        state.runHook('onSelectionChange');
     });
 
     dom.editor?.addEventListener('mouseup', () => {

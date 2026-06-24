@@ -167,7 +167,6 @@ async function verifyToken(token) {
     const data = await verifyAccessToken(token);
 
     if (data.valid) {
-      if (data.token) setAuthToken(data.token);
       // Оновлюємо дані користувача
       setUserData(data.user);
       return true;

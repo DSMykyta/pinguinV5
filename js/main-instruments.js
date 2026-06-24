@@ -15,13 +15,14 @@ import { registerAsideInitializer } from './layout/layout-main.js';
 
 // Імпортуємо головні файли генераторів, щоб їхній код виконав реєстрацію
 import './generators/generator-table/gt-main.js';
-import './generators/generator-seo/gse-main.js'
-import './generators/generator-link/gln-main.js';
 import './generators/generator-translate/gtr-main.js';
 import './generators/generator-image/gim-main.js';
 
 registerAsideInitializer('aside-highlight', () => {
     initAsideFab('fab-highlight-aside', {});
+    document.querySelectorAll('#section-text [editor]').forEach(container => {
+        createHighlightEditor(container);
+    });
 });
 
 async function initializeApp() {
@@ -30,7 +31,6 @@ async function initializeApp() {
     } catch (error) {
         console.error('Критична помилка під час ініціалізації:', error);
     }
-    document.querySelectorAll('[editor]').forEach(container => createHighlightEditor(container));
 }
 
 document.addEventListener('DOMContentLoaded', initializeApp);
