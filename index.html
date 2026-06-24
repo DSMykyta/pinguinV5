@@ -27,10 +27,12 @@
                 <span class="material-symbols-outlined">edit_note</span>
                 <span class="btn-icon-label">Текст</span>
             </a>
-            <a href="#section-seo" class="btn-icon expand" aria-label="Сео" hidden aria-hidden="true">
+            <!-- SEO temporarily disabled
+            <a href="#section-seo" class="btn-icon expand" aria-label="Сео">
                 <span class="material-symbols-outlined">search</span>
                 <span class="btn-icon-label">Сео</span>
             </a>
+            -->
             <!-- БІЛЬШЕ НЕ МАЄ ФУНКЦІОНАЛУ
              <a href="#section-translate" class="btn-icon expand" aria-label="Переклад">
                 <span class="material-symbols-outlined">translate</span>
@@ -42,6 +44,13 @@
                 <span class="material-symbols-outlined">imagesmode</span>
                 <span class="btn-icon-label">Обробка зображень</span>
             </a>
+
+            <!-- Official sites temporarily disabled
+            <a href="#section-links" class="btn-icon expand" aria-label="Офіційні сайти">
+                <span class="material-symbols-outlined">web</span>
+                <span class="btn-icon-label">Офіційні сайти</span>
+            </a>
+            -->
 
         </nav>
 
@@ -84,7 +93,8 @@
             </div>
         </section>
 
-        <section id="section-seo" hidden inert>
+        <!-- SEO temporarily disabled
+        <section id="section-seo">
             <div class="section-header">
                 <div class="section-name-block">
                     <div class="section-name">
@@ -101,7 +111,7 @@
 
                 <div class="content-bloc-container spaced">
 
-                    <!-- Джерела: 3 інпути в одному рядку -->
+                    Джерела: 3 інпути в одному рядку
                     <div class="content-bloc">
                         <div class="content-line panel">
                             <div class="input-box">
@@ -120,7 +130,7 @@
                         </div>
                     </div>
 
-                    <!-- Title -->
+                    Title
                     <div class="content-bloc" title="Клікнути, щоб скопіювати">
                         <div class="content-line panel">
                             <span class="panel-label">Title:</span>
@@ -131,7 +141,7 @@
                         </div>
                     </div>
 
-                    <!-- Description -->
+                    Description
                     <div class="content-bloc" title="Клікнути, щоб скопіювати">
                         <div class="content-line panel">
                             <span class="panel-label">Description:</span>
@@ -142,7 +152,7 @@
                         </div>
                     </div>
 
-                    <!-- Keywords -->
+                    Keywords
                     <div class="content-bloc" title="Клікнути, щоб скопіювати">
                         <div class="content-line panel">
                             <span class="panel-label">Keywords:</span>
@@ -163,6 +173,7 @@
                 </div>
             </div>
         </section>
+        SEO temporarily disabled -->
 
         <!-- БІЛЬШЕ НЕ МАЄ ФУНКЦІОНАЛУ 
          <section id="section-translate" data-aside-template="aside-translate" refresh>
@@ -254,6 +265,26 @@
             </div>
         </section>
 
+        <!-- Official sites temporarily disabled
+        <section id="section-links" data-aside-template="aside-links" refresh>
+            <div class="section-header">
+                <div class="section-name-block">
+                    <div class="section-name">
+                        <h2 class="display-l section-upper">Офіційні сайти</h2>
+                        <button class="btn-icon" aria-label="Інформація">
+                            <span class="material-symbols-outlined">info</span>
+                        </button>
+                    </div>
+                    <span class="body-s">Список посилань на сайти виробників</span>
+                </div>
+            </div>
+            <div class="section-content section-content-full-height">
+                <div id="links-buttons-container" class="chip-list scroll u-p-8" scroll-fade>
+                </div>
+            </div>
+        </section>
+        -->
+
     </main>
 
     <!-- CONTROLS -->
@@ -274,6 +305,9 @@
     <script type="module" src="js/main-instruments.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+    <!-- Official sites dependency temporarily disabled
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    -->
 </body>
 
 </html>

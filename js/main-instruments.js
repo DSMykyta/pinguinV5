@@ -15,6 +15,9 @@ import { registerAsideInitializer } from './layout/layout-main.js';
 
 // Імпортуємо головні файли генераторів, щоб їхній код виконав реєстрацію
 import './generators/generator-table/gt-main.js';
+// SEO and official-sites tools are temporarily disabled on Instruments.
+// import './generators/generator-seo/gse-main.js';
+// import './generators/generator-link/gln-main.js';
 import './generators/generator-translate/gtr-main.js';
 import './generators/generator-image/gim-main.js';
 
