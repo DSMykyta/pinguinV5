@@ -16,6 +16,7 @@
 import { getImageDom } from './gim-dom.js';
 import { getImageState } from './gim-state.js';
 import { renderThumbnails, setActiveImage } from './gim-renderer.js';
+import { getEditableFileBaseName } from './gim-filenames.js';
 import { showToast } from '../../components/feedback/toast.js';
 
 /**
@@ -127,6 +128,7 @@ export function handleFileLoad(files) {
                     height: img.height,
                     name: file.name
                 };
+                fileItem.baseName = getEditableFileBaseName(fileItem);
                 imageState.files.push(fileItem);
                 renderThumbnails();
 

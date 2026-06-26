@@ -33,6 +33,15 @@
     background-color: var(--color-main-c);
 }
 
+.photo-upload-list .photo-name-editable {
+    cursor: text;
+}
+
+.photo-upload-list .photo-name-editable:focus {
+    outline: 0;
+    box-shadow: none;
+}
+
 .photo-upload-list::-webkit-scrollbar {
     width: 0;
     height: 0;

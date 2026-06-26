@@ -20,7 +20,7 @@ import { getImageState, resetCanvasState } from './gim-state.js';
 import { updateSaveButtonText } from './gim-saver.js';
 import { setImageSelected, syncSelectAllControl } from './gim-selection.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { extractExtension } from '../../utils/utils-file.js';
+import { getEditableFileBaseName, getItemSourceExtension, setEditableFileBaseName } from './gim-filenames.js';
 
 /**
  * Встановлює активне зображення (для показу в Canvas)
@@ -49,6 +49,35 @@ export function setActiveImage(id) {
 
     // 3. Оновлюємо активний клас мініатюр
     renderThumbnails();
+}
+
+function escapeHtml(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
+function escapeAttribute(value) {
+    return escapeHtml(value)
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function insertPlainTextAtSelection(text) {
+    const selection = window.getSelection();
+    if (!selection?.rangeCount) return;
+
+    const range = selection.getRangeAt(0);
+    range.deleteContents();
+
+    const textNode = document.createTextNode(text);
+    range.insertNode(textNode);
+    range.setStartAfter(textNode);
+    range.setEndAfter(textNode);
+
+    selection.removeAllRanges();
+    selection.addRange(range);
 }
 
 /**
@@ -109,7 +138,8 @@ export function renderThumbnails() {
     dom.emptyState.classList.add('u-hidden');
 
     imageState.files.forEach(item => {
-        const ext = extractExtension(item.name);
+        const ext = getItemSourceExtension(item);
+        const baseName = getEditableFileBaseName(item);
         const isActive = item.id === imageState.activeId;
         const isChecked = imageState.selectedIds.has(item.id);
 
@@ -125,10 +155,15 @@ export function renderThumbnails() {
                         <img src="${item.image.src}" alt="${item.name}" show>
                     </div>
                     <div class="content-line-info">
-                        <span class="content-line-name" title="${item.name}">${item.name}</span>
+                        <span class="content-line-name photo-name-editable"
+                            contenteditable="true"
+                            role="textbox"
+                            spellcheck="false"
+                            title="${escapeAttribute(baseName)}"
+                            aria-label="Назва файлу">${escapeHtml(baseName)}</span>
                         <span class="content-line-label">${item.width}×${item.height}</span>
                     </div>
-                    <span class="tag c-tertiary">${ext}</span>
+                    <span class="tag c-tertiary">${escapeHtml(ext)}</span>
                     <button type="button" class="btn-icon ci-remove" data-delete-id="${item.id}"
                         data-tooltip="Видалити">
                         <span class="material-symbols-outlined">close</span>
@@ -137,7 +172,40 @@ export function renderThumbnails() {
             </div>
         `;
 
-        div.querySelector('.content-line-info').addEventListener('click', () => {
+        const nameInput = div.querySelector('.photo-name-editable');
+
+        nameInput.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        nameInput.addEventListener('input', (e) => {
+            item.baseName = e.target.textContent;
+            e.target.title = e.target.textContent;
+        });
+
+        nameInput.addEventListener('blur', (e) => {
+            setEditableFileBaseName(item, e.target.textContent);
+            const normalized = getEditableFileBaseName(item);
+            e.target.textContent = normalized;
+            e.target.title = normalized;
+        });
+
+        nameInput.addEventListener('paste', (e) => {
+            e.preventDefault();
+            insertPlainTextAtSelection(e.clipboardData?.getData('text/plain') || '');
+            item.baseName = e.target.textContent;
+            e.target.title = e.target.textContent;
+        });
+
+        nameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                e.target.blur();
+            }
+        });
+
+        div.querySelector('.content-line-info').addEventListener('click', (e) => {
+            if (e.target.closest('.photo-name-editable')) return;
             setActiveImage(item.id);
         });
 

@@ -16,6 +16,7 @@
 import { getImageDom } from './gim-dom.js';
 import { getImageState } from './gim-state.js';
 import { renderThumbnails } from './gim-renderer.js';
+import { buildDownloadFileName, createDownloadNameRegistry, getOutputExtension } from './gim-filenames.js';
 import { getPlural } from './gim-utils.js';
 import { showToast } from '../../components/feedback/toast.js';
 
@@ -41,10 +42,8 @@ export async function handleSave() {
     const mimeType = dom.outputFormat.value;
     const isAVIF = mimeType === 'image/avif';
     const quality = 0.9;
-    let extension = 'png';
-    if (mimeType === 'image/jpeg') extension = 'jpg';
-    if (mimeType === 'image/webp') extension = 'webp';
-    if (isAVIF) extension = 'avif';
+    const extension = getOutputExtension(mimeType);
+    const downloadNameRegistry = createDownloadNameRegistry();
 
     // Перевірка підтримки AVIF
     if (isAVIF && !dom.imageCanvas.toDataURL('image/avif')) {
@@ -77,10 +76,9 @@ export async function handleSave() {
 
         const dataUrl = tempCanvas.toDataURL(mimeType, quality);
 
-        let filename = item.name.split('.').slice(0, -1).join('_');
         const a = document.createElement('a');
         a.href = dataUrl;
-        a.download = `${filename}_${finalW}x${finalH}.${extension}`;
+        a.download = buildDownloadFileName(item, extension, downloadNameRegistry, finalW, finalH);
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
