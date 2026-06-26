@@ -46,6 +46,7 @@ export function setActiveImage(id) {
     dom.canvasHeight.placeholder = activeItem.height;
 
     dom.saveBtn.disabled = false;
+    if (dom.saveFolderBtn) dom.saveFolderBtn.disabled = false;
 
     // 3. Оновлюємо активний клас мініатюр
     renderThumbnails();

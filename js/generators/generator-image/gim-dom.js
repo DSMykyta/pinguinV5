@@ -28,6 +28,7 @@ export function getImageDom() {
 
         // Aside (футер)
         saveBtn: document.getElementById('gim-save-btn'),
+        saveFolderBtn: document.getElementById('gim-save-folder-btn'),
         outputFormat: document.getElementById('gim-output-format'),
         
         // Перемикачі режимів

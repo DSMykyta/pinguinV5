@@ -1,16 +1,10 @@
 // js/generators/generator-image/gim-saver.js
 
 /**
- * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║              IMAGE TOOL - FILE SAVER                                      ║
- * ╚══════════════════════════════════════════════════════════════════════════╝
+ * IMAGE TOOL - FILE SAVER
  *
- * ПРИЗНАЧЕННЯ:
- * Збереження оброблених зображень у різних форматах.
- *
- * ЕКСПОРТОВАНІ ФУНКЦІЇ:
- * - handleSave() - Зберегти вибрані зображення
- * - updateSaveButtonText() - Оновити текст кнопки збереження
+ * Owns exporting processed images. Both normal browser download and direct
+ * folder saving use the same render/name pipeline.
  */
 
 import { getImageDom } from './gim-dom.js';
@@ -20,83 +14,183 @@ import { buildDownloadFileName, createDownloadNameRegistry, getOutputExtension }
 import { getPlural } from './gim-utils.js';
 import { showToast } from '../../components/feedback/toast.js';
 
-/**
- * Зберігає зображення (з конвертацією)
- */
 export async function handleSave() {
     const dom = getImageDom();
     const imageState = getImageState();
+    const idsToProcess = getIdsToProcess(imageState);
 
-    const idsToProcess = imageState.selectedIds.size > 0
-        ? Array.from(imageState.selectedIds)
-        : (imageState.activeId ? [imageState.activeId] : []);
+    if (!validateIdsToProcess(idsToProcess)) return;
 
-    if (idsToProcess.length === 0) {
-        showToast('Немає зображень для збереження', 'warning');
+    await saveProcessedImages({
+        dom,
+        imageState,
+        idsToProcess,
+        saveBlob: downloadBlob
+    });
+}
+
+export async function handleSaveToFolder() {
+    const dom = getImageDom();
+    const imageState = getImageState();
+    const idsToProcess = getIdsToProcess(imageState);
+
+    if (!validateIdsToProcess(idsToProcess)) return;
+
+    if (!window.showDirectoryPicker) {
+        showToast('Браузер не підтримує вибір папки. Використай Chrome/Edge або стандартне збереження.', 'warning');
         return;
     }
 
-    dom.saveBtn.disabled = true;
+    let directoryHandle;
+    try {
+        directoryHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+    } catch (error) {
+        if (error?.name !== 'AbortError') {
+            console.error('[GIM Saver] Directory picker failed:', error);
+            showToast('Не вдалося обрати папку для збереження', 'error');
+        }
+        return;
+    }
+
+    await saveProcessedImages({
+        dom,
+        imageState,
+        idsToProcess,
+        saveBlob: (blob, fileName) => writeBlobToDirectory(directoryHandle, blob, fileName)
+    });
+}
+
+async function saveProcessedImages({ dom, imageState, idsToProcess, saveBlob }) {
+    setSaveButtonsDisabled(dom, true);
     showToast(`Обробка ${idsToProcess.length} зображень...`, 'info');
 
     const mimeType = dom.outputFormat.value;
-    const isAVIF = mimeType === 'image/avif';
     const quality = 0.9;
     const extension = getOutputExtension(mimeType);
     const downloadNameRegistry = createDownloadNameRegistry();
 
-    // Перевірка підтримки AVIF
-    if (isAVIF && !dom.imageCanvas.toDataURL('image/avif')) {
-        showToast('Ваш браузер не підтримує конвертацію у формат AVIF.', 'error');
-        dom.saveBtn.disabled = false;
+    if (!supportsCanvasMimeType(dom.imageCanvas, mimeType)) {
+        showToast('Браузер не підтримує обраний формат.', 'error');
+        setSaveButtonsDisabled(dom, false);
         return;
     }
 
-    // Обробляємо кожне вибране зображення
-    for (const id of idsToProcess) {
-        const item = imageState.files.find(f => f.id === id);
-        if (!item) continue;
+    try {
+        for (const id of idsToProcess) {
+            const item = imageState.files.find(f => f.id === id);
+            if (!item) continue;
 
-        const tempCanvas = document.createElement('canvas');
-        const tempCtx = tempCanvas.getContext('2d');
+            const { blob, width, height } = await createProcessedBlob(item, mimeType, quality);
+            const fileName = buildDownloadFileName(item, extension, downloadNameRegistry, width, height);
 
-        const finalW = item.width;
-        const finalH = item.height;
-
-        tempCanvas.width = finalW;
-        tempCanvas.height = finalH;
-
-        // JPEG не підтримує прозорість — заливаємо білим фоном
-        if (mimeType === 'image/jpeg') {
-            tempCtx.fillStyle = '#ffffff';
-            tempCtx.fillRect(0, 0, finalW, finalH);
+            await saveBlob(blob, fileName);
+            await new Promise(resolve => setTimeout(resolve, 100));
         }
 
-        tempCtx.drawImage(item.image, 0, 0, finalW, finalH);
+        showToast(`${idsToProcess.length} ${getPlural(idsToProcess.length, 'файл', 'файли', 'файлів')} збережено`, 'success');
 
-        const dataUrl = tempCanvas.toDataURL(mimeType, quality);
-
-        const a = document.createElement('a');
-        a.href = dataUrl;
-        a.download = buildDownloadFileName(item, extension, downloadNameRegistry, finalW, finalH);
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-
-        await new Promise(resolve => setTimeout(resolve, 100));
+        imageState.selectedIds.clear();
+        renderThumbnails();
+        updateSaveButtonText();
+    } catch (error) {
+        console.error('[GIM Saver] Save failed:', error);
+        showToast('Не вдалося зберегти зображення', 'error');
+    } finally {
+        setSaveButtonsDisabled(dom, false);
     }
-
-    showToast(`✅ ${idsToProcess.length} ${getPlural(idsToProcess.length, 'файл', 'файли', 'файлів')} збережено!`, 'success');
-    dom.saveBtn.disabled = false;
-
-    imageState.selectedIds.clear();
-    renderThumbnails();
-    updateSaveButtonText();
 }
 
-/**
- * Оновлює текст кнопки збереження
- */
+function getIdsToProcess(imageState) {
+    return imageState.selectedIds.size > 0
+        ? Array.from(imageState.selectedIds)
+        : (imageState.activeId ? [imageState.activeId] : []);
+}
+
+function validateIdsToProcess(idsToProcess) {
+    if (idsToProcess.length > 0) return true;
+    showToast('Немає зображень для збереження', 'warning');
+    return false;
+}
+
+function setSaveButtonsDisabled(dom, disabled) {
+    dom.saveBtn.disabled = disabled;
+    if (dom.saveFolderBtn) dom.saveFolderBtn.disabled = disabled;
+}
+
+function supportsCanvasMimeType(canvas, mimeType) {
+    if (!mimeType || mimeType === 'image/png') return true;
+    return canvas.toDataURL(mimeType).startsWith(`data:${mimeType}`);
+}
+
+async function createProcessedBlob(item, mimeType, quality) {
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    const finalW = item.width;
+    const finalH = item.height;
+
+    tempCanvas.width = finalW;
+    tempCanvas.height = finalH;
+
+    if (mimeType === 'image/jpeg') {
+        tempCtx.fillStyle = '#ffffff';
+        tempCtx.fillRect(0, 0, finalW, finalH);
+    }
+
+    tempCtx.drawImage(item.image, 0, 0, finalW, finalH);
+
+    const blob = await canvasToBlob(tempCanvas, mimeType, quality);
+    return { blob, width: finalW, height: finalH };
+}
+
+function canvasToBlob(canvas, mimeType, quality) {
+    return new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
+            if (blob) {
+                resolve(blob);
+            } else {
+                reject(new Error(`Canvas export failed for ${mimeType}`));
+            }
+        }, mimeType, quality);
+    });
+}
+
+async function downloadBlob(blob, fileName) {
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = objectUrl;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(objectUrl);
+}
+
+async function writeBlobToDirectory(directoryHandle, blob, fileName) {
+    const safeFileName = await getAvailableFileName(directoryHandle, fileName);
+    const fileHandle = await directoryHandle.getFileHandle(safeFileName, { create: true });
+    const writable = await fileHandle.createWritable();
+    await writable.write(blob);
+    await writable.close();
+}
+
+async function getAvailableFileName(directoryHandle, fileName) {
+    const dotIndex = fileName.lastIndexOf('.');
+    const baseName = dotIndex > 0 ? fileName.slice(0, dotIndex) : fileName;
+    const extension = dotIndex > 0 ? fileName.slice(dotIndex) : '';
+
+    let index = 0;
+    while (true) {
+        const candidate = index === 0 ? fileName : `${baseName}-${index}${extension}`;
+        try {
+            await directoryHandle.getFileHandle(candidate);
+            index += 1;
+        } catch (error) {
+            if (error?.name === 'NotFoundError') return candidate;
+            throw error;
+        }
+    }
+}
+
 export function updateSaveButtonText() {
     const dom = getImageDom();
     const imageState = getImageState();
