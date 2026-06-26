@@ -16,7 +16,7 @@ import { getTableDOM } from './gt-dom.js';
 import { createAndAppendRow, initializeEmptyRow } from './gt-row-manager.js';
 import { getNutritionFacts, getVitamins, getAminoAcids } from './gt-data-provider.js';
 import { closeModal } from '../../components/modal/modal-main.js';
-import { calculatePercentages, checkForEmptyNutritionFacts, markEssentialAminoAcids } from './gt-calculator.js';
+import { checkForEmptyNutritionFacts, updateCalculatedTableHints } from './gt-calculator.js';
 import { generateHtmlTable } from './gt-html-builder.js';
 import { generateBrText } from './gt-br-builder.js';
 import { processAndFillInputs } from './gt-magic-parser.js';
@@ -80,8 +80,7 @@ export function setupEventListeners(panelEl) {
     }
 
     const debouncedCalculateAndSave = debounce(() => {
-        calculatePercentages();
-        markEssentialAminoAcids();
+        updateCalculatedTableHints();
         autoSaveSession();
     }, 300);
     if (!dom.rowsContainer.dataset.gtInputEventsBound) {

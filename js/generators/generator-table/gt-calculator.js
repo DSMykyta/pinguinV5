@@ -32,40 +32,65 @@ export function init() {
 // CALCULATIONS
 // ============================================================================
 
-/**
- * Головна функція для розрахунку відсотків.
- */
-export function calculatePercentages() {
+function collectInputRows(rowsContainer) {
+    return Array.from(rowsContainer.querySelectorAll(SELECTORS.INPUTS_BLOC)).map(row => ({
+        left: row.querySelector(SELECTORS.INPUT_LEFT),
+        right: row.querySelector(SELECTORS.INPUT_RIGHT),
+        tag: row.querySelector(SELECTORS.INPUT_TAG)
+    }));
+}
+
+export function updateCalculatedTableHints() {
     const dom = getTableDOM();
     if (!dom.rowsContainer) return;
 
-    const servingRow = Array.from(dom.rowsContainer.querySelectorAll(SELECTORS.INPUTS_BLOC))
-        .find(r => r.querySelector(SELECTORS.INPUT_LEFT).value.match(NUTRITION_PATTERNS.SERVING));
+    const rowsData = collectInputRows(dom.rowsContainer);
+    calculatePercentages(rowsData);
+    markEssentialAminoAcids(rowsData);
+}
+
+/**
+ * Головна функція для розрахунку відсотків.
+ */
+export function calculatePercentages(rowsData = null) {
+    const dom = getTableDOM();
+    if (!dom.rowsContainer) return;
+
+    const rows = rowsData || collectInputRows(dom.rowsContainer);
+    const servingRow = rows.find(item => (item.left?.value || '').match(NUTRITION_PATTERNS.SERVING));
 
     let servingWeight = 0;
     if (servingRow) {
-        const weightMatch = servingRow.querySelector(SELECTORS.INPUT_RIGHT).value.match(/(\d+(\.\d+)?)/);
+        const weightMatch = (servingRow.right?.value || '').match(/(\d+(\.\d+)?)/);
         if (weightMatch) servingWeight = parseFloat(weightMatch[0]);
     }
 
     if (servingWeight === 0) {
-        dom.rowsContainer.querySelectorAll(SELECTORS.INPUT_TAG).forEach(span => {
-            span.textContent = '';
-            span.classList.remove('visible');
+        rows.forEach(item => {
+            if (!item.tag) return;
+            item.tag.textContent = '';
+            item.tag.classList.remove('visible');
         });
         return;
     }
 
-    NUTRITION_PATTERNS.NUTRIENTS.forEach(nutrient => {
-        const row = Array.from(dom.rowsContainer.querySelectorAll(SELECTORS.INPUTS_BLOC))
-            .find(r => r.querySelector(SELECTORS.INPUT_LEFT).value.includes(nutrient));
+    const nutrientRows = new Map();
+    rows.forEach(item => {
+        const leftValue = item.left?.value || '';
+        NUTRITION_PATTERNS.NUTRIENTS.forEach(nutrient => {
+            if (!nutrientRows.has(nutrient) && leftValue.includes(nutrient)) {
+                nutrientRows.set(nutrient, item);
+            }
+        });
+    });
 
-        if (row) {
-            const value = parseFloat(row.querySelector(SELECTORS.INPUT_RIGHT).value.replace(',', '.')) || 0;
+    NUTRITION_PATTERNS.NUTRIENTS.forEach(nutrient => {
+        const item = nutrientRows.get(nutrient);
+        if (item?.tag) {
+            const value = parseFloat((item.right?.value || '').replace(',', '.')) || 0;
             const percentage = value > 0 ? `${Math.round((value / servingWeight) * 100)}%` : '';
-            const toolSpan = row.querySelector(SELECTORS.INPUT_TAG);
-            toolSpan.textContent = percentage;
-            toolSpan.classList.toggle('u-hidden', !percentage);
+            item.tag.textContent = percentage;
+            item.tag.classList.toggle('u-hidden', !percentage);
         }
     });
 }
@@ -89,15 +114,15 @@ const ESSENTIAL_AMINOS = [
 /**
  * Позначає незамінні амінокислоти кольоровим індикатором.
  */
-export function markEssentialAminoAcids() {
+export function markEssentialAminoAcids(rowsData = null) {
     const dom = getTableDOM();
     if (!dom.rowsContainer) return;
 
-    const rows = dom.rowsContainer.querySelectorAll(SELECTORS.INPUTS_BLOC);
+    const rows = rowsData || collectInputRows(dom.rowsContainer);
 
-    rows.forEach(row => {
-        const leftValue = row.querySelector(SELECTORS.INPUT_LEFT)?.value.toLowerCase() || '';
-        const toolSpan = row.querySelector(SELECTORS.INPUT_TAG);
+    rows.forEach(item => {
+        const leftValue = item.left?.value.toLowerCase() || '';
+        const toolSpan = item.tag;
 
         if (!toolSpan) return;
 
