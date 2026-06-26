@@ -67,7 +67,7 @@ export async function loadSession() {
 
         dom.rowsContainer.innerHTML = '';
         for (const data of rowsData) {
-            const newRow = await createAndAppendRow();
+            const newRow = await createAndAppendRow({ autoSave: false });
             newRow.querySelector('.input-box.large input, .input-box.large textarea').value = data.left;
             newRow.querySelector('.input-box.small input, .input-box.small textarea').value = data.right;
             newRow.className = '';

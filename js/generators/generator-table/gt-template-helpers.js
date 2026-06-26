@@ -15,18 +15,19 @@
 
 import { createAndAppendRow, initializeEmptyRow } from './gt-row-manager.js';
 import { handleInputTypeSwitch } from './gt-row-renderer.js';
+import { autoSaveSession } from './gt-session-manager.js';
 
 /**
  * Додає список елементів як окремі рядки в таблицю
  * @param {Array<string>} items - Масив елементів для додавання
  */
-export function addSampleList(items) {
-    items.forEach(item => {
-        createAndAppendRow().then(row => {
-            row.classList.add('added');
-            row.querySelector('.input-box.large input, .input-box.large textarea').value = item;
-        });
-    });
+export async function addSampleList(items) {
+    for (const item of items) {
+        const row = await createAndAppendRow({ autoSave: false });
+        row.classList.add('added');
+        row.querySelector('.input-box.large input, .input-box.large textarea').value = item;
+    }
+    autoSaveSession();
 }
 
 /**
@@ -37,13 +38,13 @@ export async function addSampleTemplate(type) {
     await initializeEmptyRow();
 
     if (type === 'ingredients') {
-        const headerRow = await createAndAppendRow();
+        const headerRow = await createAndAppendRow({ autoSave: false });
         headerRow.classList.remove('td');
         headerRow.classList.add('th-strong', 'single');
         headerRow.querySelector('.input-box.large input, .input-box.large textarea').value = 'Ингредиенты';
     }
 
-    const fieldRow = await createAndAppendRow();
+    const fieldRow = await createAndAppendRow({ autoSave: false });
     handleInputTypeSwitch(fieldRow, 'field');
     fieldRow.classList.remove('td');
     fieldRow.classList.add('single');
@@ -54,4 +55,5 @@ export async function addSampleTemplate(type) {
     if (type === 'composition') {
         fieldRow.querySelector('.input-box.large input, .input-box.large textarea').value = 'Состав может незначительно отличаться в зависимости от вкуса';
     }
+    autoSaveSession();
 }

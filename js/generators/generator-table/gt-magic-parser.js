@@ -20,6 +20,7 @@ import { createAndAppendRow } from './gt-row-manager.js';
 import { ROW_CLASSES } from './gt-config.js';
 import { getTableDOM } from './gt-dom.js';
 import { handleInputTypeSwitch } from './gt-row-renderer.js';
+import { autoSaveSession } from './gt-session-manager.js';
 
 // LEGO Magic Module
 import {
@@ -76,7 +77,7 @@ export async function processAndFillInputs(text) {
     for (const entry of entries) {
         // Розділювач
         if (entry.isSeparator) {
-            const newRow = await createAndAppendRow();
+            const newRow = await createAndAppendRow({ autoSave: false });
             newRow.classList.remove(ROW_CLASSES.TD);
             newRow.classList.add(ROW_CLASSES.NEW_TABLE);
             continue;
@@ -116,7 +117,7 @@ export async function processAndFillInputs(text) {
         }
 
         // Створюємо новий рядок
-        const newRow = await createAndAppendRow();
+        const newRow = await createAndAppendRow({ autoSave: false });
         newRow.querySelector('.input-box.large input, .input-box.large textarea').value = entry.left;
         newRow.querySelector('.input-box.small input, .input-box.small textarea').value = entry.right;
 
@@ -149,6 +150,7 @@ export async function processAndFillInputs(text) {
             applyClass(newRow, ROW_CLASSES.COLSPAN2);
         }
     }
+    autoSaveSession();
 }
 
 // ============================================================================

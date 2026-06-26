@@ -32,7 +32,8 @@ export function setupEventListeners(panelEl) {
     if (!dom.rowsContainer) return;
 
     const rightPanel = panelEl || document.querySelector('.aside');
-    if (rightPanel) {
+    if (rightPanel && !rightPanel.dataset.gtPanelEventsBound) {
+        rightPanel.dataset.gtPanelEventsBound = 'true';
         rightPanel.addEventListener('click', (event) => {
             const target = event.target.closest('[id]');
             if (!target) return;
@@ -83,7 +84,10 @@ export function setupEventListeners(panelEl) {
         markEssentialAminoAcids();
         autoSaveSession();
     }, 300);
-    dom.rowsContainer.addEventListener('input', debouncedCalculateAndSave);
+    if (!dom.rowsContainer.dataset.gtInputEventsBound) {
+        dom.rowsContainer.dataset.gtInputEventsBound = 'true';
+        dom.rowsContainer.addEventListener('input', debouncedCalculateAndSave);
+    }
 }
 
 

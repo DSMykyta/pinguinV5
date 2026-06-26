@@ -21,12 +21,13 @@ import { ROW_CLASSES } from './gt-config.js';
 /**
  * Створює новий рядок і додає його в кінець контейнера.
  */
-export async function createAndAppendRow() {
+export async function createAndAppendRow(options = {}) {
+    const { autoSave = true } = options;
     const dom = getTableDOM();
     const newRow = await renderNewRow();
     dom.rowsContainer.appendChild(newRow);
-    initDropdowns();
-    autoSaveSession();
+    initDropdowns(newRow);
+    if (autoSave) autoSaveSession();
     return newRow;
 }
 
@@ -51,7 +52,7 @@ export function deleteRow(row) {
 export async function insertRowAbove(referenceRow) {
     const newRow = await renderNewRow();
     referenceRow.parentNode.insertBefore(newRow, referenceRow);
-    initDropdowns();
+    initDropdowns(newRow);
     autoSaveSession();
 }
 
@@ -62,7 +63,7 @@ export async function insertRowAbove(referenceRow) {
 export async function insertRowBelow(referenceRow) {
     const newRow = await renderNewRow();
     referenceRow.parentNode.insertBefore(newRow, referenceRow.nextSibling);
-    initDropdowns();
+    initDropdowns(newRow);
     autoSaveSession();
 }
 
@@ -83,7 +84,7 @@ export async function initializeFirstRow() {
  * Створює рядок-розділювач між таблицями.
  */
 export async function initializeEmptyRow() {
-    const newRow = await createAndAppendRow();
+    const newRow = await createAndAppendRow({ autoSave: false });
     newRow.classList.remove(ROW_CLASSES.TD);
     newRow.classList.add(ROW_CLASSES.NEW_TABLE);
     autoSaveSession();
