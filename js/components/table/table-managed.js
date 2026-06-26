@@ -54,8 +54,10 @@ export function createManagedTable(config) {
     // ── Auto-detect charm-generated columns dropdown ──
     const effectiveColumnsListId = columnsListId || containerEl?._charmColumnsListId;
 
-    // ── Pagination: if charm [pagination] handles it, don't slice in managed table ──
+    // Declarative pagination controls the page, while managed table limits
+    // how many rows are actually rendered into the DOM.
     const hasCharmPagination = containerEl?.hasAttribute('pagination');
+    const declaredPageSize = parseInt(containerEl?.getAttribute('pagination'), 10);
 
     // ── Internal state ──
     let allData = [...data];
@@ -63,7 +65,9 @@ export function createManagedTable(config) {
     let searchQuery = '';
     let columnFilters = {};
     let currentPage = 1;
-    let currentPageSize = hasCharmPagination ? 999999 : (pageSize || 999999);
+    let currentPageSize = hasCharmPagination
+        ? (Number.isFinite(declaredPageSize) && declaredPageSize > 0 ? declaredPageSize : 10)
+        : (pageSize || 999999);
     let visibleColumnIds = columns.filter(c => c.checked !== false).map(c => c.id);
 
     let isActive = true;
@@ -252,6 +256,11 @@ export function createManagedTable(config) {
 
     // ── 4. Render ──
     function renderPage() {
+        const totalPages = currentPageSize >= 100000
+            ? 1
+            : Math.max(1, Math.ceil(filteredData.length / currentPageSize));
+        currentPage = Math.min(Math.max(1, currentPage), totalPages);
+
         let pageData;
         if (currentPageSize < 100000) {
             const start = (currentPage - 1) * currentPageSize;
@@ -262,12 +271,29 @@ export function createManagedTable(config) {
 
         tableAPI.render(pageData);
         updateStats(pageData.length, filteredData.length);
+        containerEl?._paginationCharm?.update();
     }
 
     function updateStats(shown, total) {
         if (statsEl) {
             statsEl.textContent = `Показано ${shown} з ${total}`;
         }
+    }
+
+    const paginationAdapter = hasCharmPagination ? {
+        getTotalItems: () => filteredData.length,
+        getPage: () => currentPage,
+        getPageSize: () => currentPageSize,
+        setPage(page, size = currentPageSize) {
+            currentPage = page;
+            currentPageSize = size;
+            renderPage();
+        }
+    } : null;
+
+    if (paginationAdapter && containerEl) {
+        containerEl._paginationAdapter = paginationAdapter;
+        containerEl._paginationCharm?.connect(paginationAdapter);
     }
 
     // ── Initial render ──
@@ -356,6 +382,10 @@ export function createManagedTable(config) {
 
         destroy() {
             unbindSearchInput();
+            if (containerEl?._paginationAdapter === paginationAdapter) {
+                containerEl._paginationCharm?.connect(null);
+                delete containerEl._paginationAdapter;
+            }
             tableAPI.destroy?.();
         }
     };

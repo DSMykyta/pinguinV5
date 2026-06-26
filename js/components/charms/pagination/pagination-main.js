@@ -71,6 +71,7 @@ function createInstance(el) {
         statsEl: null,
         observer: null,
         _mutationTimer: null,
+        adapter: el._paginationAdapter || null,
         _active: isActive
     };
 
@@ -94,16 +95,16 @@ function createInstance(el) {
     // Public API
     el._paginationCharm = {
         setPage(page) {
-            instance.state.currentPage = page;
-            applyPage(instance);
+            changePage(instance, page, instance.state.pageSize);
         },
         getPage() {
             return instance.state.currentPage;
         },
         setPageSize(size) {
-            instance.state.pageSize = size;
-            instance.state.currentPage = 1;
-            if (instance.fab) instance.fab.updateLabel(size);
+            changePage(instance, 1, size);
+        },
+        connect(adapter) {
+            instance.adapter = adapter;
             applyPage(instance);
         },
         activate() {
@@ -170,9 +171,7 @@ function setupControls(instance) {
         value: instance.state.pageSize,
         onChange: (newSize) => {
             if (!instance._active) return;
-            instance.state.pageSize = newSize;
-            instance.state.currentPage = 1;
-            applyPage(instance);
+            changePage(instance, 1, newSize);
         },
         formatLabel: formatPageSize
     });
@@ -209,8 +208,7 @@ function setupNavClickHandler(navContainer, instance) {
             }
 
             if (newPage !== currentPage) {
-                active.state.currentPage = newPage;
-                applyPage(active);
+                changePage(active, newPage, pageSize);
             }
         });
     }
@@ -246,15 +244,47 @@ function getDataChildren(el) {
     );
 }
 
+function getAdapter(instance) {
+    return instance.adapter || instance.el._paginationAdapter || null;
+}
+
+function changePage(instance, page, pageSize) {
+    instance.state.currentPage = page;
+    instance.state.pageSize = pageSize;
+
+    const adapter = getAdapter(instance);
+    if (adapter?.setPage) {
+        adapter.setPage(page, pageSize);
+        return;
+    }
+
+    applyPage(instance);
+}
+
 /**
  * Застосувати пагінацію — show/hide дітей, оновити UI
  */
 function applyPage(instance) {
     if (!instance._active) return;
 
-    const children = getDataChildren(instance.el);
+    const adapter = getAdapter(instance);
+    const children = adapter ? [] : getDataChildren(instance.el);
+
+    if (adapter) {
+        const adapterPage = Number(adapter.getPage?.());
+        const adapterPageSize = Number(adapter.getPageSize?.());
+        if (Number.isFinite(adapterPage) && adapterPage > 0) {
+            instance.state.currentPage = adapterPage;
+        }
+        if (Number.isFinite(adapterPageSize) && adapterPageSize > 0) {
+            instance.state.pageSize = adapterPageSize;
+        }
+    }
+
     const { pageSize } = instance.state;
-    const totalItems = children.length;
+    const totalItems = adapter
+        ? Math.max(0, Number(adapter.getTotalItems?.()) || 0)
+        : children.length;
     const totalPages = pageSize >= 100000 ? 1 : Math.ceil(totalItems / pageSize);
 
     // Clamp page
@@ -268,14 +298,15 @@ function applyPage(instance) {
     const start = (instance.state.currentPage - 1) * pageSize;
     const end = start + pageSize;
 
-    // Show/hide children
-    children.forEach((child, i) => {
-        if (pageSize >= 100000 || (i >= start && i < end)) {
-            child.classList.remove('paginated-hidden');
-        } else {
-            child.classList.add('paginated-hidden');
-        }
-    });
+    if (!adapter) {
+        children.forEach((child, i) => {
+            if (pageSize >= 100000 || (i >= start && i < end)) {
+                child.classList.remove('paginated-hidden');
+            } else {
+                child.classList.add('paginated-hidden');
+            }
+        });
+    }
 
     instance.state.totalItems = totalItems;
 
@@ -319,8 +350,11 @@ function setupObserver(instance) {
     instance.observer = new MutationObserver(() => {
         clearTimeout(instance._mutationTimer);
         instance._mutationTimer = setTimeout(() => {
-            const newTotal = getDataChildren(instance.el).length;
-            if (newTotal !== instance.state.totalItems) {
+            const adapter = getAdapter(instance);
+            const newTotal = adapter
+                ? Math.max(0, Number(adapter.getTotalItems?.()) || 0)
+                : getDataChildren(instance.el).length;
+            if (!adapter && newTotal !== instance.state.totalItems) {
                 instance.state.currentPage = 1;
             }
             applyPage(instance);
@@ -329,4 +363,3 @@ function setupObserver(instance) {
 
     instance.observer.observe(instance.el, { childList: true });
 }
-
