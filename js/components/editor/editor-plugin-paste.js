@@ -5,7 +5,7 @@
  * ║  🔌 ПЛАГІН — Copy & Paste                                                 ║
  * ╠══════════════════════════════════════════════════════════════════════════╣
  * ║                                                                          ║
- * ║  Ctrl+C копіює чистий HTML, Ctrl+Shift+C — plain text.                   ║
+ * ║  Ctrl+C копіює чистий HTML, Ctrl+Alt+C — plain text.                     ║
  * ║  Вставка sanitize-ує HTML перед вставкою в редактор.                     ║
  * ║  Можна видалити — браузер використає стандартну поведінку.               ║
  * ║                                                                          ║
@@ -60,11 +60,11 @@ export function init(state) {
         showToast('Скопійовано HTML код');
     });
 
-    // Ctrl+Shift+C — копіювати тільки текст без HTML розмітки
+    // Ctrl+Alt+C — копіювати тільки текст без HTML розмітки
     state.registerHook('onKeydown', (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'c') {
+        if ((e.ctrlKey || e.metaKey) && e.altKey && !e.shiftKey && e.key.toLowerCase() === 'c') {
             const selection = window.getSelection();
-            const plainText = selection.toString();
+            const plainText = selection.toString() || state.getPlainText();
             if (plainText) {
                 e.preventDefault();
                 navigator.clipboard.writeText(plainText).then(() => {
