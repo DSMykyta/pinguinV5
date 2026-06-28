@@ -81,6 +81,37 @@ function insertPlainTextAtSelection(text) {
     selection.addRange(range);
 }
 
+function scrollEditableNameToCaret(element) {
+    requestAnimationFrame(() => {
+        if (document.activeElement !== element) return;
+
+        const selection = window.getSelection();
+        if (!selection?.rangeCount || !element.contains(selection.anchorNode)) {
+            element.scrollLeft = element.scrollWidth;
+            return;
+        }
+
+        const range = selection.getRangeAt(0).cloneRange();
+        range.collapse(false);
+
+        const rects = range.getClientRects();
+        const caretRect = rects[rects.length - 1] || range.getBoundingClientRect();
+        const elementRect = element.getBoundingClientRect();
+        const inset = 6;
+
+        if (!caretRect || (caretRect.left === 0 && caretRect.right === 0)) {
+            element.scrollLeft = element.scrollWidth;
+            return;
+        }
+
+        if (caretRect.right > elementRect.right - inset) {
+            element.scrollLeft += caretRect.right - elementRect.right + inset;
+        } else if (caretRect.left < elementRect.left + inset) {
+            element.scrollLeft -= elementRect.left - caretRect.left + inset;
+        }
+    });
+}
+
 /**
  * Оновлює Canvas, масштабуючи зображення (зберігаючи пропорції)
  * @param {HTMLImageElement} image - Зображення для відображення
@@ -179,9 +210,18 @@ export function renderThumbnails() {
             e.stopPropagation();
         });
 
+        nameInput.addEventListener('focus', (e) => {
+            scrollEditableNameToCaret(e.target);
+        });
+
+        nameInput.addEventListener('mouseup', (e) => {
+            scrollEditableNameToCaret(e.target);
+        });
+
         nameInput.addEventListener('input', (e) => {
             item.baseName = e.target.textContent;
             e.target.title = e.target.textContent;
+            scrollEditableNameToCaret(e.target);
         });
 
         nameInput.addEventListener('blur', (e) => {
@@ -189,6 +229,7 @@ export function renderThumbnails() {
             const normalized = getEditableFileBaseName(item);
             e.target.textContent = normalized;
             e.target.title = normalized;
+            e.target.scrollLeft = 0;
         });
 
         nameInput.addEventListener('paste', (e) => {
@@ -196,13 +237,25 @@ export function renderThumbnails() {
             insertPlainTextAtSelection(e.clipboardData?.getData('text/plain') || '');
             item.baseName = e.target.textContent;
             e.target.title = e.target.textContent;
+            scrollEditableNameToCaret(e.target);
         });
 
         nameInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 e.target.blur();
+                return;
             }
+
+            scrollEditableNameToCaret(e.target);
+        });
+
+        nameInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                return;
+            }
+
+            scrollEditableNameToCaret(e.target);
         });
 
         div.querySelector('.content-line-info').addEventListener('click', (e) => {

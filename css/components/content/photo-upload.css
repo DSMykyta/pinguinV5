@@ -35,11 +35,23 @@
 
 .photo-upload-list .photo-name-editable {
     cursor: text;
+    display: block;
+    max-width: 100%;
+    min-width: 0;
 }
 
 .photo-upload-list .photo-name-editable:focus {
     outline: 0;
     box-shadow: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    text-overflow: clip;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.photo-upload-list .photo-name-editable:focus::-webkit-scrollbar {
+    display: none;
 }
 
 .photo-upload-list::-webkit-scrollbar {
