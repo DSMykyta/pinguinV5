@@ -159,11 +159,8 @@ export function createHighlightEditor(container, options = {}) {
     }
 
     // charm:refresh на батьківській секції → очистити редактор
-    container.closest('section[refresh]')
-        ?.addEventListener('charm:refresh', () => publicApi.clear());
-
     // Публічне API
-    return {
+    const publicApi = {
         getValue: () => sanitizeHtml(state.getCleanHtml(), {
             allowLinks: state.allowLinks,
             allowImages: state.allowImages,
@@ -187,6 +184,11 @@ export function createHighlightEditor(container, options = {}) {
         destroy: () => container.innerHTML = '',
         getState: () => state,
     };
+
+    container.closest('section[refresh]')
+        ?.addEventListener('charm:refresh', () => publicApi.clear());
+
+    return publicApi;
 }
 
 function initFocusSplit() {
