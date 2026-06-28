@@ -101,7 +101,10 @@ export function init(state) {
             }
 
             // Тільки onValidate (br charm зробить фінальну очистку)
-            setTimeout(() => state.runHook('onValidate'), 50);
+            setTimeout(() => {
+                state.runHook('onInput');
+                state.runHook('onValidate');
+            }, 50);
             return;
         }
 
@@ -131,6 +134,7 @@ export function init(state) {
         // Санітизуємо весь контент після вставки
         setTimeout(() => {
             sanitizeEditor(state);
+            state.runHook('onInput');
             state.runHook('onValidate');
         }, 50);
     }, { plugin: 'paste' });

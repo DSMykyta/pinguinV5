@@ -371,7 +371,7 @@ export function init(state) {
     // ================================================================
 
     const debouncedValidate = debounce(validate, 500);
-    state.registerHook('onValidate', debouncedValidate, { plugin: 'validation' });
+    state.registerHook('onValidate', validate, { plugin: 'validation' });
     state.registerHook('onInput', debouncedValidate, { plugin: 'validation' });
     state.registerHook('onModeChange', validate, { plugin: 'validation' });
 }
