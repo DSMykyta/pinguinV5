@@ -3,6 +3,10 @@
 > Порядок виконання: від фундаменту до верхніх рівнів.
 > Кожна наступна фаза спирається на попередню — так не доведеться переробляти.
 
+> **Актуалізовано 2026-07-10.** Фази 1–2 і 5 завершені. Фаза 3 завершена,
+> крім виділення `glossary-state.js`. Старий `mapper/` уже розділено на
+> `entities/`, `marketplaces/` і спільний `js/data/`. Поточна робота — Фаза 4.
+
 ---
 
 ## Поточний стан: інвентаризація
@@ -430,50 +434,51 @@ Banned-words (4,076 рядків) — скоріш за все так.
 ## Порядок виконання (чеклист)
 
 ```
-ФАЗА 1: Утиліти                              Складність: ●○○○○
-├── [ ] Перевірити util-loader vs template-loader
-├── [ ] Перемістити polling.js → utils/
-├── [ ] Перемістити util-lazy-load.js → utils/lazy-load.js
-├── [ ] Об'єднати або видалити дублікат loader
-└── [ ] Оновити ~5 імпортів
+ФАЗА 1: Утиліти                              ЗАВЕРШЕНО
+├── [x] Перенести polling/lazy-load/html-loader у utils/
+├── [x] Прибрати дублікати loader
+└── [x] Оновити імпорти
 
-ФАЗА 2: UI компоненти → тематичні папки      Складність: ●●●○○
-├── [ ] Створити components/modal/, перемістити 4 файли
-├── [ ] Оновити ~33 імпорти для modal/
-├── [ ] Створити components/feedback/, перемістити 3 файли
-├── [ ] Оновити ~47 імпортів для feedback/
-├── [ ] Створити components/forms/, перемістити 2 файли
-├── [ ] Оновити ~23 імпорти для forms/
-├── [ ] Створити components/actions/, перемістити 2 файли
-├── [ ] Оновити ~20 імпортів для actions/
-└── [ ] Smoke test після кожної групи
+ФАЗА 2: UI компоненти → тематичні папки      ЗАВЕРШЕНО
+├── [x] Створити components/modal/, перемістити 4 файли
+├── [x] Оновити ~33 імпорти для modal/
+├── [x] Створити components/feedback/, перемістити 3 файли
+├── [x] Оновити ~47 імпортів для feedback/
+├── [x] Створити components/forms/, перемістити 2 файли
+├── [x] Оновити ~23 імпорти для forms/
+├── [x] Створити components/actions/, перемістити 2 файли
+├── [x] Оновити ~20 імпортів для actions/
+└── [x] Smoke test після кожної групи
 
-ФАЗА 3: Entry points сторінок                Складність: ●●○○○
-├── [ ] glossary: init→main, створити state
-├── [ ] price: init→main, витягти state
-├── [ ] keywords: init→main, витягти state
-├── [ ] banned-words: init→main, витягти state
-├── [ ] mapper: об'єднати init в main
-└── [ ] Оновити main-*.js entry points
+ФАЗА 3: Entry points сторінок                МАЙЖЕ ЗАВЕРШЕНО
+├── [ ] glossary: виділити glossary-state.js
+├── [x] price: main + state
+├── [x] keywords: main + state
+├── [x] banned-words: main + state
+└── [x] mapper: розділити на entities/marketplaces/js/data
 
-ФАЗА 4: Розбиття великих файлів              Складність: ●●●●●
-├── [ ] mapper-data.js (1,996) → розбити по сутностям
-├── [ ] mapper entity файли (4 файли 1,000+) → обговорити підхід
-├── [ ] mapper-import.js (1,847) → виділити під-модулі
-├── [ ] brands-crud.js (1,058) → розбити
-├── [ ] tasks-cabinet.js (632) → виділити stats/ui
-├── [ ] price-data.js (623) → виділити CRUD
-├── [ ] keywords-crud.js (550) → виділити модалки
-└── [ ] Інші файли 500+ → за потребою
+ФАЗА 4: Розбиття великих файлів              В РОБОТІ
+├── [x] marketplaces-crud.js (1,494 → 436) → 4 секційні модулі
+├── [x] entities-characteristics.js (1,215 → 260) → 4 секційні модулі
+├── [ ] entities-options.js (1,056)
+├── [ ] entities-categories.js (1,051)
+├── [ ] marketplaces-import.js (934)
+├── [ ] marketplaces-import-wizard.js (901)
+├── [ ] mappings-data.js (760)
+├── [ ] select.js (752)
+├── [x] mapper-data.js → спільний js/data/
+├── [x] brands-crud.js → секційні CRUD-модулі
+├── [x] tasks-cabinet.js → прибрано під час перебудови tasks
+└── [x] keywords-crud.js → зменшено нижче 500 рядків
 
-ФАЗА 5: Очищення bloated -main.js            Складність: ●●○○○
-├── [ ] tasks-main.js (443) → виділити aside/rendering
-└── [ ] brands-main.js (265) → виділити aside
+ФАЗА 5: Очищення bloated -main.js            ЗАВЕРШЕНО
+├── [x] tasks-main.js: 17 рядків
+└── [x] brands-main.js: 88 рядків
 
 ФАЗА 6: Плагіни (опціонально)                Складність: ●●●○○
 ├── [ ] banned-words → додати plugins/hooks
 ├── [ ] price → додати plugins/hooks
-├── [ ] keywords → додати plugins/hooks
+├── [x] keywords → додати plugins/hooks
 └── [ ] glossary → оцінити необхідність
 ```
 
