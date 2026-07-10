@@ -79,9 +79,9 @@ export function setupEventListeners(panelEl) {
         document.addEventListener('modal-closed', handleMagicModalClosed);
     }
 
-    const debouncedCalculateAndSave = debounce(() => {
+    const debouncedCalculateAndSave = debounce((event) => {
         updateCalculatedTableHints();
-        autoSaveSession();
+        autoSaveSession(event.target);
     }, 300);
     if (!dom.rowsContainer.dataset.gtInputEventsBound) {
         dom.rowsContainer.dataset.gtInputEventsBound = 'true';

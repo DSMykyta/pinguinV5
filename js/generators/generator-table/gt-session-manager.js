@@ -25,6 +25,8 @@ export const PLUGIN_NAME = 'gt-session-manager';
 // ============================================================================
 
 const SESSION_KEY = 'tableGeneratorSession';
+let sessionRowsCache = null;
+let lifecycleListenersAdded = false;
 
 // ============================================================================
 // ІНІЦІАЛІЗАЦІЯ
@@ -35,25 +37,63 @@ export function init() {
 
     // Підписуємось на хук очищення таблиці
     registerHook('onTableReset', clearSession, { plugin: 'session-manager' });
+
+    if (!lifecycleListenersAdded) {
+        lifecycleListenersAdded = true;
+        window.addEventListener('pagehide', () => autoSaveSession.flush?.());
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') autoSaveSession.flush?.();
+        });
+    }
 }
 
 // ============================================================================
 // SESSION LOGIC
 // ============================================================================
 
-function saveSession() {
-    const dom = getTableDOM();
-    if (!dom.rowsContainer) return;
+function readRowData(row) {
+    return {
+        left: row.querySelector('.input-box.large input, .input-box.large textarea')?.value || '',
+        right: row.querySelector('.input-box.small input, .input-box.small textarea')?.value || '',
+        classes: Array.from(row.classList),
+    };
+}
 
-    const rowsData = [];
-    dom.rowsContainer.querySelectorAll('.content-bloc').forEach(row => {
-        rowsData.push({
-            left: row.querySelector('.input-box.large input, .input-box.large textarea')?.value || '',
-            right: row.querySelector('.input-box.small input, .input-box.small textarea')?.value || '',
-            classes: Array.from(row.classList),
-        });
-    });
-    localStorage.setItem(SESSION_KEY, JSON.stringify(rowsData));
+function collectRowsData() {
+    const dom = getTableDOM();
+    if (!dom.rowsContainer) return [];
+
+    return Array.from(dom.rowsContainer.querySelectorAll('.content-bloc'), readRowData);
+}
+
+function syncChangedRow(sourceEl) {
+    const dom = getTableDOM();
+    const row = sourceEl?.closest?.('.content-bloc');
+    if (!dom.rowsContainer || !row || !dom.rowsContainer.contains(row)) {
+        sessionRowsCache = collectRowsData();
+        return;
+    }
+
+    if (!sessionRowsCache) sessionRowsCache = collectRowsData();
+
+    const rows = Array.from(dom.rowsContainer.querySelectorAll('.content-bloc'));
+    const index = rows.indexOf(row);
+    if (index < 0) {
+        sessionRowsCache = collectRowsData();
+        return;
+    }
+
+    sessionRowsCache[index] = readRowData(row);
+}
+
+function saveSession(sourceEl = null) {
+    if (sourceEl) {
+        syncChangedRow(sourceEl);
+    } else {
+        sessionRowsCache = collectRowsData();
+    }
+
+    localStorage.setItem(SESSION_KEY, JSON.stringify(sessionRowsCache || []));
 }
 
 export async function loadSession() {
@@ -73,6 +113,7 @@ export async function loadSession() {
             newRow.className = '';
             data.classes.forEach(cls => newRow.classList.add(cls));
         }
+        sessionRowsCache = collectRowsData();
         return true;
     } catch (e) {
         console.warn('[GT Session] Failed to load session:', e);
@@ -84,6 +125,8 @@ export async function loadSession() {
  * Повністю видаляє збережену сесію з localStorage.
  */
 export function clearSession() {
+    autoSaveSession.cancel?.();
+    sessionRowsCache = null;
     localStorage.removeItem(SESSION_KEY);
 }
 

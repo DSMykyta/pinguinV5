@@ -20,8 +20,37 @@
  */
 export function debounce(func, delay) {
     let timeoutId;
-    return (...args) => {
+    let lastArgs;
+    let lastThis;
+
+    function debounced(...args) {
+        lastArgs = args;
+        lastThis = this;
         clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => func(...args), delay);
+        timeoutId = setTimeout(() => {
+            timeoutId = null;
+            func.apply(lastThis, lastArgs);
+            lastArgs = null;
+            lastThis = null;
+        }, delay);
+    }
+
+    debounced.flush = () => {
+        if (!timeoutId) return undefined;
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        const result = func.apply(lastThis, lastArgs || []);
+        lastArgs = null;
+        lastThis = null;
+        return result;
     };
+
+    debounced.cancel = () => {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastArgs = null;
+        lastThis = null;
+    };
+
+    return debounced;
 }
