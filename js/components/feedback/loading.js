@@ -14,6 +14,21 @@
 import { showToast } from './toast.js';
 
 /**
+ * Згенерувати спокійний текстовий стан завантаження без аватара і спінера.
+ * Використовується для первинного завантаження сторінок після авторизації.
+ *
+ * @param {string} message - Текст повідомлення
+ * @returns {string} HTML стану завантаження
+ */
+export function renderTextLoadingState(message = 'Дані завантажуються') {
+    return `
+        <div class="loading-state loading-state-text-only">
+            <p class="loading-message loading-text-shimmer">${message}</p>
+        </div>
+    `;
+}
+
+/**
  * Показати loader в контейнері
  * @param {string|HTMLElement} container - Селектор або елемент контейнера
  * @param {Object} options - Налаштування

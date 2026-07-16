@@ -29,9 +29,18 @@ const TOKEN_EXPIRY_KEY = 'token_expiry';
 // Глобальний стан авторизації
 window.isAuthorized = false;
 window.currentUser = null;
+window.authStateReady = false;
 
 // Глобальна змінна для перевірки чи вже ініціалізовано
 window.customAuthInitialized = window.customAuthInitialized || false;
+
+function notifyAuthState(isAuthorized, user = null) {
+  window.authStateReady = true;
+
+  const detail = { isAuthorized, user };
+  document.dispatchEvent(new CustomEvent('auth-state-changed', { detail }));
+  document.dispatchEvent(new CustomEvent('auth-ready', { detail }));
+}
 
 /**
  * Ініціалізація системи авторизації
@@ -64,9 +73,7 @@ async function initCustomAuth() {
       await updateAuthUI(true);
 
       // Генеруємо подію зміни стану авторизації
-      document.dispatchEvent(new CustomEvent('auth-state-changed', {
-        detail: { isAuthorized: true, user: window.currentUser }
-      }));
+      notifyAuthState(true, window.currentUser);
 
       // Викликаємо callback якщо він визначений
       if (typeof window.onAuthSuccess === 'function') {
@@ -76,10 +83,12 @@ async function initCustomAuth() {
       clearAuthData();
       await updateAuthUI(false);
       await promptSignIn();
+      notifyAuthState(false, null);
     }
   } else {
     await updateAuthUI(false);
     await promptSignIn();
+    notifyAuthState(false, null);
   }
 
   // Слухаємо зміни в localStorage (синхронізація між вкладками)
@@ -106,9 +115,7 @@ async function handleSignIn(username, password) {
     await updateAuthUI(true);
 
     // Генеруємо подію зміни стану авторизації
-    document.dispatchEvent(new CustomEvent('auth-state-changed', {
-      detail: { isAuthorized: true, user: data.user }
-    }));
+    notifyAuthState(true, data.user);
 
     // Закриваємо модал через існуючу систему
     closeModal();
@@ -148,9 +155,7 @@ async function handleSignOut(options = {}) {
     await updateAuthUI(false);
 
     // Генеруємо подію зміни стану авторизації
-    document.dispatchEvent(new CustomEvent('auth-state-changed', {
-      detail: { isAuthorized: false, user: null }
-    }));
+    notifyAuthState(false, null);
 
     // Повертаємо сторінку в гостьовий стан без hard reload.
     if (prompt) {
@@ -393,6 +398,7 @@ async function handleStorageChange(event) {
       window.currentUser = null;
       await updateAuthUI(false);
       await promptSignIn();
+      notifyAuthState(false, null);
       return;
     }
 
@@ -405,6 +411,7 @@ async function handleStorageChange(event) {
       window.currentUser = null;
       await updateAuthUI(false);
       await promptSignIn();
+      notifyAuthState(false, null);
       return;
     }
 
@@ -412,9 +419,7 @@ async function handleStorageChange(event) {
     window.currentUser = getUserData();
     await updateAuthUI(true);
 
-    document.dispatchEvent(new CustomEvent('auth-state-changed', {
-      detail: { isAuthorized: true, user: window.currentUser }
-    }));
+    notifyAuthState(true, window.currentUser);
   }
 }
 

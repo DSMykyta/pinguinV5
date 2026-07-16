@@ -22,7 +22,7 @@
 
 import { initTooltips } from '../feedback/tooltip.js';
 import { renderAvatarState } from '../avatar/avatar-ui-states.js';
-import { renderTableState } from '../table/table-states.js';
+import { renderTextLoadingState } from '../feedback/loading.js';
 import { createLazyLoader } from '../../utils/utils-lazy-load.js';
 
 /**
@@ -82,6 +82,11 @@ export function createPage(config) {
     }
 
     async function checkAuthAndLoadData() {
+        if (!window.authStateReady) {
+            renderLoadingState();
+            return;
+        }
+
         if (window.isAuthorized) {
             try {
                 renderLoadingState();
@@ -116,9 +121,7 @@ export function createPage(config) {
         containers.forEach(containerId => {
             const container = document.getElementById(containerId);
             if (!container) return;
-            container.innerHTML = renderTableState('loading', {
-                message: 'Дані завантажуються'
-            });
+            container.innerHTML = renderTextLoadingState('Дані завантажуються');
         });
     }
 
@@ -191,10 +194,8 @@ export function createPage(config) {
         initTabListener();
         await checkAuthAndLoadData();
 
-        document.addEventListener('auth-state-changed', async (event) => {
-            if (event.detail.isAuthorized) {
-                await checkAuthAndLoadData();
-            }
+        document.addEventListener('auth-state-changed', async () => {
+            await checkAuthAndLoadData();
         });
     }
 

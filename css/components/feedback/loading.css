@@ -42,8 +42,15 @@
     animation: pulse 2s ease-in-out infinite;
 }
 
-.loading-text-shimmer,
-.table-state-loading .table-state-message {
+.loading-state-text-only {
+    min-height: 240px;
+}
+
+.loading-state-text-only .loading-message {
+    animation: none;
+}
+
+.loading-text-shimmer {
     color: transparent;
     background:
         linear-gradient(
