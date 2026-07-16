@@ -42,12 +42,37 @@
     animation: pulse 2s ease-in-out infinite;
 }
 
+.loading-text-shimmer,
+.table-state-loading .table-state-message {
+    color: transparent;
+    background:
+        linear-gradient(
+            90deg,
+            color-mix(in srgb, var(--color-on-surface-v) 45%, transparent) 0%,
+            var(--color-on-surface) 45%,
+            color-mix(in srgb, var(--color-on-surface-v) 45%, transparent) 90%
+        );
+    background-size: 220% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    animation: loadingTextShimmer 1.6s ease-in-out infinite;
+}
+
 @keyframes pulse {
     0%, 100% {
         opacity: 0.6;
     }
     50% {
         opacity: 1;
+    }
+}
+
+@keyframes loadingTextShimmer {
+    0% {
+        background-position: 120% 0;
+    }
+    100% {
+        background-position: -120% 0;
     }
 }
 
