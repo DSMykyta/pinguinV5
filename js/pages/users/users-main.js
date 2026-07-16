@@ -18,6 +18,7 @@ import {
     getUserData,
     promptSignIn,
     syncCurrentUser,
+    waitForAuthReady,
 } from '../../auth/auth-google.js';
 import { getRoleLabel, getStatusLabel, isAdmin } from '../../auth/auth-permissions.js';
 import {
@@ -36,6 +37,8 @@ const state = {
 };
 
 export async function initUsers() {
+    await waitForAuthReady();
+
     if (!window.isAuthorized) {
         document.addEventListener('auth-state-changed', handleAuthState, { once: true });
         await promptSignIn();

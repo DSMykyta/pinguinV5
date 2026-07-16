@@ -18,6 +18,7 @@ import {
     handleSignOut,
     promptSignIn,
     syncCurrentUser,
+    waitForAuthReady,
 } from '../../auth/auth-google.js';
 import { getRoleLabel } from '../../auth/auth-permissions.js';
 import {
@@ -28,6 +29,8 @@ import { getAvatarPath } from '../../components/avatar/avatar-user.js';
 import { showToast } from '../../components/feedback/toast.js';
 
 export async function initAccount() {
+    await waitForAuthReady();
+
     if (!window.isAuthorized) {
         document.addEventListener('auth-state-changed', handleAuthState, { once: true });
         await promptSignIn();

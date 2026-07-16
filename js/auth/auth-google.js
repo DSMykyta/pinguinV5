@@ -42,6 +42,21 @@ function notifyAuthState(isAuthorized, user = null) {
   document.dispatchEvent(new CustomEvent('auth-ready', { detail }));
 }
 
+function waitForAuthReady() {
+  if (window.authStateReady) {
+    return Promise.resolve({
+      isAuthorized: window.isAuthorized,
+      user: window.currentUser
+    });
+  }
+
+  return new Promise(resolve => {
+    document.addEventListener('auth-ready', event => {
+      resolve(event.detail);
+    }, { once: true });
+  });
+}
+
 /**
  * Ініціалізація системи авторизації
  */
@@ -493,6 +508,7 @@ export {
   getUserData,
   promptSignIn,
   syncCurrentUser,
+  waitForAuthReady,
 };
 
 // Залишаємо window.* для backward compatibility з існуючим кодом
@@ -503,3 +519,4 @@ window.getAuthToken = getAuthToken;
 window.getUserData = getUserData;
 window.promptSignIn = promptSignIn;
 window.syncCurrentUser = syncCurrentUser;
+window.waitForAuthReady = waitForAuthReady;
