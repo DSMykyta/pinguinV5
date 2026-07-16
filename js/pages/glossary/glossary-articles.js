@@ -8,7 +8,7 @@
  */
 
 import { getGlossaryDOM } from './glossary-events.js';
-import { getGlossaryData } from './glossary-data.js';
+import { getGlossaryData } from './glossary-state.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import {
     registerActionHandlers,

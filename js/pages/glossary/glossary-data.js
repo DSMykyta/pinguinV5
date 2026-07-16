@@ -8,14 +8,15 @@
  */
 
 import { MAIN_SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
+import {
+    getGlossaryData,
+    getGlossaryMap,
+    getGlossaryTree,
+    resetGlossaryState,
+    setGlossaryState,
+} from './glossary-state.js';
 
-let glossaryData = []; // Масив усіх рядків з таблиці
-let glossaryTree = {}; // Об'єкт для побудови дерева { parentId: [child1, child2] }
-let glossaryMap = {};  // Об'єкт для швидкого доступу до елемента по ID { id: itemData }
-
-export function getGlossaryData() { return glossaryData; }
-export function getGlossaryTree() { return glossaryTree; }
-export function getGlossaryMap() { return glossaryMap; }
+export { getGlossaryData, getGlossaryMap, getGlossaryTree };
 
 export async function fetchGlossaryData() {
     const sheetId = MAIN_SPREADSHEET_ID;
@@ -31,9 +32,9 @@ export async function fetchGlossaryData() {
 
 
         // Очищаємо перед заповненням
-        glossaryData = [];
-        glossaryTree = {};
-        glossaryMap = {};
+        const glossaryData = [];
+        const glossaryTree = {};
+        const glossaryMap = {};
         const rootItems = []; // Елементи без батька (основа дерева)
 
         parsedData.forEach(row => {
@@ -83,8 +84,14 @@ export async function fetchGlossaryData() {
         // Додаємо кореневі елементи в дерево під ключем 'root'
         glossaryTree['root'] = rootItems;
 
+        setGlossaryState({
+            data: glossaryData,
+            tree: glossaryTree,
+            map: glossaryMap,
+        });
 
     } catch (error) {
+        resetGlossaryState();
         console.error('Помилка при завантаженні даних Глосарію:', error);
     }
 }

@@ -8,7 +8,7 @@
  */
 
 import { getGlossaryDOM } from './glossary-events.js';
-import { getGlossaryTree } from './glossary-data.js';
+import { getGlossaryTree } from './glossary-state.js';
 
 /**
  * Рекурсивна функція для побудови HTML-списку дерева.

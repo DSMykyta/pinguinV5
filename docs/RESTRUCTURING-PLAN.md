@@ -3,9 +3,8 @@
 > Порядок виконання: від фундаменту до верхніх рівнів.
 > Кожна наступна фаза спирається на попередню — так не доведеться переробляти.
 
-> **Актуалізовано 2026-07-10.** Фази 1–2 і 5 завершені. Фаза 3 завершена,
-> крім виділення `glossary-state.js`. Старий `mapper/` уже розділено на
-> `entities/`, `marketplaces/` і спільний `js/data/`. Поточна робота — Фаза 4.
+> **Актуалізовано 2026-07-16.** Фази 1–5 завершені. Старий `mapper/` уже розділено на
+> `entities/`, `marketplaces/` і спільний `js/data/`. Відкриті тільки опційні пункти Фази 6.
 
 ---
 
@@ -18,20 +17,26 @@ js/                              10 файлів    194 рядки   ← entry p
 ├── utils/                        6 файлів   1,322 рядки  ← потребує консолідації
 ├── layout/                       9 файлів     976 рядків  ← чисто (має -main/-state)
 ├── components/
-│   ├── 16 loose файлів         3,406 рядків  ← ПОТРЕБУЄ ГРУПУВАННЯ
-│   ├── avatar/    8 файлів     1,648 рядків  ← чисто
-│   ├── editor/   16 файлів     2,732 рядки   ← чисто
-│   ├── table/    11 файлів     3,349 рядків  ← чисто
-│   └── charms/    8 файлів       845 рядків  ← чисто
+│   ├── 2 loose JS файли         ~250 рядків  ← перевірити окремо
+│   ├── actions/   2 файли       886 рядків   ← чисто
+│   ├── avatar/    8 файлів    1,652 рядки   ← чисто
+│   ├── editor/   17 файлів    2,975 рядків  ← чисто
+│   ├── forms/     6 файлів    1,009 рядків  ← чисто
+│   ├── modal/     7 файлів    1,184 рядки   ← чисто
+│   ├── table/    12 файлів    3,953 рядки   ← чисто
+│   └── charms/    9 файлів      993 рядки   ← чисто
 ├── generators/   60 файлів     5,083 рядки   ← чисто (всі з -main/-state)
 └── pages/
-    ├── glossary/   7 файлів      475 рядків  ← потребує стандартизації
-    ├── keywords/   6 файлів    1,106 рядків  ← потребує стандартизації
-    ├── price/      8 файлів    2,262 рядки   ← потребує стандартизації
-    ├── tasks/     10 файлів    2,961 рядок   ← майже чисто
-    ├── brands/    11 файлів    2,099 рядків  ← майже чисто
-    ├── banned-words/ 11 файлів 4,076 рядків  ← потребує стандартизації
-    └── mapper/    20 файлів   12,678 рядків  ← потребує розбиття
+    ├── glossary/   8 файлів      602 рядки   ← стандартизовано
+    ├── keywords/   7 файлів      860 рядків  ← стандартизовано
+    ├── price/      9 файлів    2,244 рядки   ← стандартизовано
+    ├── tasks/      1 файл         17 рядків   ← чисто
+    ├── brands/    18 файлів    3,020 рядків  ← чисто
+    ├── banned-words/ 12 файлів 4,090 рядків  ← стандартизовано
+    ├── entities/  25 файлів    5,806 рядків  ← Фаза 4 завершена
+    ├── marketplaces/ 24 файли  4,264 рядки   ← Фаза 4 завершена
+    ├── products/  36 файлів    8,891 рядок   ← окремий наступний аудит
+    └── інші pages/             ~2,738 рядків ← дрібні модулі
 ```
 
 **Всього: ~37,500 рядків JS**
@@ -105,7 +110,10 @@ components/
 │
 ├── forms/                              ← Елементи форм
 │   ├── dropdown.js                     (було ui-dropdown.js,    251 рядок)
-│   └── select.js                       (було ui-select.js,      716 рядків)
+│   ├── select.js                       (фасад,                 11 рядків)
+│   ├── select-api.js                   (init/reinit API,       30 рядків)
+│   ├── select-populate.js              (populateSelect,        84 рядки)
+│   └── select-custom.js                (CustomSelect class,   648 рядків)
 │
 ├── actions/                            ← Система дій
 │   ├── actions-main.js                 (було ui-actions.js,     482 рядки)
@@ -133,8 +141,10 @@ modal-init → modal-main ← modal-confirm
 (окрім loading → toast). Об'єднані функцією: показати щось користувачу.
 Не потребують -main/-state — вони вже є leaf-примітивами.
 
-**forms/** — 2 незалежних файли. Обидва — елементи вводу.
-`select.js` (716 рядків) — найбільший, може колись потребувати розбиття.
+**forms/** — незалежні елементи вводу. `select.js` тепер фасад; логіка
+розкладена на API, populate helper і `CustomSelect` class. Сам клас лишається
+великим навмисно: глибше дроблення методів треба робити окремим безпечним
+проходом із UI-перевіркою всіх select/multiselect сценаріїв.
 
 **actions/** — 2 файли, логічна пара:
 - `actions-main.js` — обробка одиничних дій (кнопки в рядках)
@@ -181,13 +191,14 @@ modal-init → modal-main ← modal-confirm
 |--------|------------|----------|-----------|----------|
 | tasks | tasks-main.js | **Так** | **Так** | — (еталон) |
 | brands | brands-main.js | **Так** | **Так** | — (еталон) |
-| mapper | mapper-init.js | Є, але інша роль | **Так** | Об'єднати init→main |
-| glossary | glossary-init.js | Ні | Ні | Перейменувати, створити state |
-| price | price-init.js | Ні | Ні | Перейменувати, витягти state |
-| keywords | keywords-init.js | Ні | Ні | Перейменувати, витягти state |
-| banned-words | banned-words-init.js | Ні | Ні | Перейменувати, витягти state |
+| entities | entities-main.js | **Так** | **Так** | Фаза 4: розбиття великих файлів |
+| marketplaces | marketplaces-main.js | **Так** | **Так** | Фаза 4: розбиття великих файлів |
+| glossary | glossary-main.js | **Так** | **Так** | — |
+| price | price-main.js | **Так** | **Так** | — |
+| keywords | keywords-main.js | **Так** | **Так** | — |
+| banned-words | banned-words-main.js | **Так** | **Так** | — |
 
-### 3.1 glossary/ (475 рядків, 7 файлів)
+### 3.1 glossary/ (~520 рядків, 8 файлів)
 
 Найпростіший модуль — починаємо з нього для відпрацювання паттерну.
 
@@ -327,7 +338,7 @@ banned-words/
 | 10 | `tasks-cabinet.js` | 632 | tasks | Виділити cabinet-stats, cabinet-ui |
 | 11 | `banned-words-check.js` | 624 | tasks | Виділити check-results рендеринг |
 | 12 | `price-data.js` | 623 | price | Виділити CRUD операції |
-| 13 | `ui-select.js` | 716 | forms | Виділити select-search, select-multi |
+| 13 | `select.js` | 752 | forms | Виконано: фасад + API/populate/CustomSelect |
 | 14 | `keywords-crud.js` | 550 | keywords | Виділити модальну логіку |
 | 15 | `banned-words-product-modal.js` | 547 | banned-words | Перевірити чи можна |
 | 16 | `tasks-data.js` | 547 | tasks | Перевірити чи можна |
@@ -450,22 +461,22 @@ Banned-words (4,076 рядків) — скоріш за все так.
 ├── [x] Оновити ~20 імпортів для actions/
 └── [x] Smoke test після кожної групи
 
-ФАЗА 3: Entry points сторінок                МАЙЖЕ ЗАВЕРШЕНО
-├── [ ] glossary: виділити glossary-state.js
+ФАЗА 3: Entry points сторінок                ЗАВЕРШЕНО
+├── [x] glossary: виділити glossary-state.js
 ├── [x] price: main + state
 ├── [x] keywords: main + state
 ├── [x] banned-words: main + state
 └── [x] mapper: розділити на entities/marketplaces/js/data
 
-ФАЗА 4: Розбиття великих файлів              В РОБОТІ
+ФАЗА 4: Розбиття великих файлів              ЗАВЕРШЕНО
 ├── [x] marketplaces-crud.js (1,494 → 436) → 4 секційні модулі
 ├── [x] entities-characteristics.js (1,215 → 260) → 4 секційні модулі
-├── [ ] entities-options.js (1,056)
-├── [ ] entities-categories.js (1,051)
-├── [ ] marketplaces-import.js (934)
-├── [ ] marketplaces-import-wizard.js (901)
-├── [ ] mappings-data.js (760)
-├── [ ] select.js (752)
+├── [x] entities-options.js (1,056 → 280) → 4 секційні модулі
+├── [x] entities-categories.js (1,051 → 256) → 4 секційні модулі
+├── [x] marketplaces-import.js (934 → 31) → 4 секційні модулі
+├── [x] marketplaces-import-wizard.js (901 → 24) → 5 секційних модулів
+├── [x] mappings-data.js (760 → 56) → 6 data-модулів
+├── [x] select.js (752 → 11) → API/populate/CustomSelect class
 ├── [x] mapper-data.js → спільний js/data/
 ├── [x] brands-crud.js → секційні CRUD-модулі
 ├── [x] tasks-cabinet.js → прибрано під час перебудови tasks
@@ -479,7 +490,7 @@ Banned-words (4,076 рядків) — скоріш за все так.
 ├── [ ] banned-words → додати plugins/hooks
 ├── [ ] price → додати plugins/hooks
 ├── [x] keywords → додати plugins/hooks
-└── [ ] glossary → оцінити необхідність
+└── [x] glossary → оцінено: окремі hooks/plugins зараз не потрібні
 ```
 
 ---
@@ -586,8 +597,9 @@ js/
 2. **mapper/ підпапки** — робити `mapper/import/`, `mapper/categories/` і т.д.,
    чи залишити все плоско з префіксами?
 
-3. **select.js (716 рядків)** — розбивати на select-core + select-search +
-   select-multi, чи залишити як єдиний компонент?
+3. **select.js** — вирішено: файл став фасадом, API і populate винесені.
+   `select-custom.js` лишається великим класом; глибший split методів можливий
+   тільки як окремий UI-ризик.
 
 4. **Чи потрібні плагіни для glossary?** — модуль дуже малий (475 рядків),
    plugins можуть бути зайвими.
