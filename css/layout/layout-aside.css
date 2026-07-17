@@ -183,7 +183,6 @@
     color: var(--text-primary);
 }
 
-
 /* ═══════════════════════════════════════════════════════════════════════ */
 /* BODY SYNC — margin-right для content-main                             */
 /* ═══════════════════════════════════════════════════════════════════════ */
@@ -194,4 +193,112 @@ body.aside-expanded .content-main {
 
 body.aside-closed .content-main {
     margin-right: var(--panel-width-collapsed);
+}
+
+/* ----------------------------------------------------------------------- */
+/* LAYOUT V2 — elevated panel that reserves space in the center layout     */
+/* ----------------------------------------------------------------------- */
+
+body.layout-v2 .aside {
+    top: calc(var(--page-header-height) + var(--page-aside-gap));
+    right: var(--page-aside-gap);
+    bottom: auto;
+    z-index: 250;
+    width: var(--page-aside-width);
+    height: auto;
+    max-height: calc(100dvh - var(--page-header-height) - var(--page-aside-gap) - var(--page-aside-gap));
+    padding: 8px 4px 8px 8px;
+    overflow: hidden;
+    background: var(--color-surface-elevated);
+    border: 1px solid color-mix(in srgb, var(--color-on-surface) 5%, transparent);
+    border-radius: 24px;
+    box-shadow: var(--shadow-popover);
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+    transform-origin: top right;
+    will-change: opacity, transform;
+    transition:
+        opacity 0.35s var(--transition-enter),
+        transform 0.35s var(--transition-enter),
+        visibility 0s;
+}
+
+body.layout-v2 .aside-body {
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+body.layout-v2 .aside-body::-webkit-scrollbar {
+    display: none;
+}
+
+body.layout-v2 .aside.closed {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: scale(0.95);
+    transition:
+        opacity 0.2s var(--transition-exit),
+        transform 0.2s var(--transition-exit),
+        visibility 0s 0.2s;
+}
+
+body.layout-v2 .aside.closed .aside-body {
+    opacity: 1;
+}
+
+body.layout-v2 .aside-fragment,
+body.layout-v2 .panel-fragment {
+    flex-grow: 0;
+    overflow: visible;
+    padding: 4px 8px 4px 4px;
+}
+
+body.layout-v2 .aside-controls {
+    top: 8px;
+    right: 8px;
+    z-index: 400;
+}
+
+body.layout-v2 .aside-fab {
+    z-index: 300;
+}
+
+body.layout-v2.aside-expanded .content-main {
+    margin-right: var(--page-aside-reserve);
+}
+
+body.layout-v2.aside-closed .content-main {
+    margin-right: 0;
+}
+
+body.layout-v2.aside-unavailable .aside,
+body.layout-v2.aside-unavailable .aside-controls {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+body.layout-v2.aside-unavailable .content-main {
+    margin-right: 0;
+}
+
+@media (max-width: 900px) {
+    body.layout-v2.aside-expanded .content-main {
+        margin-right: 0;
+    }
+
+    body.layout-v2 .aside {
+        width: min(var(--page-aside-width), calc(100vw - 2 * var(--page-aside-gap)));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.layout-v2 .aside,
+    body.layout-v2 .content-main {
+        transition-duration: 0.01ms;
+    }
 }

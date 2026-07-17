@@ -18,6 +18,12 @@ import {
   verifyAccessToken,
 } from './auth-api.js';
 import { getRoleLabel } from './auth-permissions.js';
+import {
+  disableLocalAuthPreview,
+  getLocalAuthPreviewUser,
+  isLocalAuthPreviewEnabled,
+  LOCAL_AUTH_PREVIEW_TOKEN,
+} from './auth-local-preview.js';
 
 // Константи
 const AUTH_TOKEN_KEY = 'auth_token';
@@ -74,6 +80,14 @@ async function initCustomAuth() {
 
   // Слухаємо подію відкриття модалу для прив'язки обробників форми
   document.addEventListener('modal-opened', handleModalOpened);
+
+  if (isLocalAuthPreviewEnabled()) {
+    window.isAuthorized = true;
+    window.currentUser = getLocalAuthPreviewUser();
+    await updateAuthUI(true);
+    notifyAuthState(true, window.currentUser);
+    return;
+  }
 
   // Перевіряємо наявність токена
   const token = getAuthToken();
@@ -152,6 +166,17 @@ async function handleSignIn(username, password) {
  */
 async function handleSignOut(options = {}) {
   const { skipServer = false, prompt = true } = options || {};
+
+  if (isLocalAuthPreviewEnabled()) {
+    disableLocalAuthPreview();
+    clearAuthData();
+    window.isAuthorized = false;
+    window.currentUser = null;
+    await updateAuthUI(false);
+    notifyAuthState(false, null);
+    if (prompt) await promptSignIn();
+    return;
+  }
 
   try {
     const token = getAuthToken();
@@ -441,6 +466,7 @@ async function handleStorageChange(event) {
 // ============= Утиліти для роботи з localStorage =============
 
 function getAuthToken() {
+  if (isLocalAuthPreviewEnabled()) return LOCAL_AUTH_PREVIEW_TOKEN;
   return localStorage.getItem(AUTH_TOKEN_KEY);
 }
 
@@ -470,6 +496,7 @@ function setRefreshToken(token) {
 }
 
 function getUserData() {
+  if (isLocalAuthPreviewEnabled()) return getLocalAuthPreviewUser();
   const data = localStorage.getItem(USER_DATA_KEY);
   return data ? JSON.parse(data) : null;
 }

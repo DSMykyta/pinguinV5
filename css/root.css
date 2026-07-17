@@ -58,13 +58,14 @@
        3. ПОВЕРХНЯ ТА РІВНІ
        ═══════════════════════════════════════════ */
 
-   --color-surface: rgb(250, 250, 250);
+   --color-surface: rgb(252, 252, 252);
    --color-on-surface: rgb(23, 23, 23);
    --color-on-surface-v: color-mix(in srgb, var(--color-on-surface) 60%, var(--color-surface));
 
    --color-surface-c-low: color-mix(in srgb, var(--color-surface), var(--color-on-surface) 2%);
    --color-surface-c: color-mix(in srgb, var(--color-surface), var(--color-on-surface) 9%);
    --color-surface-c-high: color-mix(in srgb, var(--color-surface), var(--color-on-surface) 17%);
+   --color-surface-elevated: rgb(255, 255, 255);
 
    /* ═══════════════════════════════════════════
        4. ОБВОДКА / БОРДЕРИ
@@ -79,6 +80,7 @@
 
    --text-primary: var(--color-on-surface);
    --text-secondary: var(--color-on-surface-v);
+   --text-tertiary: color-mix(in srgb, var(--color-on-surface) 48%, var(--color-surface));
    --text-disabled: color-mix(in srgb, var(--color-on-surface) 38%, transparent);
    --text-hint: color-mix(in srgb, var(--color-on-surface) 60%, transparent);
 
@@ -95,6 +97,7 @@
    --shadow-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
    --shadow-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
    --shadow-3: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.30);
+   --shadow-popover: 0 4px 16px rgba(0, 0, 0, 0.05);
 
    /* ═══════════════════════════════════════════
        8. БЛУР
@@ -137,6 +140,16 @@
    --panel-width-collapsed: 60px;
    --panel-width-expanded: 320px;
    --nav-width-expanded: 180px;
+   --page-header-height: 52px;
+   --page-content-gutter: 24px;
+   --page-content-gutter-inline: clamp(24px, 4vw, 72px);
+   --page-aside-width: 300px;
+   --page-aside-gap: 16px;
+   --page-aside-reserve: calc(var(--page-aside-width) + var(--page-aside-gap));
+   --table-row-min-height: 56px;
+   --table-row-radius: 12px;
+   --table-leading-width: 48px;
+   --table-actions-width: 88px;
 
    /* ═══════════════════════════════════════════
        13. ПЕРЕХОДИ
@@ -145,6 +158,8 @@
    --transition-speed: 0.2s;
    --transition-ease: cubic-bezier(0.2, 0, 0, 1);
    --transition-standard: var(--transition-speed) var(--transition-ease);
+   --transition-enter: cubic-bezier(0.19, 1, 0.22, 1);
+   --transition-exit: cubic-bezier(0.8, 0, 0.4, 1);
 
    /* ═══════════════════════════════════════════
        14. Z-ІНДЕКС ШАРИ
@@ -261,6 +276,7 @@
    --color-surface-c-low: color-mix(in srgb, var(--color-surface), var(--color-on-surface) 4%);
    --color-surface-c: color-mix(in srgb, var(--color-surface), var(--color-on-surface) 11%);
    --color-surface-c-high: color-mix(in srgb, var(--color-surface), var(--color-on-surface) 19%);
+   --color-surface-elevated: rgb(32, 32, 32);
 
    /* ═══════════════════════════════════════════
    4. ОБВОДКА / БОРДЕРИ
@@ -275,6 +291,7 @@
 
    --text-primary: var(--color-on-surface);
    --text-secondary: var(--color-on-surface-v);
+   --text-tertiary: color-mix(in srgb, var(--color-on-surface) 48%, var(--color-surface));
    --text-disabled: color-mix(in srgb, var(--color-on-surface) 38%, transparent);
    --text-hint: color-mix(in srgb, var(--color-on-surface) 60%, transparent);
 
@@ -291,6 +308,7 @@
    --shadow-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.30), 0px 1px 2px 0px rgba(0, 0, 0, 0.50);
    --shadow-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.30), 0px 1px 2px 0px rgba(0, 0, 0, 0.50);
    --shadow-3: 0px 4px 8px 3px rgba(0, 0, 0, 0.30), 0px 1px 3px 0px rgba(0, 0, 0, 0.50);
+   --shadow-popover: 0 4px 16px rgba(0, 0, 0, 0.35);
    /* ═══════════════════════════════════════════
        15. AFFINITY (ролі команди)
        ═══════════════════════════════════════════ */

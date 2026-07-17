@@ -280,6 +280,11 @@
     min-height: 40px;
 }
 
+textarea[data-auto-height] {
+    overflow-y: hidden;
+    resize: none;
+}
+
 /* Input всередині .panel без зайвого padding (бо .panel вже має padding) */
 .content-line.panel > input {
     padding: 0;
@@ -342,11 +347,25 @@
 /* СТИЛІ ТЕКСТУ                                */
 /* ============================================ */
 
+.content-bloc.td input,
+.content-bloc.td textarea {
+    color: var(--text-tertiary);
+}
+
+.content-bloc.th input,
+.content-bloc.th textarea {
+    color: var(--text-secondary);
+    font-weight: 700;
+}
+
 .content-bloc.bold input,
-.content-bloc.bold textarea,
+.content-bloc.bold textarea {
+    font-weight: 700;
+}
+
 .content-bloc.th-strong input,
 .content-bloc.th-strong textarea {
-    font-weight: 700;
+    font-weight: 900;
 }
 
 .content-bloc.italic input,
@@ -356,7 +375,6 @@
 
 .content-bloc.h3 .input-box input,
 .content-bloc.h3 .input-box textarea {
-    font-family: 'NyghtSerif', serif;
     font-size: 20px;
     font-weight: 600;
     line-height: 1.4;

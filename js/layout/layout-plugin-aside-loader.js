@@ -37,6 +37,45 @@ const asideInitializers = {};
 const initializedAsides = new Set();
 const initializingAsides = new Map();
 
+function hasMeaningfulPanelContent(element) {
+    if (!element || element.hidden || element.classList.contains('u-hidden')) return false;
+    if (element.classList.contains('panel-content-footer')) return false;
+    if (element.classList.contains('panel-section-title')) return false;
+
+    if (element.matches('button, a[href], input, select, textarea, [contenteditable], [role="button"]')) {
+        return true;
+    }
+
+    if (element.children.length === 0) {
+        return element.textContent.trim().length > 0;
+    }
+
+    return Array.from(element.children).some(hasMeaningfulPanelContent);
+}
+
+function hasPanelContent(fragment) {
+    if (!fragment) return false;
+    return Array.from(fragment.children).some(hasMeaningfulPanelContent);
+}
+
+function setAsideAvailability(fragment) {
+    const available = hasPanelContent(fragment);
+    const aside = document.querySelector('.aside');
+    const trigger = document.querySelector('.aside-trigger');
+
+    document.body.classList.toggle('aside-unavailable', !available);
+
+    if (trigger) {
+        trigger.setAttribute('aria-hidden', String(!available));
+        if (available) trigger.removeAttribute('tabindex');
+        else trigger.setAttribute('tabindex', '-1');
+    }
+
+    if (aside) {
+        aside.setAttribute('aria-hidden', String(!available || aside.classList.contains('closed')));
+    }
+}
+
 /**
  * Реєструє ініціалізатор для шаблону aside.
  * @param {string} templateName — назва шаблону (напр. 'aside-table')
@@ -165,10 +204,12 @@ export function showAsidePanel(templateName) {
         fab.querySelectorAll('.aside-fab-fragment').forEach(f => f.classList.remove('active'));
     }
 
+    // Показуємо активний body fragment
+    const active = templateName ? document.getElementById(templateName) : null;
+    setAsideAvailability(active);
+
     if (!templateName) return; // absent
 
-    // Показуємо активний body fragment
-    const active = document.getElementById(templateName);
     if (active) active.classList.add('active');
 
     // Показуємо активний fab fragment
@@ -177,5 +218,7 @@ export function showAsidePanel(templateName) {
         if (activeFab) activeFab.classList.add('active');
     }
 
-    void ensureAsideInitialized(templateName);
+    void ensureAsideInitialized(templateName).then(() => {
+        if (active?.classList.contains('active')) setAsideAvailability(active);
+    });
 }

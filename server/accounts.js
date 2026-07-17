@@ -25,6 +25,10 @@ const {
 } = require('./utils/google-sheets');
 const { requireAccessToken } = require('./utils/auth-guard');
 const {
+  createLocalPreviewAccount,
+  isLocalAuthPreviewRequest,
+} = require('./utils/local-auth-preview');
+const {
   getCapabilities,
   hasCapability,
   isKnownRole,
@@ -110,18 +114,22 @@ async function findAccountByUsername(username) {
 }
 
 async function authenticateAccount(req, res, options = {}) {
-  const tokenUser = requireAccessToken(req, res);
-  if (!tokenUser) return null;
-
   let account;
-  try {
-    account = await resolveActiveAccount(tokenUser);
-  } catch (error) {
-    if (error instanceof AccountError) {
-      res.status(error.status).json({ error: error.message });
-      return null;
+  if (isLocalAuthPreviewRequest(req)) {
+    account = createLocalPreviewAccount();
+  } else {
+    const tokenUser = requireAccessToken(req, res);
+    if (!tokenUser) return null;
+
+    try {
+      account = await resolveActiveAccount(tokenUser);
+    } catch (error) {
+      if (error instanceof AccountError) {
+        res.status(error.status).json({ error: error.message });
+        return null;
+      }
+      throw error;
     }
-    throw error;
   }
 
   if (options.roles && !options.roles.includes(account.role)) {

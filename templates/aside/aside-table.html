@@ -19,47 +19,60 @@
 
 <div class="panel-content-scroll">
 
-    <button id="add-input-btn" class="panel-item">
-        <span class="material-symbols-outlined panel-item-icon">add</span>
-        <span class="panel-item-text">Новий рядок</span>
-    </button>
+    <details class="panel-group" open>
+        <summary class="panel-group-summary label-l">
+            <span>Рядки</span>
+            <span class="material-symbols-outlined panel-group-chevron" aria-hidden="true">chevron_right</span>
+        </summary>
 
-    <button id="add-empty-line-btn" class="panel-item">
-        <span class="material-symbols-outlined panel-item-icon">rectangle</span>
-        <span class="panel-item-text">Розділювач</span>
-    </button>
+        <div class="panel-group-content">
+            <button id="add-input-btn" class="btn-option" aria-label="Додати новий рядок">
+                <span class="material-symbols-outlined">add</span>
+                <span>Новий рядок</span>
+            </button>
 
-    <button id="add-ingredients-btn" class="panel-item">
-        <span class="material-symbols-outlined panel-item-icon">science</span>
-        <span class="panel-item-text">Інгредієнти</span>
-    </button>
+            <button id="add-empty-line-btn" class="btn-option" aria-label="Додати розділювач">
+                <span class="material-symbols-outlined">rectangle</span>
+                <span>Розділювач</span>
+            </button>
 
-    <button id="add-warning-btn" class="panel-item">
-        <span class="material-symbols-outlined panel-item-icon">warning</span>
-        <span class="panel-item-text">Попередження</span>
-    </button>
+            <button id="add-ingredients-btn" class="btn-option" aria-label="Додати блок інгредієнтів">
+                <span class="material-symbols-outlined">science</span>
+                <span>Інгредієнти</span>
+            </button>
+        </div>
+    </details>
 
-    <button id="add-composition-btn" class="panel-item">
-        <span class="material-symbols-outlined panel-item-icon">call_split</span>
-        <span class="panel-item-text">Різний склад</span>
-    </button>
+    <details class="panel-group" open>
+        <summary class="panel-group-summary label-l">
+            <span>Заповнення</span>
+            <span class="material-symbols-outlined panel-group-chevron" aria-hidden="true">chevron_right</span>
+        </summary>
 
-    <div class="grid">
-        <button id="add-nutrition-btn" class="panel-item col-6">
-            <span class="material-symbols-outlined panel-item-icon">nutrition</span>
-            <span class="panel-item-text">Харчова цінність</span>
-        </button>
+        <div class="panel-group-content">
+            <div class="group wrap">
+                <button id="add-warning-btn" class="btn-icon square" data-tooltip="Додати попередження" data-tooltip-always aria-label="Додати попередження">
+                    <span class="material-symbols-outlined">warning</span>
+                </button>
 
-        <button id="add-vitamins-btn" class="panel-item col-6">
-            <span class="material-symbols-outlined panel-item-icon">local_pharmacy</span>
-            <span class="panel-item-text">Вітаміни</span>
-        </button>
+                <button id="add-composition-btn" class="btn-icon square" data-tooltip="Додати різний склад" data-tooltip-always aria-label="Додати різний склад">
+                    <span class="material-symbols-outlined">call_split</span>
+                </button>
 
-        <button id="add-aminos-btn" class="panel-item col-6">
-            <span class="material-symbols-outlined panel-item-icon">pill</span>
-            <span class="panel-item-text">Амінокислоти</span>
-        </button>
-    </div>
+                <button id="add-nutrition-btn" class="btn-icon square" data-tooltip="Додати харчову цінність" data-tooltip-always aria-label="Додати харчову цінність">
+                    <span class="material-symbols-outlined">nutrition</span>
+                </button>
+
+                <button id="add-vitamins-btn" class="btn-icon square" data-tooltip="Додати вітаміни" data-tooltip-always aria-label="Додати вітаміни">
+                    <span class="material-symbols-outlined">local_pharmacy</span>
+                </button>
+
+                <button id="add-aminos-btn" class="btn-icon square" data-tooltip="Додати амінокислоти" data-tooltip-always aria-label="Додати амінокислоти">
+                    <span class="material-symbols-outlined">pill</span>
+                </button>
+            </div>
+        </div>
+    </details>
 
 </div>
 

@@ -25,6 +25,7 @@ export const PLUGIN_NAME = 'gt-session-manager';
 // ============================================================================
 
 const SESSION_KEY = 'tableGeneratorSession';
+const STRUCTURAL_ROW_CLASSES = ['content-bloc', 'generator-table-row', 'table-row'];
 let sessionRowsCache = null;
 let lifecycleListenersAdded = false;
 
@@ -110,8 +111,8 @@ export async function loadSession() {
             const newRow = await createAndAppendRow({ autoSave: false });
             newRow.querySelector('.input-box.large input, .input-box.large textarea').value = data.left;
             newRow.querySelector('.input-box.small input, .input-box.small textarea').value = data.right;
-            newRow.className = '';
-            data.classes.forEach(cls => newRow.classList.add(cls));
+            newRow.className = STRUCTURAL_ROW_CLASSES.join(' ');
+            (data.classes || []).forEach(cls => newRow.classList.add(cls));
         }
         sessionRowsCache = collectRowsData();
         return true;

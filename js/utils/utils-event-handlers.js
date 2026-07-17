@@ -4,12 +4,12 @@
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║                  EVENT HANDLERS — ОБРОБНИКИ ПОДІЙ                       ║
  * ╠══════════════════════════════════════════════════════════════════════════╣
- * ║  🛠️ УТИЛІТА — Скрол до секцій та відкриття посилань з panel-item        ║
+ * ║  🛠️ УТИЛІТА — Скрол до секцій та відкриття посилань з btn-option        ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
 export function initEventHandlers() {
-    const panelItems = document.querySelectorAll('.panel-item');
+    const panelItems = document.querySelectorAll('.btn-option:not(.dropdown-option)');
 
     panelItems.forEach(item => {
         // Додаємо стиль, щоб показати, що блок клікабельний

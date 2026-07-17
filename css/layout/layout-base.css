@@ -54,3 +54,20 @@ body {
 .content-main::-webkit-scrollbar {
     display: none;
 }
+
+/* Layout-v2 keeps a stable content gutter inside the available center area. */
+body.layout-v2 .content-main {
+    gap: 0;
+    scroll-padding-top: var(--page-header-height);
+}
+
+body.layout-v2.layout-tabs .content-main,
+body.layout-v2.layout-single .content-main {
+    padding: calc(var(--page-header-height) + var(--page-content-gutter))
+             var(--page-content-gutter-inline)
+             var(--page-content-gutter);
+}
+
+body.layout-v2.layout-sections .content-main {
+    padding: 0;
+}

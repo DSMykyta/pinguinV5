@@ -25,7 +25,9 @@
  *
  * ЧАРМИ (charms):
  * - .ghost - без фону при hover, тільки зміна кольору
+ * - .medium - середній розмір 36×36px
  * - .touch - збільшена тач-ціль 44×44px
+ * - .square - квадратна форма зі скругленням 8px
  * - .reload - приглушений колір, нейтральний hover (surface-c-high)
  * - .drag - cursor: grab/grabbing для drag-handle кнопок
  * - .reveal - прихована, з'являється при hover на батьківський елемент
@@ -78,6 +80,21 @@
 
 .btn-icon .material-symbols-outlined {
     font-size: 16px;
+}
+
+/* Чарм: square — квадратна форма для панелей інструментів */
+.btn-icon.square {
+    border-radius: 8px;
+}
+
+/* Чарм: medium — середній розмір для компактних панелей */
+.btn-icon.medium {
+    min-width: 36px;
+    height: 36px;
+}
+
+.btn-icon.medium .material-symbols-outlined {
+    font-size: 20px;
 }
 
 /* Чарм: ghost — без фону, тільки зміна кольору */

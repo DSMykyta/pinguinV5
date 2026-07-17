@@ -1,0 +1,94 @@
+/**
+ * COMPONENT: Option Button
+ *
+ * Compact text action used in menus, asides and dropdowns. The optional
+ * icon, text and trailing action elements keep the same layout everywhere.
+ *
+ * <button class="btn-option">
+ *   <span class="material-symbols-outlined">add</span>
+ *   <span>New item</span>
+ * </button>
+ */
+
+.btn-option,
+.dropdown-option {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    width: 100%;
+    min-height: 36px;
+    padding: 6px 10px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    text-align: left;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    cursor: pointer;
+    transform: none;
+    transition:
+        background-color 150ms var(--transition-ease),
+        color 150ms var(--transition-ease);
+}
+
+.btn-option:hover,
+.btn-option:focus-visible,
+.dropdown-option:hover,
+.dropdown-option:focus-visible {
+    background-color: color-mix(in srgb, var(--text-primary) 4%, transparent);
+    color: var(--text-primary);
+    transform: none;
+}
+
+.btn-option:active,
+.dropdown-option:active {
+    background-color: color-mix(in srgb, var(--text-primary) 6%, transparent);
+    transform: none;
+}
+
+/* Aside actions follow the surrounding panel typography. */
+.btn-option {
+    font-size: inherit;
+    color: var(--text-tertiary);
+}
+
+.btn-option > .material-symbols-outlined:first-child,
+.dropdown-option > .material-symbols-outlined:first-child {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 20px;
+    width: 20px;
+    height: 20px;
+    font-size: 18px !important;
+    line-height: 20px;
+}
+
+.btn-option-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    margin-left: auto;
+    color: var(--text-secondary);
+}
+
+.btn-option .on-hover {
+    opacity: 0;
+    visibility: hidden;
+    transition:
+        opacity 150ms var(--transition-ease),
+        visibility 150ms var(--transition-ease);
+}
+
+.btn-option:hover .on-hover,
+.btn-option:focus-visible .on-hover {
+    opacity: 1;
+    visibility: visible;
+}

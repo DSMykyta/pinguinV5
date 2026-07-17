@@ -36,6 +36,7 @@
 @import url('components/buttons/button-outline.css');
 @import url('components/buttons/button-ghost.css');
 @import url('components/buttons/button-groups.css');
+@import url('components/buttons/button-option.css');
 @import url('components/buttons/fab.css');
 /* === COMPONENTS - AVATAR === */
 @import url('components/avatar.css');
@@ -55,7 +56,6 @@
 @import url('components/forms/slider.css');
 
 /* === COMPONENTS - NAVIGATION === */
-@import url('components/navigation/panel-item.css');
 /* panel-box.css — перенесено в forms/input-box.css (.content-line.panel) */
 @import url('components/navigation/panel-title.css');
 @import url('components/navigation/pagination.css');

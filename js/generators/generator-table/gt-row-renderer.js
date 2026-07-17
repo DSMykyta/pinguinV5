@@ -11,6 +11,7 @@
 import { incrementRowCounter } from './gt-state.js';
 import { ROW_CLASSES } from './gt-config.js';
 import { insertRowAbove, insertRowBelow, deleteRow } from './gt-row-manager.js';
+import { enableTextareaAutoHeight, syncTextareaHeight } from '../../components/forms/textarea-auto-height.js';
 
 let rowTemplate = null;
 
@@ -33,7 +34,7 @@ export async function renderNewRow() {
     const html = template.replace(/{{rowId}}/g, rowId);
 
     const newRow = document.createElement('div');
-    newRow.className = `content-bloc ${ROW_CLASSES.TD}`;
+    newRow.className = `content-bloc generator-table-row table-row ${ROW_CLASSES.TD}`;
     newRow.id = `content-bloc-${rowId}`;
     newRow.innerHTML = html;
 
@@ -129,6 +130,10 @@ function handleOptionClick(row, classToApply) {
     } else {
         row.classList.toggle(classToApply);
     }
+
+    requestAnimationFrame(() => {
+        row.querySelectorAll('textarea[data-auto-height]').forEach(syncTextareaHeight);
+    });
 }
 
 export function handleInputTypeSwitch(row, type) {
@@ -140,5 +145,6 @@ export function handleInputTypeSwitch(row, type) {
         newEl.value = oldEl.value;
         if (type === 'row') newEl.autocomplete = 'off';
         oldEl.parentNode.replaceChild(newEl, oldEl);
+        if (newEl instanceof HTMLTextAreaElement) enableTextareaAutoHeight(newEl);
     });
 }

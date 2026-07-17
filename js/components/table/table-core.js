@@ -29,7 +29,7 @@
  * ║        </span>                                                           ║
  * ║      </div>                                                              ║
  * ║    </div>                                                                ║
- * ║    <div class="pseudo-table-row" data-row-id="...">                      ║
+ * ║    <div class="pseudo-table-row table-row" data-row-id="...">            ║
  * ║      <div class="pseudo-table-cell col-1">actions</div>                 ║
  * ║      <div class="pseudo-table-cell col-3 cell-align-center"             ║
  * ║           data-column="..." data-tooltip="...">content</div>            ║
@@ -171,7 +171,7 @@ export class TableCore {
     renderRow(row, rowIndex) {
         const { columns, rowActions, onRowClick, getRowId } = this.config;
         const rowId = getRowId(row, rowIndex);
-        const rowClasses = ['pseudo-table-row'];
+        const rowClasses = ['pseudo-table-row', 'table-row'];
         if (onRowClick) rowClasses.push('clickable');
 
         return `

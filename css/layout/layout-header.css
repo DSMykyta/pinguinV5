@@ -32,3 +32,107 @@
 .section-name h2 {
     line-height: 1;
 }
+
+/* ----------------------------------------------------------------------- */
+/* LAYOUT V2 — one fixed header, supplied by the active page context       */
+/* ----------------------------------------------------------------------- */
+
+body.layout-v2.layout-context-ready .content-main > .section-header,
+body.layout-v2.layout-context-ready .content-main > section > .section-header,
+body.layout-v2.layout-context-ready .content-main > .tab-content > .section-header {
+    display: none;
+}
+
+body.layout-v2.layout-context-ready .content-main.layout-context-active > .section-header,
+body.layout-v2.layout-context-ready .content-main > .layout-context-active > .section-header {
+    position: fixed;
+    inset: 0 0 auto var(--panel-width-collapsed);
+    z-index: 150;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-width: 0;
+    gap: 16px;
+    height: var(--page-header-height);
+    padding: 8px 56px 8px 16px;
+    background: var(--color-surface);
+    border-bottom: 0;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.layout-v2.nav-expanded.layout-context-ready .content-main.layout-context-active > .section-header,
+body.layout-v2.nav-expanded.layout-context-ready .content-main > .layout-context-active > .section-header {
+    left: var(--nav-width-expanded);
+}
+
+body.layout-v2 .layout-context-active > .section-header .section-name-block {
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    gap: 8px;
+    min-width: 0;
+    overflow: hidden;
+}
+
+body.layout-v2 .layout-context-active > .section-header .section-name {
+    align-items: center;
+    flex: 0 1 auto;
+    min-width: 0;
+    height: auto;
+    gap: 0;
+}
+
+body.layout-v2 .layout-context-active > .section-header .section-name h2 {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--color-on-surface);
+    font-family: 'Geologica', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    letter-spacing: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+body.layout-v2 .layout-context-active > .section-header .section-name > .btn-icon[aria-label="Інформація"] {
+    display: none;
+}
+
+body.layout-v2 .layout-context-active > .section-header .section-name-block > .body-s {
+    display: inline-flex;
+    align-items: center;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--color-on-surface-v);
+    font-size: 13px;
+    font-weight: 300;
+    line-height: 20px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+body.layout-v2 .layout-context-active > .section-header .section-name-block > .body-s::before {
+    content: '\00b7';
+    margin-right: 8px;
+    color: var(--color-on-surface-v);
+}
+
+body.layout-v2 .layout-context-active > .section-header > .group,
+body.layout-v2 .layout-context-active > .section-header > .section-header-actions {
+    display: flex;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+    height: 36px;
+    flex: 0 0 auto;
+    margin-left: auto;
+    margin-bottom: 0;
+}
+
+@media (max-width: 900px) {
+    body.layout-v2 .layout-context-active > .section-header .section-name-block > .body-s {
+        display: none;
+    }
+}

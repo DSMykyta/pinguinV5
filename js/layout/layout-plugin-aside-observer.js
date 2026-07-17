@@ -31,6 +31,19 @@ import { showAsidePanel } from './layout-plugin-aside-loader.js';
  * 🔌 ПЛАГІН — відстежує секції та перемикає вміст aside.
  */
 export function init() {
+    if (document.body.classList.contains('layout-v2')) {
+        const syncAside = event => {
+            showAsidePanel(event.detail?.asideTemplate || null);
+        };
+
+        document.addEventListener('layout:context-changed', syncAside);
+
+        const currentContext = document.querySelector('.layout-context-active');
+        const asideOwner = currentContext?.closest('[data-aside-template]');
+        showAsidePanel(asideOwner?.dataset.asideTemplate || null);
+        return;
+    }
+
     const sections = document.querySelectorAll('[data-aside-template]');
     if (!sections.length) return;
 

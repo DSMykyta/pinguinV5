@@ -27,3 +27,92 @@
     padding: 12px 16px 8px;
 }
 
+.panel-section-title {
+    display: flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 0 8px;
+    color: var(--text-tertiary);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 16px;
+}
+
+.panel-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.panel-stats:empty,
+.panel-section-title:has(+ .panel-stats:empty) {
+    display: none;
+}
+
+/* Згортна група дій усередині panel/aside */
+.panel-group {
+    padding-top: 4px;
+    border-top: 1px solid color-mix(in srgb, var(--color-on-surface) 8%, transparent);
+}
+
+.panel-group-summary {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 4px;
+    min-height: 32px;
+    padding: 0 8px;
+    color: var(--color-on-surface-v);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+.panel-group-summary::-webkit-details-marker {
+    display: none;
+}
+
+.panel-group-summary:focus-visible {
+    outline: 1px solid var(--color-outline);
+    outline-offset: -1px;
+}
+
+.panel-group-chevron {
+    font-size: 18px;
+    opacity: 1;
+    transform: rotate(0deg);
+    transition:
+        opacity 150ms var(--transition-ease),
+        transform 200ms var(--transition-ease);
+}
+
+.panel-group[open] > .panel-group-summary .panel-group-chevron {
+    transform: rotate(90deg);
+}
+
+@media (hover: hover) {
+    .panel-group[open] > .panel-group-summary .panel-group-chevron {
+        opacity: 0;
+    }
+
+    .panel-group[open] > .panel-group-summary:hover .panel-group-chevron,
+    .panel-group[open] > .panel-group-summary:focus-visible .panel-group-chevron {
+        opacity: 1;
+    }
+}
+
+.panel-group-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-bottom: 4px;
+}
+
+.panel-group-content > .group {
+    margin: 4px 0 8px;
+    padding: 0 8px;
+}
+
+.panel-group-content .btn-icon:not(:hover):not(.active) {
+    color: var(--text-tertiary);
+}

@@ -105,6 +105,7 @@ export function init() {
     const nav = document.getElementById('section-navigator');
     const contentArea = document.getElementById('content-main');
     if (!nav || !contentArea) return;
+    if (nav.hasAttribute('data-tabs-container')) return;
 
     initSectionNav(nav, contentArea);
 }

@@ -127,3 +127,15 @@ body.nav-expanded .content-main {
 }
 
 /* Modal nav expanded — grid auto-adjusts, no manual padding needed */
+
+/* Layout-v2 keeps the existing row navigator centered inside the fixed header. */
+body.layout-v2 .nav.row {
+    position: fixed;
+    top: 4px;
+    z-index: 300;
+    margin: 0;
+}
+
+body.layout-v2 .nav.column {
+    padding-top: 8px;
+}

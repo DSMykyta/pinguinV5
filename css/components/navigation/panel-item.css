@@ -41,37 +41,45 @@
 .panel-item {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 12px;
-    height: 48px;
-    min-height: 48px;
+    justify-content: flex-start;
+    gap: 8px;
     width: 100%;
-    padding: 0 12px;
-    border-radius: 8px;
+    padding: 12px 8px;
+    border-radius: var(--radius-m);
 
     background-color: transparent;
     border: none;
     cursor: pointer;
     text-decoration: none;
 
-    color: var(--color-on-surface-v);
+    color: var(--text-secondary);
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 20px;
 
     white-space: nowrap;
     overflow: hidden;
-    transition: background-color 0.4s ease-out, color 0.4s ease-out;
+    transition:
+        background-color 150ms var(--transition-ease),
+        color 150ms var(--transition-ease);
 }
 
 /* Стан при наведенні або активний стан */
 .panel-item:hover,
+.panel-item:active,
 .panel-item.active {
-    background-color: var(--color-main-c);
-    color: var(--color-main);
+    background-color: color-mix(in srgb, var(--text-primary) 3%, transparent);
+    color: var(--text-secondary);
+    transform: none;
 }
 
 /* Іконка зліва */
 .panel-item-icon {
     flex-shrink: 0;
-    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    font-size: 20px !important;
+    line-height: 20px;
 }
 
 /* Текст */
@@ -90,7 +98,7 @@
 }
 
 .panel-item:hover .panel-item-action {
-    color: var(--color-main);
+    color: var(--text-secondary);
 }
 
 /* Елементи що з'являються при наведенні */

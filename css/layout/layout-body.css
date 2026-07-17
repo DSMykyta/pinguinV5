@@ -77,3 +77,21 @@ section {
 .tab-content > .section-content {
     margin: 0;
 }
+
+/* Layout-v2 sections own the header offset and the ChatGPT-like page gutter. */
+body.layout-v2.layout-sections .content-main > section {
+    height: 100dvh;
+    padding: calc(var(--page-header-height) + var(--page-content-gutter))
+             var(--page-content-gutter-inline)
+             var(--page-content-gutter);
+}
+
+body.layout-v2.layout-sections .content-main > section > .section-content {
+    margin: 0;
+}
+
+/* The row navigation is fixed by layout-nav.css in v2, not positioned per tab. */
+body.layout-v2 .tabbed-page .nav.row {
+    top: 4px;
+    margin-top: 0;
+}

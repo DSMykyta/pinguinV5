@@ -90,6 +90,7 @@ class Dropdown {
         this._outsideClickHandler = (e) => this._handleOutsideClick(e);
 
         this._bindEvents();
+        this.trigger.setAttribute('aria-expanded', 'false');
         wrapper.dataset.dropdownInit = 'true';
     }
 
@@ -137,8 +138,14 @@ class Dropdown {
             this.wrapper.classList.remove('open-upward');
         }
 
+        this.panel.classList.toggle('open-upward', openUpward);
+        this.panel.style.display = 'block';
+        this.panel.getBoundingClientRect();
+
         this.wrapper.classList.add('open');
         this.panel.classList.add('open');
+        this.panel.style.display = '';
+        this.trigger.setAttribute('aria-expanded', 'true');
 
         // Scroll listeners — закриваємо при скролі батьківських контейнерів
         this._scrollParents = this._getScrollParents(this.wrapper);
@@ -156,7 +163,8 @@ class Dropdown {
         if (!this.wrapper.classList.contains('open')) return;
 
         this.wrapper.classList.remove('open', 'open-upward');
-        this.panel.classList.remove('open');
+        this.panel.classList.remove('open', 'open-upward');
+        this.trigger.setAttribute('aria-expanded', 'false');
 
         // Скидаємо inline стилі
         this.panel.style.position = '';
