@@ -1,0 +1,518 @@
+/**
+ * PAGE: Instruments
+ * UI UX Pro Max profile: dense internal operations dashboard
+ * Scope every override to .instruments-page so the rest of the app stays stable.
+ */
+
+.instruments-page {
+    --color-main: #334155;
+    --color-on-main: #ffffff;
+    --color-main-c: color-mix(in srgb, #334155 10%, transparent);
+    --color-on-main-c: #334155;
+    --color-secondary: #059669;
+    --color-on-secondary: #ffffff;
+    --color-secondary-c: color-mix(in srgb, #059669 10%, transparent);
+    --color-on-secondary-c: #047857;
+    --color-tertiary: #ea580c;
+    --color-tertiary-c: color-mix(in srgb, #ea580c 10%, transparent);
+    --color-surface: #f8fafc;
+    --color-surface-elevated: #ffffff;
+    --color-on-surface: #0f172a;
+    --color-on-surface-v: #64748b;
+    --color-surface-c-low: #f2f3f4;
+    --color-surface-c: #e8ebef;
+    --color-surface-c-high: #dce1e7;
+    --color-outline: #e6e8ea;
+    --color-outline-v: #cbd5e1;
+    --shadow-popover: 0 16px 40px rgba(15, 23, 42, 0.09);
+    --workspace-glow: rgba(5, 150, 105, 0.08);
+    background:
+        radial-gradient(circle at 78% 12%, var(--workspace-glow), transparent 28rem),
+        var(--color-surface);
+}
+
+[data-theme="dark"].instruments-page {
+    --color-main: #cbd5e1;
+    --color-on-main: #0f172a;
+    --color-main-c: rgba(203, 213, 225, 0.12);
+    --color-on-main-c: #e2e8f0;
+    --color-secondary: #34d399;
+    --color-on-secondary: #052e25;
+    --color-secondary-c: rgba(52, 211, 153, 0.12);
+    --color-on-secondary-c: #6ee7b7;
+    --color-tertiary: #fb923c;
+    --color-tertiary-c: rgba(251, 146, 60, 0.14);
+    --color-surface: #0b1120;
+    --color-surface-elevated: #111827;
+    --color-on-surface: #f1f5f9;
+    --color-on-surface-v: #94a3b8;
+    --color-surface-c-low: #151e2e;
+    --color-surface-c: #1c2738;
+    --color-surface-c-high: #273449;
+    --color-outline: #263244;
+    --color-outline-v: #475569;
+    --shadow-popover: 0 18px 48px rgba(0, 0, 0, 0.34);
+    --workspace-glow: rgba(52, 211, 153, 0.07);
+}
+
+.instruments-page .skip-link {
+    position: fixed;
+    top: 8px;
+    left: 76px;
+    z-index: var(--z-toast);
+    padding: 10px 14px;
+    color: var(--color-on-secondary);
+    background: var(--color-secondary);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    transform: translateY(-160%);
+    transition: transform 180ms var(--transition-ease);
+}
+
+.instruments-page .skip-link:focus {
+    transform: translateY(0);
+}
+
+.instruments-page .content-main {
+    background: transparent;
+}
+
+.instruments-page.layout-v2.layout-tabs .content-main {
+    padding-top: calc(var(--page-header-height) + 28px);
+    padding-right: clamp(16px, 3vw, 48px);
+    padding-bottom: 24px;
+    padding-left: clamp(16px, 3vw, 48px);
+}
+
+/* Fixed page context */
+.instruments-page.layout-v2.layout-context-ready .content-main > .layout-context-active > .section-header {
+    padding-inline: 18px 64px;
+    background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-outline) 78%, transparent);
+    backdrop-filter: blur(18px) saturate(135%);
+}
+
+.instruments-page .section-header-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    color: var(--color-on-secondary-c);
+    background: var(--color-secondary-c);
+    border: 1px solid color-mix(in srgb, var(--color-secondary) 18%, transparent);
+    border-radius: 10px;
+}
+
+.instruments-page .section-header-mark .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.instruments-page.layout-v2 .layout-context-active > .section-header .section-name h2 {
+    font-size: 15px;
+    font-weight: 650;
+}
+
+/* Primary tool switcher */
+.instruments-page #section-navigator {
+    left: calc(var(--panel-width-collapsed) + (100vw - var(--panel-width-collapsed)) / 2);
+    gap: 3px;
+    height: 44px;
+    padding: 4px;
+    color: var(--color-on-surface-v);
+    background: color-mix(in srgb, var(--color-surface-elevated) 92%, transparent);
+    border: 1px solid var(--color-outline);
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    backdrop-filter: blur(18px) saturate(135%);
+}
+
+.instruments-page.nav-expanded #section-navigator {
+    left: calc(var(--nav-width-expanded) + (100vw - var(--nav-width-expanded)) / 2);
+}
+
+.instruments-page .workspace-tabs-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 34px;
+    padding: 0 8px 0 4px;
+    color: var(--color-on-surface);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.instruments-page .workspace-tabs-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    color: var(--color-on-secondary);
+    background: var(--color-secondary);
+    border-radius: 9px;
+}
+
+.instruments-page .workspace-tabs-mark .material-symbols-outlined {
+    font-size: 17px;
+}
+
+.instruments-page .workspace-tabs-divider {
+    width: 1px;
+    height: 22px;
+    margin: 0 2px;
+    background: var(--color-outline);
+}
+
+.instruments-page #section-navigator .btn-icon.expand {
+    justify-content: center;
+    gap: 7px;
+    width: auto;
+    min-width: 42px;
+    max-width: none;
+    height: 34px;
+    padding: 0 11px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    box-shadow: none;
+    transition:
+        color 180ms var(--transition-ease),
+        background-color 180ms var(--transition-ease),
+        border-color 180ms var(--transition-ease),
+        transform 120ms var(--transition-ease);
+}
+
+.instruments-page #section-navigator .btn-icon.expand:hover {
+    max-width: none;
+    padding: 0 11px;
+    color: var(--color-on-surface);
+    background: var(--color-surface-c-low);
+}
+
+.instruments-page #section-navigator .btn-icon.expand.active {
+    color: var(--color-on-main);
+    background: var(--color-main);
+    border-color: var(--color-main);
+}
+
+.instruments-page #section-navigator .btn-icon.expand:active {
+    transform: scale(0.97);
+}
+
+.instruments-page #section-navigator .btn-icon-label,
+.instruments-page #section-navigator .btn-icon.expand:hover .btn-icon-label {
+    max-width: 160px;
+    opacity: 1;
+    overflow: visible;
+    font-size: 12px;
+    font-weight: 550;
+}
+
+.instruments-page :is(button, a, input, textarea, select, [contenteditable="true"]):focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
+}
+
+/* Workbench shell */
+.instruments-page .tab-content.active {
+    gap: 0;
+    animation: instruments-panel-enter 240ms var(--transition-enter) both;
+}
+
+.instruments-page .tab-content:focus {
+    outline: none;
+}
+
+.instruments-page .section-content {
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-outline);
+    border-radius: 20px;
+    box-shadow: var(--shadow-popover);
+}
+
+.instruments-page .workspace-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 0 0 auto;
+    min-height: 72px;
+    gap: 20px;
+    padding: 13px 16px 13px 18px;
+    background: linear-gradient(135deg, var(--color-surface-elevated), var(--color-surface-c-low));
+    border-bottom: 1px solid var(--color-outline);
+}
+
+.instruments-page .workspace-panel-copy {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: baseline;
+    column-gap: 10px;
+    min-width: 0;
+}
+
+.instruments-page .workspace-panel-kicker {
+    grid-column: 1 / -1;
+    color: var(--color-on-secondary-c);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 650;
+    line-height: 1.5;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.instruments-page .workspace-panel-copy strong {
+    color: var(--color-on-surface);
+    font-size: 15px;
+    font-weight: 650;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+
+.instruments-page .workspace-panel-copy > span:last-child {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--color-on-surface-v);
+    font-size: 12px;
+    line-height: 1.5;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.instruments-page .workspace-panel-meta {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    gap: 6px;
+    min-height: 30px;
+    padding: 0 10px;
+    color: var(--color-on-surface-v);
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-outline);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+}
+
+.instruments-page .workspace-panel-meta .material-symbols-outlined {
+    color: var(--color-secondary);
+    font-size: 15px;
+}
+
+/* Table builder */
+.instruments-page .generator-table-rows {
+    padding: 8px 10px 12px;
+    background: var(--color-surface-elevated);
+}
+
+.instruments-page .generator-table-row {
+    border-bottom: 1px solid var(--color-outline);
+    transition: background-color 160ms var(--transition-ease);
+}
+
+.instruments-page .generator-table-row:hover,
+.instruments-page .generator-table-row:focus-within {
+    background: var(--color-surface-c-low);
+}
+
+.instruments-page .generator-table-row:first-child {
+    border-radius: 12px 12px 0 0;
+}
+
+.instruments-page .generator-table-row:last-child {
+    border-bottom: 0;
+    border-radius: 0 0 12px 12px;
+}
+
+.instruments-page .generator-table-row .input-box > :is(input, textarea) {
+    font-size: 13px;
+}
+
+/* Rich text editor */
+.instruments-page .editor-workspace-host {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 10px;
+}
+
+.instruments-page .editor-workspace-host > .rich-editor-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    border: 1px solid var(--color-outline);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.instruments-page .rich-editor-content {
+    padding: 20px;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+/* Image lab */
+.instruments-page .image-workspace > .grid {
+    padding: 12px;
+    gap: 12px;
+}
+
+.instruments-page .image-workspace .photo-main-preview,
+.instruments-page .image-workspace .photo-upload-zone,
+.instruments-page .image-workspace .photo-upload-list {
+    background: var(--color-surface-c-low);
+    border: 1px solid var(--color-outline);
+    border-radius: 14px;
+}
+
+.instruments-page .image-workspace .photo-main-preview {
+    background-image:
+        linear-gradient(45deg, var(--color-surface-c) 25%, transparent 25%),
+        linear-gradient(-45deg, var(--color-surface-c) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, var(--color-surface-c) 75%),
+        linear-gradient(-45deg, transparent 75%, var(--color-surface-c) 75%);
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+    background-size: 16px 16px;
+}
+
+.instruments-page .image-workspace .photo-upload-column,
+.instruments-page .image-workspace .photo-main-preview-wrapper {
+    gap: 8px;
+}
+
+/* Right-side contextual panel */
+.instruments-page.layout-v2 .aside {
+    border-color: var(--color-outline);
+    border-radius: 18px;
+    box-shadow: var(--shadow-popover);
+}
+
+.instruments-page .aside .content-line.panel {
+    min-height: 52px;
+    border: 1px solid transparent;
+}
+
+.instruments-page .aside .content-line.panel:hover {
+    border-color: var(--color-outline);
+}
+
+@keyframes instruments-panel-enter {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 900px) {
+    .instruments-page .workspace-tabs-brand,
+    .instruments-page .workspace-tabs-divider {
+        display: none;
+    }
+
+    .instruments-page .workspace-panel-copy > span:last-child {
+        display: none;
+    }
+
+    .instruments-page .workspace-panel-meta {
+        font-size: 0;
+    }
+
+    .instruments-page .workspace-panel-meta .material-symbols-outlined {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 640px) {
+    .instruments-page.layout-v2.layout-tabs .content-main {
+        padding-top: calc(var(--page-header-height) + 16px);
+        padding-right: 12px;
+        padding-bottom: 72px;
+        padding-left: 12px;
+    }
+
+    .instruments-page #section-navigator,
+    .instruments-page.nav-expanded #section-navigator {
+        top: auto;
+        bottom: 10px;
+        left: calc(var(--panel-width-collapsed) + (100vw - var(--panel-width-collapsed)) / 2);
+        width: min(292px, calc(100vw - var(--panel-width-collapsed) - 20px));
+        height: 56px;
+        justify-content: stretch;
+        padding: 5px;
+        border-radius: 16px;
+    }
+
+    .instruments-page #section-navigator .btn-icon.expand,
+    .instruments-page #section-navigator .btn-icon.expand:hover {
+        flex: 1 1 0;
+        min-width: 0;
+        height: 44px;
+        padding: 0 7px;
+    }
+
+    .instruments-page #section-navigator .btn-icon-label,
+    .instruments-page #section-navigator .btn-icon.expand:hover .btn-icon-label {
+        font-size: 10px;
+    }
+
+    .instruments-page.layout-v2.layout-context-ready .content-main > .layout-context-active > .section-header {
+        padding-right: 52px;
+    }
+
+    .instruments-page.layout-v2 .layout-context-active > .section-header .section-name-block > .body-s {
+        display: none;
+    }
+
+    .instruments-page .workspace-panel-header {
+        min-height: 62px;
+        padding: 10px 12px;
+    }
+
+    .instruments-page .workspace-panel-copy {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .instruments-page .workspace-panel-kicker {
+        font-size: 9px;
+    }
+
+    .instruments-page .workspace-panel-copy strong {
+        font-size: 14px;
+    }
+
+    .instruments-page .image-workspace > .grid {
+        overflow-y: auto;
+    }
+
+    .instruments-page :is(input, textarea, select, [contenteditable="true"]) {
+        font-size: 16px;
+    }
+}
+
+@media (pointer: coarse) {
+    .instruments-page .btn-icon {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .instruments-page *,
+    .instruments-page *::before,
+    .instruments-page *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

@@ -4,26 +4,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Інструменти</title>
+    <meta name="theme-color" content="#f8fafc">
+    <title>Pinguin — Інструменти</title>
     <link rel="icon" type="image/png" href="icon/dy_Dark_Pinguin.png">
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/pages/instruments.css">
     <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
     <script src="js/theme-init.js"></script>
 </head>
 
-<body class="layout-v2 aside-unavailable">
+<body class="layout-v2 aside-unavailable instruments-page">
+
+    <a class="skip-link" href="#content-main">Перейти до робочої області</a>
 
     <div class="nav column" id="main-nav"></div>
 
     <main id="content-main" class="content-main tabbed-page">
 
-        <nav class="nav row" role="group" aria-label="Таби" data-tabs-container id="section-navigator">
-            <button type="button" class="btn-icon expand active" data-tab-target="section-table" aria-label="Таблиці">
+        <nav class="nav row workspace-tabs" role="tablist" aria-label="Інструменти" data-tabs-container id="section-navigator">
+            <span class="workspace-tabs-brand" aria-hidden="true">
+                <span class="workspace-tabs-mark"><span class="material-symbols-outlined">deployed_code</span></span>
+                <span>Pinguin</span>
+            </span>
+            <span class="workspace-tabs-divider" aria-hidden="true"></span>
+
+            <button type="button" role="tab" aria-selected="true" aria-controls="section-table" class="btn-icon expand active" data-tab-target="section-table" aria-label="Таблиці">
                 <span class="material-symbols-outlined">table_chart</span>
                 <span class="btn-icon-label">Таблиці</span>
             </button>
-            <button type="button" class="btn-icon expand" data-tab-target="section-text" aria-label="Текст">
+            <button type="button" role="tab" aria-selected="false" aria-controls="section-text" class="btn-icon expand" data-tab-target="section-text" aria-label="Текст">
                 <span class="material-symbols-outlined">edit_note</span>
                 <span class="btn-icon-label">Текст</span>
             </button>
@@ -40,9 +50,9 @@
             </a>
             -->
 
-            <button type="button" class="btn-icon expand" data-tab-target="section-image-tool" aria-label="Обробка зображень">
+            <button type="button" role="tab" aria-selected="false" aria-controls="section-image-tool" class="btn-icon expand" data-tab-target="section-image-tool" aria-label="Зображення">
                 <span class="material-symbols-outlined">imagesmode</span>
-                <span class="btn-icon-label">Обробка зображень</span>
+                <span class="btn-icon-label">Зображення</span>
             </button>
 
             <!-- Official sites temporarily disabled
@@ -54,44 +64,74 @@
 
         </nav>
 
-        <div class="tab-content active" data-tab-content="section-table" id="section-table" data-aside-template="aside-table" refresh>
+        <div class="tab-content active" role="tabpanel" tabindex="0" data-tab-content="section-table" id="section-table" data-aside-template="aside-table" refresh>
 
             <div class="section-header">
+                <span class="section-header-mark" aria-hidden="true">
+                    <span class="material-symbols-outlined">table_chart</span>
+                </span>
                 <div class="section-name-block">
                     <div class="section-name">
                         <h2 class="display-l section-upper">Таблиці</h2>
-                        <button class="btn-icon" aria-label="Інформація">
+                        <button type="button" class="btn-icon" aria-label="Інформація">
                             <span class="material-symbols-outlined">info</span>
                         </button>
                     </div>
-                    <span class="body-s">Налаштування таблиць</span>
+                    <span class="body-s">Конструктор характеристик і складу товару</span>
                 </div>
             </div>
 
             <div class="section-content table-editor">
+                <div class="workspace-panel-header">
+                    <div class="workspace-panel-copy">
+                        <span class="workspace-panel-kicker">Конструктор структури</span>
+                        <strong>Рядки таблиці</strong>
+                        <span>Додавайте поля, змінюйте типи та перетягуйте їх у потрібному порядку.</span>
+                    </div>
+                    <span class="workspace-panel-meta">
+                        <span class="material-symbols-outlined" aria-hidden="true">drag_indicator</span>
+                        Drag &amp; drop
+                    </span>
+                </div>
                 <div class="content-bloc-container generator-table-rows" id="rows-container"></div>
             </div>
 
         </div>
 
-        <div class="tab-content" data-tab-content="section-text" id="section-text" data-aside-template="aside-highlight" refresh>
+        <div class="tab-content" role="tabpanel" tabindex="0" data-tab-content="section-text" id="section-text" data-aside-template="aside-highlight" refresh>
             <div class="section-header">
+                <span class="section-header-mark" aria-hidden="true">
+                    <span class="material-symbols-outlined">edit_note</span>
+                </span>
                 <div class="section-name-block">
                     <div class="section-name">
                         <h2 class="display-l section-upper">Текст</h2>
-                        <button class="btn-icon" aria-label="Інформація">
+                        <button type="button" class="btn-icon" aria-label="Інформація">
                             <span class="material-symbols-outlined">info</span>
                         </button>
                     </div>
-                    <span class="body-s">Редактор тексту з підсвічуванням</span>
+                    <span class="body-s">Перевірка, очищення та підготовка HTML</span>
                 </div>
             </div>
 
-            <div id="ghl-editor-container" class="section-content section-content-full-height"
-                 editor tools code check stats cleanup-links cleanup-styles cleanup-images
-                 data-editor-id="ghl"
-                 data-placeholder="Вставте сюди текст для перевірки..."
-                 data-min-height="200">
+            <div class="section-content section-content-full-height editor-workspace">
+                <div class="workspace-panel-header">
+                    <div class="workspace-panel-copy">
+                        <span class="workspace-panel-kicker">Контент-редактор</span>
+                        <strong>Текст і HTML</strong>
+                        <span>Перевіряйте заборонені слова, статистику та зайві стилі в одному місці.</span>
+                    </div>
+                    <span class="workspace-panel-meta">
+                        <span class="material-symbols-outlined" aria-hidden="true">fact_check</span>
+                        Перевірка наживо
+                    </span>
+                </div>
+                <div id="ghl-editor-container" class="editor-workspace-host"
+                     editor tools code check stats cleanup-links cleanup-styles cleanup-images
+                     data-editor-id="ghl"
+                     data-placeholder="Вставте сюди текст для перевірки..."
+                     data-min-height="200">
+                </div>
             </div>
         </div>
 
@@ -101,7 +141,7 @@
                 <div class="section-name-block">
                     <div class="section-name">
                         <h2 class="display-l section-upper">Сео</h2>
-                        <button class="btn-icon" aria-label="Інформація">
+                        <button type="button" class="btn-icon" aria-label="Інформація">
                             <span class="material-symbols-outlined">info</span>
                         </button>
                     </div>
@@ -183,7 +223,7 @@
                 <div class="section-name-block">
                     <div class="section-name">
                         <h2 class="display-l section-upper">Переклад</h2>
-                        <button class="btn-icon" aria-label="Інформація">
+                        <button type="button" class="btn-icon" aria-label="Інформація">
                             <span class="material-symbols-outlined">info</span>
                         </button>
                     </div>
@@ -200,20 +240,34 @@
         </section>
         -->
 
-        <div class="tab-content" data-tab-content="section-image-tool" id="section-image-tool" data-aside-template="aside-image-tool" refresh>
+        <div class="tab-content" role="tabpanel" tabindex="0" data-tab-content="section-image-tool" id="section-image-tool" data-aside-template="aside-image-tool" refresh>
             <div class="section-header">
+                <span class="section-header-mark" aria-hidden="true">
+                    <span class="material-symbols-outlined">imagesmode</span>
+                </span>
                 <div class="section-name-block">
                     <div class="section-name">
                         <h2 class="display-l section-upper">Обробка зображень</h2>
-                        <button class="btn-icon" aria-label="Інформація">
+                        <button type="button" class="btn-icon" aria-label="Інформація">
                             <span class="material-symbols-outlined">info</span>
                         </button>
                     </div>
-                    <span class="body-s">Зміна розміру, полотна та формату</span>
+                    <span class="body-s">Полотно, формат і пакетна підготовка файлів</span>
                 </div>
             </div>
 
-            <div class="section-content section-content-full-height u-p-8">
+            <div class="section-content section-content-full-height image-workspace">
+                <div class="workspace-panel-header">
+                    <div class="workspace-panel-copy">
+                        <span class="workspace-panel-kicker">Медіалабораторія</span>
+                        <strong>Полотно і галерея</strong>
+                        <span>Завантажуйте файли, коригуйте полотно та експортуйте готові зображення.</span>
+                    </div>
+                    <span class="workspace-panel-meta">
+                        <span class="material-symbols-outlined" aria-hidden="true">image</span>
+                        PNG · JPEG · WebP · AVIF
+                    </span>
+                </div>
                 <div class="grid">
 
                     <!-- Головне зображення (Canvas) -->
@@ -231,7 +285,7 @@
                         <!-- Upload zone -->
                         <div class="content-bloc photo-upload-zone" id="gim-dropzone" data-dropzone>
                             <div class="content-line">
-                                <label class="photo-select-all u-hidden" id="gim-select-all-wrap" for="gim-select-all"
+                                <label class="photo-select-all u-hidden" id="gim-select-all-wrap"
                                     data-tooltip="Вибрати всі" data-tooltip-always>
                                     <input type="checkbox" id="gim-select-all" aria-label="Вибрати всі зображення">
                                 </label>
@@ -291,7 +345,7 @@
 
     <!-- CONTROLS -->
     <div class="aside-controls">
-        <button class="btn-icon medium square rotate aside-trigger" aria-label="Toggle aside">
+        <button type="button" class="btn-icon medium square rotate aside-trigger" aria-label="Відкрити панель інструментів">
             <span class="material-symbols-outlined">apps</span>
         </button>
     </div>
