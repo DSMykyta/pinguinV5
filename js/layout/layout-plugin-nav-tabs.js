@@ -54,6 +54,26 @@ export function initTabs(container = document) {
             e.preventDefault();
             activateTab(clickedTab);
         });
+
+        // WAI-ARIA tabs: Arrow keys move and activate focus without a mouse.
+        tabContainer.addEventListener('keydown', (e) => {
+            const currentTab = e.target.closest('[role="tab"][data-tab-target]');
+            if (!currentTab) return;
+
+            const tabs = Array.from(tabContainer.querySelectorAll('[role="tab"][data-tab-target]'));
+            const currentIndex = tabs.indexOf(currentTab);
+            let nextIndex = currentIndex;
+
+            if (e.key === 'ArrowRight') nextIndex = (currentIndex + 1) % tabs.length;
+            else if (e.key === 'ArrowLeft') nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+            else if (e.key === 'Home') nextIndex = 0;
+            else if (e.key === 'End') nextIndex = tabs.length - 1;
+            else return;
+
+            e.preventDefault();
+            tabs[nextIndex].focus();
+            activateTab(tabs[nextIndex]);
+        });
     });
 }
 
@@ -72,7 +92,11 @@ function activateTab(selectedTab) {
     // Деактивуємо всі вкладки в тому самому контейнері
     const tabContainer = selectedTab.closest('[data-tabs-container]');
     if (tabContainer) {
-        tabContainer.querySelectorAll('[data-tab-target]').forEach(t => t.classList.remove('active'));
+        tabContainer.querySelectorAll('[data-tab-target]').forEach(t => {
+            t.classList.remove('active');
+            t.setAttribute('aria-selected', 'false');
+            if (t.getAttribute('role') === 'tab') t.setAttribute('tabindex', '-1');
+        });
     }
 
     // Деактивуємо весь контент + pagination charms
@@ -85,6 +109,8 @@ function activateTab(selectedTab) {
 
     // Активуємо потрібні + pagination charms
     selectedTab.classList.add('active');
+    selectedTab.setAttribute('aria-selected', 'true');
+    if (selectedTab.getAttribute('role') === 'tab') selectedTab.setAttribute('tabindex', '0');
     if (targetContent) {
         targetContent.classList.add('active');
         targetContent.querySelectorAll('.pseudo-table-container').forEach(c => {
