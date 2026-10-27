@@ -34,7 +34,7 @@
 | Рівень | Зобов'язаний | Заборонено |
 |--------|-------------|-----------|
 | `-main.js` | Завантажувати плагіни через `Promise.allSettled`. Експортувати `init*()` або `create*()` | Реалізовувати фічу напряму. Маніпулювати DOM. Містити бізнес-логіку |
-| `-state.js` | Зберігати стан. Реалізовувати `registerHook` / `runHook`. Кешувати DOM-посилання | Завантажувати плагіни. Маніпулювати DOM. Містити обробники подій |
+| `-state.js` | Зберігати стан. Підключати спільний `createHookRegistry`. Кешувати DOM-посилання | Завантажувати плагіни. Маніпулювати DOM. Містити обробники подій. Реалізовувати власний механізм хуків |
 | `-template.js` | Генерувати і повертати HTML-рядок на основі конфігурації | Вставляти HTML в DOM. Вішати `addEventListener`. Знати про `state` |
 | `-core.js` | Ініціалізувати базову DOM-логіку. Запускати `state.runHook()` в ключових точках | Реалізовувати окремі фічі. Знати про конкретні плагіни |
 | `plugin` | Експортувати `function init(state)`. Реагувати через `state.registerHook()`. Завжди передавати `{ plugin: 'name' }`. Якщо є зовнішні підписки — повертати `{ dispose() }` | Імпортувати інші плагіни. Зберігати дані поза `state`. Покладатися на порядок завантаження |
@@ -61,17 +61,16 @@ export async function initMyModule() {
 
 ```js
 // my-state.js — стан і хуки (єдине джерело правди)
+import { createHookRegistry } from '../../utils/utils-hooks.js';
+
 export function createMyState() {
-    const hooks = {};
+    const hooks = createHookRegistry({ name: 'MyModule', events: ['onDidUpdate', 'onWillRender'] });
     const filters = {};
     return {
         data: [],
-        registerHook: (name, fn, opts = {}) => {
-            (hooks[name] ??= []).push({ fn, plugin: opts.plugin ?? '?' });
-        },
-        runHook: (name, ...args) => hooks[name]?.forEach(({ fn, plugin }) => {
-            try { fn(...args) } catch (e) { console.error(`[${name}/${plugin}]`, e) }
-        }),
+        registerHook: hooks.registerHook,
+        runHook: hooks.runHook,
+        runHookAsync: hooks.runHookAsync,
         registerFilter: (name, fn) => (filters[name] ??= []).push(fn),
         applyFilter: (name, value, ...args) =>
             (filters[name] ?? []).reduce((v, fn) => fn(v, ...args), value),
@@ -123,6 +122,9 @@ export function init(state) {
 Плагіни не знають одне про одного. Вони спілкуються виключно через `state` — підписуються на події і запускають їх.
 
 ```js
+import { createHookRegistry } from '../../utils/utils-hooks.js';
+
+const hooks = createHookRegistry({ name: 'MyComponent' });
 const state = {
     // Дані
     data: [],
@@ -132,14 +134,9 @@ const state = {
     dom: { container, toolbar, editor, ... },
 
     // Хук-шина — реакція на події (side effects)
-    registerHook(name, fn, opts = {}) {
-        (hooks[name] ??= []).push({ fn, plugin: opts.plugin ?? '?' });
-    },
-    runHook(name, ...args) {
-        hooks[name]?.forEach(({ fn, plugin }) => {
-            try { fn(...args) } catch(e) { console.error(`[${name}/${plugin}]`, e) }
-        });
-    },
+    registerHook: hooks.registerHook,
+    runHook: hooks.runHook,
+    runHookAsync: hooks.runHookAsync,
 
     // Фільтр-шина — трансформація даних перед рендером
     registerFilter(name, fn) { (filters[name] ??= []).push(fn); },
@@ -184,8 +181,12 @@ export function init(state) {
 Плагін ніколи не імпортує інший плагін. Тільки підписка і реакція через `state`.
 
 1. **Підписка** (`registerHook`) — При `init(state)` плагін реєструє callback на подію. Може підписатись на кілька хуків.
-2. **Тригер** (`runHook`) — Ядро або плагін викликає `state.runHook('onInput')`. Всі підписники отримують виклик паралельно.
-3. **Реакція** (`callback`) — Кожен плагін реагує незалежно. Помилка в одному не зупиняє інших — `try/catch` в `runHook`.
+2. **Тригер** (`runHook`) — Ядро або плагін викликає `state.runHook('onInput')`. Підписники запускаються синхронно в порядку пріоритету; однаковий пріоритет зберігає порядок реєстрації. `runHookAsync` додатково очікує кожен callback перед наступним.
+3. **Реакція** (`callback`) — Помилка одного callback не зупиняє інших. Спільний registry ізолює як синхронні помилки, так і відхилені Promise; `runHook` не очікує асинхронного завершення.
+
+Єдина реалізація — `js/utils/utils-hooks.js`. Page, Table, Editor, Modal, Avatar і генератори підключають її через власні фабрики або сумісні експорти. Власний стан і назви подій лишаються в модулі.
+
+`registerHook(name, callback, { plugin, priority })` повертає ідемпотентну відписку саме цієї реєстрації. Числовий третій аргумент підтримується для старих викликів. `events` обмежує допустимі події компонента; без нього registry відкритий. Зміни підписок під час dispatch не зміщують виклики інших callbacks. `clearHooks()` прибирає підписки під час знищення власника.
 
 ### Плагіни в реальних модулях
 
@@ -230,7 +231,7 @@ export function init(state) {
 
 ### Named plugins — ім'я плагіна в кожному хуку
 
-Третій аргумент `registerHook` — завжди об'єкт з іменем плагіна. Коли щось падає — консоль одразу показує де шукати.
+Нові виклики `registerHook` передають об'єкт з іменем плагіна та, за потреби, `priority` (типово 10, менший виконується раніше). Числовий аргумент залишений для сумісності. Коли щось падає — консоль показує ім'я модуля, плагіна і події.
 
 ```js
 // ❌ Без імені — незрозуміла помилка

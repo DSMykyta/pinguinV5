@@ -17,46 +17,13 @@
  * - onReset: викликається при оновленні даних
  */
 
-const hooks = {
-    onInit: [],
-    onReset: [],
-};
+import { createHookRegistry } from '../../utils/utils-hooks.js';
 
-/**
- * Реєструє плагін для певного хука
- */
-export function registerLinksPlugin(hookName, callback, priority = 10) {
-    if (!hooks[hookName]) {
-        console.warn(`[Links Plugins] Невідомий хук: ${hookName}`);
-        return;
-    }
+const registry = createHookRegistry({
+    name: 'Links',
+    events: ['onInit', 'onReset'],
+});
 
-    hooks[hookName].push({ callback, priority });
-    hooks[hookName].sort((a, b) => a.priority - b.priority);
-}
-
-/**
- * Викликає всі зареєстровані плагіни для хука
- */
-export function runHook(hookName, ...args) {
-    if (!hooks[hookName]) return;
-
-    hooks[hookName].forEach(({ callback }) => {
-        try {
-            callback(...args);
-        } catch (err) {
-            console.error(`[Links Plugin Error] ${hookName}:`, err);
-        }
-    });
-}
-
-/**
- * Повертає список зареєстрованих плагінів (для дебагу)
- */
-export function getRegisteredPlugins() {
-    const result = {};
-    for (const [hookName, plugins] of Object.entries(hooks)) {
-        result[hookName] = plugins.length;
-    }
-    return result;
-}
+export const { registerHook, runHook, runHookAsync } = registry;
+export const registerLinksPlugin = registerHook;
+export const getRegisteredPlugins = registry.getRegisteredHooks;

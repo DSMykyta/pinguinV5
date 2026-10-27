@@ -12,19 +12,17 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
+import { createHookRegistry } from '../../utils/utils-hooks.js';
+
 /**
  * Створити state для редактора
  */
 export function createEditorState(id, container, config) {
     // Хуки для плагінів
-    const hooks = {
-        onInput: [],
-        onSelectionChange: [],
-        onValidate: [],
-        onModeChange: [],
-        onKeydown: [],
-        onWillChange: [],
-    };
+    const { registerHook, runHook, runHookAsync } = createHookRegistry({
+        name: 'Editor',
+        events: ['onInput', 'onSelectionChange', 'onValidate', 'onModeChange', 'onKeydown', 'onWillChange'],
+    });
 
     const state = {
         id,
@@ -55,24 +53,9 @@ export function createEditorState(id, container, config) {
             readingTime: container.querySelector(`#${id}-reading-time`),
         },
 
-        // Реєстрація хуків
-        registerHook(hookName, callback, options = {}) {
-            if (hooks[hookName]) {
-                hooks[hookName].push({ fn: callback, plugin: options.plugin || 'anonymous' });
-            }
-        },
-
-        // Виконання хуків
-        runHook(hookName, ...args) {
-            if (!hooks[hookName]) return;
-            hooks[hookName].forEach(({ fn, plugin }) => {
-                try {
-                    fn(...args);
-                } catch (e) {
-                    console.error(`[editor:${plugin}] hook "${hookName}" failed:`, e);
-                }
-            });
-        },
+        registerHook,
+        runHook,
+        runHookAsync,
 
         // Отримати чистий HTML (без підсвічувань)
         getCleanHtml() {
