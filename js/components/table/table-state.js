@@ -22,6 +22,8 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
+import { createHookRegistry } from '../../utils/utils-hooks.js';
+
 /**
  * Створити новий стан таблиці
  * @param {Object} config - Конфігурація
@@ -61,46 +63,10 @@ export function createTableState(config = {}) {
     };
 
     // Hooks registry
-    const hooks = {
-        onSort: [],
-        onFilter: [],
-        onSelect: [],
-        onPageChange: [],
-        onDataChange: [],
-        onRender: [],
-        onBeforeRender: [],
-        onDestroy: []
-    };
-
-    /**
-     * Зареєструвати hook
-     */
-    function registerHook(hookName, callback, options = {}) {
-        if (hooks[hookName] && typeof callback === 'function') {
-            hooks[hookName].push({ fn: callback, plugin: options.plugin || 'anonymous' });
-            return () => {
-                const index = hooks[hookName].findIndex(h => h.fn === callback);
-                if (index > -1) hooks[hookName].splice(index, 1);
-            };
-        }
-        console.warn(`[TableState] Unknown hook: ${hookName}`);
-        return () => {};
-    }
-
-    /**
-     * Виконати hooks
-     */
-    function runHook(hookName, ...args) {
-        if (hooks[hookName]) {
-            hooks[hookName].forEach(({ fn, plugin }) => {
-                try {
-                    fn(...args);
-                } catch (e) {
-                    console.error(`[TableState:${plugin}] Hook ${hookName} error:`, e);
-                }
-            });
-        }
-    }
+    const { registerHook, runHook, runHookAsync, clearHooks } = createHookRegistry({
+        name: 'Table',
+        events: ['onSort', 'onFilter', 'onSelect', 'onPageChange', 'onDataChange', 'onRender', 'onBeforeRender', 'onDestroy'],
+    });
 
     /**
      * Оновити дані
@@ -251,9 +217,7 @@ export function createTableState(config = {}) {
      */
     function destroy() {
         runHook('onDestroy');
-        Object.keys(hooks).forEach(key => {
-            hooks[key] = [];
-        });
+        clearHooks();
         state.selectedRows.clear();
     }
 
@@ -299,6 +263,7 @@ export function createTableState(config = {}) {
         // Hooks
         registerHook,
         runHook,
+        runHookAsync,
 
         // Lifecycle
         destroy

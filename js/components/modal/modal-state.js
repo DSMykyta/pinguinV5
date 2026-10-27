@@ -19,46 +19,18 @@
 ╚══════════════════════════════════════════════════════════════════════════╝
 */
 
-const hooks = {
-    onBeforeOpen: [],
-    onAfterOpen: [],
-    onBeforeClose: [],
-    onAfterClose: [],
-};
+import { createHookRegistry } from '../../utils/utils-hooks.js';
+
+export const { registerHook, runHook, runHookAsync } = createHookRegistry({
+    name: 'Modal',
+    events: ['onBeforeOpen', 'onAfterOpen', 'onBeforeClose', 'onAfterClose'],
+});
 
 /** @type {string[]} */
 const openModalsStack = [];
 
 /** @type {Map<string, string>} */
 const templateCache = new Map();
-
-/**
- * Зареєструвати хук
- * @param {string} hookName
- * @param {Function} callback
- * @param {{ plugin?: string }} options
- */
-export function registerHook(hookName, callback, options = {}) {
-    if (hooks[hookName]) {
-        hooks[hookName].push({ fn: callback, plugin: options.plugin || 'anonymous' });
-    }
-}
-
-/**
- * Виконати всі хуки
- * @param {string} hookName
- * @param {...any} args
- */
-export function runHook(hookName, ...args) {
-    if (!hooks[hookName]) return;
-    hooks[hookName].forEach(({ fn, plugin }) => {
-        try {
-            fn(...args);
-        } catch (e) {
-            console.error(`[modal/${plugin}] hook "${hookName}" failed:`, e);
-        }
-    });
-}
 
 // ── Stack API ──
 

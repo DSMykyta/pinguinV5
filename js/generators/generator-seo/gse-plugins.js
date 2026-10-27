@@ -18,59 +18,15 @@
  * - onReset: викликається при скиданні форми
  */
 
-const hooks = {
-    onInit: [],
-    onCalculate: [],
-    onReset: [],
-};
+import { createHookRegistry } from '../../utils/utils-hooks.js';
 
-/**
- * Реєструє плагін для певного хука
- * @param {string} hookName - Назва хука (onInit, onCalculate, onReset)
- * @param {Function} callback - Функція яка буде викликана
- * @param {number} priority - Пріоритет (менше = раніше), за замовчуванням 10
- */
-export function registerSeoPlugin(hookName, callback, priority = 10) {
-    if (!hooks[hookName]) {
-        console.warn(`[SEO Plugins] Невідомий хук: ${hookName}`);
-        return;
-    }
+const registry = createHookRegistry({
+    name: 'SEO',
+    events: ['onInit', 'onCalculate', 'onReset'],
+});
 
-    hooks[hookName].push({ callback, priority });
-    // Сортуємо по пріоритету
-    hooks[hookName].sort((a, b) => a.priority - b.priority);
-}
+export const { registerHook, runHook, runHookAsync } = registry;
+export const registerSeoPlugin = registerHook;
+export const getRegisteredPlugins = registry.getRegisteredHooks;
 
-/**
- * Викликає всі зареєстровані плагіни для хука
- * @param {string} hookName - Назва хука
- * @param {...any} args - Аргументи для передачі в плагіни
- */
-export function runHook(hookName, ...args) {
-    if (!hooks[hookName]) return;
-
-    hooks[hookName].forEach(({ callback }) => {
-        try {
-            callback(...args);
-        } catch (err) {
-            console.error(`[SEO Plugin Error] ${hookName}:`, err);
-        }
-    });
-}
-
-/**
- * Повертає список зареєстрованих плагінів (для дебагу)
- */
-export function getRegisteredPlugins() {
-    const result = {};
-    for (const [hookName, plugins] of Object.entries(hooks)) {
-        result[hookName] = plugins.length;
-    }
-    return result;
-}
-
-/**
- * Опціональні функції, які плагіни можуть реєструвати.
- * Якщо плагін видалено — функція просто не буде викликана.
- */
 export const optionalFunctions = {};

@@ -16,6 +16,8 @@
  * - isPluginLoaded(pluginName) - перевірити чи плагін завантажений
  */
 
+import { createHookRegistry } from '../../utils/utils-hooks.js';
+
 import {
     AVAILABLE_ANIMALS,
     DEFAULT_ANIMAL,
@@ -52,97 +54,10 @@ export const avatarState = {
     }
 };
 
-/**
- * Система хуків для комунікації між плагінами
- */
-const hooks = {
-    // Виклик при ініціалізації системи
-    onInit: [],
-
-    // Виклик при зміні користувача
-    onUserChange: [],
-
-    // Виклик при рендерингу аватара
-    onRender: [],
-
-    // Виклик при виборі аватара в селекторі
-    onAvatarSelect: [],
-
-    // Виклик при відкритті модалу
-    onModalOpen: [],
-
-    // Виклик при рендерингу UI state
-    onUIStateRender: []
-};
-
-/**
- * Реєстрація callback для хука
- *
- * @param {string} hookName - Назва хука
- * @param {Function} callback - Функція-обробник
- *
- * @example
- * registerHook('onUserChange', (user) => {
- *     console.log('User changed:', user);
- * });
- */
-export function registerHook(hookName, callback, options = {}) {
-    if (!hooks[hookName]) {
-        console.warn(`[Avatar] Unknown hook: ${hookName}`);
-        return;
-    }
-
-    if (typeof callback !== 'function') {
-        console.warn(`[Avatar] Hook callback must be a function`);
-        return;
-    }
-
-    hooks[hookName].push({ fn: callback, plugin: options.plugin || 'anonymous' });
-}
-
-/**
- * Виконання хука синхронно
- *
- * @param {string} hookName - Назва хука
- * @param {...any} args - Аргументи для передачі в callbacks
- *
- * @example
- * runHook('onRender', avatarElement, options);
- */
-export function runHook(hookName, ...args) {
-    if (!hooks[hookName]) {
-        return;
-    }
-
-    hooks[hookName].forEach(({ fn, plugin }) => {
-        try {
-            fn(...args);
-        } catch (error) {
-            console.error(`[Avatar:${plugin}] hook "${hookName}" error:`, error);
-        }
-    });
-}
-
-/**
- * Виконання хука асинхронно
- *
- * @param {string} hookName - Назва хука
- * @param {...any} args - Аргументи для передачі в callbacks
- * @returns {Promise<void>}
- */
-export async function runHookAsync(hookName, ...args) {
-    if (!hooks[hookName]) {
-        return;
-    }
-
-    for (const callback of hooks[hookName]) {
-        try {
-            await callback(...args);
-        } catch (error) {
-            console.error(`[Avatar] Async hook error (${hookName}):`, error);
-        }
-    }
-}
+export const { registerHook, runHook, runHookAsync } = createHookRegistry({
+    name: 'Avatar',
+    events: ['onInit', 'onUserChange', 'onRender', 'onAvatarSelect', 'onModalOpen', 'onUIStateRender'],
+});
 
 /**
  * Позначити плагін як завантажений

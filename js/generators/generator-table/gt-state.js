@@ -17,6 +17,8 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
+import { createHookRegistry } from '../../utils/utils-hooks.js';
+
 // ============================================================================
 // STATE
 // ============================================================================
@@ -30,50 +32,10 @@ export const state = {
 // HOOKS
 // ============================================================================
 
-const hooks = {
-    onRowCreate: [],
-    onRowDelete: [],
-    onTableReset: [],
-    onSessionSave: [],
-    onSessionLoad: [],
-    onGenerate: [],
-    onMagicParse: [],
-    onInit: [],
-};
-
-/**
- * Зареєструвати hook
- * @param {string} hookName - Назва хука
- * @param {Function} callback - Callback функція
- * @returns {Function} - Функція для видалення хука
- */
-export function registerHook(hookName, callback, options = {}) {
-    if (hooks[hookName] && typeof callback === 'function') {
-        hooks[hookName].push({ fn: callback, plugin: options.plugin || 'anonymous' });
-        return () => {
-            const index = hooks[hookName].findIndex(h => h.fn === callback);
-            if (index > -1) hooks[hookName].splice(index, 1);
-        };
-    }
-    console.warn(`[GT-State] Unknown hook: ${hookName}`);
-    return () => {};
-}
-
-/**
- * Виконати hooks
- * @param {string} hookName - Назва хука
- * @param {...any} args - Аргументи
- */
-export function runHook(hookName, ...args) {
-    if (!hooks[hookName]) return;
-    hooks[hookName].forEach(({ fn, plugin }) => {
-        try {
-            fn(...args);
-        } catch (e) {
-            console.error(`[GT-State:${plugin}] hook "${hookName}" error:`, e);
-        }
-    });
-}
+export const { registerHook, runHook, runHookAsync } = createHookRegistry({
+    name: 'Table Generator',
+    events: ['onRowCreate', 'onRowDelete', 'onTableReset', 'onSessionSave', 'onSessionLoad', 'onGenerate', 'onMagicParse', 'onInit'],
+});
 
 // ============================================================================
 // PLUGINS

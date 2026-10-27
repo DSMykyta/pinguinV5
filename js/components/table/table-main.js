@@ -236,8 +236,9 @@ export function createTable(container, config = {}) {
         getState: () => state.getState(),
 
         // Hooks
-        registerHook: (hookName, callback) => state.registerHook(hookName, callback),
+        registerHook: (hookName, callback, options) => state.registerHook(hookName, callback, options),
         runHook: (hookName, ...args) => state.runHook(hookName, ...args),
+        runHookAsync: (hookName, ...args) => state.runHookAsync(hookName, ...args),
 
         // DOM
         getContainer: () => tableCore.getContainer(),

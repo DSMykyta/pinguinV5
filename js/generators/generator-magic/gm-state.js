@@ -14,14 +14,13 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
+import { createHookRegistry } from '../../utils/utils-hooks.js';
+
 // Hooks registry
-const hooks = {
-    onBeforeParse: [],
-    onAfterParse: [],
-    onNormalize: [],
-    onCleanup: [],
-    onError: [],
-};
+export const { registerHook, runHook, runHookAsync } = createHookRegistry({
+    name: 'Magic',
+    events: ['onBeforeParse', 'onAfterParse', 'onNormalize', 'onCleanup', 'onError'],
+});
 
 // Loaded plugins registry
 const loadedPlugins = new Set();
@@ -32,40 +31,6 @@ export const state = {
     lastEntries: [],
     servingSize: '',
 };
-
-/**
- * Зареєструвати hook
- * @param {string} hookName - Назва хука
- * @param {Function} callback - Callback функція
- * @returns {Function} - Функція для видалення хука
- */
-export function registerHook(hookName, callback, options = {}) {
-    if (hooks[hookName] && typeof callback === 'function') {
-        hooks[hookName].push({ fn: callback, plugin: options.plugin || 'anonymous' });
-        return () => {
-            const index = hooks[hookName].findIndex(h => h.fn === callback);
-            if (index > -1) hooks[hookName].splice(index, 1);
-        };
-    }
-    console.warn(`[MagicState] Unknown hook: ${hookName}`);
-    return () => {};
-}
-
-/**
- * Виконати hooks
- * @param {string} hookName - Назва хука
- * @param {...any} args - Аргументи
- */
-export function runHook(hookName, ...args) {
-    if (!hooks[hookName]) return;
-    hooks[hookName].forEach(({ fn, plugin }) => {
-        try {
-            fn(...args);
-        } catch (e) {
-            console.error(`[MagicState:${plugin}] hook "${hookName}" error:`, e);
-        }
-    });
-}
 
 /**
  * Позначити плагін як завантажений
