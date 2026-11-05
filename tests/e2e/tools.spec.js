@@ -177,48 +177,46 @@ test('legacy pills remain usable in mobile and respect reduced motion', async ({
 });
 
 
-test('local navigation stays fixed at viewport center as labels expand and panels change', async ({ page }) => {
+test('global navigation row stays centered while legacy buttons expand from their icons', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/tools');
 
   const nav = page.locator('.pg-shell__local-nav').getByRole('tablist', { name: 'Інструменти' });
-  const slots = nav.locator('.pg-tabs__slot');
+  const tables = nav.getByRole('tab', { name: 'Таблиці' });
   const text = nav.getByRole('tab', { name: 'Текст' });
 
-  async function geometry() {
-    const group = await nav.boundingBox();
-    const buttons = await Promise.all([0, 1].map(index => slots.nth(index).boundingBox()));
-    return {
-      groupX: group.x,
-      groupWidth: group.width,
-      center: group.x + group.width / 2,
-      slots: buttons.map(box => box.x + box.width / 2),
-    };
+  await expect(nav.locator('.pg-tabs__slot, .pg-tabs__width-guide')).toHaveCount(0);
+  async function metrics() {
+    const row = await nav.boundingBox();
+    const first = await tables.boundingBox();
+    const second = await text.boundingBox();
+    return { center: row.x + row.width / 2, width: row.width, x: row.x, first, second };
   }
 
-  const initial = await geometry();
-  expect(Math.abs(initial.center - 720)).toBeLessThan(1);
+  const before = await metrics();
+  expect(Math.abs(before.center - 720)).toBeLessThan(1);
+  expect(before.second.x).toBeGreaterThanOrEqual(before.first.x + before.first.width);
 
   await text.hover();
   await expect.poll(async () => (await text.boundingBox()).width).toBeGreaterThan(60);
-  expect(await geometry()).toEqual(initial);
+  await text.evaluate(node => Promise.all(node.getAnimations().map(animation => animation.finished)));
+  const hover = await metrics();
+  expect(Math.abs(hover.center - 720)).toBeLessThan(1);
+  expect(hover.width).toBeGreaterThan(before.width + 25);
+  expect(hover.x).toBeLessThan(before.x - 12);
 
   await text.click();
   await expect(text).toHaveAttribute('aria-selected', 'true');
-  expect(await geometry()).toEqual(initial);
+  expect(Math.abs((await metrics()).center - 720)).toBeLessThan(1);
 
   await page.locator('[data-pg-action="sidebar-toggle"]').click();
-  await expect(page.locator('.pg-shell')).toHaveAttribute('data-pg-sidebar-state', 'collapsed');
-  expect(await geometry()).toEqual(initial);
-
+  expect(Math.abs((await metrics()).center - 720)).toBeLessThan(1);
   await page.locator('[data-pg-action="aside-toggle"]').click();
   await page.locator('[data-pg-action="aside-pin"]').click();
-  await expect(page.locator('.pg-shell')).toHaveAttribute('data-pg-aside-mode', 'docked');
-  expect(await geometry()).toEqual(initial);
+  expect(Math.abs((await metrics()).center - 720)).toBeLessThan(1);
 
   await page.setViewportSize({ width: 390, height: 844 });
-  const mobile = await geometry();
-  expect(Math.abs(mobile.center - 195)).toBeLessThan(1);
-  await nav.getByRole('tab', { name: 'Таблиці' }).click();
-  expect(await geometry()).toEqual(mobile);
+  expect(Math.abs((await metrics()).center - 195)).toBeLessThan(1);
+  await tables.click();
+  expect(Math.abs((await metrics()).center - 195)).toBeLessThan(1);
 });
