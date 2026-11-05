@@ -112,3 +112,6 @@
 @import url('utilities/helpers.css');
 @import url('utilities/animations.css');
 @import url('utilities/grid.css');
+
+/* Calm workspace UI — opt-in layer on top of existing components. */
+@import url('layers/calm-shell.css');
