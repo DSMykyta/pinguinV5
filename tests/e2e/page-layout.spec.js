@@ -45,8 +45,13 @@ test('five global zones reserve a real empty 56px footer rail', async ({ page })
   const asideButton = await page.locator('[data-pg-action="aside-toggle"]').boundingBox();
   expect(Math.abs(title.y + title.height / 2 - (search.y + search.height / 2)))
     .toBeLessThan(3);
-  // The outer edges of search + context button match the aside panel exactly.
-  const asideBox = await page.locator('#pg-aside-panel').evaluate(el => {
+  // Compare visible edges, not the transformed (.975 scale) hidden aside.
+  await page.locator('[data-pg-action="aside-toggle"]').click();
+  const aside = page.locator('#pg-aside-panel');
+  await expect(aside).toBeVisible();
+  await aside.evaluate(el => Promise.all(el.getAnimations()
+    .map(animation => animation.finished.catch(() => {}))));
+  const asideBox = await aside.evaluate(el => {
     const box = el.getBoundingClientRect();
     return { x: box.x, right: box.right, width: box.width };
   });
