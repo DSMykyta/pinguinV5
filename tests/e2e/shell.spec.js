@@ -140,5 +140,9 @@ test('fourth corner FAB is always visible and aligned with the other shell contr
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(aside).toBeHidden();
   await expect(fab).toBeVisible();
-  await cornerAlignment();
+  const [mobileFab, mobileContext] = await Promise.all(
+    [fab, context].map(el => el.boundingBox()));
+  expect(Math.abs((mobileFab.x + mobileFab.width / 2) -
+    (mobileContext.x + mobileContext.width / 2))).toBeLessThan(1);
+  expect(Math.abs(mobileFab.y + mobileFab.height - (844 - 12))).toBeLessThan(1);
 });
