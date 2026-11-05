@@ -15,7 +15,8 @@ test('root redirects to Tools, without an Overview page', async ({ page }) => {
   await page.goto('/');
   await expect(page).toHaveURL(/\/tools$/);
   await expect(page.getByRole('heading', { level: 1, name: 'Інструменти' })).toBeVisible();
-  await expect(page.locator('.pg-page')).toBeHidden(); // Empty main workspace during geometry review
+  await expect(page.locator('#pg-tools-panel-tables .pg-page')).toBeVisible();
+  await expect(page.locator('#pg-tools-panel-text .pg-page')).toBeHidden();
   const links = page.getByRole('navigation', { name: 'Інструменти' }).getByRole('link');
   await expect(links).toHaveCount(1);
   await expect(links.first()).toHaveAttribute('aria-current', 'page');
