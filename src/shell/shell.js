@@ -9,7 +9,13 @@ const NARROW_QUERY = '(max-width: 1080px)';
 export function mountShell(host) {
   if (!host) throw new Error('Shell mount target is required');
 
-  const preferences = loadPreferences(window.localStorage);
+  let storage = null;
+  try {
+    storage = window.localStorage;
+  } catch {
+    // Privacy settings can block access; shell still works without persistence.
+  }
+  const preferences = loadPreferences(storage);
   const media = window.matchMedia(NARROW_QUERY);
   let mobileNavOpen = false;
   let mobileAsideOpen = false;
@@ -134,7 +140,7 @@ export function mountShell(host) {
   host.replaceChildren(shell);
 
   function persist() {
-    savePreferences(window.localStorage, preferences);
+    savePreferences(storage, preferences);
   }
 
   function updateView() {
@@ -186,7 +192,7 @@ export function mountShell(host) {
 
   function handleStorage(event) {
     if (event.key !== 'pg:v1:shell:preferences') return;
-    Object.assign(preferences, loadPreferences(window.localStorage));
+    Object.assign(preferences, loadPreferences(storage));
     updateView();
   }
 

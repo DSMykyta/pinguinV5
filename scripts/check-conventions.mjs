@@ -70,7 +70,7 @@ async function checkCss(path, label) {
       errors.push(label + ': CSS class .' + match[1] + ' must start with pg-');
     }
   }
-  for (const match of css.matchAll(/--([A-Za-z_][\w-]*)/g)) {
+  for (const match of css.matchAll(/(?:var\s*\(\s*|(?:^|[;{])\s*)--([A-Za-z_][\w-]*)/gm)) {
     if (!match[1].startsWith('pg-')) {
       errors.push(label + ': CSS variable --' + match[1] + ' must start with --pg-');
     }
