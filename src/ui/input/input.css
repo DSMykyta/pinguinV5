@@ -187,5 +187,7 @@
 .pg-input[data-pg-state='disabled'] .pg-input__field:hover { border-color: var(--pg-color-border); }
 
 @media (prefers-reduced-motion: reduce) {
-  .pg-input__field, .pg-input__label, .pg-input__control::placeholder { transition: none; }
+  .pg-input__field,
+  .pg-input--floating .pg-input__label,
+  .pg-input--floating .pg-input__control::placeholder { transition: none; }
 }
