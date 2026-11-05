@@ -4,8 +4,8 @@
  * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Створює компактне контекстне меню.                                                    ║
  * ║ ЗАЛЕЖНОСТІ: Спільні SVG-іконки.                                                                    ║
- * ║ ПУБЛІЧНИЙ API: createAside().                                                                      ║
- * ║ ПРИНЦИП: Не займає додаткову колонку.                                                              ║
+ * ║ ПУБЛІЧНИЙ API: createAside(), setPinned().                                                                      ║
+ * ║ ПРИНЦИП: Закріплена панель займає третю колонку тільки на desktop.                                                              ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -17,10 +17,9 @@ const LINKS = Object.freeze([
 ]);
 
 /**
- * A contextual popover. It does not occupy a grid column or control page width.
- * A feature can replace the link content via the public API in a later phase.
+ * Transient popover by default; pinning docks it into a desktop grid column.
  */
-export function createAside() {
+export function createAside({ onPinToggle }) {
   const aside = document.createElement('aside');
   aside.id = 'pg-aside-panel';
   aside.className = 'pg-aside';
@@ -32,6 +31,20 @@ export function createAside() {
   title.className = 'pg-aside__heading';
   title.textContent = 'Проєкт';
   aside.append(title);
+
+  const pinButton = document.createElement('button');
+  pinButton.type = 'button';
+  pinButton.className = 'pg-aside__item pg-aside__pin';
+  pinButton.dataset.pgAction = 'aside-pin';
+  pinButton.setAttribute('aria-pressed', 'false');
+  pinButton.addEventListener('click', onPinToggle);
+
+  const pinIcon = createIcon('pin');
+  pinIcon.classList.add('pg-aside__item-icon');
+  const pinLabel = document.createElement('span');
+  pinLabel.textContent = 'Закріпити';
+  pinButton.append(pinIcon, pinLabel);
+  aside.append(pinButton);
 
   const list = document.createElement('nav');
   list.className = 'pg-aside__list';
@@ -57,5 +70,16 @@ export function createAside() {
   }
 
   aside.append(list);
-  return { element: aside };
+
+  function setPinned(isPinned, isNarrow) {
+    pinButton.hidden = isNarrow;
+    pinButton.setAttribute('aria-pressed', String(isPinned));
+    pinLabel.textContent = isPinned ? 'Відкріпити' : 'Закріпити';
+    const newIcon = createIcon(isPinned ? 'pin-off' : 'pin');
+    newIcon.classList.add('pg-aside__item-icon');
+    pinButton.replaceChild(newIcon, pinButton.firstChild);
+    pinButton.title = isPinned ? 'Повернути плаваюче меню' : 'Закріпити панель справа';
+  }
+
+  return { element: aside, pinButton, setPinned };
 }

@@ -20,6 +20,8 @@ const ICONS = Object.freeze({
   'monitor': '<rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 22h8m-4-4v4"/>',
   'code': '<path d="m8 9-3 3 3 3m8-6 3 3-3 3m-5-7-2 8"/>',
   'file-text': '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8"/>',
+  'pin': '<path d="m16 3 5 5-3.5 1.5-.5 4.5-3 3-3.5-3.5-4.5.5L3 11l5-3 4.5-.5L14 4z"/><path d="m9 15-6 6"/>',
+  'pin-off': '<path d="M3 3 21 21M8 8l4.5-.5L14 4l2-1 5 5-3.5 1.5-.5 4.5-1 1M9 15l-6 6M5 11l-2 2 3.5-.5 2.5 2.5"/>',
   'external-link': '<path d="M14 3h7v7m0-7-10 10"/><path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6"/>',
 });
 

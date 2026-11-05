@@ -13,14 +13,16 @@ import { applyTheme } from '../core/theme.js';
 
 export function createShellView({ shell, sidebar, aside, backdrop, mobileNavButton,
   contextButton, preferences, viewport, systemColor }) {
-  return function renderShellView(mobileNavOpen) {
+  return function renderShellView(mobileNavOpen, mobileAsideOpen) {
     const isNarrow = viewport.matches;
-    const isAsideVisible = preferences.asideOpen;
+    const isPinned = !isNarrow && preferences.asidePinned;
+    const isAsideVisible = isNarrow ? mobileAsideOpen : preferences.asideOpen || isPinned;
     const isNavVisible = !isNarrow || mobileNavOpen;
     const isOverlayOpen = isNarrow && mobileNavOpen;
 
     shell.dataset.pgSidebarState = preferences.sidebarCollapsed ? 'collapsed' : 'expanded';
     shell.dataset.pgAsideState = isAsideVisible ? 'open' : 'closed';
+    shell.dataset.pgAsideMode = isPinned ? 'docked' : 'floating';
     shell.dataset.pgMobileNav = mobileNavOpen ? 'open' : 'closed';
     shell.dataset.pgOverlayState = isOverlayOpen ? 'open' : 'closed';
 
@@ -50,5 +52,6 @@ export function createShellView({ shell, sidebar, aside, backdrop, mobileNavButt
       isAsideVisible ? 'Закрити контекстне меню' : 'Відкрити контекстне меню');
 
     sidebar.setTheme(preferences.theme);
+    aside.setPinned(isPinned, isNarrow);
   };
 }

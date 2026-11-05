@@ -35,6 +35,7 @@ export function mountShell(host) {
   const viewport = window.matchMedia(NARROW_QUERY);
   const systemColor = window.matchMedia('(prefers-color-scheme: dark)');
   let mobileNavOpen = false;
+  let mobileAsideOpen = false;
 
   const shell = document.createElement('div');
   shell.className = 'pg-shell';
@@ -54,7 +55,8 @@ export function mountShell(host) {
     action: 'mobile-menu-toggle',
     onClick: () => {
       mobileNavOpen = !mobileNavOpen;
-      preferences.asideOpen = false;
+      mobileAsideOpen = false;
+      if (!preferences.asidePinned) preferences.asideOpen = false;
       updateView();
       mobileNavButton.focus();
     },
@@ -75,7 +77,15 @@ export function mountShell(host) {
     icon: 'sliders',
     action: 'aside-toggle',
     onClick: () => {
-      preferences.asideOpen = !preferences.asideOpen;
+      if (viewport.matches) {
+        mobileAsideOpen = !mobileAsideOpen;
+      } else if (preferences.asidePinned) {
+        preferences.asidePinned = false;
+        preferences.asideOpen = false;
+        persist();
+      } else {
+        preferences.asideOpen = !preferences.asideOpen;
+      }
       mobileNavOpen = false;
       updateView();
       contextButton.focus();
@@ -107,7 +117,8 @@ export function mountShell(host) {
     },
     onNavigate(path) {
       mobileNavOpen = false;
-      preferences.asideOpen = false;
+      mobileAsideOpen = false;
+      if (!preferences.asidePinned) preferences.asideOpen = false;
       updateView();
       router.navigate(path);
     },
@@ -118,7 +129,15 @@ export function mountShell(host) {
     },
   });
 
-  const aside = createAside();
+  const aside = createAside({
+    onPinToggle() {
+      if (viewport.matches) return;
+      preferences.asidePinned = !preferences.asidePinned;
+      preferences.asideOpen = true;
+      persist();
+      updateView();
+    },
+  });
 
   const backdrop = document.createElement('button');
   backdrop.type = 'button';
@@ -143,7 +162,7 @@ export function mountShell(host) {
     preferences, viewport, systemColor,
   });
   function updateView() {
-    renderShellView(mobileNavOpen);
+    renderShellView(mobileNavOpen, mobileAsideOpen);
   }
 
   const pageOutlet = createPageOutlet({
@@ -151,7 +170,8 @@ export function mountShell(host) {
     onNavigate: path => router.navigate(path),
     onRouteChange() {
       mobileNavOpen = false;
-      preferences.asideOpen = false;
+      mobileAsideOpen = false;
+      if (!preferences.asidePinned) preferences.asideOpen = false;
       updateView();
     },
   });
@@ -164,7 +184,11 @@ export function mountShell(host) {
 
   function handleKeydown(event) {
     if (event.key !== 'Escape') return;
-    if (preferences.asideOpen) {
+    if (viewport.matches && mobileAsideOpen) {
+      mobileAsideOpen = false;
+      updateView();
+      contextButton.focus();
+    } else if (!viewport.matches && preferences.asideOpen && !preferences.asidePinned) {
       preferences.asideOpen = false;
       updateView();
       contextButton.focus();
@@ -176,14 +200,17 @@ export function mountShell(host) {
   }
 
   function handlePointerDown(event) {
-    if (!preferences.asideOpen) return;
+    const isOpen = viewport.matches ? mobileAsideOpen : preferences.asideOpen;
+    if (!isOpen || (!viewport.matches && preferences.asidePinned)) return;
     if (aside.element.contains(event.target) || contextButton.contains(event.target)) return;
-    preferences.asideOpen = false;
+    if (viewport.matches) mobileAsideOpen = false;
+    else preferences.asideOpen = false;
     updateView();
   }
 
   function handleMediaChange() {
     mobileNavOpen = false;
+    mobileAsideOpen = false;
     updateView();
   }
 

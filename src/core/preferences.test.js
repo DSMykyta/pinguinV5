@@ -37,12 +37,12 @@ test('invalid stored values are replaced with safe defaults', () => {
     theme: 'neon',
     sidebarCollapsed: 'yes',
     asideOpen: false,
-  }), { theme: 'system', sidebarCollapsed: false, asideOpen: false });
+  }), { theme: 'system', sidebarCollapsed: false, asideOpen: false, asidePinned: false });
 });
 
 test('preferences round-trip through storage', () => {
   const storage = createStorage();
-  const values = { theme: 'dark', sidebarCollapsed: true, asideOpen: false };
+  const values = { theme: 'dark', sidebarCollapsed: true, asideOpen: false, asidePinned: false };
   assert.equal(savePreferences(storage, values), true);
   assert.ok(storage.getItem(SHELL_STORAGE_KEY));
   assert.deepEqual(loadPreferences(storage), values);
@@ -69,4 +69,16 @@ test('saving shell preferences also keeps the legacy theme-mode key current', ()
   const storage = createStorage();
   savePreferences(storage, { theme: 'dark', sidebarCollapsed: false, asideOpen: false });
   assert.equal(storage.getItem(LEGACY_THEME_KEY), 'dark');
+});
+
+
+test('pinned context is persisted, restored and cannot remain logically closed', () => {
+  const storage = createStorage();
+  savePreferences(storage, { theme: 'system', sidebarCollapsed: true, asideOpen: false, asidePinned: true });
+  assert.deepEqual(loadPreferences(storage), {
+    theme: 'system', sidebarCollapsed: true, asideOpen: true, asidePinned: true,
+  });
+  assert.deepEqual(normalizePreferences({ asidePinned: 'yes', asideOpen: true }), {
+    theme: 'system', sidebarCollapsed: false, asideOpen: true, asidePinned: false,
+  });
 });

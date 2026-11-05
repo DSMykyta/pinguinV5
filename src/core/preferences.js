@@ -16,6 +16,7 @@ export const DEFAULT_PREFERENCES = Object.freeze({
   theme: 'system',
   sidebarCollapsed: false,
   asideOpen: false,
+  asidePinned: false,
 });
 
 const THEMES = new Set(['system', 'light', 'dark']);
@@ -28,8 +29,9 @@ export function normalizePreferences(value) {
     theme: THEMES.has(value.theme) ? value.theme : DEFAULT_PREFERENCES.theme,
     sidebarCollapsed: typeof value.sidebarCollapsed === 'boolean'
       ? value.sidebarCollapsed : DEFAULT_PREFERENCES.sidebarCollapsed,
-    asideOpen: typeof value.asideOpen === 'boolean'
+    asideOpen: value.asidePinned === true ? true : typeof value.asideOpen === 'boolean'
       ? value.asideOpen : DEFAULT_PREFERENCES.asideOpen,
+    asidePinned: value.asidePinned === true,
   };
 }
 
