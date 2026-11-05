@@ -11,7 +11,7 @@
 
 import { test, expect } from '@playwright/test';
 
-test('layout uses restrained shared header controls, floating aside and invisible footer', async ({ page }) => {
+test('layout uses restrained shared header controls, floating aside and empty footer rail', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/tools');
   const aside = page.locator('#pg-aside-panel');
@@ -21,7 +21,8 @@ test('layout uses restrained shared header controls, floating aside and invisibl
   const theme = page.locator('[data-pg-action="theme-cycle"]');
   await expect(sidebar).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
   await expect(aside).toBeHidden();
-  await expect(page.locator('.pg-shell__footer')).toBeHidden();
+  await expect(page.locator('.pg-shell__footer')).toBeVisible();
+  await expect(page.locator('.pg-shell__footer')).toHaveCSS('height', '56px');
   for (const button of [nav, context, theme])
     await expect(button).toHaveCSS('border-radius', '9999px');
   const positions = await Promise.all([nav, context, theme].map(x => x.boundingBox()));
