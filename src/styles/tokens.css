@@ -5,7 +5,7 @@
   /* All theme colors live here, not in components. */
   --pg-color-page: #ffffff;
   --pg-color-nav: #f7f7f8;
-  --pg-color-panel: #fafafa;
+  --pg-color-panel: #fbfbfc;
   --pg-color-surface: #ffffff;
   --pg-color-surface-soft: #f8f8f9;
   --pg-color-text-primary: #242428;
@@ -37,21 +37,23 @@
   --pg-radius-sm: 8px;
   --pg-radius-md: 12px;
   --pg-radius-lg: 16px;
-  --pg-sidebar-width: 256px;
-  --pg-sidebar-compact-width: 68px;
-  --pg-aside-width: 300px;
+  --pg-sidebar-width: 244px;
+  --pg-sidebar-compact-width: 64px;
+  --pg-aside-width: 276px;
   --pg-control-size: 40px;
-  --pg-header-height: 64px;
+  --pg-header-height: 60px;
   --pg-duration-fast: 150ms;
   --pg-duration-normal: 210ms;
   --pg-ease: cubic-bezier(.2, .7, .2, 1);
+  --pg-duration-layout: 340ms;
+  --pg-ease-layout: cubic-bezier(.22, 1, .36, 1);
 }
 
 :root[data-theme='dark'] {
   color-scheme: dark;
   --pg-color-page: #212121;
   --pg-color-nav: #171717;
-  --pg-color-panel: #1d1d1d;
+  --pg-color-panel: #1b1b1d;
   --pg-color-surface: #282828;
   --pg-color-surface-soft: #292929;
   --pg-color-text-primary: #f1f1f1;
@@ -76,7 +78,7 @@
     color-scheme: dark;
     --pg-color-page: #212121;
     --pg-color-nav: #171717;
-    --pg-color-panel: #1d1d1d;
+    --pg-color-panel: #1b1b1d;
     --pg-color-surface: #282828;
     --pg-color-surface-soft: #292929;
     --pg-color-text-primary: #f1f1f1;

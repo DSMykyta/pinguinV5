@@ -53,3 +53,33 @@ test('narrow screen opens and closes independent overlay panels', async ({ page 
   await expect(page.locator('.pg-shell__backdrop')).toBeHidden();
   expect(exceptions).toEqual([]);
 });
+
+
+test('panels animate on desktop while maintaining keyboard-safe hidden states', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+
+  const shell = page.locator('.pg-shell');
+  const context = page.locator('#pg-aside-panel');
+  const shellTransition = await shell.evaluate(element => getComputedStyle(element).transitionProperty);
+  expect(shellTransition).toContain('grid-template-columns');
+
+  await page.locator('[data-pg-action="aside-toggle"]').click();
+  await expect(shell).toHaveAttribute('data-pg-aside-state', 'closed');
+  await expect(context).toHaveAttribute('aria-hidden', 'true');
+  await expect(context).toHaveAttribute('inert', '');
+  await expect(context).toBeHidden();
+
+  await page.locator('[data-pg-action="aside-toggle"]').click();
+  await expect(context).toHaveAttribute('aria-hidden', 'false');
+  await expect(context).toBeVisible();
+});
+
+test('reduced-motion preference suppresses shell movement', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+
+  const transition = await page.locator('.pg-shell')
+    .evaluate(element => getComputedStyle(element).transitionDuration);
+  expect(transition).toBe('0s');
+});
