@@ -30,6 +30,9 @@ test('legacy 20px bottom-left position overlays theme temporarily without moving
   await expect(toast).toHaveCSS('background-color', 'rgb(36, 36, 40)');
   await expect(page.locator('.pg-toast-host')).toHaveCSS('bottom', '20px');
   await expect(page.locator('.pg-toast-host')).toHaveCSS('left', '20px');
+  // Wait for entrance transform: getBoundingClientRect is animated.
+  await toast.evaluate(el => Promise.all(
+    el.getAnimations().map(animation => animation.finished.catch(() => {}))));
   const rect = await toast.boundingBox();
   expect(rect.x).toBe(20);
   expect(Math.abs(rect.y + rect.height - 880)).toBeLessThan(1);
@@ -45,11 +48,11 @@ test('status icons, safe text and error alert are accessible', async ({ page }) 
   await notify(page, src, { type: 'info', duration: 0 });
   await expect(page.locator('.pg-toast__message')).toHaveText(src);
   await expect(page.locator('.pg-toast img')).toHaveCount(0);
-  await expect(page.getByRole('status')).toHaveText(src);
+  await expect(page.locator('.pg-toast__announcer[role="status"]')).toHaveText(src);
   await page.locator('[data-pg-action="toast-dismiss"]').click();
   await expect(page.locator('.pg-toast')).toHaveCount(0);
   await notify(page, 'Помилка збереження', { type: 'error', duration: 0 });
-  await expect(page.getByRole('alert')).toHaveText('Помилка збереження');
+  await expect(page.locator('.pg-toast__announcer[role="alert"]')).toHaveText('Помилка збереження');
   await expect(page.locator('.pg-toast__icon')).toHaveAttribute('aria-hidden', 'true');
   await expect(page.locator('.pg-toast [data-pg-action="toast-dismiss"]')).toHaveAttribute(
     'aria-label', 'Закрити повідомлення');

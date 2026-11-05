@@ -33,7 +33,6 @@ export function mountToasts() {
 
   const host = doc.createElement('div');
   host.className = 'pg-toast-host';
-  host.setAttribute('aria-label', 'Сповіщення');
 
   function createAnnouncer(role) {
     const announcer = doc.createElement('div');
