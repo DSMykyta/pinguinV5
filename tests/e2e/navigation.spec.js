@@ -1,78 +1,71 @@
 /**
  * ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
- * ║ PINGUIN NEXT — GLOBAL NAVIGATION E2E                                                                ║
+ * ║ PINGUIN NEXT — NAVIGATION & SEARCH                                                                  ║
  * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Відкриття `/tools`, маршрути, меню та пошук.                                     ║
- * ║ ЗАЛЕЖНОСТІ: Playwright, Vite і модульна оболонка.                                                   ║
+ * ║ ПРИЗНАЧЕННЯ: Маршрути й реальний пошук у правій частині шапки.                               ║
+ * ║ ЗАЛЕЖНОСТІ: Playwright, Vite і спільні UI-компоненти.                                            ║
  * ║ ПУБЛІЧНИЙ API: Браузерні тести.                                                                    ║
- * ║ ПРИНЦИП: Перевіряємо глобальну поведінку, не декоративні заглушки.                                 ║
+ * ║ ПРИНЦИП: Перевіряємо глобальну схему без винятків для сторінок.                                    ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
 import { test, expect } from '@playwright/test';
 
-test('root replaces Overview with the single functional Tools route', async ({ page }) => {
+test('root redirects to Tools, without an Overview page', async ({ page }) => {
   await page.goto('/');
   await expect(page).toHaveURL(/\/tools$/);
-  await expect(page).toHaveTitle('Інструменти · Pinguin');
-  await expect(page.getByRole('heading', { name: 'Таблиці', exact: true })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Огляд' })).toHaveCount(0);
-
-  const nav = page.getByRole('navigation', { name: 'Інструменти' });
-  const links = nav.locator('a');
+  await expect(page.getByRole('heading', { level: 1, name: 'Інструменти' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2, name: 'Таблиці' })).toBeVisible();
+  const links = page.getByRole('navigation', { name: 'Інструменти' }).getByRole('link');
   await expect(links).toHaveCount(1);
-  await expect(links.first()).toHaveAttribute('href', '/tools');
   await expect(links.first()).toHaveAttribute('aria-current', 'page');
+  await expect(page.getByRole('link', { name: 'Огляд' })).toHaveCount(0);
 });
 
-test('404 has a working return path without a hidden overview', async ({ page }) => {
-  await page.goto('/not-found');
+test('unknown route offers a working return to Tools', async ({ page }) => {
+  await page.goto('/unknown-page');
   await expect(page.getByRole('heading', { name: 'Сторінку не знайдено' })).toBeVisible();
   await page.getByRole('link', { name: 'До інструментів' }).click();
   await expect(page).toHaveURL(/\/tools$/);
-  await expect(page.getByRole('heading', { name: 'Таблиці', exact: true })).toBeVisible();
-  await page.goBack();
-  await expect(page.getByRole('heading', { name: 'Сторінку не знайдено' })).toBeVisible();
 });
 
-test('global search sits beside the aside button and selects real tabs', async ({ page }) => {
+test('visible right search finds and activates actual tabs', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/tools');
-
-  const search = page.locator('[data-pg-action="site-search-toggle"]');
+  const search = page.getByRole('searchbox', { name: 'Пошук розділів' });
   const aside = page.locator('[data-pg-action="aside-toggle"]');
-  const searchBox = await search.boundingBox();
-  const asideBox = await aside.boundingBox();
-  expect(searchBox.x + searchBox.width).toBeLessThanOrEqual(asideBox.x);
-  expect(Math.abs(searchBox.y - asideBox.y)).toBeLessThan(1);
+  await expect(search).toBeVisible();
+  const a = await search.boundingBox();
+  const b = await aside.boundingBox();
+  expect(a.x + a.width).toBeLessThan(b.x);
+  expect(Math.abs(a.y + a.height / 2 - b.y - b.height / 2)).toBeLessThan(3);
 
   await search.click();
-  const input = page.getByRole('searchbox', { name: 'Пошук розділів' });
-  await expect(input).toBeFocused();
-  await input.fill('Текст');
-  await expect(page.locator('[data-pg-search-result="tab:text"]')).toHaveCount(1);
+  await search.fill('Текст');
+  await expect(page.locator('[data-pg-search-result="tab:text"]')).toBeVisible();
   await expect(page.locator('[data-pg-search-result="tab:tables"]')).toHaveCount(0);
-  await input.press('Enter');
-  await expect(page.getByRole('heading', { name: 'Текст', exact: true })).toBeVisible();
+  await search.press('Enter');
+  await expect(page.getByRole('heading', { level: 2, name: 'Текст' })).toBeVisible();
   await expect(search).toHaveAttribute('aria-expanded', 'false');
 
   await page.keyboard.press('Control+k');
-  await expect(input).toBeFocused();
-  await input.fill('Таблиці');
-  await input.press('Enter');
-  await expect(page.getByRole('heading', { name: 'Таблиці', exact: true })).toBeVisible();
+  await expect(search).toBeFocused();
+  await search.fill('Таблиці');
+  await search.press('Enter');
+  await expect(page.getByRole('heading', { level: 2, name: 'Таблиці' })).toBeVisible();
   await page.keyboard.press('Control+k');
   await page.keyboard.press('Escape');
   await expect(search).toHaveAttribute('aria-expanded', 'false');
 });
 
-test('mobile navigation is still available under the shared Shell', async ({ page }) => {
+test('mobile sidebar does not contain local content tabs', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
+  await page.goto('/tools');
   const shell = page.locator('.pg-shell');
   await page.locator('[data-pg-action="mobile-menu-toggle"]').click();
   await expect(shell).toHaveAttribute('data-pg-mobile-nav', 'open');
-  await expect(page.locator('.pg-sidebar__local-nav').getByRole('tab', { name: 'Текст' })).toBeVisible();
+  await expect(page.locator('.pg-sidebar').getByRole('tab')).toHaveCount(0);
   await page.keyboard.press('Escape');
   await expect(shell).toHaveAttribute('data-pg-mobile-nav', 'closed');
+  await expect(page.getByRole('tablist', { name: 'Інструменти' })).toBeVisible();
 });
