@@ -1,9 +1,10 @@
 export const SHELL_STORAGE_KEY = 'pg:v1:shell:preferences';
+export const LEGACY_THEME_KEY = 'theme-mode';
 
 export const DEFAULT_PREFERENCES = Object.freeze({
   theme: 'system',
   sidebarCollapsed: false,
-  asideOpen: true,
+  asideOpen: false,
 });
 
 const THEMES = new Set(['system', 'light', 'dark']);
@@ -12,7 +13,6 @@ export function normalizePreferences(value) {
   if (!value || typeof value !== 'object') {
     return { ...DEFAULT_PREFERENCES };
   }
-
   return {
     theme: THEMES.has(value.theme) ? value.theme : DEFAULT_PREFERENCES.theme,
     sidebarCollapsed: typeof value.sidebarCollapsed === 'boolean'
@@ -25,7 +25,11 @@ export function normalizePreferences(value) {
 export function loadPreferences(storage) {
   try {
     const stored = storage?.getItem(SHELL_STORAGE_KEY);
-    return normalizePreferences(stored ? JSON.parse(stored) : null);
+    const preferences = normalizePreferences(stored ? JSON.parse(stored) : null);
+    // Respect existing theme preferences from the original Pinguin V5.
+    const legacyTheme = storage?.getItem(LEGACY_THEME_KEY);
+    if (THEMES.has(legacyTheme)) preferences.theme = legacyTheme;
+    return preferences;
   } catch {
     return normalizePreferences(null);
   }
@@ -35,6 +39,7 @@ export function savePreferences(storage, preferences) {
   const value = normalizePreferences(preferences);
   try {
     storage?.setItem(SHELL_STORAGE_KEY, JSON.stringify(value));
+    storage?.setItem(LEGACY_THEME_KEY, value.theme);
     return true;
   } catch {
     return false;

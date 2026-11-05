@@ -1,94 +1,50 @@
 import { createIcon } from '../../ui/icon/icon.js';
 
-const THEMES = [
-  { value: 'system', label: 'Системна', icon: 'monitor' },
-  { value: 'light', label: 'Світла', icon: 'sun' },
-  { value: 'dark', label: 'Темна', icon: 'moon' },
-];
+const LINKS = Object.freeze([
+  { label: 'Код проєкту', url: 'https://github.com/DSMykyta/pinguinV5/tree/work', icon: 'code' },
+  { label: 'Правила компонентів', url: 'https://github.com/DSMykyta/pinguinV5/blob/work/docs/conventions.md', icon: 'file-text' },
+]);
 
-function createParagraph(className, content) {
-  const p = document.createElement('p');
-  p.className = className;
-  p.textContent = content;
-  return p;
-}
-
-export function createAside({ theme, onThemeChange }) {
+/**
+ * A contextual popover. It does not occupy a grid column or control page width.
+ * A feature can replace the link content via the public API in a later phase.
+ */
+export function createAside() {
   const aside = document.createElement('aside');
   aside.id = 'pg-aside-panel';
   aside.className = 'pg-aside';
-  aside.setAttribute('aria-label', 'Контекстна панель');
+  aside.setAttribute('aria-label', 'Контекстне меню');
+  aside.setAttribute('aria-hidden', 'true');
+  aside.inert = true;
 
-  const header = document.createElement('div');
-  header.className = 'pg-aside__header';
+  const title = document.createElement('h2');
+  title.className = 'pg-aside__heading';
+  title.textContent = 'Проєкт';
+  aside.append(title);
 
-  const heading = document.createElement('h2');
-  heading.className = 'pg-aside__heading';
-  heading.textContent = 'Контекст';
-  header.append(heading);
+  const list = document.createElement('nav');
+  list.className = 'pg-aside__list';
+  list.setAttribute('aria-label', 'Посилання проєкту');
 
-  const body = document.createElement('div');
-  body.className = 'pg-aside__body';
+  for (const link of LINKS) {
+    const item = document.createElement('a');
+    item.className = 'pg-aside__item';
+    item.href = link.url;
+    item.target = '_blank';
+    item.rel = 'noopener noreferrer';
 
-  const intro = document.createElement('section');
-  intro.className = 'pg-aside__section';
-  intro.append(
-    createParagraph('pg-aside__eyebrow', 'ПОТОЧНИЙ ПРОСТІР'),
-    createParagraph('pg-aside__section-title', 'Огляд'),
-    createParagraph('pg-aside__description',
-      'Налаштування простору. Інструменти додаватимуть власні дії сюди.'),
-  );
+    const symbol = createIcon(link.icon);
+    symbol.classList.add('pg-aside__item-icon');
 
-  const options = document.createElement('section');
-  options.className = 'pg-aside__section';
+    const label = document.createElement('span');
+    label.textContent = link.label;
 
-  const optionsHeading = document.createElement('h3');
-  optionsHeading.className = 'pg-aside__section-title';
-  optionsHeading.textContent = 'Вигляд';
-
-  const fieldset = document.createElement('fieldset');
-  fieldset.className = 'pg-aside__theme-options';
-  const legend = document.createElement('legend');
-  legend.className = 'pg-aside__field-label';
-  legend.textContent = 'Тема інтерфейсу';
-  fieldset.append(legend);
-
-  const inputs = [];
-  for (const option of THEMES) {
-    const label = document.createElement('label');
-    label.className = 'pg-aside__theme-option';
-
-    const input = document.createElement('input');
-    input.type = 'radio';
-    input.name = 'pg-theme';
-    input.value = option.value;
-    input.checked = option.value === theme;
-    input.addEventListener('change', () => {
-      if (input.checked) onThemeChange(option.value);
-    });
-
-    label.append(input, createIcon(option.icon), document.createTextNode(option.label));
-    fieldset.append(label);
-    inputs.push(input);
+    const arrow = createIcon('external-link');
+    arrow.classList.add('pg-aside__item-arrow');
+    item.append(symbol, label, arrow);
+    list.append(item);
   }
 
-  options.append(optionsHeading, fieldset);
-
-  const note = document.createElement('section');
-  note.className = 'pg-aside__section pg-aside__section--note';
-  note.append(
-    createParagraph('pg-aside__eyebrow', 'ПРИНЦИП'),
-    createParagraph('pg-aside__description',
-      'Одна оболонка, різні інструменти.'),
-  );
-
-  body.append(intro, options, note);
-  aside.append(header, body);
-
-  return {
-    element: aside,
-    setTheme(value) {
-      for (const input of inputs) input.checked = input.value === value;
-    },
-  };
+  aside.append(list);
+  return { element: aside };
 }
