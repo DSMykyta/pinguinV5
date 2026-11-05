@@ -1,26 +1,12 @@
 {
-  "name": "pinguin-v5",
-  "version": "1.0.0",
-  "description": "Pinguin V5 - Custom Auth System",
+  "name": "pinguin-next",
+  "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0",
     "build": "vite build",
-    "preview": "vite preview",
-    "vercel-dev": "vercel dev",
-    "functions:check": "node scripts/check-vercel-functions.js",
-    "test": "node --test tests/*.test.js",
-    "check": "npm run functions:check && npm test && npm run build"
-  },
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "busboy": "^1.6.0",
-    "googleapis": "^128.0.0",
-    "jsonwebtoken": "^9.0.2",
-    "sharp": "^0.34.5"
-  },
-  "engines": {
-    "node": "24.x"
+    "preview": "vite preview"
   },
   "devDependencies": {
     "vite": "^7.3.1"

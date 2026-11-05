@@ -1,4 +1,0 @@
-# Shared modules live outside api/. These compatibility paths must not become
-# separate Vercel Functions on the Hobby plan.
-api/utils/
-api/users/
