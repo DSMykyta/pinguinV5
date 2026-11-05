@@ -27,7 +27,7 @@ async function coordinates(page) {
   };
 }
 
-test('five global zones exist, footer is structurally present but invisible', async ({ page }) => {
+test('five global zones reserve a real empty 56px footer rail', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/tools');
   await expect(page.locator('.pg-shell')).toBeVisible();
@@ -35,7 +35,9 @@ test('five global zones exist, footer is structurally present but invisible', as
   await expect(page.locator('.pg-shell__header')).toBeVisible();
   await expect(page.locator('.pg-shell__content')).toBeVisible();
   await expect(page.locator('.pg-shell__footer')).toHaveCount(1);
-  await expect(page.locator('.pg-shell__footer')).toBeHidden();
+  await expect(page.locator('.pg-shell__footer')).toBeVisible();
+  await expect(page.locator('.pg-shell__footer')).toBeEmpty();
+  await expect(page.locator('.pg-shell__footer')).toHaveCSS('height', '56px');
   await expect(page.locator('#pg-aside-panel')).toBeHidden();
 
   const title = await page.locator('.pg-shell__page-name').boundingBox();
@@ -48,7 +50,7 @@ test('five global zones exist, footer is structurally present but invisible', as
 
   const x = await coordinates(page);
   expect(Math.abs(x.headerX - x.tabX)).toBeLessThan(1);
-  expect(Math.abs(x.headerX - x.chromeX)).toBeLessThan(1);
+  expect(Math.abs(x.headerX - x.chromeX - 16)).toBeLessThan(1);
 });
 
 test('tab changes do not move shared header, tabs or main section', async ({ page }) => {
@@ -73,11 +75,11 @@ test('header and content stay aligned with docked aside and on mobile', async ({
   await page.locator('[data-pg-action="aside-pin"]').click();
   const desktop = await coordinates(page);
   expect(Math.abs(desktop.headerX - desktop.tabX)).toBeLessThan(1);
-  expect(Math.abs(desktop.headerX - desktop.chromeX)).toBeLessThan(1);
+  expect(Math.abs(desktop.headerX - desktop.chromeX - 16)).toBeLessThan(1);
 
   await page.setViewportSize({ width: 390, height: 844 });
   const mobile = await coordinates(page);
-  expect(Math.abs(mobile.tabX - mobile.chromeX)).toBeLessThan(1);
+  expect(Math.abs(mobile.tabX - mobile.chromeX - 16)).toBeLessThan(1);
   await page.getByRole('tab', { name: 'Текст' }).click();
   const mobileText = await coordinates(page);
   for (const key of Object.keys(mobile))
@@ -148,57 +150,79 @@ test('expanded sidebar labels do not repeat as tooltips', async ({ page }) => {
 });
 
 
-test('main canvas has equal left, right and bottom external gaps in all sidebar/aside states', async ({ page }) => {
+test('structural side rails and footer share compact sidebar width', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/tools');
 
   const shell = page.locator('.pg-shell');
   const workspace = page.locator('.pg-shell__workspace');
   const main = page.locator('.pg-shell__content');
+  const footer = page.locator('.pg-shell__footer');
+  const aside = page.locator('#pg-aside-panel');
 
-  async function measureGaps() {
-    await shell.evaluate(el => Promise.all(el.getAnimations()
-      .map(animation => animation.finished.catch(() => {}))));
-    const [outer, inner] = await Promise.all([
-      workspace.boundingBox(), main.boundingBox(),
+  async function measure() {
+    await shell.evaluate(el => Promise.all(el.getAnimations().map(
+      animation => animation.finished.catch(() => {}))));
+    const [outer, work, canvas, bottom] = await Promise.all([
+      shell.boundingBox(), workspace.boundingBox(), main.boundingBox(), footer.boundingBox(),
     ]);
     return {
-      left: inner.x - outer.x,
-      right: outer.x + outer.width - inner.x - inner.width,
-      bottom: outer.y + outer.height - inner.y - inner.height,
-      top: inner.y,
-      mainWidth: inner.width,
+      left: work.x - outer.x,
+      right: outer.x + outer.width - work.x - work.width,
+      bottom: work.y + work.height - canvas.y - canvas.height,
+      footer: bottom.height,
+      canvasWidth: canvas.width,
+      canvasRight: canvas.x + canvas.width,
+      canvasTop: canvas.y,
+      marginLeft: await main.evaluate(el => getComputedStyle(el).marginLeft),
     };
   }
 
-  function assertEqualEdges(box) {
-    for (const edge of ['left', 'right', 'bottom']) {
-      expect(Math.abs(box[edge] - 16), edge).toBeLessThan(1);
-    }
-  }
-
-  const expanded = await measureGaps();
-  assertEqualEdges(expanded);
+  const expanded = await measure();
+  expect(expanded.left).toBe(228);
+  expect(expanded.right).toBe(56);
+  expect(expanded.bottom).toBe(56);
+  expect(expanded.footer).toBe(56);
+  expect(expanded.marginLeft).toBe('0px');
 
   await page.locator('[data-pg-action="sidebar-toggle"]').click();
-  const collapsed = await measureGaps();
-  assertEqualEdges(collapsed);
-  expect(Math.abs(expanded.top - collapsed.top)).toBeLessThan(1);
+  const collapsed = await measure();
+  for (const key of ['left', 'right', 'bottom', 'footer']) {
+    expect(collapsed[key], key).toBe(56);
+  }
+  expect(Math.abs(collapsed.canvasTop - expanded.canvasTop)).toBeLessThan(1);
 
   await page.locator('[data-pg-action="aside-toggle"]').click();
+  await expect(aside).toHaveCSS('top', '64px');
+  const floating = await measure();
+  expect(floating.canvasWidth).toBe(collapsed.canvasWidth);
+  expect(floating.right).toBe(56);
+
   await page.locator('[data-pg-action="aside-pin"]').click();
   await expect(shell).toHaveAttribute('data-pg-aside-mode', 'docked');
-  const pinned = await measureGaps();
-  assertEqualEdges(pinned);
-  expect(pinned.mainWidth).toBeLessThan(collapsed.mainWidth - 250);
-  expect(Math.abs(collapsed.top - pinned.top)).toBeLessThan(1);
+  const pinned = await measure();
+  expect(pinned.left).toBe(56);
+  expect(pinned.right).toBe(302 + 56 + 12);
+  expect(pinned.bottom).toBe(56);
+  expect(pinned.footer).toBe(56);
+  expect(pinned.canvasWidth).toBeLessThan(collapsed.canvasWidth - 250);
+  expect(Math.abs(collapsed.canvasTop - pinned.canvasTop)).toBeLessThan(1);
+
+  await aside.evaluate(el => Promise.all(el.getAnimations().map(
+    animation => animation.finished.catch(() => {}))));
+  const asideBox = await aside.boundingBox();
+  expect(Math.abs(asideBox.x - pinned.canvasRight - 56)).toBeLessThan(1);
+  expect(Math.abs(asideBox.y - 64)).toBeLessThan(1);
 
   await page.locator('[data-pg-action="aside-pin"]').click();
-  const unpinned = await measureGaps();
-  assertEqualEdges(unpinned);
-  expect(Math.abs(unpinned.mainWidth - collapsed.mainWidth)).toBeLessThan(1);
+  const unpinned = await measure();
+  expect(unpinned.right).toBe(56);
+  expect(unpinned.bottom).toBe(56);
+  expect(Math.abs(unpinned.canvasWidth - collapsed.canvasWidth)).toBeLessThan(1);
 
   await page.setViewportSize({ width: 390, height: 844 });
-  const mobile = await measureGaps();
-  assertEqualEdges(mobile);
+  const mobile = await measure();
+  expect(mobile.footer).toBe(56);
+  expect(mobile.bottom).toBe(56);
+  expect(mobile.marginLeft).toBe('0px');
 });
