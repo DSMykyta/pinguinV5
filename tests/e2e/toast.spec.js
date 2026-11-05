@@ -221,6 +221,10 @@ test('waiting queue stays bounded for regular items and preserves actions', asyn
 
   await expect(page.locator('body')).toHaveAttribute('data-pg-toast-overflow-rejected', 'true');
   await expect(page.locator('.pg-toast')).toHaveCount(3);
+  // Older cards are intentionally inert while compact. Hover expands the
+  // stack before interacting with their individual close controls.
+  await page.locator('.pg-toast__host').hover();
+  await expect(page.locator('.pg-toast__host')).toHaveAttribute('data-pg-expanded', 'true');
   for (const title of ['Активне', ...Array.from({ length: 10 }, (_, i) => 'Очікування ' + i)]) {
     await expect(page.locator('.pg-toast__message').last()).toHaveText(title);
     await page.locator('.pg-toast').last().locator('[data-pg-action="toast-dismiss"]').click();
