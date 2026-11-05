@@ -1,11 +1,11 @@
 /**
  * ╔════════════════════════════════════════════════════════════════════════════════════╗
- * ║ PINGUIN NEXT — SHARED TOAST                                                          ║
+ * ║ PINGUIN NEXT — SHARED TOAST                                                         ║
  * ╠════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Незалежні повідомлення: видимий стек із 3 Toast та FIFO-черга.          ║
- * ║ ЗАЛЕЖНОСТІ: UI icon, DOM і таймери браузера.                                         ║
+ * ║ ПРИЗНАЧЕННЯ: Повідомлення з компактним стеком, hover-expand і FIFO-чергою.           ║
+ * ║ ЗАЛЕЖНОСТІ: UI icon, DOM, ResizeObserver та таймери браузера.                       ║
  * ║ ПУБЛІЧНИЙ API: mountToasts(), showToast().                                           ║
- * ║ ПРИНЦИП: Кожен виклик утворює власний Toast; явне монтування, коректний cleanup.     ║
+ * ║ ПРИНЦИП: Кожен Toast незалежний, анімації належать виключно toast.css.              ║
  * ╚════════════════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -19,27 +19,29 @@ const TOAST_TYPES = Object.freeze({
 });
 const MAX_VISIBLE_TOASTS = 3;
 const MAX_WAITING_TOASTS = 8;
-const EXIT_DURATION = 180;
-
+const EXPANDED_GAP = 10;
+const COLLAPSED_PEEK = 12;
+const EXIT_DURATION = 320;
 let mountedManager = null;
 
-/**
- * Mount a single app-wide manager. Each notification has independent DOM, timers,
- * focus restoration and an optional action. Calling twice without cleanup throws.
- */
+/** Mount the global UI service once. Dispose fully during app HMR. */
 export function mountToasts() {
   if (mountedManager) throw new Error('Toast manager is already mounted');
+
   const doc = document;
   const view = doc.defaultView;
-
   const host = doc.createElement('div');
   host.className = 'pg-toast__host';
+  host.dataset.pgExpanded = 'false';
+  host.dataset.pgEmpty = 'true';
+  host.setAttribute('role', 'region');
+  host.setAttribute('aria-label', 'Сповіщення');
+  host.tabIndex = -1;
 
   function createAnnouncer(role) {
     const region = doc.createElement('div');
     region.className = 'pg-toast__announcer';
     region.setAttribute('role', role);
-    // Only announce the new message, never reread the entire visible stack.
     region.setAttribute('aria-atomic', 'false');
     region.setAttribute('aria-relevant', 'additions');
     return region;
@@ -49,9 +51,17 @@ export function mountToasts() {
   const urgent = createAnnouncer('alert');
   doc.body.append(host, polite, urgent);
 
-  const queue = [];
   const visible = new Set();
+  const exiting = new Set();
+  const queue = [];
   let destroyed = false;
+  let pointerInside = false;
+  let focusWithin = false;
+  let windowBlurred = false;
+  let expanded = false;
+
+  const resizeObserver = typeof view.ResizeObserver === 'function'
+    ? new view.ResizeObserver(() => refreshLayout()) : null;
 
   function clearTimer(item) {
     if (item.timerId === null) return;
@@ -61,12 +71,12 @@ export function mountToasts() {
   }
 
   function isPaused(item) {
-    return item.isHovered || item.isFocused || doc.hidden;
+    return item.isHovered || item.isFocused || expanded || doc.hidden || windowBlurred;
   }
 
   function resumeTimer(item) {
     if (destroyed || !visible.has(item) || item.isClosing ||
-      item.duration === 0 || isPaused(item) || item.timerId !== null) return;
+        item.duration === 0 || item.timerId !== null || isPaused(item)) return;
     if (item.remaining <= 0) {
       dismissItem(item);
       return;
@@ -84,8 +94,6 @@ export function mountToasts() {
   }
 
   function announce(item) {
-    // Permanent regions were mounted before the first Toast. Appending a new
-    // child supports multiple successive announcements without erasing others.
     item.announcementTimerId = view.setTimeout(() => {
       item.announcementTimerId = null;
       if (destroyed || !visible.has(item) || item.isClosing) return;
@@ -97,39 +105,89 @@ export function mountToasts() {
     }, 0);
   }
 
+  /**
+   * Only live dimensions are set by JS. All appearance, transforms and easing
+   * are owned by toast.css. Newest is the bottom/front card; older cards peek
+   * above it until the pointer or keyboard focus expands the stack.
+   */
+  function refreshLayout() {
+    if (destroyed) return;
+    const ordered = Array.from(visible).reverse();
+    host.dataset.pgExpanded = String(expanded);
+    host.dataset.pgEmpty = String(ordered.length === 0);
+    host.tabIndex = ordered.length ? 0 : -1;
+
+    const maximumHeight = Math.max(100, view.innerHeight - 40);
+    let expandedOffset = 0;
+    let neededHeight = 0;
+    for (let depth = 0; depth < ordered.length; depth += 1) {
+      const item = ordered[depth];
+      const height = item.element.offsetHeight;
+      const wantedOffset = expanded ? expandedOffset : depth * COLLAPSED_PEEK;
+      const offset = Math.max(0, Math.min(wantedOffset, maximumHeight - height));
+      item.element.style.setProperty('--pg-toast-offset', offset + 'px');
+      item.element.dataset.pgDepth = String(depth);
+      item.element.inert = !expanded && depth > 0;
+      neededHeight = Math.max(neededHeight, offset + height);
+      expandedOffset += height + EXPANDED_GAP;
+    }
+    host.style.setProperty('--pg-toast-host-height',
+      Math.min(maximumHeight, Math.ceil(neededHeight)) + 'px');
+  }
+
+  function syncInteraction() {
+    const next = pointerInside || focusWithin;
+    if (expanded === next) return;
+    expanded = next;
+    refreshLayout();
+    for (const item of visible) {
+      if (expanded) pauseTimer(item);
+      else resumeTimer(item);
+    }
+  }
+
   function finishDismiss(item) {
-    if (!visible.has(item)) return;
+    if (!exiting.has(item)) return;
     if (item.exitTimerId !== null) {
       view.clearTimeout(item.exitTimerId);
       item.exitTimerId = null;
     }
-    const hadFocus = item.element.contains(doc.activeElement);
+    resizeObserver?.unobserve(item.element);
     item.element.remove();
     item.announcement?.remove();
-    item.announcement = null;
-    visible.delete(item);
-    if (hadFocus && item.returnFocus?.isConnected &&
-      typeof item.returnFocus.focus === 'function') {
+    exiting.delete(item);
+    if (item.hadFocus && item.returnFocus?.isConnected &&
+        typeof item.returnFocus.focus === 'function') {
       item.returnFocus.focus({ preventScroll: true });
     }
-    showWaiting();
+    refreshLayout();
   }
 
   function dismissItem(item) {
     if (destroyed || item.isClosing) return false;
     if (!visible.has(item)) {
       const index = queue.indexOf(item);
-      if (index === -1) return false;
+      if (index < 0) return false;
       queue.splice(index, 1);
       return true;
     }
+
     item.isClosing = true;
+    item.hadFocus = item.element.contains(doc.activeElement);
     clearTimer(item);
     if (item.announcementTimerId !== null) {
       view.clearTimeout(item.announcementTimerId);
       item.announcementTimerId = null;
     }
+    // Preserve this element's last --pg-toast-offset until it travels down.
+    visible.delete(item);
+    exiting.add(item);
     item.element.dataset.pgState = 'closing';
+    item.element.inert = true;
+
+    refreshLayout();
+    showWaiting();
+
     const reduceMotion = view.matchMedia('(prefers-reduced-motion: reduce)').matches;
     item.exitTimerId = view.setTimeout(() => finishDismiss(item),
       reduceMotion ? 0 : EXIT_DURATION);
@@ -144,7 +202,6 @@ export function mountToasts() {
 
     const symbol = createIcon(TOAST_TYPES[item.type].icon);
     symbol.classList.add('pg-toast__icon');
-
     const message = doc.createElement('span');
     message.className = 'pg-toast__message';
     message.textContent = item.message;
@@ -158,7 +215,6 @@ export function mountToasts() {
       button.textContent = item.action.label;
       button.addEventListener('click', () => {
         if (item.isClosing) return;
-        // An action may reject; this must not leave a stale Toast behind.
         try {
           const result = item.action.onClick();
           if (result && typeof result.catch === 'function') {
@@ -204,17 +260,23 @@ export function mountToasts() {
       event.stopPropagation();
       dismissItem(item);
     });
-
     return element;
   }
 
   function showWaiting() {
     if (destroyed) return;
+    const newlyVisible = [];
     while (visible.size < MAX_VISIBLE_TOASTS && queue.length) {
       const item = queue.shift();
-      visible.add(item);
       item.element = createToastElement(item);
-      host.append(item.element);
+      visible.add(item);
+      host.prepend(item.element);
+      resizeObserver?.observe(item.element);
+      newlyVisible.push(item);
+    }
+
+    refreshLayout();
+    for (const item of newlyVisible) {
       announce(item);
       resumeTimer(item);
       view.requestAnimationFrame(() => {
@@ -249,7 +311,6 @@ export function mountToasts() {
     if (typeof duration !== 'number' || !Number.isFinite(duration) || duration < 0) {
       throw new RangeError('Toast duration must be a finite non-negative number');
     }
-
     if (!action && queue.filter(item => !item.action).length >= MAX_WAITING_TOASTS) {
       return Object.freeze({ dismiss: () => false });
     }
@@ -258,11 +319,10 @@ export function mountToasts() {
       message, type, duration, action,
       remaining: duration, startedAt: 0, timerId: null, exitTimerId: null,
       announcementTimerId: null, announcement: null,
-      isHovered: false, isFocused: false, isClosing: false,
+      isHovered: false, isFocused: false, isClosing: false, hadFocus: false,
       returnFocus: doc.activeElement && doc.activeElement !== doc.body
         ? doc.activeElement : null,
-      element: null,
-      handle: null,
+      element: null, handle: null,
     };
     item.handle = Object.freeze({ dismiss: () => dismissItem(item) });
     queue.push(item);
@@ -278,19 +338,63 @@ export function mountToasts() {
     }
   }
 
+  function onWindowBlur() {
+    windowBlurred = true;
+    for (const item of visible) pauseTimer(item);
+  }
+  function onWindowFocus() {
+    windowBlurred = false;
+    for (const item of visible) resumeTimer(item);
+  }
+
+  function onHostKeydown(event) {
+    if (event.target !== host || event.key !== 'Escape') return;
+    const newest = Array.from(visible).at(-1);
+    if (!newest) return;
+    event.preventDefault();
+    dismissItem(newest);
+  }
+
+  host.addEventListener('mouseenter', () => {
+    pointerInside = true;
+    syncInteraction();
+  });
+  host.addEventListener('mouseleave', () => {
+    pointerInside = false;
+    syncInteraction();
+  });
+  host.addEventListener('focusin', () => {
+    focusWithin = true;
+    syncInteraction();
+  });
+  host.addEventListener('focusout', event => {
+    if (event.relatedTarget && host.contains(event.relatedTarget)) return;
+    focusWithin = false;
+    syncInteraction();
+  });
+  host.addEventListener('keydown', onHostKeydown);
+
   doc.addEventListener('visibilitychange', onVisibilityChange);
+  view.addEventListener('blur', onWindowBlur);
+  view.addEventListener('focus', onWindowFocus);
+  view.addEventListener('resize', refreshLayout);
 
   function destroy() {
     if (destroyed) return;
     destroyed = true;
-    for (const item of visible) {
+    for (const item of [...visible, ...exiting]) {
       clearTimer(item);
       if (item.exitTimerId !== null) view.clearTimeout(item.exitTimerId);
       if (item.announcementTimerId !== null) view.clearTimeout(item.announcementTimerId);
     }
+    resizeObserver?.disconnect();
     visible.clear();
+    exiting.clear();
     queue.length = 0;
     doc.removeEventListener('visibilitychange', onVisibilityChange);
+    view.removeEventListener('blur', onWindowBlur);
+    view.removeEventListener('focus', onWindowFocus);
+    view.removeEventListener('resize', refreshLayout);
     host.remove();
     polite.remove();
     urgent.remove();
@@ -305,12 +409,11 @@ export function mountToasts() {
 }
 
 /**
- * Each call creates a separate notification, including identical messages.
- *
- * @param {string} message - Plain text, never interpreted as HTML.
- * @param {{type?: 'info'|'success'|'warning'|'error',duration?:number,
+ * Create an independent notification; identical messages remain separate.
+ * @param {string} message Plain text only.
+ * @param {{type?:'info'|'success'|'warning'|'error',duration?:number,
  *   action?:{label:string,onClick:Function}}} options
- * @returns {{dismiss:()=>boolean}} Handle to remove this toast only.
+ * @returns {{dismiss:()=>boolean}} Handle for this notification.
  */
 export function showToast(message, options = {}) {
   if (!mountedManager) throw new Error('Mount Toast UI before showing notifications');

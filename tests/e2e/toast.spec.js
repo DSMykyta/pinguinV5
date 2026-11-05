@@ -73,21 +73,23 @@ test('three visible notifications stack above one another; identical messages st
   const visible = page.locator('.pg-toast');
   const messages = page.locator('.pg-toast__message');
   await expect(visible).toHaveCount(3);
-  await expect(messages).toHaveText(['Перше', 'Перше', 'Друге']);
+  await expect(messages).toHaveText(['Друге', 'Перше', 'Перше']);
+  await page.locator('.pg-toast__host').hover();
+  await expect(page.locator('.pg-toast__host')).toHaveAttribute('data-pg-expanded', 'true');
   await visible.evaluateAll(elements => Promise.all(elements.flatMap(
     element => element.getAnimations().map(a => a.finished.catch(() => {})))));
   const boxes = await visible.evaluateAll(elements => elements.map(el => {
     const b = el.getBoundingClientRect();
     return { top: b.top, bottom: b.bottom };
   }));
-  expect(boxes[0].top).toBeGreaterThan(boxes[1].bottom);
-  expect(boxes[1].top).toBeGreaterThan(boxes[2].bottom);
+  expect(boxes[1].bottom).toBeLessThan(boxes[0].top);
+  expect(boxes[2].bottom).toBeLessThan(boxes[1].top);
 
   await visible.first().locator('[data-pg-action="toast-dismiss"]').click();
-  await expect(messages).toHaveText(['Перше', 'Друге', 'Третє']);
+  await expect(messages).toHaveText(['Третє', 'Перше', 'Перше']);
   await expect(visible).toHaveCount(3);
   await visible.nth(1).locator('[data-pg-action="toast-dismiss"]').click();
-  await expect(messages).toHaveText(['Перше', 'Третє']);
+  await expect(messages).toHaveText(['Третє', 'Перше']);
 });
 
 test('a pending toast can be dismissed without removing visible notifications', async ({ page }) => {
@@ -99,9 +101,9 @@ test('a pending toast can be dismissed without removing visible notifications', 
     document.body.dataset.pgWaitingDismissed = String(waiting.dismiss());
   });
   await expect(page.locator('body')).toHaveAttribute('data-pg-waiting-dismissed', 'true');
-  await expect(page.locator('.pg-toast__message')).toHaveText(['А', 'Б', 'В']);
+  await expect(page.locator('.pg-toast__message')).toHaveText(['В', 'Б', 'А']);
   await page.locator('.pg-toast').first().locator('[data-pg-action="toast-dismiss"]').click();
-  await expect(page.locator('.pg-toast__message')).toHaveText(['Б', 'В']);
+  await expect(page.locator('.pg-toast__message')).toHaveText(['Б', 'А']);
 });
 
 test('action persists, executes once, and Escape from focused toast restores origin focus', async ({ page }) => {
@@ -220,12 +222,74 @@ test('waiting queue stays bounded for regular items and preserves actions', asyn
   await expect(page.locator('body')).toHaveAttribute('data-pg-toast-overflow-rejected', 'true');
   await expect(page.locator('.pg-toast')).toHaveCount(3);
   for (const title of ['Активне', ...Array.from({ length: 10 }, (_, i) => 'Очікування ' + i)]) {
-    await expect(page.locator('.pg-toast__message').first()).toHaveText(title);
-    await page.locator('.pg-toast').first().locator('[data-pg-action="toast-dismiss"]').click();
-    await expect(page.locator('.pg-toast__message').first()).not.toHaveText(title);
+    await expect(page.locator('.pg-toast__message').last()).toHaveText(title);
+    await page.locator('.pg-toast').last().locator('[data-pg-action="toast-dismiss"]').click();
+    await expect(page.locator('.pg-toast__message').last()).not.toHaveText(title);
   }
   await expect(page.locator('.pg-toast__message')).toHaveText(['Дія в черзі']);
   await page.locator('[data-pg-action="toast-action"]').click();
   await expect(page.locator('body')).toHaveAttribute('data-pg-toast-action-invoked', 'true');
   await expect(page.locator('.pg-toast')).toHaveCount(0);
+});
+
+test('compact stack expands on hover and returns without an abrupt layout jump', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/tools');
+  for (const title of ['Перший', 'Другий', 'Третій']) {
+    await notify(page, title, { duration: 0 });
+  }
+  const host = page.locator('.pg-toast__host');
+  const elements = page.locator('.pg-toast');
+  await expect(host).toHaveAttribute('data-pg-expanded', 'false');
+  await expect(elements).toHaveCount(3);
+  await expect(elements).toHaveText(['Третій', 'Другий', 'Перший']);
+
+  const collapsed = await elements.evaluateAll(all => all.map(el =>
+    el.getBoundingClientRect().top));
+  expect(collapsed[0]).toBeGreaterThan(collapsed[1]);
+  expect(collapsed[1]).toBeGreaterThan(collapsed[2]);
+
+  await host.hover();
+  await expect(host).toHaveAttribute('data-pg-expanded', 'true');
+  await expect(elements.nth(1)).not.toHaveAttribute('inert', '');
+  await elements.evaluateAll(els => Promise.all(els.flatMap(el =>
+    el.getAnimations().map(a => a.finished.catch(() => {})))));
+  const expanded = await elements.evaluateAll(all => all.map(el =>
+    el.getBoundingClientRect().top));
+  expect(expanded[0] - expanded[1]).toBeGreaterThan(45);
+  expect(expanded[1] - expanded[2]).toBeGreaterThan(45);
+
+  await page.mouse.move(800, 360);
+  await expect(host).toHaveAttribute('data-pg-expanded', 'false');
+  await elements.evaluateAll(els => Promise.all(els.flatMap(el =>
+    el.getAnimations().map(a => a.finished.catch(() => {})))));
+  const folded = await elements.evaluateAll(all => all.map(el =>
+    el.getBoundingClientRect().top));
+  expect(Math.abs(folded[0] - folded[1])).toBeLessThan(24);
+});
+
+test('closing Toast travels down before being removed; neighbours settle smoothly', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/tools');
+  await notify(page, 'Older message', { duration: 0 });
+  await notify(page, 'Slides downward', { duration: 0 });
+  const toast = page.locator('.pg-toast').filter({ hasText: 'Slides downward' });
+  await expect(toast).toHaveAttribute('data-pg-state', 'visible');
+  await toast.evaluate(el => Promise.all(el.getAnimations().map(
+    animation => animation.finished.catch(() => {}))));
+  const initialTop = (await toast.boundingBox()).y;
+
+  await toast.locator('[data-pg-action="toast-dismiss"]').click();
+  await expect(toast).toHaveAttribute('data-pg-state', 'closing');
+  await page.waitForTimeout(130);
+  const movingTop = (await toast.boundingBox()).y;
+  expect(movingTop - initialTop).toBeGreaterThan(15);
+  await expect(toast).toHaveCount(0, { timeout: 2000 });
+
+  const survivor = page.locator('.pg-toast').filter({ hasText: 'Older message' });
+  await expect(survivor).toHaveCount(1);
+  await survivor.evaluate(el => Promise.all(el.getAnimations().map(
+    animation => animation.finished.catch(() => {}))));
+  const settled = await survivor.boundingBox();
+  expect(Math.abs(settled.y + settled.height - 880)).toBeLessThan(2);
 });
