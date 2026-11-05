@@ -120,8 +120,8 @@ test('previous accepted spacing and fixed right controls survive aside pinning',
   expect(parseFloat(mainStyle.left)).toBe(72);
   expect(mainStyle.radius).toBe('18px');
   expect(mainStyle.background).not.toBe('rgba(0, 0, 0, 0)');
-  await expect(main.locator('.pg-page')).toBeHidden();
-  await expect(page.locator('.pg-page')).toBeHidden();
+  await expect(main.locator('#pg-tools-panel-tables .pg-page')).toBeVisible();
+  await expect(page.locator('#pg-tools-panel-text .pg-page')).toBeHidden();
 
   const beforeContext = await context.boundingBox();
   const beforeSearch = await search.boundingBox();
