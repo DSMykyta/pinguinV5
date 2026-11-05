@@ -32,7 +32,7 @@ export function mountToasts() {
   const view = doc.defaultView;
 
   const host = doc.createElement('div');
-  host.className = 'pg-toast-host';
+  host.className = 'pg-toast__host';
 
   function createAnnouncer(role) {
     const announcer = doc.createElement('div');

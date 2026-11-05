@@ -28,9 +28,10 @@ test('legacy 20px bottom-left position overlays theme temporarily without moving
   await expect(toast).toBeVisible();
   await expect(toast).toHaveAttribute('data-pg-type', 'success');
   await expect(toast).toHaveCSS('background-color', 'rgb(36, 36, 40)');
-  await expect(page.locator('.pg-toast-host')).toHaveCSS('bottom', '20px');
-  await expect(page.locator('.pg-toast-host')).toHaveCSS('left', '20px');
+  await expect(page.locator('.pg-toast__host')).toHaveCSS('bottom', '20px');
+  await expect(page.locator('.pg-toast__host')).toHaveCSS('left', '20px');
   // Wait for entrance transform: getBoundingClientRect is animated.
+  await expect(toast).toHaveAttribute('data-pg-state', 'visible');
   await toast.evaluate(el => Promise.all(
     el.getAnimations().map(animation => animation.finished.catch(() => {}))));
   const rect = await toast.boundingBox();
@@ -151,4 +152,50 @@ test('mobile long message stays within viewport and reduced motion remains suppo
   await expect(toast).toHaveCSS('transition-duration', '0s');
   await page.locator('[data-pg-action="toast-dismiss"]').click();
   await expect(toast).toHaveCount(0);
+});
+
+test('Toast colors follow the current theme without overriding Shell geometry', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/tools');
+  const theme = page.locator('[data-pg-action="theme-cycle"]');
+  await theme.click();
+  await theme.click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  const before = await theme.boundingBox();
+
+  await notify(page, 'Темне оформлення', { type: 'success', duration: 0 });
+  await expect(page.locator('.pg-toast')).toHaveCSS('background-color', 'rgb(241, 241, 241)');
+  await expect(page.locator('.pg-toast')).toHaveCSS('color', 'rgb(36, 36, 40)');
+  await page.locator('[data-pg-action="toast-dismiss"]').click();
+  await expect(page.locator('.pg-toast')).toHaveCount(0);
+  expect(await theme.boundingBox()).toEqual(before);
+});
+
+test('limited waiting queue discards excess informational messages but keeps actions', async ({ page }) => {
+  await page.goto('/tools');
+  await page.evaluate(async () => {
+    const { showToast } = await import('/src/ui/toast/toast.js');
+    showToast('Активне', { duration: 0 });
+    for (let index = 0; index < 8; index++) {
+      showToast('Очікування ' + index, { duration: 0 });
+    }
+    const rejected = showToast('Зайве', { duration: 0 });
+    document.body.dataset.pgToastOverflowRejected = String(!rejected.dismiss());
+    showToast('Дія в черзі', {
+      action: {
+        label: 'Повторити',
+        onClick: () => { document.body.dataset.pgToastActionInvoked = 'true'; },
+      },
+    });
+  });
+  await expect(page.locator('body')).toHaveAttribute('data-pg-toast-overflow-rejected', 'true');
+  await page.locator('[data-pg-action="toast-dismiss"]').click();
+  await expect(page.locator('.pg-toast__message')).toHaveText('Очікування 0');
+  for (let index = 0; index < 8; index++) {
+    await expect(page.locator('.pg-toast__message')).toHaveText('Очікування ' + index);
+    await page.locator('[data-pg-action="toast-dismiss"]').click();
+  }
+  await expect(page.locator('.pg-toast__message')).toHaveText('Дія в черзі');
+  await page.locator('[data-pg-action="toast-action"]').click();
+  await expect(page.locator('body')).toHaveAttribute('data-pg-toast-action-invoked', 'true');
 });
