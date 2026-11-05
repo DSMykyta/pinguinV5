@@ -50,7 +50,10 @@ test('hover follows the mouse, works on dynamic panels, and changes with the dar
   await expect(tooltip).toHaveText('Згорнути навігацію');
   const start = await tooltip.boundingBox();
   const target = await navToggle.boundingBox();
-  await page.mouse.move(target.x + target.width - 4, target.y + target.height - 4);
+  // Move a few pixels inside the same button; entering/leaving nested SVGs
+  // should never be mistaken for leaving the tooltip target.
+  await page.mouse.move(target.x + target.width / 2 + 2, target.y + target.height / 2 + 2);
+  await expect(tooltip).toBeVisible();
   const moved = await tooltip.boundingBox();
   expect(moved.x).toBeGreaterThan(start.x);
   expect(moved.y).toBeGreaterThan(start.y);
@@ -86,7 +89,7 @@ test('keyboard focus supports the same tooltip without a native title', async ({
   const description = await focused.getAttribute('data-pg-tooltip');
   await expect(page.getByRole('tooltip')).toHaveText(description);
   await page.keyboard.press('Tab');
-  await expect(page.getByRole('tooltip')).not.toHaveText(description);
+  await expect(page.getByRole('tooltip')).toHaveCount(0);
 });
 
 test('legacy data-tooltip for truncated content is supported without duplicating normal text', async ({ page }) => {
