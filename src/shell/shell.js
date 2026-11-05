@@ -1,11 +1,38 @@
 import { loadPreferences, savePreferences, SHELL_STORAGE_KEY, LEGACY_THEME_KEY } from '../core/preferences.js';
 import { applyTheme, getNextTheme } from '../core/theme.js';
+import { createRouter } from '../app/router.js';
+import { pageRegistry } from '../app/page-registry.js';
 import { createIconButton } from '../ui/button/button.js';
 import { createSidebar } from './sidebar/sidebar.js';
 import { createAside } from './aside/aside.js';
-import { createOverview } from './overview/overview.js';
 
 const NARROW_QUERY = '(max-width: 1080px)';
+
+function createRouteMessage(title, description, onHome) {
+  const wrapper = document.createElement('section');
+  wrapper.className = 'pg-route-message';
+
+  const heading = document.createElement('h1');
+  heading.className = 'pg-route-message__title';
+  heading.textContent = title;
+
+  const message = document.createElement('p');
+  message.className = 'pg-route-message__description';
+  message.textContent = description;
+
+  const home = document.createElement('a');
+  home.href = '/';
+  home.className = 'pg-route-message__link';
+  home.textContent = 'На головну';
+  home.addEventListener('click', event => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    onHome();
+  });
+
+  wrapper.append(heading, message, home);
+  return wrapper;
+}
 
 export function mountShell(host) {
   if (!host) throw new Error('Shell mount target is required');
@@ -14,13 +41,16 @@ export function mountShell(host) {
   try {
     storage = window.localStorage;
   } catch {
-    // Blocking storage cannot prevent the application from working.
+    // The shell still works when browser privacy settings block storage.
   }
 
   const preferences = loadPreferences(storage);
   const viewport = window.matchMedia(NARROW_QUERY);
   const systemColor = window.matchMedia('(prefers-color-scheme: dark)');
   let mobileNavOpen = false;
+  let activePageCleanup = null;
+  let activePageController = null;
+  let pageRevision = 0;
 
   const shell = document.createElement('div');
   shell.className = 'pg-shell';
@@ -77,9 +107,10 @@ export function mountShell(host) {
   content.className = 'pg-shell__content';
   content.id = 'pg-main-content';
   content.setAttribute('tabindex', '-1');
-  content.append(createOverview());
 
+  // The sidebar only renders registered, functional pages.
   const sidebar = createSidebar({
+    pages: pageRegistry.getNavigation(),
     onToggle() {
       if (viewport.matches) {
         mobileNavOpen = false;
@@ -90,10 +121,11 @@ export function mountShell(host) {
       }
       updateView();
     },
-    onNavigate() {
+    onNavigate(path) {
       mobileNavOpen = false;
       preferences.asideOpen = false;
       updateView();
+      router.navigate(path);
     },
     onCycleTheme() {
       preferences.theme = getNextTheme(preferences.theme);
@@ -161,6 +193,65 @@ export function mountShell(host) {
     sidebar.setTheme(preferences.theme);
   }
 
+  async function displayPage(page) {
+    const revision = ++pageRevision;
+    activePageController?.abort();
+    activePageController = null;
+    activePageCleanup?.();
+    activePageCleanup = null;
+
+    mobileNavOpen = false;
+    preferences.asideOpen = false;
+    updateView();
+
+    sidebar.setActiveRoute(page?.route ?? null);
+    content.scrollTop = 0;
+
+    if (!page) {
+      content.removeAttribute('data-pg-page-type');
+      pageName.textContent = 'Не знайдено';
+      document.title = 'Сторінку не знайдено · Pinguin';
+      content.replaceChildren(createRouteMessage(
+        'Сторінку не знайдено',
+        'Перевірте адресу або поверніться до робочого простору.',
+        () => router.navigate('/'),
+      ));
+      return;
+    }
+
+    content.dataset.pgPageType = page.type;
+    pageName.textContent = page.title;
+    document.title = page.title + ' · Pinguin';
+    content.replaceChildren();
+
+    const controller = new AbortController();
+    activePageController = controller;
+
+    try {
+      const pageModule = await page.load();
+      if (revision !== pageRevision || controller.signal.aborted) return;
+      if (typeof pageModule.mount !== 'function') {
+        throw new TypeError('Page is missing mount(): ' + page.id);
+      }
+      const cleanup = pageModule.mount(content, { signal: controller.signal });
+      activePageCleanup = typeof cleanup === 'function' ? cleanup : null;
+    } catch (error) {
+      if (revision !== pageRevision || controller.signal.aborted) return;
+      console.error('Page failed to load:', page.id, error);
+      content.replaceChildren(createRouteMessage(
+        'Не вдалося відкрити сторінку',
+        'Спробуйте повернутися на головну.',
+        () => router.navigate('/'),
+      ));
+    }
+  }
+
+  const router = createRouter({
+    browserWindow: window,
+    registry: pageRegistry,
+    onChange: displayPage,
+  });
+
   function handleKeydown(event) {
     if (event.key !== 'Escape') return;
     if (preferences.asideOpen) {
@@ -203,9 +294,15 @@ export function mountShell(host) {
   viewport.addEventListener('change', handleMediaChange);
   systemColor.addEventListener('change', handleSystemColorChange);
   window.addEventListener('storage', handleStorage);
+
   updateView();
+  router.start();
 
   return function unmountShell() {
+    pageRevision++;
+    activePageController?.abort();
+    activePageCleanup?.();
+    router.stop();
     document.removeEventListener('keydown', handleKeydown);
     document.removeEventListener('pointerdown', handlePointerDown);
     viewport.removeEventListener('change', handleMediaChange);

@@ -139,3 +139,38 @@
     transition: none;
   }
 }
+
+
+/* Page type affects available content width, never the Shell layout. */
+.pg-shell__content[data-pg-page-type='tool'],
+.pg-shell__content[data-pg-page-type='collection'] {
+  padding-inline: clamp(20px, 4vw, 64px);
+}
+
+.pg-shell__content[data-pg-page-type='record'],
+.pg-shell__content[data-pg-page-type='settings'] {
+  padding-inline: clamp(20px, 6vw, 90px);
+}
+
+.pg-route-message {
+  max-width: 580px;
+  margin: 28px auto;
+}
+
+.pg-route-message__title {
+  margin: 0 0 8px;
+  font-size: 23px;
+  font-weight: 550;
+}
+
+.pg-route-message__description {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: var(--pg-color-text-secondary);
+}
+
+.pg-route-message__link {
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
