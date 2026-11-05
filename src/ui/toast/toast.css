@@ -27,6 +27,7 @@
 
 .pg-toast {
   --pg-toast-offset: 0px;
+  --pg-toast-exit-distance: 96px;
   --pg-toast-scale: 1;
   position: absolute;
   bottom: 0;
@@ -62,12 +63,12 @@
 }
 
 .pg-toast[data-pg-state='closing'] {
-  /* Finish the downward travel BEFORE the late fade-out. */
-  opacity: 0;
-  transform: translate3d(0, calc(96px - var(--pg-toast-offset)), 0)
+  /* Exit entirely below the viewport while retaining full opacity. */
+  opacity: 1;
+  transform: translate3d(0,
+    calc(var(--pg-toast-exit-distance) - var(--pg-toast-offset)), 0)
     scale(.975);
-  transition: transform 300ms cubic-bezier(.2, .75, .25, 1),
-    opacity 130ms ease 170ms;
+  transition: transform 300ms cubic-bezier(.2, .75, .25, 1);
   pointer-events: none;
   z-index: 5;
 }
