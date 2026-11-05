@@ -1,0 +1,40 @@
+/*
+ * ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SHARED TOOLTIP STYLES                                                              ║
+ * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Оформлює єдині контекстні підказки як у legacy.                                      ║
+ * ║ ЗАЛЕЖНОСТІ: Семантичні дизайн-токени.                                                              ║
+ * ║ ПУБЛІЧНИЙ API: pg-tooltip, pg-tooltip--visible.                                                      ║
+ * ║ ПРИНЦИП: Підказка не впливає на layout, не перекриває взаємодію, підтримує reduced motion.         ║
+ * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
+.pg-tooltip {
+  position: fixed;
+  z-index: 10000;
+  max-width: min(500px, calc(100vw - 16px));
+  padding: 8px 12px;
+  border-radius: var(--pg-radius-sm);
+  background: var(--pg-color-tooltip-bg);
+  color: var(--pg-color-tooltip-text);
+  box-shadow: 0 4px 12px var(--pg-color-tooltip-shadow);
+  pointer-events: none;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  line-height: 1.4;
+  opacity: 0;
+  transform: scale(.95);
+  transform-origin: top left;
+  transition: opacity var(--pg-duration-fast) ease-out,
+    transform var(--pg-duration-fast) ease-out;
+}
+
+.pg-tooltip--visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pg-tooltip { transition: none; transform: none; }
+}
