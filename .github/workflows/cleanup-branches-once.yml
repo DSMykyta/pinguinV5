@@ -1,6 +1,4 @@
-# One-time, branch-scoped repository cleanup authorized by repository owner.
-# Delete this workflow file after the successful cleanup run.
-name: One-time Pinguin branch cleanup
+name: Pinguin branch cleanup preflight
 
 on:
   push:
@@ -8,73 +6,9 @@ on:
     paths:
       - .github/workflows/cleanup-branches-once.yml
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
-  cleanup:
-    if: ${{ github.event.head_commit.message == 'maintenance: remove obsolete Pinguin branches after legacy snapshot' }}
+  preflight:
     runs-on: ubuntu-latest
     steps:
-      - name: Verify immutable legacy snapshot and remove obsolete refs
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          repo="${GITHUB_REPOSITORY}"
-          baseline="718aad5d7a1524cff7162061ead766f46f3985b5"
-          echo "Repository: $repo"
-
-          # Safety gate. The original live Production version must be preserved first.
-          main_sha="$(gh api "repos/$repo/branches/main" --jq .commit.sha)"
-          legacy_sha="$(gh api "repos/$repo/branches/legacy" --jq .commit.sha)"
-          reserve_sha="$(gh api "repos/$repo/branches/reserve" --jq .commit.sha)"
-          work_sha="$(gh api "repos/$repo/branches/work" --jq .commit.sha)"
-          [[ "$main_sha" == "$baseline" ]] || { echo "::error::main moved; aborting"; exit 1; }
-          [[ "$legacy_sha" == "$baseline" ]] || { echo "::error::legacy does not match old Production; aborting"; exit 1; }
-          [[ "$reserve_sha" == "$baseline" ]] || { echo "::error::reserve is not the initial stable snapshot; aborting"; exit 1; }
-          [[ -n "$work_sha" ]] || { echo "::error::work missing; aborting"; exit 1; }
-
-          # All four must be present, and no protected non-permanent branches may be silently removed.
-          mapfile -t all_names < <(gh api --paginate "repos/$repo/branches?per_page=100" --jq '.[].name')
-          echo "Found ${#all_names[@]} total branches."
-          keep='^(main|work|reserve|legacy)$'
-          count=0
-
-          for branch in "${all_names[@]}"; do
-            if [[ "$branch" =~ $keep ]]; then
-              echo "KEEP $branch"
-              continue
-            fi
-            protected="$(gh api "repos/$repo/branches/$branch" --jq .protected)"
-            [[ "$protected" == "false" ]] || { echo "::error::Protected branch $branch; aborting"; exit 1; }
-          done
-
-          prs="$(gh api "repos/$repo/pulls?state=open&per_page=100")"
-          [[ "$(jq 'length' <<<"$prs")" -lt 100 ]] || { echo "::error::PR pagination needed; aborting"; exit 1; }
-
-          for branch in "${all_names[@]}"; do
-            if [[ "$branch" =~ $keep ]]; then continue; fi
-
-            # Closing old PRs avoids merging obsolete changes. Keep PR discussion history.
-            while IFS= read -r number; do
-              [[ -z "$number" ]] && continue
-              gh api --method PATCH "repos/$repo/pulls/$number" -f state=closed --silent
-              echo "CLOSED PR #$number (obsolete branch $branch)"
-            done < <(jq -r --arg repo "$repo" --arg branch "$branch" '.[] | select(.head.repo.full_name == $repo and .head.ref == $branch) | .number' <<<"$prs")
-
-            # Git ref deletion only; keep main, reserve, work, immutable legacy.
-            gh api --method DELETE "repos/$repo/git/refs/heads/$branch" --silent
-            echo "DELETED BRANCH $branch"
-            count=$((count+1))
-          done
-
-          mapfile -t left < <(gh api --paginate "repos/$repo/branches?per_page=100" --jq '.[].name')
-          printf "After cleanup: %s\n" "${left[*]}"
-          [[ "${#left[@]}" -eq 4 ]] || { echo "::error::Expected exactly 4 remaining branches"; exit 1; }
-          for required in main work reserve legacy; do
-            printf '%s\n' "${left[@]}" | grep -qx "$required" || { echo "::error::Missing $required"; exit 1; }
-          done
-          echo "SUCCESS: removed $count obsolete branches; kept exactly four."
+      - name: Confirm GitHub Actions can run on work
+        run: echo "Pinguin branch cleanup preflight is valid"
