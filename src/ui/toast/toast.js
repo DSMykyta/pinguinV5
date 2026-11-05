@@ -182,6 +182,11 @@ export function mountToasts() {
     // Preserve this element's last --pg-toast-offset until it travels down.
     visible.delete(item);
     exiting.add(item);
+    // Travel beyond the bottom of the viewport regardless of the toast's
+    // height or its position in the expanded stack. No fade-out/snap.
+    const currentOffset = parseFloat(item.element.style.getPropertyValue('--pg-toast-offset')) || 0;
+    const exitDistance = item.element.offsetHeight + currentOffset + 40;
+    item.element.style.setProperty('--pg-toast-exit-distance', exitDistance + 'px');
     item.element.dataset.pgState = 'closing';
     item.element.inert = true;
 
