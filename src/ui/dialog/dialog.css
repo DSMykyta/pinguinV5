@@ -116,7 +116,7 @@
 
 .pg-dialog__button--destructive {
   background: var(--pg-color-dialog-danger);
-  color: var(--pg-color-dialog-action-text);
+  color: var(--pg-color-dialog-danger-text);
 }
 
 .pg-dialog__button--primary:hover,
