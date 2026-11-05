@@ -115,7 +115,7 @@ test('mobile: sliding navigation and anchored menu without colored side panel', 
   await expect(aside).toBeVisible();
   const size = await aside.boundingBox();
   expect(size.width).toBeLessThan(350);
-  expect(size.y).toBeGreaterThanOrEqual(55);
+  await expect(aside).toHaveCSS('top', '58px');
   await context.click();
   await expect(aside).toBeHidden();
 
