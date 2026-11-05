@@ -1,105 +1,36 @@
 import { test, expect } from '@playwright/test';
 
-test('desktop shell persists navigation, aside and theme preferences', async ({ page }) => {
-  const exceptions = [];
-  page.on('pageerror', error => exceptions.push(error.message));
+test('desktop: uniform canvas, compact context popover and moving round controls', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
 
   await page.setViewportSize({ width: 1440, height: 900 });
+  await page.emulateMedia({ colorScheme: 'light' });
   await page.goto('/');
+
   await expect(page.getByRole('heading', { name: 'Робочий простір' })).toBeVisible();
 
   const shell = page.locator('.pg-shell');
-  const sidebarButton = page.locator('[data-pg-action="sidebar-toggle"]');
-  const asideButton = page.locator('[data-pg-action="aside-toggle"]');
+  const sidebar = page.locator('.pg-sidebar');
+  const aside = page.locator('#pg-aside-panel');
+  const nav = page.locator('[data-pg-action="sidebar-toggle"]');
+  const context = page.locator('[data-pg-action="aside-toggle"]');
+  const theme = page.locator('[data-pg-action="theme-cycle"]');
 
-  await sidebarButton.click();
-  await expect(shell).toHaveAttribute('data-pg-sidebar-state', 'collapsed');
-  await asideButton.click();
-  await expect(page.locator('#pg-aside-panel')).toBeHidden();
-  await asideButton.click();
-  await page.getByRole('radio', { name: 'Темна', exact: true }).check();
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  const columns = await shell.evaluate(node => getComputedStyle(node).gridTemplateColumns.split(' ').length);
+  expect(columns).toBe(2);
 
-  await page.reload();
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  await expect(shell).toHaveAttribute('data-pg-sidebar-state', 'collapsed');
-  await expect(page.getByRole('radio', { name: 'Темна', exact: true })).toBeChecked();
-  expect(exceptions).toEqual([]);
-});
+  const sidebarBackground = await sidebar.evaluate(node => getComputedStyle(node).backgroundColor);
+  expect(sidebarBackground).toBe('rgba(0, 0, 0, 0)');
+  await expect(aside).toBeHidden();
 
-test('narrow screen opens and closes independent overlay panels', async ({ page }) => {
-  const exceptions = [];
-  page.on('pageerror', error => exceptions.push(error.message));
-
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
-  const shell = page.locator('.pg-shell');
-  const mobileMenu = page.locator('[data-pg-action="mobile-menu-toggle"]');
-  const asideToggle = page.locator('[data-pg-action="aside-toggle"]');
-
-  await mobileMenu.click();
-  await expect(shell).toHaveAttribute('data-pg-mobile-nav', 'open');
-  await expect(page.locator('#pg-sidebar-panel')).not.toHaveAttribute('inert', '');
-  await page.keyboard.press('Escape');
-  await expect(shell).toHaveAttribute('data-pg-mobile-nav', 'closed');
-
-  await asideToggle.click();
-  await expect(shell).toHaveAttribute('data-pg-aside-state', 'open');
-  await page.getByRole('radio', { name: 'Світла', exact: true }).check();
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-
-  await page.locator('.pg-shell__backdrop').click({ position: { x: 12, y: 420 } });
-  await expect(shell).toHaveAttribute('data-pg-aside-state', 'closed');
-  await expect(page.locator('.pg-shell__backdrop')).toBeHidden();
-  expect(exceptions).toEqual([]);
-});
-
-
-test('panels animate on desktop while maintaining keyboard-safe hidden states', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/');
-
-  const shell = page.locator('.pg-shell');
-  const context = page.locator('#pg-aside-panel');
-  const shellTransition = await shell.evaluate(element => getComputedStyle(element).transitionProperty);
-  expect(shellTransition).toContain('grid-template-columns');
-
-  await page.locator('[data-pg-action="aside-toggle"]').click();
-  await expect(shell).toHaveAttribute('data-pg-aside-state', 'closed');
-  await expect(context).toHaveAttribute('aria-hidden', 'true');
-  await expect(context).toHaveAttribute('inert', '');
-  await expect(context).toBeHidden();
-
-  await page.locator('[data-pg-action="aside-toggle"]').click();
-  await expect(context).toHaveAttribute('aria-hidden', 'false');
-  await expect(context).toBeVisible();
-});
-
-test('reduced-motion preference suppresses shell movement', async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/');
-
-  const transition = await page.locator('.pg-shell')
-    .evaluate(element => getComputedStyle(element).transitionDuration);
-  expect(transition).toBe('0s');
-});
-
-
-test('four-corner shell restores round moving icons and theme in lower-left', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/');
-
-  const navToggle = page.locator('[data-pg-action="sidebar-toggle"]');
-  const contextToggle = page.locator('[data-pg-action="aside-toggle"]');
-  const themeToggle = page.locator('[data-pg-action="theme-cycle"]');
-
-  for (const button of [navToggle, contextToggle, themeToggle]) {
+  for (const button of [nav, context, theme]) {
     await expect(button).toHaveCSS('border-radius', '9999px');
   }
 
-  const navBox = await navToggle.boundingBox();
-  const contextBox = await contextToggle.boundingBox();
-  const themeBox = await themeToggle.boundingBox();
+  const navBox = await nav.boundingBox();
+  const contextBox = await context.boundingBox();
+  const themeBox = await theme.boundingBox();
   expect(navBox.x).toBeLessThan(48);
   expect(navBox.y).toBeLessThan(48);
   expect(contextBox.x).toBeGreaterThan(1380);
@@ -107,42 +38,102 @@ test('four-corner shell restores round moving icons and theme in lower-left', as
   expect(themeBox.x).toBeLessThan(48);
   expect(themeBox.y).toBeGreaterThan(800);
 
-  await navToggle.click();
-  await expect(navToggle).toHaveAttribute('aria-expanded', 'false');
-  await navToggle.click();
-  await expect(navToggle).toHaveAttribute('aria-expanded', 'true');
+  await nav.click();
+  await expect(shell).toHaveAttribute('data-pg-sidebar-state', 'collapsed');
+  await nav.click();
+  await expect(shell).toHaveAttribute('data-pg-sidebar-state', 'expanded');
 
-  // Lower-left corner cycles system -> light -> dark -> system.
-  await expect(themeToggle).toHaveAttribute('data-pg-theme', 'system');
-  await themeToggle.click();
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-  await expect(page.getByRole('radio', { name: 'Світла', exact: true })).toBeChecked();
-  await themeToggle.click();
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  await themeToggle.click();
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'system');
+  await context.click();
+  await expect(aside).toBeVisible();
+  await expect(aside).toHaveAttribute('aria-hidden', 'false');
+  await expect(aside.getByRole('link', { name: 'Код проєкту' })).toHaveAttribute('href', /github.com/);
+  await expect(aside.getByRole('link', { name: 'Правила компонентів' })).toHaveAttribute('href', /github.com/);
 
-  await page.reload();
-  await expect(themeToggle).toHaveAttribute('data-pg-theme', 'system');
+  const asideBox = await aside.boundingBox();
+  expect(asideBox.x).toBeGreaterThan(1100);
+  expect(asideBox.y).toBeGreaterThanOrEqual(55);
+  expect(asideBox.width).toBeLessThan(320);
+
+  await page.keyboard.press('Escape');
+  await expect(aside).toBeHidden();
+  await context.click();
+  await page.getByRole('heading', { name: 'Робочий простір' }).click();
+  await expect(aside).toBeHidden();
+  expect(errors).toEqual([]);
 });
 
-test('mobile corner buttons stay accessible over sliding panels', async ({ page }) => {
+test('theme control matches legacy cycle and storage behavior', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.goto('/');
+
+  const theme = page.locator('[data-pg-action="theme-cycle"]');
+  await expect(theme).toHaveAttribute('data-pg-theme', 'system');
+
+  // Same order as legacy: light -> dark -> system -> light.
+  await theme.click();
+  await expect(theme).toHaveAttribute('data-pg-theme', 'light');
+  await expect(page.locator('html')).not.toHaveAttribute('data-theme', 'dark');
+  await theme.click();
+  await expect(theme).toHaveAttribute('data-pg-theme', 'dark');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await theme.click();
+  await expect(theme).toHaveAttribute('data-pg-theme', 'system');
+  await expect(page.locator('html')).not.toHaveAttribute('data-theme', 'dark');
+
+  const legacyStorageValue = await page.evaluate(() => localStorage.getItem('theme-mode'));
+  expect(legacyStorageValue).toBe('system');
+
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await page.emulateMedia({ colorScheme: 'light' });
+  await expect(page.locator('html')).not.toHaveAttribute('data-theme', 'dark');
+
+  await page.reload();
+  await expect(theme).toHaveAttribute('data-pg-theme', 'system');
+  await expect(page.locator('html')).not.toHaveAttribute('data-theme', 'dark');
+});
+
+test('mobile: sliding navigation and anchored menu without colored side panel', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
 
-  const leftToggle = page.locator('[data-pg-action="mobile-menu-toggle"]');
-  const rightToggle = page.locator('[data-pg-action="aside-toggle"]');
+  const shell = page.locator('.pg-shell');
+  const mobileMenu = page.locator('[data-pg-action="mobile-menu-toggle"]');
+  const context = page.locator('[data-pg-action="aside-toggle"]');
+  const aside = page.locator('#pg-aside-panel');
 
-  await expect(leftToggle).toHaveCSS('border-radius', '9999px');
-  await expect(rightToggle).toHaveCSS('border-radius', '9999px');
+  await mobileMenu.click();
+  await expect(shell).toHaveAttribute('data-pg-mobile-nav', 'open');
+  await page.keyboard.press('Escape');
+  await expect(shell).toHaveAttribute('data-pg-mobile-nav', 'closed');
 
-  await leftToggle.click();
-  await expect(leftToggle).toHaveAttribute('aria-expanded', 'true');
-  await leftToggle.click();
-  await expect(leftToggle).toHaveAttribute('aria-expanded', 'false');
+  await context.click();
+  await expect(aside).toBeVisible();
+  const size = await aside.boundingBox();
+  expect(size.width).toBeLessThan(350);
+  expect(size.y).toBeGreaterThanOrEqual(55);
+  await context.click();
+  await expect(aside).toBeHidden();
 
-  await rightToggle.click();
-  await expect(page.locator('.pg-shell')).toHaveAttribute('data-pg-aside-state', 'open');
-  await rightToggle.click();
-  await expect(page.locator('.pg-shell')).toHaveAttribute('data-pg-aside-state', 'closed');
+  await mobileMenu.click();
+  await page.locator('.pg-shell__backdrop').click({ position: { x: 350, y: 400 } });
+  await expect(shell).toHaveAttribute('data-pg-mobile-nav', 'closed');
+  expect(errors).toEqual([]);
+});
+
+test('reduced motion disables layout and popover transitions', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  const transition = await page.locator('.pg-shell')
+    .evaluate(element => getComputedStyle(element).transitionDuration);
+  expect(transition).toBe('0s');
+
+  await page.locator('[data-pg-action="aside-toggle"]').click();
+  const asideTransition = await page.locator('#pg-aside-panel')
+    .evaluate(element => getComputedStyle(element).transitionDuration);
+  expect(asideTransition.split(',').every(x => x.trim() === '0s')).toBe(true);
 });

@@ -1,6 +1,6 @@
 /**
- * The workspace stays deliberately quiet until its first real tool is ready.
- * No mock controls, roadmap cards or nonfunctional feature buttons.
+ * A quiet workspace without decorative roadmaps or placeholder controls.
+ * The first real module will replace this view when it is ready.
  */
 export function createOverview() {
   const content = document.createElement('div');
@@ -10,10 +10,6 @@ export function createOverview() {
   title.className = 'pg-overview__title';
   title.textContent = 'Робочий простір';
 
-  const detail = document.createElement('p');
-  detail.className = 'pg-overview__description';
-  detail.textContent = 'Таблиці — перший модуль.';
-
-  content.append(title, detail);
+  content.append(title);
   return content;
 }

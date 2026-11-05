@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   DEFAULT_PREFERENCES,
   SHELL_STORAGE_KEY,
+  LEGACY_THEME_KEY,
   normalizePreferences,
   loadPreferences,
   savePreferences,
@@ -43,4 +44,18 @@ test('storage failures cannot crash the application shell', () => {
   };
   assert.deepEqual(loadPreferences(brokenStorage), DEFAULT_PREFERENCES);
   assert.equal(savePreferences(brokenStorage, DEFAULT_PREFERENCES), false);
+});
+
+
+test('legacy V5 theme-mode overrides older workspace setting', () => {
+  const storage = createStorage();
+  storage.setItem(SHELL_STORAGE_KEY, JSON.stringify({ theme: 'light', sidebarCollapsed: false, asideOpen: false }));
+  storage.setItem(LEGACY_THEME_KEY, 'dark');
+  assert.equal(loadPreferences(storage).theme, 'dark');
+});
+
+test('saving shell preferences also keeps the legacy theme-mode key current', () => {
+  const storage = createStorage();
+  savePreferences(storage, { theme: 'dark', sidebarCollapsed: false, asideOpen: false });
+  assert.equal(storage.getItem(LEGACY_THEME_KEY), 'dark');
 });

@@ -1,4 +1,4 @@
-export const SHELL_STORAGE_KEY = 'pg:v1:shell:preferences';
+export const SHELL_STORAGE_KEY = 'pg:v2:shell:preferences';
 export const LEGACY_THEME_KEY = 'theme-mode';
 
 export const DEFAULT_PREFERENCES = Object.freeze({
