@@ -5,7 +5,7 @@
  * ║ ПРИЗНАЧЕННЯ: Оформлює плаваюче контекстне меню.                                                    ║
  * ║ ЗАЛЕЖНОСТІ: Семантичні токени.                                                                     ║
  * ║ ПУБЛІЧНИЙ API: pg-aside.                                                                           ║
- * ║ ПРИНЦИП: Не займає колонку постійно.                                                               ║
+ * ║ ПРИНЦИП: Режим popover за замовчуванням, dock — третя колонка на desktop.                                                               ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -41,6 +41,45 @@
     opacity var(--pg-duration-fast) ease,
     transform var(--pg-duration-fast) ease,
     visibility 0s linear var(--pg-duration-fast);
+}
+
+.pg-shell[data-pg-aside-mode='docked'] .pg-aside {
+  position: relative;
+  grid-column: 3;
+  grid-row: 1;
+  top: auto;
+  right: auto;
+  z-index: 1;
+  width: 100%;
+  min-width: 0;
+  height: 100dvh;
+  max-height: none;
+  padding: 64px 12px 16px;
+  border: 0;
+  border-left: 1px solid var(--pg-color-border);
+  border-radius: 0;
+  background: var(--pg-color-page);
+  box-shadow: none;
+  transform: none;
+  transform-origin: center;
+  opacity: 1;
+  visibility: visible;
+}
+
+.pg-aside__pin {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pg-aside__pin[hidden] { display: none; }
+
+.pg-aside__pin[aria-pressed='true'] {
+  color: var(--pg-color-text-primary);
+  font-weight: 570;
 }
 
 .pg-aside__heading {
