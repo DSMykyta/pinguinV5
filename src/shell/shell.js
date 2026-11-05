@@ -1,5 +1,7 @@
 import { loadPreferences, savePreferences, SHELL_STORAGE_KEY, LEGACY_THEME_KEY } from '../core/preferences.js';
 import { applyTheme, getNextTheme } from '../core/theme.js';
+import { createShellView } from './shell-view.js';
+import { createPageOutlet } from './page-outlet.js';
 import { createRouter } from '../app/router.js';
 import { pageRegistry } from '../app/page-registry.js';
 import { createIconButton } from '../ui/button/button.js';
@@ -7,32 +9,6 @@ import { createSidebar } from './sidebar/sidebar.js';
 import { createAside } from './aside/aside.js';
 
 const NARROW_QUERY = '(max-width: 1080px)';
-
-function createRouteMessage(title, description, onHome) {
-  const wrapper = document.createElement('section');
-  wrapper.className = 'pg-route-message';
-
-  const heading = document.createElement('h1');
-  heading.className = 'pg-route-message__title';
-  heading.textContent = title;
-
-  const message = document.createElement('p');
-  message.className = 'pg-route-message__description';
-  message.textContent = description;
-
-  const home = document.createElement('a');
-  home.href = '/';
-  home.className = 'pg-route-message__link';
-  home.textContent = 'На головну';
-  home.addEventListener('click', event => {
-    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    event.preventDefault();
-    onHome();
-  });
-
-  wrapper.append(heading, message, home);
-  return wrapper;
-}
 
 export function mountShell(host) {
   if (!host) throw new Error('Shell mount target is required');
@@ -48,9 +24,6 @@ export function mountShell(host) {
   const viewport = window.matchMedia(NARROW_QUERY);
   const systemColor = window.matchMedia('(prefers-color-scheme: dark)');
   let mobileNavOpen = false;
-  let activePageCleanup = null;
-  let activePageController = null;
-  let pageRevision = 0;
 
   const shell = document.createElement('div');
   shell.className = 'pg-shell';
@@ -154,102 +127,28 @@ export function mountShell(host) {
     savePreferences(storage, preferences);
   }
 
+  const renderShellView = createShellView({
+    shell, sidebar, aside, backdrop, mobileNavButton, contextButton,
+    preferences, viewport, systemColor,
+  });
   function updateView() {
-    const isNarrow = viewport.matches;
-    const isAsideVisible = preferences.asideOpen;
-    const isNavVisible = !isNarrow || mobileNavOpen;
-    const isOverlayOpen = isNarrow && mobileNavOpen;
-
-    shell.dataset.pgSidebarState = preferences.sidebarCollapsed ? 'collapsed' : 'expanded';
-    shell.dataset.pgAsideState = isAsideVisible ? 'open' : 'closed';
-    shell.dataset.pgMobileNav = mobileNavOpen ? 'open' : 'closed';
-    shell.dataset.pgOverlayState = isOverlayOpen ? 'open' : 'closed';
-
-    applyTheme(document.documentElement, preferences.theme, systemColor.matches);
-    document.body.dataset.pgOverlay = isOverlayOpen ? 'open' : 'closed';
-
-    aside.element.inert = !isAsideVisible;
-    aside.element.setAttribute('aria-hidden', String(!isAsideVisible));
-    sidebar.element.inert = !isNavVisible;
-    sidebar.brand.inert = !isNarrow && preferences.sidebarCollapsed;
-
-    backdrop.inert = !isOverlayOpen;
-    backdrop.setAttribute('aria-hidden', String(!isOverlayOpen));
-
-    sidebar.toggleButton.setAttribute('aria-expanded',
-      String(isNarrow ? mobileNavOpen : !preferences.sidebarCollapsed));
-    sidebar.toggleButton.setAttribute('aria-label',
-      isNarrow ? 'Закрити меню' :
-        preferences.sidebarCollapsed ? 'Розгорнути навігацію' : 'Згорнути навігацію');
-
-    mobileNavButton.setAttribute('aria-expanded', String(mobileNavOpen));
-    mobileNavButton.setAttribute('aria-label',
-      mobileNavOpen ? 'Закрити меню' : 'Відкрити меню');
-
-    contextButton.setAttribute('aria-expanded', String(isAsideVisible));
-    contextButton.setAttribute('aria-label',
-      isAsideVisible ? 'Закрити контекстне меню' : 'Відкрити контекстне меню');
-
-    sidebar.setTheme(preferences.theme);
+    renderShellView(mobileNavOpen);
   }
 
-  async function displayPage(page) {
-    const revision = ++pageRevision;
-    activePageController?.abort();
-    activePageController = null;
-    activePageCleanup?.();
-    activePageCleanup = null;
-
-    mobileNavOpen = false;
-    preferences.asideOpen = false;
-    updateView();
-
-    sidebar.setActiveRoute(page?.route ?? null);
-    content.scrollTop = 0;
-
-    if (!page) {
-      content.removeAttribute('data-pg-page-type');
-      pageName.textContent = 'Не знайдено';
-      document.title = 'Сторінку не знайдено · Pinguin';
-      content.replaceChildren(createRouteMessage(
-        'Сторінку не знайдено',
-        'Перевірте адресу або поверніться до робочого простору.',
-        () => router.navigate('/'),
-      ));
-      return;
-    }
-
-    content.dataset.pgPageType = page.type;
-    pageName.textContent = page.title;
-    document.title = page.title + ' · Pinguin';
-    content.replaceChildren();
-
-    const controller = new AbortController();
-    activePageController = controller;
-
-    try {
-      const pageModule = await page.load();
-      if (revision !== pageRevision || controller.signal.aborted) return;
-      if (typeof pageModule.mount !== 'function') {
-        throw new TypeError('Page is missing mount(): ' + page.id);
-      }
-      const cleanup = pageModule.mount(content, { signal: controller.signal });
-      activePageCleanup = typeof cleanup === 'function' ? cleanup : null;
-    } catch (error) {
-      if (revision !== pageRevision || controller.signal.aborted) return;
-      console.error('Page failed to load:', page.id, error);
-      content.replaceChildren(createRouteMessage(
-        'Не вдалося відкрити сторінку',
-        'Спробуйте повернутися на головну.',
-        () => router.navigate('/'),
-      ));
-    }
-  }
+  const pageOutlet = createPageOutlet({
+    content, pageName, sidebar,
+    onNavigate: path => router.navigate(path),
+    onRouteChange() {
+      mobileNavOpen = false;
+      preferences.asideOpen = false;
+      updateView();
+    },
+  });
 
   const router = createRouter({
     browserWindow: window,
     registry: pageRegistry,
-    onChange: displayPage,
+    onChange: pageOutlet.displayPage,
   });
 
   function handleKeydown(event) {
@@ -299,9 +198,7 @@ export function mountShell(host) {
   router.start();
 
   return function unmountShell() {
-    pageRevision++;
-    activePageController?.abort();
-    activePageCleanup?.();
+    pageOutlet.dispose();
     router.stop();
     document.removeEventListener('keydown', handleKeydown);
     document.removeEventListener('pointerdown', handlePointerDown);
