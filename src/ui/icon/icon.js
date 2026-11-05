@@ -19,6 +19,8 @@ const ICONS = Object.freeze({
   'moon': '<path d="M20.7 13.2A9 9 0 0 1 10.8 3.3 9 9 0 1 0 20.7 13.2Z"/>',
   'monitor': '<rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 22h8m-4-4v4"/>',
   'code': '<path d="m8 9-3 3 3 3m8-6 3 3-3 3m-5-7-2 8"/>',
+  'layers': '<path d="m12 3 9 5-9 5-9-5 9-5ZM3 12l9 5 9-5M3 16l9 5 9-5"/>',
+  'table-2': '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 9v12"/>',
   'file-text': '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8"/>',
   'pin': '<path d="m16 3 5 5-3.5 1.5-.5 4.5-3 3-3.5-3.5-4.5.5L3 11l5-3 4.5-.5L14 4z"/><path d="m9 15-6 6"/>',
   'pin-off': '<path d="M3 3 21 21M8 8l4.5-.5L14 4l2-1 5 5-3.5 1.5-.5 4.5-1 1M9 15l-6 6M5 11l-2 2 3.5-.5 2.5 2.5"/>',

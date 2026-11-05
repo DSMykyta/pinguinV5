@@ -3,7 +3,7 @@
  * ║ PINGUIN NEXT — PAGE REGISTRY                                                                       ║
  * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Валідує маніфести, маршрути та пункти меню.                                           ║
- * ║ ЗАЛЕЖНОСТІ: page-types, overview manifest.                                                         ║
+ * ║ ЗАЛЕЖНОСТІ: page-types, overview/tools manifests.                                                         ║
  * ║ ПУБЛІЧНИЙ API: createPageRegistry(), pageRegistry.                                                 ║
  * ║ ПРИНЦИП: Одне джерело істини для навігації.                                                        ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
@@ -11,6 +11,7 @@
 
 import { isPageType } from './page-types.js';
 import { manifest as overviewManifest } from '../features/overview/manifest.js';
+import { manifest as toolsManifest } from '../features/tools/manifest.js';
 
 const PAGE_ID = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 const PAGE_PATH = /^\/(?:[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:\/[a-z][a-z0-9]*(?:-[a-z0-9]+)*)*)?$/;
@@ -67,4 +68,4 @@ export function createPageRegistry(manifests) {
 }
 
 /** Only shipped, functional pages belong here. */
-export const pageRegistry = createPageRegistry([overviewManifest]);
+export const pageRegistry = createPageRegistry([overviewManifest, toolsManifest]);

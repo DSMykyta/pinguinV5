@@ -24,7 +24,9 @@ test('navigation derives active state and title from the registered overview pag
 
   const navLinks = await page.getByRole('navigation', { name: 'Інструменти' })
     .locator('a').count();
-  expect(navLinks).toBe(1);
+  expect(navLinks).toBe(2);
+  await expect(page.getByRole('navigation', { name: 'Інструменти' })
+    .getByRole('link', { name: 'Інструменти' })).toHaveAttribute('href', '/tools');
 });
 
 test('unknown URL gets a functioning home link without fake navigation entries', async ({ page }) => {

@@ -12,6 +12,7 @@
 import './styles/foundation.css';
 import './ui/button/button.css';
 import './ui/data-row/data-row.css';
+import './ui/tabs/tabs.css';
 import './shell/sidebar/sidebar.css';
 import './shell/aside/aside.css';
 import './shell/shell.css';

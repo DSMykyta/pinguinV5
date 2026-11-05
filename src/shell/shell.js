@@ -168,6 +168,7 @@ export function mountShell(host) {
   const pageOutlet = createPageOutlet({
     content, pageName, sidebar,
     onNavigate: path => router.navigate(path),
+    onAsideContext: context => aside.setContext(context),
     onRouteChange() {
       mobileNavOpen = false;
       mobileAsideOpen = false;

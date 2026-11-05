@@ -3,7 +3,7 @@
  * ║ PINGUIN NEXT — PAGE OUTLET                                                                         ║
  * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Монтує сторінки та звільняє їхні ресурси.                                             ║
- * ║ ЗАЛЕЖНОСТІ: route-message, page.load().                                                            ║
+ * ║ ЗАЛЕЖНОСТІ: route-message, page.load(), callbacks Shell.                                                            ║
  * ║ ПУБЛІЧНИЙ API: createPageOutlet().                                                                 ║
  * ║ ПРИНЦИП: AbortSignal скасовує застарілу роботу.                                                    ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
@@ -11,7 +11,7 @@
 
 import { createRouteMessage } from './route-message.js';
 
-export function createPageOutlet({ content, pageName, sidebar, onNavigate, onRouteChange }) {
+export function createPageOutlet({ content, pageName, sidebar, onNavigate, onRouteChange, onAsideContext }) {
   let activePageCleanup = null;
   let activePageController = null;
   let pageRevision = 0;
@@ -24,6 +24,7 @@ export function createPageOutlet({ content, pageName, sidebar, onNavigate, onRou
     activePageCleanup = null;
 
     onRouteChange();
+    onAsideContext(null);
 
     sidebar.setActiveRoute(page?.route ?? null);
     content.scrollTop = 0;
@@ -54,7 +55,12 @@ export function createPageOutlet({ content, pageName, sidebar, onNavigate, onRou
       if (typeof pageModule.mount !== 'function') {
         throw new TypeError('Page is missing mount(): ' + page.id);
       }
-      const cleanup = pageModule.mount(content, { signal: controller.signal });
+      const cleanup = pageModule.mount(content, {
+        signal: controller.signal,
+        setAsideContext: context => {
+          if (revision === pageRevision && !controller.signal.aborted) onAsideContext(context);
+        },
+      });
       activePageCleanup = typeof cleanup === 'function' ? cleanup : null;
     } catch (error) {
       if (revision !== pageRevision || controller.signal.aborted) return;

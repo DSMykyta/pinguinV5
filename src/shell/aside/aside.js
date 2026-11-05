@@ -4,7 +4,7 @@
  * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Створює компактне контекстне меню.                                                    ║
  * ║ ЗАЛЕЖНОСТІ: Спільні SVG-іконки.                                                                    ║
- * ║ ПУБЛІЧНИЙ API: createAside(), setPinned().                                                                      ║
+ * ║ ПУБЛІЧНИЙ API: createAside(), setPinned(), setContext().                                                                      ║
  * ║ ПРИНЦИП: Закріплення змінює лише layout; вигляд aside залишається незмінним.                                                              ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
@@ -12,7 +12,7 @@
 import { createIcon } from '../../ui/icon/icon.js';
 import { createIconButton } from '../../ui/button/button.js';
 
-const LINKS = Object.freeze([
+const DEFAULT_LINKS = Object.freeze([
   { label: 'Код проєкту', url: 'https://github.com/DSMykyta/pinguinV5/tree/work', icon: 'code' },
   { label: 'Правила компонентів', url: 'https://github.com/DSMykyta/pinguinV5/blob/work/docs/conventions.md', icon: 'file-text' },
 ]);
@@ -50,7 +50,13 @@ export function createAside({ onPinToggle }) {
   list.className = 'pg-aside__list';
   list.setAttribute('aria-label', 'Посилання проєкту');
 
-  for (const link of LINKS) {
+  function setContext(context) {
+    const heading = context?.title || 'Проєкт';
+    const links = context?.links || DEFAULT_LINKS;
+    title.textContent = heading;
+    list.setAttribute('aria-label', 'Посилання: ' + heading);
+    list.replaceChildren();
+    for (const link of links) {
     const item = document.createElement('a');
     item.className = 'pg-aside__item';
     item.href = link.url;
@@ -69,6 +75,10 @@ export function createAside({ onPinToggle }) {
     list.append(item);
   }
 
+  }
+
+  setContext(null);
+
   aside.append(list);
 
   function setPinned(isPinned, isNarrow) {
@@ -79,5 +89,5 @@ export function createAside({ onPinToggle }) {
     pinButton.title = label;
   }
 
-  return { element: aside, pinButton, setPinned };
+  return { element: aside, pinButton, setPinned, setContext };
 }

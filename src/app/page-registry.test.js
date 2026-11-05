@@ -39,7 +39,8 @@ test('normalizePathname strips trailing slash and query strings', () => {
 test('registry resolves real pages and excludes unshipped features', () => {
   assert.equal(pageRegistry.resolve('/')?.id, 'overview');
   assert.equal(pageRegistry.resolve('/table-generator'), null);
-  assert.equal(pageRegistry.getNavigation().length, 1);
+  assert.equal(pageRegistry.resolve('/tools')?.id, 'tools');
+  assert.equal(pageRegistry.getNavigation().length, 2);
 });
 
 test('registry rejects invalid and duplicate manifests', () => {
