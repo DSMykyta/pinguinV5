@@ -2,61 +2,50 @@
  * ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
  * ║ PINGUIN NEXT — GLOBAL SEARCH                                                                      ║
  * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Пошук доступних сторінок та дій активного інструмента.                              ║
- * ║ ЗАЛЕЖНОСТІ: UI button; дані реєстру або активної сторінки через setEntries().                     ║
- * ║ ПУБЛІЧНИЙ API: createSearch() → element, setEntries(), close(), destroy().                         ║
- * ║ ПРИНЦИП: Жодного вбудованого списку інструментів, клавіатура й cleanup обов'язкові.                ║
+ * ║ ПРИЗНАЧЕННЯ: Видиме пошукове поле у спільній шапці всіх сторінок.                                 ║
+ * ║ ЗАЛЕЖНОСТІ: UI icon, entries від реєстру та активного модуля.                                     ║
+ * ║ ПУБЛІЧНИЙ API: createSearch() → element, setEntries(), open(), close(), destroy().                ║
+ * ║ ПРИНЦИП: Пошук дійсно працює; мобільна версія розкривається за фокусом.                           ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
-import { createIconButton } from '../../ui/button/button.js';
+import { createIcon } from '../../ui/icon/icon.js';
 
 export function createSearch({ onOpen } = {}) {
   const root = document.createElement('div');
   root.className = 'pg-search';
 
-  const toggle = createIconButton({
-    label: 'Пошук',
-    icon: 'search',
-    action: 'site-search-toggle',
-    onClick: () => (isOpen ? close() : open()),
-  });
-  toggle.setAttribute('aria-controls', 'pg-search-panel');
-  toggle.setAttribute('aria-expanded', 'false');
-  toggle.classList.add('pg-icon-button--corner');
-
-  const panel = document.createElement('section');
-  panel.id = 'pg-search-panel';
-  panel.className = 'pg-search__panel';
-  panel.setAttribute('aria-label', 'Пошук по Pinguin');
-  panel.hidden = true;
+  const field = document.createElement('label');
+  field.className = 'pg-search__field';
+  field.append(createIcon('search'));
 
   const input = document.createElement('input');
   input.type = 'search';
   input.className = 'pg-search__input';
-  input.placeholder = 'Знайти розділ…';
+  input.dataset.pgAction = 'site-search-input';
+  input.placeholder = 'Пошук у Pinguin';
   input.setAttribute('aria-label', 'Пошук розділів');
+  input.setAttribute('aria-controls', 'pg-search-results');
+  input.setAttribute('aria-expanded', 'false');
   input.autocomplete = 'off';
   input.spellcheck = false;
+  field.append(input);
 
   const results = document.createElement('div');
-  results.className = 'pg-search__results';
   results.id = 'pg-search-results';
-
-  panel.append(input, results);
-  root.append(toggle, panel);
+  results.className = 'pg-search__results';
+  results.setAttribute('role', 'region');
+  results.setAttribute('aria-label', 'Результати пошуку');
+  results.hidden = true;
+  root.append(field, results);
 
   let entries = [];
   let isOpen = false;
 
-  function matches(entry, query) {
-    return (entry.label + ' ' + (entry.group ?? '')).toLocaleLowerCase('uk')
-      .includes(query.toLocaleLowerCase('uk'));
-  }
-
   function render() {
-    const query = input.value.trim();
-    const found = entries.filter(entry => matches(entry, query));
+    const query = input.value.trim().toLocaleLowerCase('uk');
+    const found = entries.filter(entry =>
+      (entry.label + ' ' + (entry.group ?? '')).toLocaleLowerCase('uk').includes(query));
     results.replaceChildren();
 
     if (!found.length) {
@@ -64,7 +53,6 @@ export function createSearch({ onOpen } = {}) {
       empty.className = 'pg-search__empty';
       empty.textContent = 'Нічого не знайдено';
       results.append(empty);
-      return;
     }
 
     for (const entry of found) {
@@ -73,10 +61,9 @@ export function createSearch({ onOpen } = {}) {
       button.className = 'pg-search__result';
       button.dataset.pgSearchResult = entry.id;
 
-      const title = document.createElement('span');
-      title.className = 'pg-search__result-title';
-      title.textContent = entry.label;
-      button.append(title);
+      const label = document.createElement('span');
+      label.textContent = entry.label;
+      button.append(label);
 
       if (entry.group) {
         const group = document.createElement('span');
@@ -84,7 +71,6 @@ export function createSearch({ onOpen } = {}) {
         group.textContent = entry.group;
         button.append(group);
       }
-
       button.addEventListener('click', () => {
         close();
         entry.activate();
@@ -94,22 +80,23 @@ export function createSearch({ onOpen } = {}) {
   }
 
   function open() {
-    if (isOpen) return;
-    onOpen?.();
-    isOpen = true;
-    input.value = '';
-    panel.hidden = false;
-    toggle.setAttribute('aria-expanded', 'true');
-    render();
+    if (!isOpen) {
+      onOpen?.();
+      isOpen = true;
+      results.hidden = false;
+      input.setAttribute('aria-expanded', 'true');
+      render();
+    }
     input.focus();
   }
 
   function close({ restoreFocus = false } = {}) {
-    if (!isOpen) return;
     isOpen = false;
-    panel.hidden = true;
-    toggle.setAttribute('aria-expanded', 'false');
-    if (restoreFocus) toggle.focus();
+    results.hidden = true;
+    input.setAttribute('aria-expanded', 'false');
+    input.value = '';
+    if (restoreFocus) input.focus();
+    else if (root.contains(document.activeElement)) input.blur();
   }
 
   function setEntries(next) {
@@ -119,22 +106,9 @@ export function createSearch({ onOpen } = {}) {
     if (isOpen) render();
   }
 
-  function onDocumentPointer(event) {
-    if (isOpen && !root.contains(event.target)) close();
-  }
-
-  function onDocumentKey(event) {
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
-      event.preventDefault();
-      if (!isOpen) open();
-      else input.focus();
-      return;
-    }
-    if (event.key === 'Escape' && isOpen) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      close({ restoreFocus: true });
-    }
+  function onInput() {
+    if (!isOpen) open();
+    else render();
   }
 
   function onInputKey(event) {
@@ -148,7 +122,7 @@ export function createSearch({ onOpen } = {}) {
   }
 
   function onResultsKey(event) {
-    if (!['ArrowDown', 'ArrowUp'].includes(event.key)) return;
+    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
     const buttons = [...results.querySelectorAll('button')];
     const index = buttons.indexOf(document.activeElement);
     if (index < 0) return;
@@ -158,25 +132,49 @@ export function createSearch({ onOpen } = {}) {
     else buttons[Math.min(next, buttons.length - 1)]?.focus();
   }
 
-  input.addEventListener('input', render);
+  function onDocumentPointer(event) {
+    if (isOpen && !root.contains(event.target)) close();
+  }
+
+  function onDocumentFocus(event) {
+    if (isOpen && !root.contains(event.target)) close();
+  }
+
+  function onDocumentKey(event) {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
+      open();
+    }
+    if (event.key === 'Escape' && isOpen) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      close({ restoreFocus: true });
+    }
+  }
+
+  input.addEventListener('focus', open);
+  input.addEventListener('input', onInput);
   input.addEventListener('keydown', onInputKey);
   results.addEventListener('keydown', onResultsKey);
   document.addEventListener('pointerdown', onDocumentPointer);
+  document.addEventListener('focusin', onDocumentFocus);
   document.addEventListener('keydown', onDocumentKey);
 
   return {
     element: root,
-    toggleButton: toggle,
+    input,
     setEntries,
     open,
     close,
     destroy() {
       close();
-      document.removeEventListener('pointerdown', onDocumentPointer);
-      document.removeEventListener('keydown', onDocumentKey);
-      input.removeEventListener('input', render);
+      input.removeEventListener('focus', open);
+      input.removeEventListener('input', onInput);
       input.removeEventListener('keydown', onInputKey);
       results.removeEventListener('keydown', onResultsKey);
+      document.removeEventListener('pointerdown', onDocumentPointer);
+      document.removeEventListener('focusin', onDocumentFocus);
+      document.removeEventListener('keydown', onDocumentKey);
     },
   };
 }
