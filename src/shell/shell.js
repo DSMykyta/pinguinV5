@@ -164,10 +164,10 @@ export function mountShell(host) {
     mobileNavButton.focus();
   });
 
-  // Reserved global footer: it takes no space until a future module needs it.
+  // Dedicated empty 56px footer rail, aligned to the compact sidebar width.
   const footer = document.createElement('footer');
   footer.className = 'pg-shell__footer';
-  footer.hidden = true;
+  footer.setAttribute('aria-hidden', 'true');
 
   workspace.append(header, localNavigation, content, footer);
   shell.append(sidebar.element, workspace, aside.element, backdrop);
