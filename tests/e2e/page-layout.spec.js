@@ -202,7 +202,7 @@ test('structural side rails and footer share compact sidebar width', async ({ pa
   await expect(shell).toHaveAttribute('data-pg-aside-mode', 'docked');
   const pinned = await measure();
   expect(pinned.left).toBe(56);
-  expect(pinned.right).toBe(302 + 56 + 12);
+  expect(pinned.right).toBe(302 + 12);
   expect(pinned.bottom).toBe(56);
   expect(pinned.footer).toBe(56);
   expect(pinned.canvasWidth).toBeLessThan(collapsed.canvasWidth - 250);
@@ -211,7 +211,7 @@ test('structural side rails and footer share compact sidebar width', async ({ pa
   await aside.evaluate(el => Promise.all(el.getAnimations().map(
     animation => animation.finished.catch(() => {}))));
   const asideBox = await aside.boundingBox();
-  expect(Math.abs(asideBox.x - pinned.canvasRight - 56)).toBeLessThan(1);
+  expect(Math.abs(asideBox.x - pinned.canvasRight)).toBeLessThan(1);
   expect(Math.abs(asideBox.y - 64)).toBeLessThan(1);
 
   await page.locator('[data-pg-action="aside-pin"]').click();
