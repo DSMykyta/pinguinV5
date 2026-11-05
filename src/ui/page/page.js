@@ -10,8 +10,8 @@
  */
 
 /**
- * A shared page surface used by overview, tools, records and future features.
- * The body accepts module-owned DOM. Only the shared component owns h1 placement.
+ * A shared page surface used by tools, records and future features.
+ * The body accepts module-owned DOM. Only the shared component owns section heading placement.
  */
 export function createPageView({ title }) {
   if (typeof title !== 'string' || !title.trim()) {
@@ -21,7 +21,7 @@ export function createPageView({ title }) {
   const element = document.createElement('div');
   element.className = 'pg-page';
 
-  const heading = document.createElement('h1');
+  const heading = document.createElement('h2');
   heading.className = 'pg-page__title';
   heading.textContent = title;
 

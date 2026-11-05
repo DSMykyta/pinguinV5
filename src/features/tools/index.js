@@ -29,7 +29,7 @@ const TABS = Object.freeze([
   },
 ]);
 
-export function mount(host, { setAsideContext, setPageSection, setSearchEntries, localNavigation }) {
+export function mount(host, { setAsideContext, setSearchEntries, localNavigation }) {
   const page = createPageView({ title: TABS[0].label });
 
   const tabs = createTabs({
@@ -37,14 +37,14 @@ export function mount(host, { setAsideContext, setPageSection, setSearchEntries,
     label: 'Інструменти',
     navHost: localNavigation,
     items: TABS.map(item => ({
-      ...item,
-      // Each editor supplies content without owning the shared page heading.
+      id: item.id,
+      label: item.label,
+      // Plain-text subnavigation; each editor later supplies its own content.
       content: document.createElement('div'),
     })),
     onChange(id) {
       const item = TABS.find(tab => tab.id === id);
       page.setTitle(item.label);
-      setPageSection(item.label);
       setAsideContext({
         title: item.label,
         links: [

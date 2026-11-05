@@ -14,7 +14,7 @@ import { createIcon } from '../icon/icon.js';
 /**
  * Each item: { id, label, icon, content: HTMLElement }.
  * The caller owns content; the shared component owns selection and keyboard behavior.
- * navHost places the whole navigation row in the shared header.
+ * navHost mounts the entire row in the shared workspace subnavigation slot.
  */
 export function createTabs({ idPrefix, label, items, onChange, navHost = null }) {
   if (!/^[a-z][a-z0-9-]*$/.test(idPrefix) || !Array.isArray(items) || !items.length) {
@@ -54,8 +54,6 @@ export function createTabs({ idPrefix, label, items, onChange, navHost = null })
     button.tabIndex = -1;
     button.dataset.pgTab = item.id;
     button.setAttribute('aria-label', item.label);
-    button.dataset.pgTooltip = item.label;
-    button.setAttribute('data-pg-tooltip-always', '');
     if (item.icon) button.append(createIcon(item.icon));
     const text = document.createElement('span');
     text.className = 'pg-tabs__label';

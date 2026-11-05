@@ -62,10 +62,6 @@ export function createPageOutlet({ content, pageName, sidebar, localNavigation, 
         setSearchEntries: entries => {
           if (revision === pageRevision && !controller.signal.aborted) onSearchEntries(entries);
         },
-        setPageSection: section => {
-          if (revision !== pageRevision || controller.signal.aborted) return;
-          pageName.textContent = section ? page.title + ' · ' + section : page.title;
-        },
         setAsideContext: context => {
           if (revision === pageRevision && !controller.signal.aborted) onAsideContext(context);
         },

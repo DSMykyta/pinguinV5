@@ -65,10 +65,15 @@ export function mountShell(host) {
   mobileNavButton.classList.add('pg-shell__mobile-menu', 'pg-icon-button--corner');
   mobileNavButton.setAttribute('aria-controls', 'pg-sidebar-panel');
 
-  const pageName = document.createElement('span');
+  const pageName = document.createElement('h1');
   pageName.className = 'pg-shell__page-name';
-  pageName.textContent = 'Огляд';
+  pageName.textContent = 'Інструменти';
   headingArea.append(mobileNavButton, pageName);
+
+  // Global secondary navigation below the page title, for every route.
+  const localNavigation = document.createElement('div');
+  localNavigation.className = 'pg-shell__local-nav';
+  localNavigation.id = 'pg-local-navigation';
 
   const headerActions = document.createElement('div');
   headerActions.className = 'pg-shell__header-actions';
@@ -159,7 +164,7 @@ export function mountShell(host) {
     mobileNavButton.focus();
   });
 
-  workspace.append(header, content);
+  workspace.append(header, localNavigation, content);
   shell.append(sidebar.element, workspace, aside.element, backdrop);
   host.replaceChildren(shell);
 
@@ -187,7 +192,7 @@ export function mountShell(host) {
   }
 
   const pageOutlet = createPageOutlet({
-    content, pageName, sidebar, localNavigation: sidebar.localNavigation,
+    content, pageName, sidebar, localNavigation,
     onNavigate: path => router.navigate(path),
     onAsideContext: context => aside.setContext(context),
     onSearchEntries: entries => {

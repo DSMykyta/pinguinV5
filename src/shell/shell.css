@@ -8,136 +8,38 @@
  * ║ ПРИНЦИП: Shell керує панелями, не стилізує окремі сторінки або модулі.                                               ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
-
-.pg-shell {
-  display: grid;
-  grid-template-columns: var(--pg-sidebar-width) minmax(0, 1fr) 0px;
-  width: 100%;
-  height: 100dvh;
-  min-height: 400px;
-  overflow: hidden;
-  background: var(--pg-color-page);
-  transition: grid-template-columns var(--pg-duration-layout) var(--pg-ease-layout);
-}
-
-.pg-shell[data-pg-sidebar-state='collapsed'] {
-  grid-template-columns: var(--pg-sidebar-compact-width) minmax(0, 1fr) 0px;
-}
-
-.pg-shell[data-pg-aside-mode='docked'] {
-  grid-template-columns: var(--pg-sidebar-width) minmax(0, 1fr) var(--pg-aside-width);
-}
-
-.pg-shell[data-pg-sidebar-state='collapsed'][data-pg-aside-mode='docked'] {
-  grid-template-columns: var(--pg-sidebar-compact-width) minmax(0, 1fr) var(--pg-aside-width);
-}
-
-.pg-shell__workspace {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.pg-shell__header {
-  position: relative;
-  display: flex;
-  flex: 0 0 var(--pg-header-height);
-  align-items: center;
-  min-width: 0;
-  padding: 0 116px 0 clamp(16px, 3vw, 40px);
-}
-
-.pg-shell__heading-area {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-}
-
-.pg-shell__header-actions {
-  position: fixed;
-  top: 10px;
-  right: 12px;
-  z-index: 95;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.pg-shell__page-name {
-  color: var(--pg-color-text-primary);
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.pg-shell__content {
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 40px clamp(20px, 5vw, 72px) 72px;
-}
-
+.pg-shell { display: grid; grid-template-columns: var(--pg-sidebar-width) minmax(0, 1fr) 0px; width: 100%; height: 100dvh; min-height: 400px; overflow: hidden; background: var(--pg-color-page); transition: grid-template-columns var(--pg-duration-layout) var(--pg-ease-layout); }
+.pg-shell[data-pg-sidebar-state='collapsed'] { grid-template-columns: var(--pg-sidebar-compact-width) minmax(0, 1fr) 0px; }
+.pg-shell[data-pg-aside-mode='docked'] { grid-template-columns: var(--pg-sidebar-width) minmax(0, 1fr) var(--pg-aside-width); }
+.pg-shell[data-pg-sidebar-state='collapsed'][data-pg-aside-mode='docked'] { grid-template-columns: var(--pg-sidebar-compact-width) minmax(0, 1fr) var(--pg-aside-width); }
+.pg-shell__workspace { --pg-workspace-gutter: clamp(24px, 3vw, 48px); display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
+.pg-shell__header { display: flex; flex: 0 0 76px; align-items: center; min-width: 0; padding-inline: var(--pg-workspace-gutter); }
+.pg-shell__heading-area { display: flex; align-items: center; min-width: 0; }
+.pg-shell__page-name { margin: 0; color: var(--pg-color-text-primary); font-size: 23px; line-height: 1.25; font-weight: 590; letter-spacing: -.035em; }
+.pg-shell__header-actions { position: fixed; top: 18px; right: 12px; z-index: 95; display: flex; align-items: center; gap: 6px; }
+.pg-shell__local-nav { display: flex; flex: 0 0 auto; align-items: center; min-width: 0; min-height: 54px; padding-inline: var(--pg-workspace-gutter); overflow-x: auto; scrollbar-width: none; }
+.pg-shell__local-nav::-webkit-scrollbar { display: none; }
+.pg-shell__local-nav:empty { display: none; }
+.pg-shell__content { flex: 1 1 auto; min-width: 0; overflow-x: hidden; overflow-y: auto; padding: 24px var(--pg-workspace-gutter) 72px; }
 .pg-shell__mobile-menu { display: none; }
-
-
-.pg-shell__backdrop {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 70;
-  padding: 0;
-  border: 0;
-  background: var(--pg-color-overlay);
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity var(--pg-duration-layout) ease,
-    visibility 0s linear var(--pg-duration-layout);
-}
-
+.pg-shell__backdrop { display: none; position: fixed; inset: 0; z-index: 70; padding: 0; border: 0; background: var(--pg-color-overlay); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity var(--pg-duration-layout) ease, visibility 0s linear var(--pg-duration-layout); }
 @media (max-width: 1080px) {
-  .pg-shell,
-  .pg-shell[data-pg-sidebar-state='collapsed'],
-  .pg-shell[data-pg-aside-mode='docked'],
-  .pg-shell[data-pg-sidebar-state='collapsed'][data-pg-aside-mode='docked'] {
-    display: block;
-    transition: none;
-  }
-
-  .pg-shell__workspace { height: 100%; }
-
-  .pg-shell__mobile-menu {
-    position: fixed;
-    top: 10px;
-    left: 12px;
-    z-index: 95;
-    display: inline-grid;
-  }
-
+  .pg-shell, .pg-shell[data-pg-sidebar-state='collapsed'], .pg-shell[data-pg-aside-mode='docked'], .pg-shell[data-pg-sidebar-state='collapsed'][data-pg-aside-mode='docked'] { display: block; transition: none; }
+  .pg-shell__workspace { height: 100%; --pg-workspace-gutter: clamp(20px, 3vw, 40px); }
+  .pg-shell__mobile-menu { position: fixed; top: 18px; left: 12px; z-index: 95; display: inline-grid; }
   .pg-shell__heading-area { padding-left: 48px; }
-  .pg-shell__header { padding: 0 116px 0 14px; }
-  .pg-shell__content { padding: 40px clamp(20px, 5vw, 52px) 64px; }
+  .pg-shell__header { padding-right: 115px; }
   .pg-shell__backdrop { display: block; }
-
-  .pg-shell[data-pg-overlay-state='open'] .pg-shell__backdrop {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    transition: opacity var(--pg-duration-layout) ease;
-  }
+  .pg-shell[data-pg-overlay-state='open'] .pg-shell__backdrop { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity var(--pg-duration-layout) ease; }
 }
-
 @media (max-width: 640px) {
-  .pg-shell__content { padding: 32px 20px 56px; }
+  .pg-shell__workspace { --pg-workspace-gutter: 20px; }
+  .pg-shell__header { flex-basis: 72px; padding-left: 14px; padding-right: 120px; }
+  .pg-shell__page-name { font-size: 18px; }
+  .pg-shell__local-nav { min-height: 48px; }
+  .pg-shell__content { padding-top: 16px; padding-bottom: 56px; }
+  .pg-shell__header-actions { top: 16px; }
 }
-
 @media (prefers-reduced-motion: reduce) {
-  .pg-shell, .pg-shell__backdrop {
-    animation: none;
-    transition: none;
-  }
+  .pg-shell, .pg-shell__backdrop { animation: none; transition: none; }
 }
-
-

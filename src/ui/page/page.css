@@ -11,8 +11,8 @@
 
 .pg-page {
   width: 100%;
-  max-width: 800px;
-  margin-inline: auto;
+  max-width: none;
+  margin-inline: 0;
   min-width: 0;
   animation: pg-page-enter 320ms var(--pg-ease-layout) both;
 }
@@ -20,8 +20,8 @@
 .pg-page__title {
   margin: 0;
   color: var(--pg-color-text-primary);
-  font-size: clamp(21px, 2.6vw, 27px);
-  font-weight: 530;
+  font-size: 19px;
+  font-weight: 550;
   line-height: 1.35;
   letter-spacing: -.026em;
 }

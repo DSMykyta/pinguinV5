@@ -5,134 +5,16 @@
  * ║ ПРИЗНАЧЕННЯ: Стилізує вкладки за принципом btn-icon.expand з legacy.                             ║
  * ║ ЗАЛЕЖНОСТІ: Семантичні токени Pinguin.                                                            ║
  * ║ ПУБЛІЧНИЙ API: pg-tabs.                                                                            ║
- * ║ ПРИНЦИП: Універсальні капсули під пунктом sidebar, а не в шапці.                                  ║
+ * ║ ПРИНЦИП: Текстові вкладки під заголовком сторінки.                                  ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
-
-.pg-tabs__nav {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  flex-wrap: nowrap;
-  gap: 8px;
-  width: fit-content;
-  max-width: 100%;
-  min-height: 36px;
-  margin: 0;
-}
-
-.pg-tabs__tab {
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: flex-start;
-  box-sizing: border-box;
-  gap: 0;
-  width: auto;
-  min-width: 32px;
-  max-width: 32px;
-  height: 32px;
-  overflow: hidden;
-  padding: 0 8px;
-  border: none;
-  border-radius: var(--pg-radius-full);
-  background: var(--pg-color-tab-idle);
-  color: var(--pg-color-tab-ink);
-  box-shadow: 0 2px 8px var(--pg-color-shadow);
-  cursor: pointer;
-  font: inherit;
-  font-size: 13px;
-  line-height: 1;
-  white-space: nowrap;
-  transition:
-    max-width 310ms var(--pg-ease-layout),
-    gap 310ms var(--pg-ease-layout),
-    padding-right 310ms var(--pg-ease-layout),
-    background-color var(--pg-duration-fast) ease,
-    color var(--pg-duration-fast) ease,
-    box-shadow var(--pg-duration-normal) ease;
-}
-
-.pg-tabs__tab .pg-icon {
-  flex: 0 0 16px;
-  width: 16px;
-  height: 16px;
-}
-
-.pg-tabs__label {
-  display: block;
-  max-width: 0;
-  overflow: hidden;
-  opacity: 0;
-  transform: translateX(-4px);
-  white-space: nowrap;
-  transition:
-    max-width 310ms var(--pg-ease-layout),
-    opacity 170ms ease,
-    transform 310ms var(--pg-ease-layout);
-}
-
-.pg-tabs__tab:is(:hover, :focus-visible, [aria-selected='true']) {
-  gap: 8px;
-  max-width: 220px;
-  padding-right: 14px;
-  background: var(--pg-color-tab-selected);
-  color: var(--pg-color-tab-ink);
-  box-shadow: none;
-}
-
-.pg-tabs__tab:is(:hover, :focus-visible, [aria-selected='true']) .pg-tabs__label {
-  max-width: 170px;
-  opacity: 1;
-  transform: translateX(0);
-}
-
-/* Compact mode follows available slot width, not a particular route or Shell state. */
-@container pg-local-nav (max-width: 80px) {
-  .pg-tabs__nav {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-
-  .pg-tabs__tab,
-  .pg-tabs__tab:is(:hover, :focus-visible, [aria-selected='true']) {
-    width: 32px;
-    min-width: 32px;
-    max-width: 32px;
-    gap: 0;
-    padding: 0 8px;
-  }
-
-  .pg-tabs__label,
-  .pg-tabs__tab:is(:hover, :focus-visible, [aria-selected='true']) .pg-tabs__label {
-    max-width: 0;
-    opacity: 0;
-  }
-}
-
-.pg-tabs__tab:focus-visible {
-  outline: 2px solid var(--pg-color-focus);
-  outline-offset: 3px;
-}
-
-.pg-tabs__content {
-  min-width: 0;
-}
-
+.pg-tabs__nav { display: flex; align-items: center; flex-wrap: nowrap; gap: 5px; width: max-content; min-height: 38px; margin: 0; }
+.pg-tabs__tab { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; gap: 7px; min-height: 36px; padding: 0 16px; border: 0; border-radius: var(--pg-radius-full); background: transparent; color: var(--pg-color-text-secondary); cursor: pointer; font: inherit; font-size: 13px; font-weight: 560; white-space: nowrap; transition: background-color var(--pg-duration-normal) ease, color var(--pg-duration-normal) ease; }
+.pg-tabs__tab .pg-icon { flex: 0 0 16px; width: 16px; height: 16px; }
+.pg-tabs__tab:hover { background: var(--pg-color-hover); }
+.pg-tabs__tab[aria-selected='true'] { background: var(--pg-color-selected); color: var(--pg-color-text-primary); }
+.pg-tabs__tab:focus-visible { outline: 2px solid var(--pg-color-focus); outline-offset: 2px; }
+.pg-tabs__content { min-width: 0; }
 .pg-tabs__panel[hidden] { display: none; }
-
-.pg-tabs__panel { min-height: 120px; }
-
-@media (max-width: 420px) {
-  .pg-tabs__nav { gap: 4px; }
-  .pg-tabs__tab { font-size: 12px; }
-  .pg-tabs__tab:is(:hover, :focus-visible, [aria-selected='true']) {
-    gap: 6px;
-    padding-right: 10px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .pg-tabs__tab, .pg-tabs__label { transition: none; }
-}
+.pg-tabs__panel { min-height: 1px; }
+@media (prefers-reduced-motion: reduce) { .pg-tabs__tab { transition: none; } }
