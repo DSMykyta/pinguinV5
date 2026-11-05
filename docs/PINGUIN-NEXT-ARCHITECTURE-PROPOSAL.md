@@ -192,6 +192,8 @@ export function mount(host, context) {
 - Не копіювати 1.6 MB зібраного CSS ChatGPT із папки \`GPT CSS/\`: в новій системі потрібні свої компактні design tokens.
 - \`main\` зараз не має branch protection; рекомендовано вимагати успішний CI та PR-рев'ю для публікацій.
 - Не робити \`force push\` в \`main\`, не переставляти production branch при кожному релізі.
+- **Перевірено 2026-11-05:** у GitHub `delete_branch_on_merge = true`. Перед першим PR із постійної гілки `work` його треба вимкнути в Settings → General → Pull Requests, інакше GitHub автоматично видалить `work` після merge.
+- **Перевірено 2026-11-05:** `main` має `protected = false`; налаштувати ruleset/required checks перед релізним процесом.
 
 ## 9. Питання до обговорення
 
