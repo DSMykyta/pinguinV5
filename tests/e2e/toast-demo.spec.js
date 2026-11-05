@@ -53,3 +53,24 @@ test('Toast demo stays inside canvas on mobile, independent from tab selection',
   expect(demoBox.x).toBeGreaterThanOrEqual(canvasBox.x);
   expect(demoBox.x + demoBox.width).toBeLessThanOrEqual(canvasBox.x + canvasBox.width);
 });
+
+test('repeated clicks on the demo button create separate visible Toasts and overflow into FIFO', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/tools');
+  const button = page.locator('[data-pg-action="toast-demo"]');
+  const messages = page.locator('.pg-toast__message');
+  const toasts = page.locator('.pg-toast');
+
+  for (let index = 0; index < 3; index++) await button.click();
+  await expect(toasts).toHaveCount(3);
+  await expect(messages).toHaveText([
+    'Зміни збережено', 'Зміни збережено', 'Зміни збережено',
+  ]);
+
+  await button.click();
+  await expect(toasts).toHaveCount(3);
+  await toasts.first().locator('[data-pg-action="toast-dismiss"]').click();
+  await expect(toasts).toHaveCount(3);
+
+  await expect(page.locator('.pg-toast__host')).toHaveCSS('flex-direction', 'column-reverse');
+});

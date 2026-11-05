@@ -59,21 +59,49 @@ test('status icons, safe text and error alert are accessible', async ({ page }) 
     'aria-label', 'Закрити повідомлення');
 });
 
-test('one toast at a time; FIFO with deduplication and manually dismissible waiting item', async ({ page }) => {
+test('three visible notifications stack above one another; identical messages stay distinct', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/tools');
   await page.evaluate(async () => {
     const { showToast } = await import('/src/ui/toast/toast.js');
     showToast('Перше', { duration: 0 });
     showToast('Перше', { duration: 0 });
-    const next = showToast('Друге', { duration: 0 });
-    showToast('Третє', { duration: 0 });
-    next.dismiss();
+    showToast('Друге', { duration: 0 });
+    showToast('Третє', { duration: 0 }); // waiting, not ignored
   });
-  await expect(page.locator('.pg-toast')).toHaveCount(1);
-  await expect(page.locator('.pg-toast__message')).toHaveText('Перше');
-  await page.locator('[data-pg-action="toast-dismiss"]').click();
-  await expect(page.locator('.pg-toast__message')).toHaveText('Третє');
-  await expect(page.locator('.pg-toast')).toHaveCount(1);
+
+  const visible = page.locator('.pg-toast');
+  const messages = page.locator('.pg-toast__message');
+  await expect(visible).toHaveCount(3);
+  await expect(messages).toHaveText(['Перше', 'Перше', 'Друге']);
+  await visible.evaluateAll(elements => Promise.all(elements.flatMap(
+    element => element.getAnimations().map(a => a.finished.catch(() => {})))));
+  const boxes = await visible.evaluateAll(elements => elements.map(el => {
+    const b = el.getBoundingClientRect();
+    return { top: b.top, bottom: b.bottom };
+  }));
+  expect(boxes[0].top).toBeGreaterThan(boxes[1].bottom);
+  expect(boxes[1].top).toBeGreaterThan(boxes[2].bottom);
+
+  await visible.first().locator('[data-pg-action="toast-dismiss"]').click();
+  await expect(messages).toHaveText(['Перше', 'Друге', 'Третє']);
+  await expect(visible).toHaveCount(3);
+  await visible.nth(1).locator('[data-pg-action="toast-dismiss"]').click();
+  await expect(messages).toHaveText(['Перше', 'Третє']);
+});
+
+test('a pending toast can be dismissed without removing visible notifications', async ({ page }) => {
+  await page.goto('/tools');
+  await page.evaluate(async () => {
+    const { showToast } = await import('/src/ui/toast/toast.js');
+    for (const title of ['А', 'Б', 'В']) showToast(title, { duration: 0 });
+    const waiting = showToast('Не показувати', { duration: 0 });
+    document.body.dataset.pgWaitingDismissed = String(waiting.dismiss());
+  });
+  await expect(page.locator('body')).toHaveAttribute('data-pg-waiting-dismissed', 'true');
+  await expect(page.locator('.pg-toast__message')).toHaveText(['А', 'Б', 'В']);
+  await page.locator('.pg-toast').first().locator('[data-pg-action="toast-dismiss"]').click();
+  await expect(page.locator('.pg-toast__message')).toHaveText(['Б', 'В']);
 });
 
 test('action persists, executes once, and Escape from focused toast restores origin focus', async ({ page }) => {
@@ -171,12 +199,12 @@ test('Toast colors follow the current theme without overriding Shell geometry', 
   expect(await theme.boundingBox()).toEqual(before);
 });
 
-test('limited waiting queue discards excess informational messages but keeps actions', async ({ page }) => {
+test('waiting queue stays bounded for regular items and preserves actions', async ({ page }) => {
   await page.goto('/tools');
   await page.evaluate(async () => {
     const { showToast } = await import('/src/ui/toast/toast.js');
     showToast('Активне', { duration: 0 });
-    for (let index = 0; index < 8; index++) {
+    for (let index = 0; index < 10; index++) {
       showToast('Очікування ' + index, { duration: 0 });
     }
     const rejected = showToast('Зайве', { duration: 0 });
@@ -188,14 +216,16 @@ test('limited waiting queue discards excess informational messages but keeps act
       },
     });
   });
+
   await expect(page.locator('body')).toHaveAttribute('data-pg-toast-overflow-rejected', 'true');
-  await page.locator('[data-pg-action="toast-dismiss"]').click();
-  await expect(page.locator('.pg-toast__message')).toHaveText('Очікування 0');
-  for (let index = 0; index < 8; index++) {
-    await expect(page.locator('.pg-toast__message')).toHaveText('Очікування ' + index);
-    await page.locator('[data-pg-action="toast-dismiss"]').click();
+  await expect(page.locator('.pg-toast')).toHaveCount(3);
+  for (const title of ['Активне', ...Array.from({ length: 10 }, (_, i) => 'Очікування ' + i)]) {
+    await expect(page.locator('.pg-toast__message').first()).toHaveText(title);
+    await page.locator('.pg-toast').first().locator('[data-pg-action="toast-dismiss"]').click();
+    await expect(page.locator('.pg-toast__message').first()).not.toHaveText(title);
   }
-  await expect(page.locator('.pg-toast__message')).toHaveText('Дія в черзі');
+  await expect(page.locator('.pg-toast__message')).toHaveText(['Дія в черзі']);
   await page.locator('[data-pg-action="toast-action"]').click();
   await expect(page.locator('body')).toHaveAttribute('data-pg-toast-action-invoked', 'true');
+  await expect(page.locator('.pg-toast')).toHaveCount(0);
 });
