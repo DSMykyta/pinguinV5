@@ -1,11 +1,11 @@
-import { loadPreferences, savePreferences } from '../core/preferences.js';
+import { loadPreferences, savePreferences, SHELL_STORAGE_KEY, LEGACY_THEME_KEY } from '../core/preferences.js';
+import { applyTheme, getNextTheme } from '../core/theme.js';
 import { createIconButton } from '../ui/button/button.js';
 import { createSidebar } from './sidebar/sidebar.js';
 import { createAside } from './aside/aside.js';
 import { createOverview } from './overview/overview.js';
 
 const NARROW_QUERY = '(max-width: 1080px)';
-const THEME_CYCLE = ['system', 'light', 'dark'];
 
 export function mountShell(host) {
   if (!host) throw new Error('Shell mount target is required');
@@ -14,12 +14,13 @@ export function mountShell(host) {
   try {
     storage = window.localStorage;
   } catch {
-    // The shell also works when browser privacy settings block storage.
+    // Blocking storage cannot prevent the application from working.
   }
+
   const preferences = loadPreferences(storage);
-  const media = window.matchMedia(NARROW_QUERY);
+  const viewport = window.matchMedia(NARROW_QUERY);
+  const systemColor = window.matchMedia('(prefers-color-scheme: dark)');
   let mobileNavOpen = false;
-  let mobileAsideOpen = false;
 
   const shell = document.createElement('div');
   shell.className = 'pg-shell';
@@ -38,8 +39,8 @@ export function mountShell(host) {
     icon: 'panel-left',
     action: 'mobile-menu-toggle',
     onClick: () => {
-      mobileAsideOpen = false;
       mobileNavOpen = !mobileNavOpen;
+      preferences.asideOpen = false;
       updateView();
       mobileNavButton.focus();
     },
@@ -47,41 +48,28 @@ export function mountShell(host) {
   mobileNavButton.classList.add('pg-shell__mobile-menu', 'pg-icon-button--corner');
   mobileNavButton.setAttribute('aria-controls', 'pg-sidebar-panel');
 
-  const breadcrumb = document.createElement('div');
-  breadcrumb.className = 'pg-shell__breadcrumb';
-  const breadcrumbParent = document.createElement('span');
-  breadcrumbParent.className = 'pg-shell__breadcrumb-parent';
-  breadcrumbParent.textContent = 'Простір';
-  const separator = document.createElement('span');
-  separator.className = 'pg-shell__breadcrumb-separator';
-  separator.setAttribute('aria-hidden', 'true');
-  separator.textContent = '/';
-  const breadcrumbCurrent = document.createElement('span');
-  breadcrumbCurrent.textContent = 'Огляд';
-  breadcrumb.append(breadcrumbParent, separator, breadcrumbCurrent);
-  headingArea.append(mobileNavButton, breadcrumb);
+  const pageName = document.createElement('span');
+  pageName.className = 'pg-shell__page-name';
+  pageName.textContent = 'Огляд';
+  headingArea.append(mobileNavButton, pageName);
 
   const headerActions = document.createElement('div');
   headerActions.className = 'pg-shell__header-actions';
 
   const contextButton = createIconButton({
-    label: 'Сховати контекстну панель',
-    icon: 'panel-right',
+    label: 'Відкрити контекстне меню',
+    icon: 'sliders',
     action: 'aside-toggle',
     onClick: () => {
-      if (media.matches) {
-        mobileNavOpen = false;
-        mobileAsideOpen = !mobileAsideOpen;
-      } else {
-        preferences.asideOpen = !preferences.asideOpen;
-        persist();
-      }
+      preferences.asideOpen = !preferences.asideOpen;
+      mobileNavOpen = false;
       updateView();
       contextButton.focus();
     },
   });
   contextButton.classList.add('pg-shell__context-button', 'pg-icon-button--corner');
   contextButton.setAttribute('aria-controls', 'pg-aside-panel');
+  contextButton.setAttribute('aria-haspopup', 'true');
   headerActions.append(contextButton);
   header.append(headingArea, headerActions);
 
@@ -93,7 +81,7 @@ export function mountShell(host) {
 
   const sidebar = createSidebar({
     onToggle() {
-      if (media.matches) {
+      if (viewport.matches) {
         mobileNavOpen = false;
         mobileNavButton.focus();
       } else {
@@ -104,33 +92,26 @@ export function mountShell(host) {
     },
     onNavigate() {
       mobileNavOpen = false;
+      preferences.asideOpen = false;
       updateView();
     },
     onCycleTheme() {
-      const next = (THEME_CYCLE.indexOf(preferences.theme) + 1) % THEME_CYCLE.length;
-      preferences.theme = THEME_CYCLE[next];
+      preferences.theme = getNextTheme(preferences.theme);
       persist();
       updateView();
     },
   });
 
-  const aside = createAside({
-    theme: preferences.theme,
-    onThemeChange(theme) {
-      preferences.theme = theme;
-      persist();
-      updateView();
-    },
-  });
+  const aside = createAside();
 
   const backdrop = document.createElement('button');
   backdrop.type = 'button';
   backdrop.className = 'pg-shell__backdrop';
-  backdrop.setAttribute('aria-label', 'Закрити відкриту панель');
+  backdrop.setAttribute('aria-label', 'Закрити меню');
   backdrop.addEventListener('click', () => {
     mobileNavOpen = false;
-    mobileAsideOpen = false;
     updateView();
+    mobileNavButton.focus();
   });
 
   workspace.append(header, content);
@@ -142,75 +123,93 @@ export function mountShell(host) {
   }
 
   function updateView() {
-    const isNarrow = media.matches;
-    const isAsideVisible = isNarrow ? mobileAsideOpen : preferences.asideOpen;
-    const isNavVisible = isNarrow ? mobileNavOpen : true;
-    const isOverlayOpen = isNarrow && (mobileNavOpen || mobileAsideOpen);
+    const isNarrow = viewport.matches;
+    const isAsideVisible = preferences.asideOpen;
+    const isNavVisible = !isNarrow || mobileNavOpen;
+    const isOverlayOpen = isNarrow && mobileNavOpen;
 
     shell.dataset.pgSidebarState = preferences.sidebarCollapsed ? 'collapsed' : 'expanded';
     shell.dataset.pgAsideState = isAsideVisible ? 'open' : 'closed';
     shell.dataset.pgMobileNav = mobileNavOpen ? 'open' : 'closed';
+    shell.dataset.pgOverlayState = isOverlayOpen ? 'open' : 'closed';
 
-    document.documentElement.dataset.theme = preferences.theme;
+    applyTheme(document.documentElement, preferences.theme, systemColor.matches);
     document.body.dataset.pgOverlay = isOverlayOpen ? 'open' : 'closed';
 
-    // Animate the panel out while keeping it out of the keyboard tab order.
     aside.element.inert = !isAsideVisible;
     aside.element.setAttribute('aria-hidden', String(!isAsideVisible));
-
     sidebar.element.inert = !isNavVisible;
-    shell.dataset.pgOverlayState = isOverlayOpen ? 'open' : 'closed';
+    sidebar.brand.inert = !isNarrow && preferences.sidebarCollapsed;
+
     backdrop.inert = !isOverlayOpen;
     backdrop.setAttribute('aria-hidden', String(!isOverlayOpen));
 
-    sidebar.brand.inert = !isNarrow && preferences.sidebarCollapsed;
     sidebar.toggleButton.setAttribute('aria-expanded',
       String(isNarrow ? mobileNavOpen : !preferences.sidebarCollapsed));
-    sidebar.toggleButton.setAttribute('aria-label', isNarrow
-      ? 'Закрити меню'
-      : preferences.sidebarCollapsed ? 'Розгорнути навігацію' : 'Згорнути навігацію');
+    sidebar.toggleButton.setAttribute('aria-label',
+      isNarrow ? 'Закрити меню' :
+        preferences.sidebarCollapsed ? 'Розгорнути навігацію' : 'Згорнути навігацію');
 
     mobileNavButton.setAttribute('aria-expanded', String(mobileNavOpen));
-    mobileNavButton.setAttribute('aria-label', mobileNavOpen ? 'Закрити меню' : 'Відкрити меню');
+    mobileNavButton.setAttribute('aria-label',
+      mobileNavOpen ? 'Закрити меню' : 'Відкрити меню');
 
     contextButton.setAttribute('aria-expanded', String(isAsideVisible));
-    contextButton.setAttribute('aria-label', isAsideVisible
-      ? 'Сховати контекстну панель' : 'Показати контекстну панель');
+    contextButton.setAttribute('aria-label',
+      isAsideVisible ? 'Закрити контекстне меню' : 'Відкрити контекстне меню');
 
     sidebar.setTheme(preferences.theme);
-    aside.setTheme(preferences.theme);
   }
 
   function handleKeydown(event) {
-    if (event.key === 'Escape' && (mobileNavOpen || mobileAsideOpen)) {
-      const wasNavOpen = mobileNavOpen;
-      mobileNavOpen = false;
-      mobileAsideOpen = false;
+    if (event.key !== 'Escape') return;
+    if (preferences.asideOpen) {
+      preferences.asideOpen = false;
       updateView();
-      (wasNavOpen ? mobileNavButton : contextButton).focus();
+      contextButton.focus();
+    } else if (mobileNavOpen) {
+      mobileNavOpen = false;
+      updateView();
+      mobileNavButton.focus();
     }
+  }
+
+  function handlePointerDown(event) {
+    if (!preferences.asideOpen) return;
+    if (aside.element.contains(event.target) || contextButton.contains(event.target)) return;
+    preferences.asideOpen = false;
+    updateView();
   }
 
   function handleMediaChange() {
     mobileNavOpen = false;
-    mobileAsideOpen = false;
     updateView();
   }
 
+  function handleSystemColorChange() {
+    if (preferences.theme === 'system') {
+      applyTheme(document.documentElement, 'system', systemColor.matches);
+    }
+  }
+
   function handleStorage(event) {
-    if (event.key !== 'pg:v1:shell:preferences') return;
+    if (event.key !== SHELL_STORAGE_KEY && event.key !== LEGACY_THEME_KEY) return;
     Object.assign(preferences, loadPreferences(storage));
     updateView();
   }
 
   document.addEventListener('keydown', handleKeydown);
-  media.addEventListener('change', handleMediaChange);
+  document.addEventListener('pointerdown', handlePointerDown);
+  viewport.addEventListener('change', handleMediaChange);
+  systemColor.addEventListener('change', handleSystemColorChange);
   window.addEventListener('storage', handleStorage);
   updateView();
 
   return function unmountShell() {
     document.removeEventListener('keydown', handleKeydown);
-    media.removeEventListener('change', handleMediaChange);
+    document.removeEventListener('pointerdown', handlePointerDown);
+    viewport.removeEventListener('change', handleMediaChange);
+    systemColor.removeEventListener('change', handleSystemColorChange);
     window.removeEventListener('storage', handleStorage);
     delete document.body.dataset.pgOverlay;
     host.replaceChildren();
