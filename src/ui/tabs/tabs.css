@@ -5,7 +5,7 @@
  * ║ ПРИЗНАЧЕННЯ: Стилізує вкладки за принципом btn-icon.expand з legacy.                             ║
  * ║ ЗАЛЕЖНОСТІ: Семантичні токени Pinguin.                                                            ║
  * ║ ПУБЛІЧНИЙ API: pg-tabs.                                                                            ║
- * ║ ПРИНЦИП: Центрується весь ряд, а кнопки плавно розкриваються вправо.                                  ║
+ * ║ ПРИНЦИП: Універсальні капсули під пунктом sidebar, а не в шапці.                                  ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -87,6 +87,26 @@
   transform: translateX(0);
 }
 
+.pg-shell[data-pg-sidebar-state='collapsed'] .pg-sidebar__local-nav .pg-tabs__nav {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.pg-shell[data-pg-sidebar-state='collapsed'] .pg-sidebar__local-nav .pg-tabs__tab,
+.pg-shell[data-pg-sidebar-state='collapsed'] .pg-sidebar__local-nav .pg-tabs__tab:is(:hover, :focus-visible, [aria-selected='true']) {
+  width: 32px;
+  min-width: 32px;
+  max-width: 32px;
+  gap: 0;
+  padding: 0 8px;
+}
+
+.pg-shell[data-pg-sidebar-state='collapsed'] .pg-sidebar__local-nav .pg-tabs__label {
+  max-width: 0;
+  opacity: 0;
+}
+
 .pg-tabs__tab:focus-visible {
   outline: 2px solid var(--pg-color-focus);
   outline-offset: 3px;
@@ -99,6 +119,23 @@
 .pg-tabs__panel[hidden] { display: none; }
 
 .pg-tabs__panel { min-height: 120px; }
+
+@media (max-width: 1080px) {
+  .pg-shell[data-pg-sidebar-state='collapsed'] .pg-sidebar__local-nav .pg-tabs__nav {
+    flex-direction: row;
+    gap: 8px;
+  }
+  .pg-shell[data-pg-sidebar-state='collapsed'] .pg-sidebar__local-nav .pg-tabs__tab:is(:hover, :focus-visible, [aria-selected='true']) {
+    width: auto;
+    max-width: 220px;
+    gap: 8px;
+    padding-right: 14px;
+  }
+  .pg-shell[data-pg-sidebar-state='collapsed'] .pg-sidebar__local-nav .pg-tabs__tab:is(:hover, :focus-visible, [aria-selected='true']) .pg-tabs__label {
+    max-width: 170px;
+    opacity: 1;
+  }
+}
 
 @media (max-width: 420px) {
   .pg-tabs__nav { gap: 4px; }

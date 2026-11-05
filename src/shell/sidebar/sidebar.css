@@ -70,6 +70,16 @@
   transition: background-color var(--pg-duration-fast) ease;
 }
 
+.pg-sidebar__local-nav {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  min-width: 0;
+  max-width: 100%;
+  padding: 7px 0 10px 11px;
+}
+
+.pg-sidebar__local-nav:empty { display: none; }
+
 .pg-sidebar__link:hover { background: var(--pg-color-hover); }
 
 .pg-sidebar__link[aria-current='page'] {
@@ -128,6 +138,10 @@
   pointer-events: none;
 }
 
+.pg-shell[data-pg-sidebar-state='collapsed'] .pg-sidebar__local-nav {
+  padding: 5px 0 8px 4px;
+}
+
 @media (max-width: 1080px) {
   .pg-sidebar,
   .pg-shell[data-pg-sidebar-state='collapsed'] .pg-sidebar {
@@ -152,6 +166,10 @@
   }
 
   .pg-sidebar__top { padding-left: 48px; }
+  .pg-sidebar__local-nav,
+  .pg-shell[data-pg-sidebar-state='collapsed'] .pg-sidebar__local-nav {
+    padding: 7px 0 10px 11px;
+  }
   .pg-sidebar__link { padding-inline: 11px; }
   .pg-sidebar__toggle { display: none; }
 
