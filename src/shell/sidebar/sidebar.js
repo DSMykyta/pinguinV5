@@ -34,7 +34,8 @@ function createSidebarLink(page, onNavigate) {
   link.href = page.route;
   link.className = 'pg-sidebar__link';
   link.setAttribute('aria-label', page.title);
-  link.title = page.title;
+  link.dataset.pgTooltip = page.title;
+  link.setAttribute('data-pg-tooltip-always', '');
   link.append(createIcon(page.navigation.icon));
 
   const text = document.createElement('span');
@@ -112,7 +113,7 @@ export function createSidebar({ pages, onToggle, onNavigate, onCycleTheme }) {
     themeButton.replaceChildren(createIcon(THEME_ICONS[theme]));
     const label = 'Тема: ' + THEME_LABELS[theme];
     themeButton.setAttribute('aria-label', label);
-    themeButton.title = label;
+    themeButton.dataset.pgTooltip = label;
   }
 
   function setActiveRoute(route) {

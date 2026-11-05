@@ -3,7 +3,7 @@
  * ║ PINGUIN NEXT — BUTTON COMPONENT                                                                    ║
  * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Створює спільну доступну кнопку.                                                      ║
- * ║ ЗАЛЕЖНОСТІ: UI icon.                                                                               ║
+ * ║ ЗАЛЕЖНОСТІ: UI icon, делегований tooltip за data-pg-tooltip.                                                                               ║
  * ║ ПУБЛІЧНИЙ API: createIconButton().                                                                 ║
  * ║ ПРИНЦИП: Одна реалізація для кожного інструмента.                                                  ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
@@ -20,7 +20,8 @@ export function createIconButton({ label, icon, action, onClick }) {
   button.type = 'button';
   button.className = 'pg-icon-button';
   button.setAttribute('aria-label', label);
-  button.title = label;
+  button.dataset.pgTooltip = label;
+  button.setAttribute('data-pg-tooltip-always', '');
   if (action) button.dataset.pgAction = action;
   button.append(createIcon(icon));
   if (typeof onClick === 'function') button.addEventListener('click', onClick);

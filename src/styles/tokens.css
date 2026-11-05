@@ -36,6 +36,9 @@
   --pg-color-mark-ink: #325e46;
   --pg-color-overlay: rgb(15 16 18 / 0.20);
   --pg-color-shadow: rgb(26 29 36 / 0.09);
+  --pg-color-tooltip-bg: #242428;
+  --pg-color-tooltip-text: #ffffff;
+  --pg-color-tooltip-shadow: rgb(0 0 0 / 0.3);
 
   --pg-space-1: 4px;
   --pg-space-2: 8px;
@@ -86,4 +89,7 @@
   --pg-color-mark-ink: #c6e5cf;
   --pg-color-overlay: rgb(0 0 0 / 0.38);
   --pg-color-shadow: rgb(0 0 0 / 0.3);
+  --pg-color-tooltip-bg: #f1f1f1;
+  --pg-color-tooltip-text: #212121;
+  --pg-color-tooltip-shadow: rgb(0 0 0 / 0.4);
 }

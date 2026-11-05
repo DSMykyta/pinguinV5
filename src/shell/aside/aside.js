@@ -86,7 +86,7 @@ export function createAside({ onPinToggle }) {
     pinButton.setAttribute('aria-pressed', String(isPinned));
     const label = isPinned ? 'Відкріпити панель' : 'Закріпити панель';
     pinButton.setAttribute('aria-label', label);
-    pinButton.title = label;
+    pinButton.dataset.pgTooltip = label;
   }
 
   return { element: aside, pinButton, setPinned, setContext };
