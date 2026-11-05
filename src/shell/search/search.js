@@ -45,7 +45,6 @@ export function createSearch({ onOpen } = {}) {
   }
 
   function open() {
-    onOpen?.();
     input.focus();
   }
 
