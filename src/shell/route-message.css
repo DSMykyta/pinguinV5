@@ -1,0 +1,34 @@
+/*
+ * ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — ROUTE MESSAGE STYLES                                                               ║
+ * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Стилі повідомлень 404 та помилок завантаження сторінки.                             ║
+ * ║ ЗАЛЕЖНОСТІ: Семантичні токени Pinguin.                                                            ║
+ * ║ ПУБЛІЧНИЙ API: pg-route-message.                                                                    ║
+ * ║ ПРИНЦИП: Не змішувати стан маршруту зі стилями глобальної оболонки.                                ║
+ * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
+.pg-route-message {
+  max-width: 800px;
+  margin: 0 auto;
+  padding-top: 28px;
+}
+
+.pg-route-message__title {
+  margin: 0 0 8px;
+  font-size: 23px;
+  font-weight: 550;
+}
+
+.pg-route-message__description {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: var(--pg-color-text-secondary);
+}
+
+.pg-route-message__link {
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

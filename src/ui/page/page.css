@@ -1,0 +1,40 @@
+/*
+ * ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — PAGE VIEW STYLES                                                                   ║
+ * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Однакова позиція і типографіка вмісту на всіх сторінках.                             ║
+ * ║ ЗАЛЕЖНОСТІ: Семантичні токени Pinguin.                                                            ║
+ * ║ ПУБЛІЧНИЙ API: pg-page, pg-page__title, pg-page__body.                                              ║
+ * ║ ПРИНЦИП: Сторінка не створює власні відступи або h1-стилі.                                       ║
+ * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
+.pg-page {
+  width: 100%;
+  max-width: 800px;
+  margin-inline: auto;
+  min-width: 0;
+  animation: pg-page-enter 320ms var(--pg-ease-layout) both;
+}
+
+.pg-page__title {
+  margin: 0;
+  color: var(--pg-color-text-primary);
+  font-size: clamp(21px, 2.6vw, 27px);
+  font-weight: 530;
+  line-height: 1.35;
+  letter-spacing: -.026em;
+}
+
+.pg-page__body { min-width: 0; }
+
+.pg-page__body:not(:empty) { margin-top: var(--pg-space-6); }
+
+@keyframes pg-page-enter {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pg-page { animation: none; }
+}
