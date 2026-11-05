@@ -29,7 +29,7 @@ const TABS = Object.freeze([
   },
 ]);
 
-export function mount(host, { setAsideContext, setPageSection, localNavigation }) {
+export function mount(host, { setAsideContext, setPageSection, setSearchEntries, localNavigation }) {
   const page = createPageView({ title: TABS[0].label });
 
   const tabs = createTabs({
@@ -56,6 +56,13 @@ export function mount(host, { setAsideContext, setPageSection, localNavigation }
       });
     },
   });
+
+  setSearchEntries(TABS.map(item => ({
+    id: 'tab:' + item.id,
+    label: item.label,
+    group: 'Інструменти',
+    activate: () => tabs.activate(item.id),
+  })));
 
   page.body.append(tabs.element);
   host.replaceChildren(page.element);

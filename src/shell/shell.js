@@ -18,6 +18,7 @@ import { pageRegistry } from '../app/page-registry.js';
 import { createIconButton } from '../ui/button/button.js';
 import { createSidebar } from './sidebar/sidebar.js';
 import { createAside } from './aside/aside.js';
+import { createSearch } from './search/search.js';
 
 const NARROW_QUERY = '(max-width: 1080px)';
 
@@ -77,6 +78,7 @@ export function mountShell(host) {
     icon: 'sliders',
     action: 'aside-toggle',
     onClick: () => {
+      search.close();
       if (viewport.matches) {
         mobileAsideOpen = !mobileAsideOpen;
       } else if (preferences.asidePinned) {
@@ -94,7 +96,15 @@ export function mountShell(host) {
   contextButton.classList.add('pg-shell__context-button', 'pg-icon-button--corner');
   contextButton.setAttribute('aria-controls', 'pg-aside-panel');
   contextButton.setAttribute('aria-haspopup', 'true');
-  headerActions.append(contextButton);
+  const search = createSearch({
+    onOpen() {
+      mobileNavOpen = false;
+      mobileAsideOpen = false;
+      if (!preferences.asidePinned) preferences.asideOpen = false;
+      updateView();
+    },
+  });
+  headerActions.append(search.element, contextButton);
   header.append(headingArea, headerActions);
 
   const content = document.createElement('main');
@@ -165,11 +175,29 @@ export function mountShell(host) {
     renderShellView(mobileNavOpen, mobileAsideOpen);
   }
 
+  let pageSearchEntries = [];
+  function refreshSearch() {
+    const pages = pageRegistry.getNavigation().map(page => ({
+      id: 'route:' + page.id,
+      label: page.title,
+      group: 'Розділ',
+      activate: () => router.navigate(page.route),
+    }));
+    search.setEntries([...pages, ...pageSearchEntries]);
+  }
+
   const pageOutlet = createPageOutlet({
     content, pageName, sidebar, localNavigation: sidebar.localNavigation,
     onNavigate: path => router.navigate(path),
     onAsideContext: context => aside.setContext(context),
+    onSearchEntries: entries => {
+      pageSearchEntries = entries;
+      refreshSearch();
+    },
     onRouteChange() {
+      search.close();
+      pageSearchEntries = [];
+      refreshSearch();
       mobileNavOpen = false;
       mobileAsideOpen = false;
       if (!preferences.asidePinned) preferences.asideOpen = false;
@@ -211,6 +239,7 @@ export function mountShell(host) {
   }
 
   function handleMediaChange() {
+    search.close();
     mobileNavOpen = false;
     mobileAsideOpen = false;
     updateView();
@@ -235,10 +264,12 @@ export function mountShell(host) {
   window.addEventListener('storage', handleStorage);
 
   updateView();
+  refreshSearch();
   router.start();
 
   return function unmountShell() {
     pageOutlet.dispose();
+    search.destroy();
     router.stop();
     document.removeEventListener('keydown', handleKeydown);
     document.removeEventListener('pointerdown', handlePointerDown);

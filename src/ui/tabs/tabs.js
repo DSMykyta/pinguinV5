@@ -54,6 +54,8 @@ export function createTabs({ idPrefix, label, items, onChange, navHost = null })
     button.tabIndex = -1;
     button.dataset.pgTab = item.id;
     button.setAttribute('aria-label', item.label);
+    button.dataset.pgTooltip = item.label;
+    button.setAttribute('data-pg-tooltip-always', '');
     if (item.icon) button.append(createIcon(item.icon));
     const text = document.createElement('span');
     text.className = 'pg-tabs__label';
