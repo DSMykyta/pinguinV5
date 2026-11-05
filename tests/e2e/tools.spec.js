@@ -11,35 +11,34 @@
 
 import { test, expect } from '@playwright/test';
 
-test('page title, tabs and content align in one workspace column', async ({ page }) => {
+test('the universal header and tabs remain aligned while main preview is blank', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/tools');
   const title = page.getByRole('heading', { level: 1, name: 'Інструменти' });
   const tabs = page.locator('.pg-shell__local-nav')
     .getByRole('tablist', { name: 'Інструменти' });
-  const section = page.getByRole('heading', { level: 2, name: 'Таблиці' });
-  await expect(tabs).toBeVisible();
-  await expect(page.locator('.pg-sidebar').getByRole('tab')).toHaveCount(0);
-  await expect(page.locator('.pg-shell__header').getByRole('tab')).toHaveCount(0);
+  const main = page.locator('.pg-shell__content');
 
-  const surface = page.locator('.pg-page');
-  await surface.evaluate(element => Promise.all(element.getAnimations()
-    .map(animation => animation.finished.catch(() => {}))));
-  const [t, n, c] = await Promise.all([title, tabs, section].map(x => x.boundingBox()));
-  expect(n.y).toBeGreaterThan(t.y + t.height);
-  expect(c.y).toBeGreaterThan(n.y + n.height);
-  expect(Math.abs(t.x - n.x)).toBeLessThan(1);
-  expect(Math.abs(t.x - c.x)).toBeLessThan(1);
+  await expect(title).toBeVisible();
+  await expect(tabs).toBeVisible();
+  await expect(page.locator('.pg-page')).toBeHidden();
+  await expect(page.locator('.pg-sidebar').getByRole('tab')).toHaveCount(0);
+
+  const [titleBox, tabsBox, mainBox] = await Promise.all([title,tabs,main].map(x => x.boundingBox()));
+  const pad = await main.evaluate(node => parseFloat(getComputedStyle(node).paddingLeft));
+  expect(Math.abs(titleBox.x - tabsBox.x)).toBeLessThan(1);
+  expect(Math.abs(titleBox.x - (mainBox.x + pad))).toBeLessThan(1);
+  expect(tabsBox.y).toBeGreaterThan(titleBox.y + titleBox.height);
+  expect(mainBox.y).toBeGreaterThan(tabsBox.y);
 
   const text = tabs.getByRole('tab', { name: 'Текст' });
   await text.click();
   await expect(text).toHaveAttribute('aria-selected', 'true');
   await expect(title).toHaveText('Інструменти');
-  await expect(page.getByRole('heading', { level: 2, name: 'Текст' })).toBeVisible();
+  await expect(main).toBeEmpty();
   await expect(page.locator('#pg-aside-panel .pg-aside__heading')).toHaveText('Текст');
   await text.press('ArrowLeft');
   await expect(tabs.getByRole('tab', { name: 'Таблиці' })).toBeFocused();
-  await expect(section).toBeVisible();
 });
 
 test('tabs remain in workspace when sidebar collapses or on mobile', async ({ page }) => {
@@ -50,7 +49,7 @@ test('tabs remain in workspace when sidebar collapses or on mobile', async ({ pa
   await page.locator('[data-pg-action="sidebar-toggle"]').click();
   await expect(page.locator('.pg-shell')).toHaveAttribute('data-pg-sidebar-state', 'collapsed');
   await tabs.getByRole('tab', { name: 'Текст' }).click();
-  await expect(page.getByRole('heading', { level: 2, name: 'Текст' })).toBeVisible();
+  await expect(tabs.getByRole('tab', { name: 'Текст' })).toHaveAttribute('aria-selected', 'true');
 
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(tabs).toBeVisible();

@@ -15,7 +15,7 @@ test('root redirects to Tools, without an Overview page', async ({ page }) => {
   await page.goto('/');
   await expect(page).toHaveURL(/\/tools$/);
   await expect(page.getByRole('heading', { level: 1, name: 'Інструменти' })).toBeVisible();
-  await expect(page.getByRole('heading', { level: 2, name: 'Таблиці' })).toBeVisible();
+  await expect(page.locator('.pg-page')).toBeHidden(); // Empty main workspace during geometry review
   const links = page.getByRole('navigation', { name: 'Інструменти' }).getByRole('link');
   await expect(links).toHaveCount(1);
   await expect(links.first()).toHaveAttribute('aria-current', 'page');
@@ -45,14 +45,14 @@ test('visible right search finds and activates actual tabs', async ({ page }) =>
   await expect(page.locator('[data-pg-search-result="tab:text"]')).toBeVisible();
   await expect(page.locator('[data-pg-search-result="tab:tables"]')).toHaveCount(0);
   await search.press('Enter');
-  await expect(page.getByRole('heading', { level: 2, name: 'Текст' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Текст' })).toHaveAttribute('aria-selected', 'true');
   await expect(search).toHaveAttribute('aria-expanded', 'false');
 
   await page.keyboard.press('Control+k');
   await expect(search).toBeFocused();
   await search.fill('Таблиці');
   await search.press('Enter');
-  await expect(page.getByRole('heading', { level: 2, name: 'Таблиці' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Таблиці' })).toHaveAttribute('aria-selected', 'true');
   await page.keyboard.press('Control+k');
   await page.keyboard.press('Escape');
   await expect(search).toHaveAttribute('aria-expanded', 'false');
