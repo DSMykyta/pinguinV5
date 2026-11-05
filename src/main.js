@@ -17,6 +17,7 @@ import './ui/tabs/tabs.css';
 import './ui/tooltip/tooltip.css';
 import './shell/sidebar/sidebar.css';
 import './shell/aside/aside.css';
+import './shell/aside/fab.css';
 import './shell/search/search.css';
 import './shell/route-message.css';
 import './shell/shell.css';

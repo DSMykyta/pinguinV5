@@ -95,3 +95,50 @@ test('reduced motion disables shell transitions', async ({ page }) => {
   await page.goto('/tools');
   await expect(page.locator('.pg-shell')).toHaveCSS('transition-duration', '0s');
 });
+
+test('fourth corner FAB is always visible and aligned with the other shell controls', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/tools');
+  const fab = page.locator('[data-pg-action="aside-fab-toggle"]');
+  const context = page.locator('[data-pg-action="aside-toggle"]');
+  const theme = page.locator('[data-pg-action="theme-cycle"]');
+  const aside = page.locator('#pg-aside-panel');
+
+  await expect(aside).toBeHidden();
+  await expect(fab).toBeVisible();
+  await expect(fab).toHaveCSS('border-radius', '9999px');
+
+  async function cornerAlignment() {
+    const [fabBox, contextBox, themeBox] = await Promise.all(
+      [fab, context, theme].map(el => el.boundingBox()));
+    expect(Math.abs((fabBox.x + fabBox.width / 2) -
+      (contextBox.x + contextBox.width / 2))).toBeLessThan(1);
+    expect(Math.abs((fabBox.y + fabBox.height / 2) -
+      (themeBox.y + themeBox.height / 2))).toBeLessThan(2);
+  }
+
+  await cornerAlignment();
+  await fab.click();
+  await expect(fab).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.locator('.pg-aside-fab__actions')).toBeVisible();
+  await expect(page.locator('.pg-aside-fab__item')).toHaveCount(2);
+  await page.keyboard.press('Escape');
+  await expect(fab).toHaveAttribute('aria-expanded', 'false');
+  await expect(fab).toBeFocused();
+
+  await context.click();
+  await page.locator('[data-pg-action="aside-pin"]').click();
+  await expect(fab).toBeVisible();
+  await cornerAlignment();
+  await page.getByRole('tab', { name: 'Текст' }).click();
+  await fab.click();
+  await expect(page.locator('.pg-aside-fab__item').first())
+    .toContainText('Редактор у legacy');
+  await page.locator('.pg-shell__content').click({ position: { x: 20, y: 20 } });
+  await expect(fab).toHaveAttribute('aria-expanded', 'false');
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(aside).toBeHidden();
+  await expect(fab).toBeVisible();
+  await cornerAlignment();
+});

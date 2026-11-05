@@ -12,7 +12,7 @@
 import { createIcon } from '../../ui/icon/icon.js';
 import { createIconButton } from '../../ui/button/button.js';
 
-const DEFAULT_LINKS = Object.freeze([
+export const DEFAULT_LINKS = Object.freeze([
   { label: 'Код проєкту', url: 'https://github.com/DSMykyta/pinguinV5/tree/work', icon: 'code' },
   { label: 'Правила компонентів', url: 'https://github.com/DSMykyta/pinguinV5/blob/work/docs/conventions.md', icon: 'file-text' },
 ]);

@@ -18,6 +18,7 @@ import { pageRegistry } from '../app/page-registry.js';
 import { createIconButton } from '../ui/button/button.js';
 import { createSidebar } from './sidebar/sidebar.js';
 import { createAside } from './aside/aside.js';
+import { createAsideFab } from './aside/fab.js';
 import { createSearch } from './search/search.js';
 
 const NARROW_QUERY = '(max-width: 1080px)';
@@ -154,6 +155,9 @@ export function mountShell(host) {
     },
   });
 
+  // Persistent fourth corner control, independent from the inert/hidden aside panel.
+  const asideFab = createAsideFab();
+
   const backdrop = document.createElement('button');
   backdrop.type = 'button';
   backdrop.className = 'pg-shell__backdrop';
@@ -170,7 +174,7 @@ export function mountShell(host) {
   footer.setAttribute('aria-hidden', 'true');
 
   workspace.append(header, localNavigation, content, footer);
-  shell.append(sidebar.element, workspace, aside.element, backdrop);
+  shell.append(sidebar.element, workspace, aside.element, asideFab.element, backdrop);
   host.replaceChildren(shell);
 
   function persist() {
@@ -199,13 +203,17 @@ export function mountShell(host) {
   const pageOutlet = createPageOutlet({
     content, pageName, sidebar, localNavigation,
     onNavigate: path => router.navigate(path),
-    onAsideContext: context => aside.setContext(context),
+    onAsideContext: context => {
+      aside.setContext(context);
+      asideFab.setContext(context);
+    },
     onSearchEntries: entries => {
       pageSearchEntries = entries;
       refreshSearch();
     },
     onRouteChange() {
       search.close();
+      asideFab.close();
       pageSearchEntries = [];
       refreshSearch();
       mobileNavOpen = false;
@@ -224,6 +232,11 @@ export function mountShell(host) {
 
   function handleKeydown(event) {
     if (event.key !== 'Escape') return;
+    if (asideFab.isOpen()) {
+      asideFab.close();
+      asideFab.button.focus();
+      return;
+    }
     if (viewport.matches && mobileAsideOpen) {
       mobileAsideOpen = false;
       updateView();
@@ -240,6 +253,7 @@ export function mountShell(host) {
   }
 
   function handlePointerDown(event) {
+    if (asideFab.isOpen() && !asideFab.element.contains(event.target)) asideFab.close();
     const isOpen = viewport.matches ? mobileAsideOpen : preferences.asideOpen;
     if (!isOpen || (!viewport.matches && preferences.asidePinned)) return;
     if (aside.element.contains(event.target) || contextButton.contains(event.target)) return;
@@ -250,6 +264,7 @@ export function mountShell(host) {
 
   function handleMediaChange() {
     search.close();
+    asideFab.close();
     mobileNavOpen = false;
     mobileAsideOpen = false;
     updateView();
