@@ -10,12 +10,12 @@ import { DEFAULT_LINKS } from './aside.js';
 
 export function createAsideFab() {
   const element = document.createElement('div');
-  element.className = 'pg-aside-fab';
+  element.className = 'pg-fab';
   element.dataset.pgFabState = 'closed';
 
   const actions = document.createElement('nav');
-  actions.className = 'pg-aside-fab__actions';
-  actions.id = 'pg-aside-fab-actions';
+  actions.className = 'pg-fab__actions';
+  actions.id = 'pg-fab-actions';
   actions.setAttribute('aria-label', 'Швидкі дії');
 
   let open = false;
@@ -37,7 +37,7 @@ export function createAsideFab() {
     action: 'aside-fab-toggle',
     onClick: () => setOpen(!open),
   });
-  button.classList.add('pg-aside-fab__trigger', 'pg-icon-button--corner');
+  button.classList.add('pg-fab__trigger', 'pg-icon-button--corner');
   button.setAttribute('aria-controls', actions.id);
   button.setAttribute('aria-haspopup', 'true');
 
@@ -47,18 +47,18 @@ export function createAsideFab() {
     const entries = context?.links ?? DEFAULT_LINKS;
     for (const [index, entry] of entries.entries()) {
       const link = document.createElement('a');
-      link.className = 'pg-aside-fab__item';
+      link.className = 'pg-fab__item';
       link.href = entry.url;
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
       link.style.setProperty('--pg-fab-delay', `${index * 45}ms`);
 
       const label = document.createElement('span');
-      label.className = 'pg-aside-fab__label';
+      label.className = 'pg-fab__label';
       label.textContent = entry.label;
 
       const symbol = document.createElement('span');
-      symbol.className = 'pg-aside-fab__symbol';
+      symbol.className = 'pg-fab__symbol';
       symbol.append(createIcon(entry.icon));
       link.append(label, symbol);
       actions.append(link);

@@ -3,7 +3,7 @@
  * Exactly the same corner button geometry and right inset as the top-right
  * shell context control. It is never a child of the hidden/inert aside panel.
  */
-.pg-aside-fab {
+.pg-fab {
   position: fixed;
   right: 12px;
   bottom: 12px;
@@ -12,17 +12,17 @@
   height: var(--pg-control-size);
 }
 
-.pg-aside-fab__trigger {
+.pg-fab__trigger {
   position: relative;
   z-index: 1;
 }
 
-.pg-aside-fab__trigger[aria-expanded='true'] > .pg-icon,
-.pg-aside-fab__trigger[aria-expanded='true']:hover > .pg-icon {
+.pg-fab__trigger[aria-expanded='true'] > .pg-icon,
+.pg-fab__trigger[aria-expanded='true']:hover > .pg-icon {
   transform: rotate(45deg);
 }
 
-.pg-aside-fab__actions {
+.pg-fab__actions {
   position: absolute;
   right: 0;
   bottom: calc(100% + 8px);
@@ -36,7 +36,7 @@
   pointer-events: none;
 }
 
-.pg-aside-fab__item {
+.pg-fab__item {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -50,7 +50,7 @@
     opacity var(--pg-duration-normal) ease;
 }
 
-.pg-aside-fab__label {
+.pg-fab__label {
   max-width: min(240px, calc(100vw - 84px));
   padding: 8px 12px;
   border: 1px solid var(--pg-color-border);
@@ -62,7 +62,7 @@
   white-space: normal;
 }
 
-.pg-aside-fab__symbol {
+.pg-fab__symbol {
   display: grid;
   place-items: center;
   flex: 0 0 var(--pg-control-size);
@@ -75,35 +75,35 @@
   color: var(--pg-color-icon);
 }
 
-.pg-aside-fab__symbol .pg-icon {
+.pg-fab__symbol .pg-icon {
   width: 18px;
   height: 18px;
 }
 
-.pg-aside-fab[data-pg-fab-state='open'] .pg-aside-fab__actions {
+.pg-fab[data-pg-fab-state='open'] .pg-fab__actions {
   visibility: visible;
   pointer-events: auto;
 }
 
-.pg-aside-fab[data-pg-fab-state='open'] .pg-aside-fab__item {
+.pg-fab[data-pg-fab-state='open'] .pg-fab__item {
   opacity: 1;
   transform: none;
   transition-delay: var(--pg-fab-delay);
 }
 
-.pg-aside-fab__item:hover .pg-aside-fab__symbol,
-.pg-aside-fab__item:focus-visible .pg-aside-fab__symbol {
+.pg-fab__item:hover .pg-fab__symbol,
+.pg-fab__item:focus-visible .pg-fab__symbol {
   color: var(--pg-color-text-primary);
   background: var(--pg-color-hover);
 }
 
 @media (max-width: 640px) {
-  .pg-aside-fab { right: 12px; bottom: 12px; }
+  .pg-fab { right: 12px; bottom: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pg-aside-fab__trigger > .pg-icon,
-  .pg-aside-fab__item {
+  .pg-fab__trigger > .pg-icon,
+  .pg-fab__item {
     transition: none;
   }
 }
