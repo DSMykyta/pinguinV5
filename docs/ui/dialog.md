@@ -1,0 +1,68 @@
+# Pinguin Next — Dialog / Confirm
+
+Статус: специфікація модального вікна, погоджено розмитий фон. Власник замовив дослідження до реалізації і окремі UI-файли. [База Pinguin UI](overview.md).
+
+## Призначення
+
+Dialog — модальна взаємодія, що вимагає уваги: повідомлення, рішення, підтвердження небезпечної дії. Confirm — **спеціалізація того самого Dialog**, а не другий незалежний набір DOM/CSS/обробників.
+
+## Перевірені зовнішні джерела
+
+- [MDN — HTMLDialogElement.showModal()](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement/showModal): браузер піднімає діалог у top layer, створює ::backdrop, робить фонові елементи inert. Не потрібне ручне дублювання focus trap.
+- [W3C WAI-ARIA Dialog Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/): фокус залишається в діалозі, Escape закриває, під час закриття фокус повертається до ініціатора; для незворотної дії початковий фокус на менш ризикованій дії.
+- [MDN — CSS backdrop-filter](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/backdrop-filter): CSS filter розмиває елементи **позаду** backdrop, потрібна напівпрозорість.
+- [MDN — dialog HTML element](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dialog): використовувати showModal()/close(), а не вручну перемикати open-атрибут.
+
+## Аналіз legacy — тільки джерело існуючих практик, не канонічний стандарт
+
+- legacy/js/components/modal/modal-main.js: спільний оркестратор і різні сценарії Confirm/Info.
+- legacy/js/components/modal/modal-core.js: шаблони HTML, обробники backdrop/Escape, повернення з анімацією; великі глобальні слухачі і небезпечні insertions HTML.
+- legacy/css/components/overlays/modal.css: плавна поява, центрування, розмірний ряд small/medium/full, blur backdrop.
+- legacy/templates/modals/modal-confirm.html: зрозумілі заголовок, текст, дві дії.
+
+**Зберігаємо:** затемнення + розмиття тла, лаконічну панель, прості кнопки підтвердження/відміни. **Не переносимо:** HTML-шаблони через fetch, global click delegation, arbitrary HTML у заголовках/повідомленнях, фіксовані ширини з legacy, зайву кількість DOM-рівнів.
+
+## Власна реалізація Pinguin
+
+- Файл логіки: src/ui/dialog/dialog.js. Файл стилів: src/ui/dialog/dialog.css. Браузерні тести: tests/e2e/dialog.spec.js. Усі кольори — тільки src/styles/tokens.css.
+- Одне HTML-діалогове вікно через showModal() із role dialog/native aria-modal, aria-labelledby і aria-describedby.
+- ::backdrop — напівпрозоре затемнення **та blur(8px)**. Сама панель залишається чіткою, фон перестає приймати натискання. Для prefers-reduced-transparency: reduce — непрозоріший fallback без blur.
+- Центр екрана, ширина до 440px для простих повідомлень, мобільна максимальна ширина viewport - 32px, max-height viewport - 32px і внутрішня прокрутка.
+- Тема визначається семантичними змінними, не дублюємо CSS кольорів. Плавна поява без bounce; prefers-reduced-motion вимикає анімацію.
+- При відкритті фокус у діалозі; для Confirm небезпечної дії початковий фокус на кнопці «Скасувати». Tab циклічний завдяки native showModal; Escape, кнопка закриття, клік поза панеллю — скасування, не підтвердження.
+- Підтвердження — тільки явною натиснутою кнопкою, результат promise. Якщо діалог закрито з іншої причини — cancel/false. Кнопки блокуються під час закриття, результат завершується рівно раз.
+- Текст лише через textContent, сторонній HTML не приймаємо. Одночасно лише одне активне модальне вікно; інші виклики очікують у черзі.
+- При HMR/component cleanup все закриваємо й повертаємо фокус/завершуємо promise з результатом cancel.
+
+## API
+
+\`\`\`js
+const disposeDialogs = mountDialogs(); // тільки app bootstrap
+
+const result = await showDialog({
+  title: 'Інформація',
+  message: 'Операцію завершено.',
+  confirmText: 'Зрозуміло',
+});
+// result === 'confirm' | 'cancel'
+
+const approved = await showConfirmDialog({
+  title: 'Видалити запис?',
+  message: 'Цю дію не можна скасувати.',
+  confirmText: 'Видалити',
+  cancelText: 'Скасувати',
+  destructive: true,
+});
+// approved === boolean
+\`\`\`
+
+Демонстрація: окремий src/features/tools/dialog-demo.js і dialog-demo.css, кнопки лише в робочій області **вкладки «Текст»**; Toast-демонстрація — у власній вкладці «Таблиці». Обидва варіанти наведені для тесту UI і не є функціональними редакторами. Геометрія Shell незмінна.
+
+## Критерії готовності
+
+1. CSS isolated, --pg-* токени, неймінг, build.
+2. Blur і dim ::backdrop фактично обчислюються в браузері на desktop/mobile, фоновий Shell не інтерактивний.
+3. Cancel/Confirm/клік поза/ESC повертають коректні значення та фокус.
+4. Темна тема, reduced motion/transparency, мобільна ширина й довгі повідомлення.
+5. Одне активне вікно, наступне відкривається після закриття; HMR cleanup без слухачів/таймерів.
+6. Вкладки мають незалежні власні panel DOM, їхній контент змінюється, коли натискають вкладку. Тимчасові UI-дезоми не живуть поза panel DOM.
