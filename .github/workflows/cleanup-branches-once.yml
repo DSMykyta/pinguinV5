@@ -1,4 +1,4 @@
-name: Pinguin branch cleanup preflight
+name: One-time cleanup of obsolete Pinguin branches
 
 on:
   push:
@@ -6,9 +6,17 @@ on:
     paths:
       - .github/workflows/cleanup-branches-once.yml
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
-  preflight:
+  cleanup:
     runs-on: ubuntu-latest
     steps:
-      - name: Confirm GitHub Actions can run on work
-        run: echo "Pinguin branch cleanup preflight is valid"
+      - name: Checkout work
+        uses: actions/checkout@v4
+      - name: Preserve main, reserve, legacy and work; delete obsolete branches
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/cleanup-branches-once.sh
