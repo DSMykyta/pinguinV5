@@ -116,3 +116,63 @@ test('mobile tabs work while pinned desktop preference does not dock', async ({ 
   await page.setViewportSize({ width: 1440, height: 900 });
   await expect(page.locator('.pg-shell')).toHaveAttribute('data-pg-aside-mode', 'docked');
 });
+
+
+test('legacy tab navigation is centered in the header and reveals labels on hover', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/tools');
+
+  const header = page.locator('.pg-shell__header');
+  const nav = header.getByRole('tablist', { name: 'Інструменти' });
+  const tables = nav.getByRole('tab', { name: 'Таблиці' });
+  const text = nav.getByRole('tab', { name: 'Текст' });
+
+  await expect(nav).toBeVisible();
+  await expect(tables).toHaveAttribute('aria-selected', 'true');
+  await expect(text).toHaveAttribute('aria-selected', 'false');
+  await expect(tables).toHaveCSS('border-radius', '9999px');
+  await expect(text).toHaveCSS('border-radius', '9999px');
+
+  await expect.poll(async () => (await tables.boundingBox()).width).toBeGreaterThan(80);
+  await expect.poll(async () => (await text.boundingBox()).width).toBeLessThan(34);
+
+  const h = await header.boundingBox();
+  const n = await nav.boundingBox();
+  expect(Math.abs((n.x + n.width / 2) - (h.x + h.width / 2))).toBeLessThan(1);
+  expect(n.y).toBeLessThan(24);
+
+  await text.hover();
+  await expect.poll(async () => (await text.boundingBox()).width).toBeGreaterThan(60);
+  await expect(text.locator('.pg-tabs__label')).toHaveCSS('opacity', '1');
+  await text.click();
+  await expect(text).toHaveAttribute('aria-selected', 'true');
+  await expect(tables).toHaveAttribute('aria-selected', 'false');
+
+  await page.getByRole('navigation', { name: 'Інструменти' })
+    .getByRole('link', { name: 'Огляд' }).click();
+  await expect(page.locator('#pg-local-navigation')).toBeEmpty();
+});
+
+test('legacy pills remain usable in mobile and respect reduced motion', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/tools');
+
+  const nav = page.locator('.pg-shell__header').getByRole('tablist', { name: 'Інструменти' });
+  const text = nav.getByRole('tab', { name: 'Текст' });
+  const tables = nav.getByRole('tab', { name: 'Таблиці' });
+
+  await expect(nav).toBeVisible();
+  await expect(text).toHaveCSS('transition-duration', '0s');
+  await text.click();
+  await expect(text).toHaveAttribute('aria-selected', 'true');
+
+  const left = await page.locator('[data-pg-action="mobile-menu-toggle"]').boundingBox();
+  const right = await page.locator('[data-pg-action="aside-toggle"]').boundingBox();
+  const box = await nav.boundingBox();
+  expect(box.x).toBeGreaterThan(left.x + left.width);
+  expect(box.x + box.width).toBeLessThan(right.x);
+
+  await tables.press('Home');
+  await expect(tables).toHaveAttribute('aria-selected', 'true');
+});
