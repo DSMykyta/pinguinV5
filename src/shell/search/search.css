@@ -11,8 +11,9 @@
 
 .pg-search {
   position: relative;
-  flex: 0 1 240px;
-  width: clamp(150px, 17vw, 240px);
+  /* Search + the 40px context button + their 6px gap match the 302px aside. */
+  flex: 0 0 calc(var(--pg-aside-width) - var(--pg-control-size) - 6px);
+  width: calc(var(--pg-aside-width) - var(--pg-control-size) - 6px);
   min-width: 0;
 }
 
@@ -21,7 +22,7 @@
   align-items: center;
   gap: 9px;
   width: 100%;
-  height: var(--pg-control-size);
+  height: 36px;
   padding: 0 13px;
   border: 1px solid var(--pg-color-border-strong);
   border-radius: var(--pg-radius-full);
