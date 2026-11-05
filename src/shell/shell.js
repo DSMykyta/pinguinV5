@@ -5,7 +5,7 @@
  * ║ ПРИЗНАЧЕННЯ: Зв'язує панелі, Router, outlet та стан.                                               ║
  * ║ ЗАЛЕЖНОСТІ: core, app, sidebar, aside, shell-view.                                                 ║
  * ║ ПУБЛІЧНИЙ API: mountShell().                                                                       ║
- * ║ ПРИНЦИП: Окремі інструменти не реалізуються тут.                                                   ║
+ * ║ ПРИНЦИП: П'ять глобальних зон; жодних інструментів або їхніх стилів.                                                   ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -164,7 +164,12 @@ export function mountShell(host) {
     mobileNavButton.focus();
   });
 
-  workspace.append(header, localNavigation, content);
+  // Reserved global footer: it takes no space until a future module needs it.
+  const footer = document.createElement('footer');
+  footer.className = 'pg-shell__footer';
+  footer.hidden = true;
+
+  workspace.append(header, localNavigation, content, footer);
   shell.append(sidebar.element, workspace, aside.element, backdrop);
   host.replaceChildren(shell);
 
