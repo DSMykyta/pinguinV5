@@ -23,7 +23,7 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Check conventions and build
         run: npm run check
-      - name: Install Chromium for browser checks
-        run: npx playwright install --with-deps chromium
+      - name: Install Chromium headless shell
+        run: npx playwright install --only-shell chromium
       - name: Exercise shell in a browser
         run: npm run test:e2e
