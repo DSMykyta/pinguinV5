@@ -1,3 +1,14 @@
+/**
+ * ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SHELL ORCHESTRATOR                                                                  ║
+ * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Зв'язує панелі, Router, outlet та стан.                                               ║
+ * ║ ЗАЛЕЖНОСТІ: core, app, sidebar, aside, shell-view.                                                 ║
+ * ║ ПУБЛІЧНИЙ API: mountShell().                                                                       ║
+ * ║ ПРИНЦИП: Окремі інструменти не реалізуються тут.                                                   ║
+ * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 import { loadPreferences, savePreferences, SHELL_STORAGE_KEY, LEGACY_THEME_KEY } from '../core/preferences.js';
 import { applyTheme, getNextTheme } from '../core/theme.js';
 import { createShellView } from './shell-view.js';
