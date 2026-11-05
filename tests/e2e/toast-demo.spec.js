@@ -19,7 +19,7 @@ test('Tools canvas exposes a real isolated Toast trigger without changing Shell'
   const demo = main.locator('.pg-tools-toast-demo');
   const trigger = demo.locator('[data-pg-action="toast-demo"]');
 
-  await expect(main.locator('.pg-page')).toBeHidden();
+  await expect(main.locator('#pg-tools-panel-tables .pg-page')).toBeVisible();
   await expect(demo).toBeVisible();
   await expect(demo.locator('.pg-tools-toast-demo__label')).toHaveText('Тест Toast');
   await expect(trigger).toHaveAttribute('aria-label', 'Показати Toast');
@@ -45,6 +45,9 @@ test('Toast demo stays inside canvas on mobile, independent from tab selection',
   const trigger = page.locator('[data-pg-action="toast-demo"]');
   await expect(trigger).toBeVisible();
   await page.getByRole('tab', { name: 'Текст' }).click();
+  await expect(trigger).toBeHidden();
+  await expect(page.locator('[data-pg-action="dialog-demo-info"]')).toBeVisible();
+  await page.getByRole('tab', { name: 'Таблиці' }).click();
   await expect(trigger).toBeVisible();
   await trigger.click();
   await expect(page.locator('.pg-toast__message')).toHaveText('Зміни збережено');
