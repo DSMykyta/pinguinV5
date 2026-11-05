@@ -1,0 +1,367 @@
+/*
+ * Pinguin v5 — Calm workspace shell
+ * Inspired by the spatial rhythm and restraint of the ChatGPT interface.
+ * Original Pinguin styles: no bundled ChatGPT internals or brand assets.
+ * Loaded last so the existing component logic stays intact.
+ */
+
+:root {
+    --pg-shell-rail: #f7f7f8;
+    --pg-shell-float: #ffffff;
+    --pg-shell-hover: #ececee;
+    --pg-shell-selected: #e8e8eb;
+    --pg-shell-border: #e8e8eb;
+    --pg-shell-muted: #707078;
+    --pg-shell-shadow: 0 8px 32px rgba(0, 0, 0, 0.075), 0 2px 8px rgba(0, 0, 0, 0.035);
+    --pg-shell-dialog-shadow: 0 18px 60px rgba(0, 0, 0, 0.15), 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] {
+    --pg-shell-rail: #171717;
+    --pg-shell-float: #282828;
+    --pg-shell-hover: #333333;
+    --pg-shell-selected: #3a3a3a;
+    --pg-shell-border: #414141;
+    --pg-shell-muted: #a1a1a1;
+    --pg-shell-shadow: 0 8px 34px rgba(0, 0, 0, 0.32), 0 2px 8px rgba(0, 0, 0, 0.18);
+    --pg-shell-dialog-shadow: 0 18px 65px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Layout tokens: one width controls the rail, header offset and content. */
+body.layout-v2 {
+    --panel-width-collapsed: 64px;
+    --nav-width-expanded: 248px;
+    --page-aside-width: 304px;
+    --page-aside-gap: 14px;
+    --page-content-gutter-inline: clamp(16px, 3.5vw, 56px);
+    --shadow-popover: var(--pg-shell-shadow);
+    font-family: 'DM Sans', 'Geologica', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Primary navigation: stable rows instead of hover-expanding chips. */
+body.layout-v2 #main-nav.nav.column {
+    box-sizing: border-box;
+    gap: 9px;
+    width: var(--panel-width-collapsed);
+    padding: 9px 8px;
+    background: var(--pg-shell-rail);
+    border-right: 1px solid var(--pg-shell-border);
+    color: var(--text-primary);
+    transition: width 220ms cubic-bezier(.2, 0, 0, 1);
+}
+
+body.layout-v2 #main-nav.nav.column.expanded {
+    width: var(--nav-width-expanded);
+}
+
+body.layout-v2 #main-nav > .nav-toggle {
+    flex: 0 0 auto;
+    margin-left: 5px;
+    border-radius: 10px;
+    background: transparent;
+    backdrop-filter: none;
+}
+
+body.layout-v2 #main-nav > .nav-toggle:hover {
+    background: var(--pg-shell-hover);
+    color: var(--text-primary);
+    box-shadow: none;
+}
+
+body.layout-v2 #main-nav .nav-main {
+    box-sizing: border-box;
+    align-items: stretch;
+    width: 100%;
+    gap: 2px;
+    margin: 0;
+    padding: 2px 0 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    pointer-events: auto;
+}
+
+body.layout-v2 #main-nav .nav-group-label {
+    display: none;
+    flex: 0 0 auto;
+    margin: 17px 10px 5px;
+    color: var(--pg-shell-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .025em;
+    line-height: 16px;
+    white-space: nowrap;
+}
+
+body.layout-v2 #main-nav.expanded .nav-group-label {
+    display: block;
+}
+
+body.layout-v2 #main-nav.expanded .nav-group-label:first-child {
+    margin-top: 7px;
+}
+
+body.layout-v2 #main-nav .nav-main .btn-icon.expand.touch,
+body.layout-v2 #main-nav .nav-footer .btn-icon.expand.touch {
+    box-sizing: border-box;
+    justify-content: flex-start;
+    flex: 0 0 auto;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    min-height: 40px;
+    height: 40px;
+    gap: 12px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 400;
+    text-align: left;
+    box-shadow: none;
+    backdrop-filter: none;
+    transition: background-color 140ms ease, color 140ms ease;
+}
+
+body.layout-v2 #main-nav .nav-main .btn-icon.expand.touch:hover,
+body.layout-v2 #main-nav .nav-footer .btn-icon.expand.touch:hover {
+    max-width: 100%;
+    gap: 12px;
+    padding: 9px 12px;
+    background: var(--pg-shell-hover);
+    color: var(--text-primary);
+    box-shadow: none;
+}
+
+body.layout-v2 #main-nav .nav-main .btn-icon.expand.touch.active {
+    background: var(--pg-shell-selected);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+body.layout-v2 #main-nav .nav-main .btn-icon.expand.touch > .material-symbols-outlined,
+body.layout-v2 #main-nav .nav-footer .btn-icon.expand.touch > .material-symbols-outlined {
+    flex: 0 0 20px;
+    font-size: 20px;
+}
+
+body.layout-v2 #main-nav .nav-main .btn-icon-label,
+body.layout-v2 #main-nav .nav-footer .btn-icon-label {
+    min-width: 0;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 20px;
+    transition: none;
+}
+
+body.layout-v2 #main-nav:not(.expanded) .nav-main .btn-icon.expand.touch,
+body.layout-v2 #main-nav:not(.expanded) .nav-footer .btn-icon.expand.touch {
+    width: 46px;
+    max-width: 46px;
+    padding: 9px 12px;
+    gap: 0;
+}
+
+body.layout-v2 #main-nav:not(.expanded) .btn-icon-label,
+body.layout-v2 #main-nav:not(.expanded) .btn-icon.expand:hover .btn-icon-label {
+    flex-basis: 0;
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+}
+
+body.layout-v2 #main-nav.expanded .btn-icon-label {
+    flex: 1 1 auto;
+    max-width: 180px;
+    opacity: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+body.layout-v2 #main-nav .nav-footer {
+    box-sizing: border-box;
+    align-items: stretch;
+    width: 100%;
+    gap: 3px;
+    padding-top: 9px;
+    border-top: 1px solid var(--pg-shell-border);
+}
+
+body.layout-v2 #main-nav #theme-toggle-btn {
+    box-sizing: border-box;
+    align-self: flex-start;
+    width: 44px;
+    min-width: 44px;
+    height: 40px;
+    border-radius: 10px;
+    color: var(--text-primary);
+    backdrop-filter: none;
+}
+
+body.layout-v2 #main-nav #theme-toggle-btn:hover {
+    background: var(--pg-shell-hover);
+    color: var(--text-primary);
+    box-shadow: none;
+}
+
+/* Compact contextual navigation. Existing tab switching still owns state. */
+body.layout-v2 .nav.row {
+    gap: 3px;
+    padding: 4px;
+    background: var(--pg-shell-float);
+    border: 1px solid var(--pg-shell-border);
+    border-radius: 14px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, .045);
+}
+
+body.layout-v2 .nav.row .btn-icon.expand {
+    border-radius: 10px;
+    box-shadow: none;
+}
+
+body.layout-v2 .nav.row .btn-icon.expand:hover {
+    background: var(--pg-shell-hover);
+    color: var(--text-primary);
+}
+
+body.layout-v2 .nav.row .btn-icon.expand.active {
+    background: var(--pg-shell-selected);
+    color: var(--text-primary);
+}
+
+/* Right-side aside: a calm, floating workspace instead of a heavy card. */
+body.layout-v2 .aside {
+    padding: 10px 7px 10px 11px;
+    background: var(--pg-shell-float);
+    border: 1px solid var(--pg-shell-border);
+    border-radius: 18px;
+    box-shadow: var(--pg-shell-shadow);
+}
+
+body.layout-v2 .aside-fragment,
+body.layout-v2 .panel-fragment {
+    gap: 12px;
+    padding: 4px 8px 4px 3px;
+}
+
+body.layout-v2 .aside .panel-content-fix {
+    gap: 8px;
+}
+
+body.layout-v2 .aside .panel-content-scroll {
+    gap: 4px;
+}
+
+body.layout-v2 .aside .panel-info-text {
+    color: var(--pg-shell-muted);
+}
+
+/* Menus are visually aligned with the reference contextual menu. */
+body.layout-v2 .dropdown-panel,
+body.layout-v2 .filter-dropdown-hover .dropdown-panel {
+    min-width: 218px;
+    padding: 6px;
+    background: var(--pg-shell-float);
+    border: 1px solid var(--pg-shell-border);
+    border-radius: 16px;
+    box-shadow: var(--pg-shell-shadow);
+}
+
+body.layout-v2 :where(.dropdown-option, .btn-option) {
+    min-height: 38px;
+    gap: 10px;
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-family: 'DM Sans', 'Geologica', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+body.layout-v2 :where(.dropdown-option, .btn-option):hover,
+body.layout-v2 :where(.dropdown-option, .btn-option):focus-visible {
+    background: var(--pg-shell-hover);
+    color: var(--text-primary);
+}
+
+body.layout-v2 :where(.dropdown-separator, .dropdown-panel .panel-separator) {
+    background: var(--pg-shell-border);
+    margin: 6px 7px;
+}
+
+/* Modal, input and focus styles are consistent across tools and pages. */
+body.layout-v2 .modal-container {
+    background: var(--pg-shell-float);
+    border: 1px solid var(--pg-shell-border);
+    border-radius: 18px;
+    box-shadow: var(--pg-shell-dialog-shadow);
+}
+
+body.layout-v2 .modal-header {
+    border-bottom: 1px solid var(--pg-shell-border);
+}
+
+body.layout-v2 .modal-footer:not(:empty) {
+    border-top: 1px solid var(--pg-shell-border);
+}
+
+body.layout-v2 :where(.input-main, textarea) {
+    border-radius: 10px;
+}
+
+body.layout-v2 :where(button, a, input, textarea, select, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
+}
+
+body.layout-v2 .section-content {
+    border-color: var(--pg-shell-border);
+}
+
+body.layout-v2 .layout-context-active > .section-header .section-name h2 {
+    font-family: 'DM Sans', 'Geologica', system-ui, sans-serif;
+    font-weight: 600;
+}
+
+@media (max-width: 700px) {
+    body.layout-v2 {
+        --panel-width-collapsed: 56px;
+        --nav-width-expanded: min(248px, calc(100vw - 42px));
+        --page-content-gutter-inline: 14px;
+    }
+
+    body.layout-v2 #main-nav.nav.column {
+        padding-inline: 4px;
+    }
+
+    body.layout-v2 #main-nav.nav.column.expanded {
+        z-index: 700;
+        box-shadow: var(--pg-shell-shadow);
+    }
+
+    body.layout-v2.nav-expanded .content-main {
+        margin-left: var(--panel-width-collapsed);
+    }
+
+    body.layout-v2.nav-expanded.layout-context-ready .content-main.layout-context-active > .section-header,
+    body.layout-v2.nav-expanded.layout-context-ready .content-main > .layout-context-active > .section-header {
+        left: var(--panel-width-collapsed);
+    }
+
+    body.layout-v2 .aside {
+        right: 8px;
+        width: min(var(--page-aside-width), calc(100vw - 16px));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.layout-v2 #main-nav.nav.column,
+    body.layout-v2 #main-nav .btn-icon,
+    body.layout-v2 .nav.row .btn-icon,
+    body.layout-v2 .aside,
+    body.layout-v2 .dropdown-panel {
+        transition: none;
+    }
+}
