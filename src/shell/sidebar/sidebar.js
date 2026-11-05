@@ -100,5 +100,5 @@ export function createSidebar({ onToggle, onNavigate, onCycleTheme }) {
     themeButton.title = label;
   }
 
-  return { element: sidebar, toggleButton: toggle, themeButton, setTheme };
+  return { element: sidebar, brand, toggleButton: toggle, themeButton, setTheme };
 }

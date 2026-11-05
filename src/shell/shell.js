@@ -163,6 +163,7 @@ export function mountShell(host) {
     backdrop.inert = !isOverlayOpen;
     backdrop.setAttribute('aria-hidden', String(!isOverlayOpen));
 
+    sidebar.brand.inert = !isNarrow && preferences.sidebarCollapsed;
     sidebar.toggleButton.setAttribute('aria-expanded',
       String(isNarrow ? mobileNavOpen : !preferences.sidebarCollapsed));
     sidebar.toggleButton.setAttribute('aria-label', isNarrow
