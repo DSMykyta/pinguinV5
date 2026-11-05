@@ -23,7 +23,7 @@ async function coordinates(page) {
     parseFloat(getComputedStyle(node).paddingLeft));
   return {
     headerX: header.x, tabX: tabs.x,
-    contentStartX: main.x + inset, chromeX: main.x + 16, mainY: main.y,
+    contentStartX: main.x + inset, chromeX: main.x, mainY: main.y,
   };
 }
 
@@ -145,4 +145,60 @@ test('expanded sidebar labels do not repeat as tooltips', async ({ page }) => {
   await expect(page.locator('.pg-shell')).toHaveAttribute('data-pg-sidebar-state', 'collapsed');
   await link.hover();
   await expect(page.getByRole('tooltip')).toHaveText('Інструменти');
+});
+
+
+test('main canvas has equal left, right and bottom external gaps in all sidebar/aside states', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/tools');
+
+  const shell = page.locator('.pg-shell');
+  const workspace = page.locator('.pg-shell__workspace');
+  const main = page.locator('.pg-shell__content');
+
+  async function measureGaps() {
+    await shell.evaluate(el => Promise.all(el.getAnimations()
+      .map(animation => animation.finished.catch(() => {}))));
+    const [outer, inner] = await Promise.all([
+      workspace.boundingBox(), main.boundingBox(),
+    ]);
+    return {
+      left: inner.x - outer.x,
+      right: outer.x + outer.width - inner.x - inner.width,
+      bottom: outer.y + outer.height - inner.y - inner.height,
+      top: inner.y,
+      mainWidth: inner.width,
+    };
+  }
+
+  function assertEqualEdges(box) {
+    for (const edge of ['left', 'right', 'bottom']) {
+      expect(Math.abs(box[edge] - 16), edge).toBeLessThan(1);
+    }
+  }
+
+  const expanded = await measureGaps();
+  assertEqualEdges(expanded);
+
+  await page.locator('[data-pg-action="sidebar-toggle"]').click();
+  const collapsed = await measureGaps();
+  assertEqualEdges(collapsed);
+  expect(Math.abs(expanded.top - collapsed.top)).toBeLessThan(1);
+
+  await page.locator('[data-pg-action="aside-toggle"]').click();
+  await page.locator('[data-pg-action="aside-pin"]').click();
+  await expect(shell).toHaveAttribute('data-pg-aside-mode', 'docked');
+  const pinned = await measureGaps();
+  assertEqualEdges(pinned);
+  expect(pinned.mainWidth).toBeLessThan(collapsed.mainWidth - 250);
+  expect(Math.abs(collapsed.top - pinned.top)).toBeLessThan(1);
+
+  await page.locator('[data-pg-action="aside-pin"]').click();
+  const unpinned = await measureGaps();
+  assertEqualEdges(unpinned);
+  expect(Math.abs(unpinned.mainWidth - collapsed.mainWidth)).toBeLessThan(1);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const mobile = await measureGaps();
+  assertEqualEdges(mobile);
 });
