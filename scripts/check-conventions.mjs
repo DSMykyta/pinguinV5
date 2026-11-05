@@ -42,6 +42,8 @@ const cssOwnerByPrefix = new Map([
   ['pg-data-row', 'src/ui/data-row/data-row.css'],
   ['pg-icon-button', 'src/ui/button/button.css'],
   ['pg-toast', 'src/ui/toast/toast.css'],
+  ['pg-dialog', 'src/ui/dialog/dialog.css'],
+  ['pg-tools-dialog-demo', 'src/features/tools/dialog-demo.css'],
   ['pg-tools-toast-demo', 'src/features/tools/toast-demo.css'],
 ]);
 const errors = [];
