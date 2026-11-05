@@ -64,7 +64,10 @@ export function mount(host, { setAsideContext, setSearchEntries, localNavigation
     activate: () => tabs.activate(item.id),
   })));
 
+  // Temporary geometry-review mode: Shell paints the main area; keep the editor
+  // placeholder invisible until the shared spacing has been approved.
   page.body.append(tabs.element);
+  page.element.hidden = true;
   host.replaceChildren(page.element);
 
   return () => {

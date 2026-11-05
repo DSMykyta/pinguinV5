@@ -16,7 +16,7 @@
  * Keyboard focus gets the same tooltip beside its element.
  */
 export function initTooltips({ doc = document, view = window } = {}) {
-  const SELECTOR = '[data-pg-tooltip], [data-tooltip], [title]';
+  const SELECTOR = '[data-pg-tooltip], [data-pg-tooltip-collapsed], [data-tooltip], [title]';
   const OFFSET = 15;
   const EDGE = 8;
 
@@ -47,10 +47,14 @@ export function initTooltips({ doc = document, view = window } = {}) {
   }
 
   function textFor(element) {
-    return element.dataset.pgTooltip ?? element.dataset.tooltip ?? '';
+    return element.dataset.pgTooltip ?? element.dataset.pgTooltipCollapsed ?? element.dataset.tooltip ?? '';
   }
 
   function shouldShow(element) {
+    if (element.hasAttribute('data-pg-tooltip-collapsed')) {
+      return element.closest('.pg-shell')?.dataset.pgSidebarState === 'collapsed' &&
+        !view.matchMedia('(max-width: 1080px)').matches;
+    }
     return element.hasAttribute('data-pg-tooltip-always') ||
       element.hasAttribute('data-tooltip-always') ||
       element.scrollWidth > element.clientWidth;

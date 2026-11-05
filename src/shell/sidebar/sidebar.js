@@ -34,8 +34,8 @@ function createSidebarLink(page, onNavigate) {
   link.href = page.route;
   link.className = 'pg-sidebar__link';
   link.setAttribute('aria-label', page.title);
-  link.dataset.pgTooltip = page.title;
-  link.setAttribute('data-pg-tooltip-always', '');
+  // Visible navigation labels must not repeat themselves in tooltips.
+  link.dataset.pgTooltipCollapsed = page.title;
   link.append(createIcon(page.navigation.icon));
 
   const text = document.createElement('span');
