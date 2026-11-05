@@ -194,10 +194,42 @@ test('desktop pin docks the right panel and persists while transient mode overla
   await context.click();
   await expect(aside).toBeVisible();
   await expect(shell).toHaveAttribute('data-pg-aside-mode', 'floating');
-  await expect(pin).toHaveText(/Закріпити/);
+  await expect(pin).toHaveAttribute('aria-label', 'Закріпити панель');
+  const floatingRect = await aside.boundingBox();
+  const floatingAppearance = await aside.evaluate(node => {
+    const style = getComputedStyle(node);
+    return {
+      position: style.position,
+      background: style.backgroundColor,
+      borderRadius: style.borderRadius,
+      boxShadow: style.boxShadow,
+      border: style.border,
+    };
+  });
+
+  await expect(pin.locator('svg')).toHaveCount(1);
+  await expect(pin).toHaveCSS('width', '28px');
+  await expect(pin).toHaveAttribute('aria-label', 'Закріпити панель');
   await pin.click();
   await expect(shell).toHaveAttribute('data-pg-aside-mode', 'docked');
   await expect(pin).toHaveAttribute('aria-pressed', 'true');
+  await expect(pin).toHaveCSS('background-color', 'rgb(244, 244, 245)');
+
+  const pinnedRect = await aside.boundingBox();
+  const pinnedAppearance = await aside.evaluate(node => {
+    const style = getComputedStyle(node);
+    return {
+      position: style.position,
+      background: style.backgroundColor,
+      borderRadius: style.borderRadius,
+      boxShadow: style.boxShadow,
+      border: style.border,
+    };
+  });
+  expect(pinnedAppearance).toEqual(floatingAppearance);
+  for (const prop of ['x', 'y', 'width', 'height']) {
+    expect(Math.abs(floatingRect[prop] - pinnedRect[prop])).toBeLessThan(1);
+  }
 
   await expect.poll(async () => (await main.boundingBox()).width)
     .toBeLessThan(before.width - 250);
@@ -209,7 +241,7 @@ test('desktop pin docks the right panel and persists while transient mode overla
   await page.reload();
   await expect(shell).toHaveAttribute('data-pg-aside-mode', 'docked');
   await expect(aside).toBeVisible();
-  await expect(pin).toHaveText(/Відкріпити/);
+  await expect(pin).toHaveAttribute('aria-label', 'Відкріпити панель');
 
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(shell).toHaveAttribute('data-pg-aside-mode', 'floating');
