@@ -29,7 +29,7 @@ test('desktop: uniform canvas, compact context popover and moving round controls
   const theme = page.locator('[data-pg-action="theme-cycle"]');
 
   const columns = await shell.evaluate(node => getComputedStyle(node).gridTemplateColumns.split(' ').length);
-  expect(columns).toBe(2);
+  expect(columns).toBe(3); // third track is zero-width until pinned
 
   const sidebarBackground = await sidebar.evaluate(node => getComputedStyle(node).backgroundColor);
   expect(sidebarBackground).toBe('rgba(0, 0, 0, 0)');
@@ -147,4 +147,86 @@ test('reduced motion disables layout and popover transitions', async ({ page }) 
   const asideTransition = await page.locator('#pg-aside-panel')
     .evaluate(element => getComputedStyle(element).transitionDuration);
   expect(asideTransition.split(',').every(x => x.trim() === '0s')).toBe(true);
+});
+
+
+test('left navigation icons stay on one axis during expansion and collapse', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+
+  const toggle = page.locator('[data-pg-action="sidebar-toggle"]');
+  const home = page.locator('.pg-sidebar__link .pg-icon');
+  const theme = page.locator('[data-pg-action="theme-cycle"]');
+
+  async function centers() {
+    const boxes = await Promise.all([toggle, home, theme].map(item => item.boundingBox()));
+    return boxes.map(rect => rect.x + rect.width / 2);
+  }
+
+  const before = await centers();
+  expect(Math.max(...before) - Math.min(...before)).toBeLessThan(1);
+
+  await toggle.click();
+  await expect(page.locator('.pg-shell')).toHaveAttribute('data-pg-sidebar-state', 'collapsed');
+  const afterCollapse = await centers();
+  expect(Math.max(...afterCollapse) - Math.min(...afterCollapse)).toBeLessThan(1);
+
+  await toggle.click();
+  await expect(page.locator('.pg-shell')).toHaveAttribute('data-pg-sidebar-state', 'expanded');
+  const afterExpand = await centers();
+  for (const current of [...afterCollapse, ...afterExpand]) {
+    expect(Math.abs(current - before[0])).toBeLessThan(1);
+  }
+});
+
+test('desktop pin docks the right panel and persists while transient mode overlays', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+
+  const shell = page.locator('.pg-shell');
+  const main = page.locator('.pg-shell__workspace');
+  const aside = page.locator('#pg-aside-panel');
+  const context = page.locator('[data-pg-action="aside-toggle"]');
+  const pin = page.locator('[data-pg-action="aside-pin"]');
+
+  const before = await main.boundingBox();
+
+  await context.click();
+  await expect(aside).toBeVisible();
+  await expect(shell).toHaveAttribute('data-pg-aside-mode', 'floating');
+  await expect(pin).toHaveText(/Закріпити/);
+  await pin.click();
+  await expect(shell).toHaveAttribute('data-pg-aside-mode', 'docked');
+  await expect(pin).toHaveAttribute('aria-pressed', 'true');
+
+  await expect.poll(async () => (await main.boundingBox()).width)
+    .toBeLessThan(before.width - 250);
+
+  await page.getByRole('heading', { name: 'Робочий простір' }).click();
+  await page.keyboard.press('Escape');
+  await expect(aside).toBeVisible();
+
+  await page.reload();
+  await expect(shell).toHaveAttribute('data-pg-aside-mode', 'docked');
+  await expect(aside).toBeVisible();
+  await expect(pin).toHaveText(/Відкріпити/);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(shell).toHaveAttribute('data-pg-aside-mode', 'floating');
+  await expect(aside).toBeHidden();
+  await context.click();
+  await expect(aside).toBeVisible();
+  await expect(pin).toBeHidden();
+  await context.click();
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expect(shell).toHaveAttribute('data-pg-aside-mode', 'docked');
+  await expect(pin).toBeVisible();
+  await pin.click();
+
+  await expect(shell).toHaveAttribute('data-pg-aside-mode', 'floating');
+  await expect(pin).toHaveAttribute('aria-pressed', 'false');
+  await expect(aside).toBeVisible();
+  await page.getByRole('heading', { name: 'Робочий простір' }).click();
+  await expect(aside).toBeHidden();
 });
