@@ -31,7 +31,7 @@
   flex: 0 0 var(--pg-header-height);
   align-items: center;
   justify-content: space-between;
-  padding: 0 14px 0 24px;
+  padding: 0 64px 0 24px;
 }
 
 .pg-aside__heading {

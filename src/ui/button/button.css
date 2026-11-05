@@ -28,3 +28,32 @@
 @media (prefers-reduced-motion: reduce) {
   .pg-icon-button { transition: none; }
 }
+
+
+/* Four-corner controls: circular hit targets and a moving icon, as in legacy. */
+.pg-icon-button--corner {
+  width: var(--pg-control-size);
+  height: var(--pg-control-size);
+  border-radius: var(--pg-radius-full);
+}
+
+.pg-icon-button--corner > .pg-icon {
+  transition: transform var(--pg-duration-layout) cubic-bezier(.34, 1.56, .64, 1);
+  transform-origin: center;
+}
+
+.pg-icon-button--corner[aria-expanded='true'] > .pg-icon {
+  transform: rotate(180deg);
+}
+
+.pg-icon-button--corner:not([aria-expanded='true']):hover > .pg-icon {
+  transform: translateY(-1px) rotate(-12deg);
+}
+
+.pg-icon-button--corner[aria-expanded='true']:hover > .pg-icon {
+  transform: translateY(-1px) rotate(168deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pg-icon-button--corner > .pg-icon { transition: none; }
+}
