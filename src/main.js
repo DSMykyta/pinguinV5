@@ -1,23 +1,15 @@
 import './styles/foundation.css';
+import './ui/button/button.css';
+import './ui/data-row/data-row.css';
+import './shell/sidebar/sidebar.css';
+import './shell/aside/aside.css';
+import './shell/shell.css';
 
-const app = document.querySelector('#app');
+import { mountShell } from './shell/shell.js';
 
-if (app) {
-  const welcome = document.createElement('section');
-  welcome.className = 'pg-welcome';
+const host = document.getElementById('app');
+const unmountShell = mountShell(host);
 
-  const heading = document.createElement('h1');
-  heading.className = 'pg-welcome__title';
-  heading.textContent = 'Pinguin Next';
-
-  const status = document.createElement('p');
-  status.className = 'pg-welcome__status';
-  status.textContent = 'Tabula rasa · work';
-
-  const description = document.createElement('p');
-  description.className = 'pg-welcome__description';
-  description.textContent = 'Чиста основа. Функції й дизайн створюватимемо поступово, після обговорення.';
-
-  welcome.append(heading, status, description);
-  app.append(welcome);
+if (import.meta.hot) {
+  import.meta.hot.dispose(unmountShell);
 }
