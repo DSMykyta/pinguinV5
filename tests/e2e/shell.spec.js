@@ -6,7 +6,7 @@ test('desktop shell persists navigation, aside and theme preferences', async ({ 
 
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Один простір. Власні інструменти.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Робочий простір' })).toBeVisible();
 
   const shell = page.locator('.pg-shell');
   const sidebarButton = page.locator('[data-pg-action="sidebar-toggle"]');

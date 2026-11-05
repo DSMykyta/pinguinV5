@@ -45,7 +45,7 @@ export function createAside({ theme, onThemeChange, onClose }) {
     createParagraph('pg-aside__eyebrow', 'ПОТОЧНИЙ ПРОСТІР'),
     createParagraph('pg-aside__section-title', 'Огляд'),
     createParagraph('pg-aside__description',
-      'Тут з’являтимуться налаштування активного інструмента. Поки панель містить лише параметри оболонки.'),
+      'Налаштування простору. Інструменти додаватимуть власні дії сюди.'),
   );
 
   const options = document.createElement('section');
@@ -88,7 +88,7 @@ export function createAside({ theme, onThemeChange, onClose }) {
   note.append(
     createParagraph('pg-aside__eyebrow', 'ПРИНЦИП'),
     createParagraph('pg-aside__description',
-      'Одна система стилів і компонентів для всіх інструментів. Відмінності — лише у функціях і даних.'),
+      'Одна оболонка, різні інструменти.'),
   );
 
   body.append(intro, options, note);

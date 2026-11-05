@@ -156,11 +156,15 @@ export function mountShell(host) {
     document.documentElement.dataset.theme = preferences.theme;
     document.body.dataset.pgOverlay = isOverlayOpen ? 'open' : 'closed';
 
-    aside.element.hidden = !isAsideVisible;
+    // Keep the panel in the layout until the CSS width/opacity transition finishes.
+    // inert plus aria-hidden prevent interaction during its exit animation.
     aside.element.inert = !isAsideVisible;
+    aside.element.setAttribute('aria-hidden', String(!isAsideVisible));
 
     sidebar.element.inert = !isNavVisible;
-    backdrop.hidden = !isOverlayOpen;
+    shell.dataset.pgOverlayState = isOverlayOpen ? 'open' : 'closed';
+    backdrop.inert = !isOverlayOpen;
+    backdrop.setAttribute('aria-hidden', String(!isOverlayOpen));
 
     sidebar.toggleButton.setAttribute('aria-label', isNarrow
       ? 'Закрити меню'

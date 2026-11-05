@@ -8,10 +8,7 @@ function createText(tag, className, value) {
   return element;
 }
 
-/**
- * Real overview page of the development workspace.
- * Planned functionality is presented as information, never as a dead button.
- */
+/** The overview shows real product state, never mock or decorative actions. */
 export function createOverview() {
   const content = document.createElement('div');
   content.className = 'pg-overview';
@@ -19,10 +16,10 @@ export function createOverview() {
   const intro = document.createElement('header');
   intro.className = 'pg-overview__intro';
   intro.append(
-    createText('p', 'pg-overview__eyebrow', 'PINGUIN NEXT / WORKSPACE'),
-    createText('h1', 'pg-overview__title', 'Один простір. Власні інструменти.'),
+    createText('p', 'pg-overview__eyebrow', 'PINGUIN NEXT'),
+    createText('h1', 'pg-overview__title', 'Робочий простір'),
     createText('p', 'pg-overview__lead',
-      'Створюємо Pinguin заново — з послідовною системою компонентів, де кожна функція працює незалежно.'),
+      'Спільна оболонка для інструментів. Спочатку — основа, далі функції по одній.'),
   );
 
   const next = document.createElement('section');
@@ -38,13 +35,12 @@ export function createOverview() {
   const featureHeading = createText('h2', 'pg-overview__feature-title', 'Таблиці');
   featureHeading.id = 'pg-next-title';
   featureBody.append(
-    createText('p', 'pg-overview__feature-label', 'ПЕРШИЙ ІНСТРУМЕНТ'),
+    createText('p', 'pg-overview__feature-label', 'ПЕРШИЙ МОДУЛЬ'),
     featureHeading,
     createText('p', 'pg-overview__feature-description',
-      'Редактор складу товару з експортом у HTML та BR. Спочатку завершимо оболонку й узгодимо модель рядка.'),
+      'Генератор HTML та BR для складів товарів. Створимо після завершення базових компонентів.'),
   );
-
-  const featureMeta = createText('span', 'pg-overview__feature-meta', 'Наступний етап');
+  const featureMeta = createText('span', 'pg-overview__feature-meta', 'У плані');
   next.append(icon, featureBody, featureMeta);
 
   const process = document.createElement('section');
@@ -52,19 +48,19 @@ export function createOverview() {
   process.setAttribute('aria-labelledby', 'pg-process-title');
   const processHeader = document.createElement('div');
   processHeader.className = 'pg-overview__process-header';
-  const processTitle = createText('h2', 'pg-overview__section-title', 'Порядок створення');
+  const processTitle = createText('h2', 'pg-overview__section-title', 'Етапи створення');
   processTitle.id = 'pg-process-title';
-  processHeader.append(processTitle, createText('p', 'pg-overview__section-note', 'Невеликі завершені кроки замість одного великого переписування.'));
+  processHeader.append(processTitle, createText('p', 'pg-overview__section-note', 'Поступово, без зайвих компонентів.'));
 
   const list = document.createElement('div');
   list.className = 'pg-data-list';
   list.append(
-    createDataRow({ icon: 'layers', title: 'Оболонка', description: 'Навігація, контекст, теми та адаптивність', trailing: 'Етап 01' }),
-    createDataRow({ icon: 'sliders', title: 'Єдині компоненти', description: 'Рядки, поля, кнопки, меню та їхні стани', trailing: 'Етап 02' }),
-    createDataRow({ icon: 'table-2', title: 'Генератор таблиць', description: 'Структура даних, редактор та незалежні експортери', trailing: 'Етап 03' }),
+    createDataRow({ icon: 'check', title: 'Оболонка', description: 'Навігація, теми та адаптивність', trailing: '01' }),
+    createDataRow({ icon: 'sliders', title: 'Спільні компоненти', description: 'Поля, рядки й меню', trailing: '02' }),
+    createDataRow({ icon: 'table-2', title: 'Генератор таблиць', description: 'Редактор складу та експортери', trailing: '03' }),
   );
-  process.append(processHeader, list);
 
+  process.append(processHeader, list);
   content.append(intro, next, process);
   return content;
 }
