@@ -3,13 +3,14 @@
  * ║ PINGUIN NEXT — TOOLS NAVIGATION TEST                                                              ║
  * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Перевіряє вкладки «Таблиці» й «Текст» та контекст aside.                            ║
- * ║ ЗАЛЕЖНОСТІ: Спільні UI tabs; setAsideContext від Shell.                                           ║
+ * ║ ЗАЛЕЖНОСТІ: UI page, UI tabs, контекстні callbacks від Shell.                                           ║
  * ║ ПУБЛІЧНИЙ API: mount(host, context).                                                               ║
  * ║ ПРИНЦИП: Окремі вкладки й контекст; жодних макетів непрацюючих редакторів.                        ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
 import { createTabs } from '../../ui/tabs/tabs.js';
+import { createPageView } from '../../ui/page/page.js';
 
 const TABS = Object.freeze([
   {
@@ -28,22 +29,22 @@ const TABS = Object.freeze([
   },
 ]);
 
-export function mount(host, { setAsideContext, localNavigation }) {
-  const content = document.createElement('div');
-  content.className = 'pg-tools';
+export function mount(host, { setAsideContext, setPageSection, localNavigation }) {
+  const page = createPageView({ title: TABS[0].label });
 
   const tabs = createTabs({
     idPrefix: 'pg-tools',
     label: 'Інструменти',
     navHost: localNavigation,
-    items: TABS.map(item => {
-      const heading = document.createElement('h2');
-      heading.className = 'pg-tabs__panel-title';
-      heading.textContent = item.label;
-      return { ...item, content: heading };
-    }),
+    items: TABS.map(item => ({
+      ...item,
+      // Each editor supplies content without owning the shared page heading.
+      content: document.createElement('div'),
+    })),
     onChange(id) {
       const item = TABS.find(tab => tab.id === id);
+      page.setTitle(item.label);
+      setPageSection(item.label);
       setAsideContext({
         title: item.label,
         links: [
@@ -56,8 +57,8 @@ export function mount(host, { setAsideContext, localNavigation }) {
     },
   });
 
-  content.append(tabs.element);
-  host.replaceChildren(content);
+  page.body.append(tabs.element);
+  host.replaceChildren(page.element);
 
   return () => {
     tabs.destroy();

@@ -100,13 +100,6 @@
 
 .pg-tabs__panel { min-height: 120px; }
 
-.pg-tabs__panel-title {
-  margin: 0;
-  font-size: 19px;
-  font-weight: 530;
-  letter-spacing: -.02em;
-}
-
 @media (max-width: 420px) {
   .pg-tabs__nav { gap: 4px; }
   .pg-tabs__tab { font-size: 12px; }

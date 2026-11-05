@@ -4,8 +4,8 @@
  * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Розміщення оболонки, контенту й чотирьох кутів.                                       ║
  * ║ ЗАЛЕЖНОСТІ: Семантичні токени.                                                                     ║
- * ║ ПУБЛІЧНИЙ API: pg-shell, pg-route-message.                                                         ║
- * ║ ПРИНЦИП: Одна поверхня без зайвих кольорових блоків.                                               ║
+ * ║ ПУБЛІЧНИЙ API: pg-shell та його структурні елементи.                                                         ║
+ * ║ ПРИНЦИП: Shell керує панелями, не стилізує окремі сторінки або модулі.                                               ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -69,10 +69,6 @@
 
 .pg-shell__local-nav:empty { display: none; }
 
-.pg-shell__header:has(.pg-tabs__nav) .pg-shell__page-name {
-  visibility: hidden;
-}
-
 .pg-shell__page-name {
   color: var(--pg-color-text-primary);
   font-size: 14px;
@@ -109,32 +105,6 @@
   pointer-events: none;
   transition: opacity var(--pg-duration-layout) ease,
     visibility 0s linear var(--pg-duration-layout);
-}
-
-.pg-overview {
-  max-width: 800px;
-  margin: 0 auto;
-  animation: pg-overview-enter 320ms var(--pg-ease-layout) both;
-}
-
-.pg-overview__title {
-  margin: 0 0 8px;
-  font-size: clamp(21px, 2.6vw, 27px);
-  line-height: 1.35;
-  letter-spacing: -.026em;
-  font-weight: 530;
-}
-
-.pg-overview__description {
-  margin: 0;
-  color: var(--pg-color-text-muted);
-  font-size: 13px;
-  line-height: 1.65;
-}
-
-@keyframes pg-overview-enter {
-  from { opacity: 0; transform: translateY(7px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 1080px) {
@@ -175,43 +145,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pg-shell, .pg-shell__backdrop, .pg-overview {
+  .pg-shell, .pg-shell__backdrop {
     animation: none;
     transition: none;
   }
 }
 
 
-/* Page type affects available content width, never the Shell layout. */
-.pg-shell__content[data-pg-page-type='tool'],
-.pg-shell__content[data-pg-page-type='collection'] {
-  padding-inline: clamp(20px, 4vw, 64px);
-}
-
-.pg-shell__content[data-pg-page-type='record'],
-.pg-shell__content[data-pg-page-type='settings'] {
-  padding-inline: clamp(20px, 6vw, 90px);
-}
-
-.pg-route-message {
-  max-width: 580px;
-  margin: 28px auto;
-}
-
-.pg-route-message__title {
-  margin: 0 0 8px;
-  font-size: 23px;
-  font-weight: 550;
-}
-
-.pg-route-message__description {
-  margin: 0 0 18px;
-  font-size: 13px;
-  color: var(--pg-color-text-secondary);
-}
-
-.pg-route-message__link {
-  font-size: 13px;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}

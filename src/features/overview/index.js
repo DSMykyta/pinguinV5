@@ -3,22 +3,17 @@
  * ║ PINGUIN NEXT — OVERVIEW PAGE                                                                       ║
  * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Монтує головну сторінку робочого простору.                                            ║
- * ║ ЗАЛЕЖНОСТІ: DOM host, manifest сторінки.                                                           ║
+ * ║ ЗАЛЕЖНОСТІ: ui/page та DOM host.                                                           ║
  * ║ ПУБЛІЧНИЙ API: mount(host).                                                                        ║
  * ║ ПРИНЦИП: Не створює фальшивих інструментів.                                                        ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
-/** Minimal first page. Its mount lifecycle is identical to future modules. */
+import { createPageView } from '../../ui/page/page.js';
+
+/** Overview uses exactly the same page surface as every other route. */
 export function mount(host) {
-  const content = document.createElement('div');
-  content.className = 'pg-overview';
-
-  const heading = document.createElement('h1');
-  heading.className = 'pg-overview__title';
-  heading.textContent = 'Робочий простір';
-  content.append(heading);
-  host.replaceChildren(content);
-
+  const page = createPageView({ title: 'Робочий простір' });
+  host.replaceChildren(page.element);
   return () => host.replaceChildren();
 }
