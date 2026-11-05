@@ -54,6 +54,7 @@
   --pg-color-dialog-shadow: rgb(0 0 0 / 0.22);
   --pg-color-dialog-action-text: #ffffff;
   --pg-color-dialog-danger: #bd4249;
+  --pg-color-dialog-danger-text: #ffffff;
 
   --pg-space-1: 4px;
   --pg-space-2: 8px;
@@ -119,6 +120,7 @@
   --pg-color-toast-shadow: rgb(0 0 0 / 0.32);
   --pg-color-dialog-backdrop: rgb(0 0 0 / 0.56);
   --pg-color-dialog-shadow: rgb(0 0 0 / 0.42);
-  --pg-color-dialog-action-text: #ffffff;
+  --pg-color-dialog-action-text: #15281f;
   --pg-color-dialog-danger: #c34b54;
+  --pg-color-dialog-danger-text: #ffffff;
 }
