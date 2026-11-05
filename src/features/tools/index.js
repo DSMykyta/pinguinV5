@@ -12,7 +12,9 @@
 import { createTabs } from '../../ui/tabs/tabs.js';
 import { createPageView } from '../../ui/page/page.js';
 import { createToastDemo } from './toast-demo.js';
+import { createDialogDemo } from './dialog-demo.js';
 import './toast-demo.css';
+import './dialog-demo.css';
 
 const TABS = Object.freeze([
   {
@@ -32,7 +34,15 @@ const TABS = Object.freeze([
 ]);
 
 export function mount(host, { setAsideContext, setSearchEntries, localNavigation }) {
-  const page = createPageView({ title: TABS[0].label });
+  // Each tab owns a separate persistent workspace (not shared placeholder DOM).
+  const tablePage = createPageView({ title: 'Таблиці' });
+  tablePage.body.append(createToastDemo());
+  const textPage = createPageView({ title: 'Текст' });
+  textPage.body.append(createDialogDemo());
+  const pageByTab = new Map([
+    ['tables', tablePage],
+    ['text', textPage],
+  ]);
 
   const tabs = createTabs({
     idPrefix: 'pg-tools',
@@ -41,12 +51,11 @@ export function mount(host, { setAsideContext, setSearchEntries, localNavigation
     items: TABS.map(item => ({
       id: item.id,
       label: item.label,
-      // Plain-text subnavigation; each editor later supplies its own content.
-      content: document.createElement('div'),
+      // Content and future editor state belong exclusively to this panel.
+      content: pageByTab.get(item.id).element,
     })),
     onChange(id) {
       const item = TABS.find(tab => tab.id === id);
-      page.setTitle(item.label);
       setAsideContext({
         title: item.label,
         links: [
@@ -66,13 +75,8 @@ export function mount(host, { setAsideContext, setSearchEntries, localNavigation
     activate: () => tabs.activate(item.id),
   })));
 
-  // Temporary geometry-review mode: Shell paints the main area; keep the editor
-  // placeholder invisible until the shared spacing has been approved.
-  page.body.append(tabs.element);
-  page.element.hidden = true;
-  // Test-only preview lives in the canvas, separate from the hidden editors.
-  // It can be removed without changing Shell or the global Toast component.
-  host.replaceChildren(page.element, createToastDemo());
+  // Tabs control independent panels inside the approved Shell workspace.
+  host.replaceChildren(tabs.element);
 
   return () => {
     tabs.destroy();
