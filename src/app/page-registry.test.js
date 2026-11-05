@@ -21,7 +21,7 @@ const testPage = (id, route, options = {}) => ({
 });
 
 test('page types form a stable finite vocabulary', () => {
-  assert.equal(isPageType('overview'), true);
+  assert.equal(isPageType('overview'), false);
   assert.equal(isPageType('tool'), true);
   assert.equal(isPageType('collection'), true);
   assert.equal(isPageType('record'), true);

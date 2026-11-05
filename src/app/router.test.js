@@ -32,21 +32,21 @@ function createBrowser() {
 test('router navigates valid routes, ignores duplicates and handles back', () => {
   const browser = createBrowser();
   const registry = createPageRegistry([
-    { id: 'overview', route: '/', type: 'overview', title: 'Огляд', load: async () => ({}) },
+    { id: 'settings', route: '/', type: 'settings', title: 'Налаштування', load: async () => ({}) },
     { id: 'table-generator', route: '/table-generator', type: 'tool', title: 'Таблиці', load: async () => ({}) },
   ]);
   const resolved = [];
   const router = createRouter({ browserWindow: browser, registry, onChange: page => resolved.push(page?.id ?? null) });
   router.start();
-  assert.deepEqual(resolved, ['overview']);
+  assert.deepEqual(resolved, ['settings']);
   assert.equal(router.navigate('/table-generator'), true);
   assert.equal(browser.location.pathname, '/table-generator');
   assert.equal(router.navigate('/table-generator'), true);
-  assert.deepEqual(resolved, ['overview', 'table-generator']);
+  assert.deepEqual(resolved, ['settings', 'table-generator']);
   assert.equal(router.navigate('/not-a-page'), false);
   browser.location.pathname = '/';
   browser.emit('popstate');
-  assert.deepEqual(resolved, ['overview', 'table-generator', 'overview']);
+  assert.deepEqual(resolved, ['settings', 'table-generator', 'settings']);
   router.stop();
   browser.location.pathname = '/table-generator';
   browser.emit('popstate');
