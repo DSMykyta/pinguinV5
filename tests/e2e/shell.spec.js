@@ -195,6 +195,8 @@ test('desktop pin docks the right panel and persists while transient mode overla
   await expect(aside).toBeVisible();
   await expect(shell).toHaveAttribute('data-pg-aside-mode', 'floating');
   await expect(pin).toHaveAttribute('aria-label', 'Закріпити панель');
+  // Geometry is compared only after the opening transition completes.
+  await aside.evaluate(element => Promise.all(element.getAnimations().map(animation => animation.finished)));
   const floatingRect = await aside.boundingBox();
   const floatingAppearance = await aside.evaluate(node => {
     const style = getComputedStyle(node);
