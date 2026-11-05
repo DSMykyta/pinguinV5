@@ -23,7 +23,7 @@ async function coordinates(page) {
     parseFloat(getComputedStyle(node).paddingLeft));
   return {
     headerX: header.x, tabX: tabs.x,
-    contentStartX: main.x + inset, mainY: main.y,
+    contentStartX: main.x + inset, chromeX: main.x + 16, mainY: main.y,
   };
 }
 
@@ -48,7 +48,7 @@ test('five global zones exist, footer is structurally present but invisible', as
 
   const x = await coordinates(page);
   expect(Math.abs(x.headerX - x.tabX)).toBeLessThan(1);
-  expect(Math.abs(x.headerX - x.contentStartX)).toBeLessThan(1);
+  expect(Math.abs(x.headerX - x.chromeX)).toBeLessThan(1);
 });
 
 test('tab changes do not move shared header, tabs or main section', async ({ page }) => {
@@ -73,11 +73,11 @@ test('header and content stay aligned with docked aside and on mobile', async ({
   await page.locator('[data-pg-action="aside-pin"]').click();
   const desktop = await coordinates(page);
   expect(Math.abs(desktop.headerX - desktop.tabX)).toBeLessThan(1);
-  expect(Math.abs(desktop.headerX - desktop.contentStartX)).toBeLessThan(1);
+  expect(Math.abs(desktop.headerX - desktop.chromeX)).toBeLessThan(1);
 
   await page.setViewportSize({ width: 390, height: 844 });
   const mobile = await coordinates(page);
-  expect(Math.abs(mobile.tabX - mobile.contentStartX)).toBeLessThan(1);
+  expect(Math.abs(mobile.tabX - mobile.chromeX)).toBeLessThan(1);
   await page.getByRole('tab', { name: 'Текст' }).click();
   const mobileText = await coordinates(page);
   for (const key of Object.keys(mobile))
