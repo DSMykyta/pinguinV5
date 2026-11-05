@@ -82,13 +82,15 @@ test('native modal blocks focus outside and supports explicit cancellation', asy
 });
 
 test('mobile and dark theme preserve native dialog geometry', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/tools');
   const theme = page.locator('[data-pg-action="theme-cycle"]');
   await theme.click();
   await theme.click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  // Sidebar theme control is hidden behind mobile navigation below 1080px.
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.getByRole('tab', { name: 'Текст' }).click();
   await page.locator('[data-pg-action="dialog-demo-info"]').click();
   const dialog = page.getByRole('dialog');
