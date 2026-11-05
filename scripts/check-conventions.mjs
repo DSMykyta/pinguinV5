@@ -41,6 +41,7 @@ const cssOwnerByPrefix = new Map([
   ['pg-route-message', 'src/shell/route-message.css'],
   ['pg-data-row', 'src/ui/data-row/data-row.css'],
   ['pg-icon-button', 'src/ui/button/button.css'],
+  ['pg-toast', 'src/ui/toast/toast.css'],
 ]);
 const errors = [];
 let filesChecked = 0;

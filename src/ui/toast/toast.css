@@ -1,0 +1,141 @@
+/*
+ * ╔════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SHARED TOAST STYLES                                                   ║
+ * ╠════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Візуальний зворотний зв'язок у нижньому лівому куті, як у legacy.        ║
+ * ║ ЗАЛЕЖНОСТІ: Семантичні змінні src/styles/tokens.css.                                ║
+ * ║ ПУБЛІЧНИЙ API: pg-toast, pg-toast__*, data-pg-state, data-pg-type.                   ║
+ * ║ ПРИНЦИП: Стилі ізольовані; Toast тимчасово перекриває theme, не зсуває Shell.        ║
+ * ╚════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
+.pg-toast-host {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 150;
+  width: max-content;
+  max-width: calc(100vw - 40px);
+  pointer-events: none;
+}
+
+.pg-toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: max-content;
+  min-width: min(288px, calc(100vw - 40px));
+  max-width: min(480px, calc(100vw - 40px));
+  min-height: 48px;
+  padding: 12px 14px;
+  border-radius: var(--pg-radius-md);
+  background: var(--pg-color-toast-surface);
+  color: var(--pg-color-toast-text);
+  box-shadow: 0 8px 24px var(--pg-color-toast-shadow);
+  font-size: 13px;
+  line-height: 1.4;
+  opacity: 0;
+  transform: translateY(10px) scale(.985);
+  transform-origin: bottom left;
+  pointer-events: auto;
+  transition: opacity 180ms ease, transform 180ms var(--pg-ease-layout);
+}
+
+.pg-toast[data-pg-state='visible'] {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.pg-toast[data-pg-state='closing'] {
+  opacity: 0;
+  transform: translateY(8px) scale(.985);
+  pointer-events: none;
+}
+
+.pg-toast__icon {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--pg-color-toast-info);
+}
+
+.pg-toast[data-pg-type='success'] .pg-toast__icon {
+  color: var(--pg-color-toast-success);
+}
+
+.pg-toast[data-pg-type='warning'] .pg-toast__icon {
+  color: var(--pg-color-toast-warning);
+}
+
+.pg-toast[data-pg-type='error'] .pg-toast__icon {
+  color: var(--pg-color-toast-error);
+}
+
+.pg-toast__message {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.pg-toast__action {
+  flex: 0 0 auto;
+  min-height: 32px;
+  padding: 5px 3px;
+  border: 0;
+  border-radius: var(--pg-radius-sm);
+  background: transparent;
+  color: var(--pg-color-toast-action);
+  font-size: 13px;
+  font-weight: 620;
+  white-space: normal;
+}
+
+.pg-toast__action:hover,
+.pg-toast__action:focus-visible,
+.pg-toast__close:hover,
+.pg-toast__close:focus-visible {
+  background: var(--pg-color-toast-hover);
+}
+
+.pg-toast__close {
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--pg-radius-sm);
+  background: transparent;
+  color: var(--pg-color-toast-muted);
+}
+
+.pg-toast__close .pg-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.pg-toast__announcer {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 640px) {
+  .pg-toast__action {
+    max-width: 96px;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pg-toast { transition: none; transform: none; }
+  .pg-toast[data-pg-state='closing'],
+  .pg-toast[data-pg-state='visible'] { transform: none; }
+}

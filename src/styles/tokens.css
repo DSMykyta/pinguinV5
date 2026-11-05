@@ -39,6 +39,17 @@
   --pg-color-tooltip-bg: #242428;
   --pg-color-tooltip-text: #ffffff;
   --pg-color-tooltip-shadow: rgb(0 0 0 / 0.3);
+  /* Accessible inverse-surface Toast: colors live only in the token layer. */
+  --pg-color-toast-surface: #242428;
+  --pg-color-toast-text: #f1f1f1;
+  --pg-color-toast-muted: #c6c6cc;
+  --pg-color-toast-hover: rgb(255 255 255 / 0.12);
+  --pg-color-toast-action: #a9dfbd;
+  --pg-color-toast-success: #a9dfbd;
+  --pg-color-toast-info: #a8c9f6;
+  --pg-color-toast-warning: #f4ca88;
+  --pg-color-toast-error: #f6a4a6;
+  --pg-color-toast-shadow: rgb(0 0 0 / 0.24);
 
   --pg-space-1: 4px;
   --pg-space-2: 8px;
@@ -92,4 +103,14 @@
   --pg-color-tooltip-bg: #f1f1f1;
   --pg-color-tooltip-text: #212121;
   --pg-color-tooltip-shadow: rgb(0 0 0 / 0.4);
+  --pg-color-toast-surface: #f1f1f1;
+  --pg-color-toast-text: #242428;
+  --pg-color-toast-muted: #5e5e66;
+  --pg-color-toast-hover: rgb(0 0 0 / 0.08);
+  --pg-color-toast-action: #326e5c;
+  --pg-color-toast-success: #326e5c;
+  --pg-color-toast-info: #386ea7;
+  --pg-color-toast-warning: #9a641a;
+  --pg-color-toast-error: #b1343b;
+  --pg-color-toast-shadow: rgb(0 0 0 / 0.32);
 }
