@@ -5,7 +5,7 @@
  * ║ ПРИЗНАЧЕННЯ: Перемикає незалежні секції всередині однієї сторінки.                               ║
  * ║ ЗАЛЕЖНОСТІ: Спільна бібліотека SVG-іконок і передані DOM-панелі.                                  ║
  * ║ ПУБЛІЧНИЙ API: createTabs().                                                                       ║
- * ║ ПРИНЦИП: Клавіатурна навігація, локальна область дії та явний cleanup.                            ║
+ * ║ ПРИНЦИП: Нерухомі слоти, клавіатурна навігація та явний cleanup.                            ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -44,6 +44,16 @@ export function createTabs({ idPrefix, label, items, onChange, navHost = null })
   let currentId = null;
 
   for (const item of items) {
+    // Reserve full pill width so expansion never shifts neighboring tabs.
+    const slot = document.createElement('div');
+    slot.className = 'pg-tabs__slot';
+    const guide = document.createElement('span');
+    guide.className = 'pg-tabs__width-guide';
+    guide.setAttribute('aria-hidden', 'true');
+    if (item.icon) guide.append(createIcon(item.icon));
+    const guideLabel = document.createElement('span');
+    guideLabel.textContent = item.label;
+    guide.append(guideLabel);
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'pg-tabs__tab';
@@ -70,7 +80,8 @@ export function createTabs({ idPrefix, label, items, onChange, navHost = null })
     panel.hidden = true;
     panel.append(item.content);
 
-    nav.append(button);
+    slot.append(guide, button);
+    nav.append(slot);
     panelHost.append(panel);
     buttons.set(item.id, button);
     panels.set(item.id, panel);
