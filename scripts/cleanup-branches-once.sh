@@ -38,9 +38,15 @@ for branch in "${names[@]}"; do
     echo "CLOSED PR: #$number"
     closed=$((closed+1))
   done < <(jq -r --arg n "$branch" --arg repo "$repo" '.[] | select(.head.ref == $n and .head.repo.full_name == $repo) | .number' <<<"$prs")
-  gh api --method DELETE "repos/$repo/git/refs/heads/$branch" --silent
-  echo "DELETED: $branch"
-  deleted=$((deleted+1))
+  if gh api --method DELETE "repos/$repo/git/refs/heads/$branch" --silent 2>/dev/null; then
+    echo "DELETED: $branch"
+    deleted=$((deleted+1))
+  elif gh api "repos/$repo/branches/$branch" --silent >/dev/null 2>&1; then
+    echo "::error::Could not delete existing branch $branch"
+    exit 1
+  else
+    echo "ALREADY REMOVED: $branch"
+  fi
 done
 
 after="$(gh api "repos/$repo/branches?per_page=100")"
