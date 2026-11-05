@@ -5,7 +5,7 @@
  * ║ ПРИЗНАЧЕННЯ: Перемикає незалежні секції всередині однієї сторінки.                               ║
  * ║ ЗАЛЕЖНОСТІ: Спільна бібліотека SVG-іконок і передані DOM-панелі.                                  ║
  * ║ ПУБЛІЧНИЙ API: createTabs().                                                                       ║
- * ║ ПРИНЦИП: Нерухомі слоти, клавіатурна навігація та явний cleanup.                            ║
+ * ║ ПРИНЦИП: Центрується весь ряд; кнопки розкриваються у природному flex-порядку.                            ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -14,7 +14,7 @@ import { createIcon } from '../icon/icon.js';
 /**
  * Each item: { id, label, icon, content: HTMLElement }.
  * The caller owns content; the shared component owns selection and keyboard behavior.
- * navHost can place the navigation in the shared header without moving page content.
+ * navHost places the whole navigation row in the shared header.
  */
 export function createTabs({ idPrefix, label, items, onChange, navHost = null }) {
   if (!/^[a-z][a-z0-9-]*$/.test(idPrefix) || !Array.isArray(items) || !items.length) {
@@ -44,16 +44,6 @@ export function createTabs({ idPrefix, label, items, onChange, navHost = null })
   let currentId = null;
 
   for (const item of items) {
-    // Reserve full pill width so expansion never shifts neighboring tabs.
-    const slot = document.createElement('div');
-    slot.className = 'pg-tabs__slot';
-    const guide = document.createElement('span');
-    guide.className = 'pg-tabs__width-guide';
-    guide.setAttribute('aria-hidden', 'true');
-    if (item.icon) guide.append(createIcon(item.icon));
-    const guideLabel = document.createElement('span');
-    guideLabel.textContent = item.label;
-    guide.append(guideLabel);
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'pg-tabs__tab';
@@ -80,8 +70,7 @@ export function createTabs({ idPrefix, label, items, onChange, navHost = null })
     panel.hidden = true;
     panel.append(item.content);
 
-    slot.append(guide, button);
-    nav.append(slot);
+    nav.append(button);
     panelHost.append(panel);
     buttons.set(item.id, button);
     panels.set(item.id, panel);
