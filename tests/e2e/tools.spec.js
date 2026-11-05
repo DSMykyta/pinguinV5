@@ -37,6 +37,8 @@ test('second page and two local tabs follow the legacy navigation hierarchy', as
   await page.locator('[data-pg-action="aside-toggle"]').click();
   await expect(aside).toBeVisible();
   await expect(aside.getByRole('link', { name: 'Генератор у legacy' })).toBeVisible();
+  // A transient popover closes on outside clicks; pin it to inspect changing context.
+  await page.locator('[data-pg-action="aside-pin"]').click();
 
   await text.click();
   await expect(text).toHaveAttribute('aria-selected', 'true');
