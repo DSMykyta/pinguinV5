@@ -18,7 +18,7 @@ async function coordinates(page) {
     .map(a => a.finished.catch(() => {}))));
   const [header, tabs, section] = await Promise.all([
     page.locator('h1.pg-shell__page-name').boundingBox(),
-    page.locator('.pg-shell__local-nav').boundingBox(),
+    page.locator('.pg-shell__local-nav [role="tablist"]').boundingBox(),
     page.locator('h2.pg-page__title').boundingBox(),
   ]);
   return { headerX: header.x, tabX: tabs.x, sectionX: section.x, sectionY: section.y };
