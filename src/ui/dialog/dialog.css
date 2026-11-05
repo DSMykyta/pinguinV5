@@ -1,0 +1,141 @@
+/*
+ * ╔════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — DIALOG STYLES                                                         ║
+ * ╠════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Native modal та розмиття фону через ::backdrop.                        ║
+ * ║ ЗАЛЕЖНОСТІ: Семантичні токени, button.css.                                         ║
+ * ║ ПУБЛІЧНИЙ API: pg-dialog, pg-dialog__*, data-pg-state.                              ║
+ * ║ ПРИНЦИП: Ізольований CSS, не змінює Shell.                                          ║
+ * ╚════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
+.pg-dialog {
+  position: fixed;
+  inset: 0;
+  box-sizing: border-box;
+  width: min(440px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--pg-color-border);
+  border-radius: 18px;
+  background: var(--pg-color-surface);
+  color: var(--pg-color-text-primary);
+  box-shadow: 0 24px 70px var(--pg-color-dialog-shadow);
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(14px) scale(.975);
+  transition: opacity 190ms ease, transform 190ms var(--pg-ease-layout);
+}
+
+.pg-dialog::backdrop {
+  background: var(--pg-color-dialog-backdrop);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.pg-dialog[data-pg-state='visible'] {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.pg-dialog[data-pg-state='closing'] {
+  opacity: 0;
+  transform: translateY(12px) scale(.985);
+  pointer-events: none;
+}
+
+.pg-dialog__panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: calc(100dvh - 34px);
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.pg-dialog__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.pg-dialog__title {
+  min-width: 0;
+  margin: 0;
+  font-size: 19px;
+  font-weight: 620;
+  line-height: 1.35;
+  letter-spacing: -.025em;
+}
+
+.pg-dialog__close { flex: 0 0 var(--pg-control-size); }
+
+.pg-dialog__message {
+  margin: 16px 0 26px;
+  color: var(--pg-color-text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.pg-dialog__footer {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.pg-dialog__button {
+  min-width: 94px;
+  min-height: 40px;
+  padding: 9px 16px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background var(--pg-duration-fast) ease,
+    color var(--pg-duration-fast) ease;
+}
+
+.pg-dialog__button--secondary {
+  background: var(--pg-color-selected);
+  color: var(--pg-color-text-primary);
+  border-color: var(--pg-color-border);
+}
+
+.pg-dialog__button--secondary:hover { background: var(--pg-color-hover); }
+
+.pg-dialog__button--primary {
+  background: var(--pg-color-accent);
+  color: var(--pg-color-dialog-action-text);
+}
+
+.pg-dialog__button--destructive {
+  background: var(--pg-color-dialog-danger);
+  color: var(--pg-color-dialog-action-text);
+}
+
+.pg-dialog__button--primary:hover,
+.pg-dialog__button--destructive:hover { filter: brightness(.92); }
+
+@media (max-width: 480px) {
+  .pg-dialog__panel { padding: 20px; }
+  .pg-dialog__button { flex: 1 1 auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pg-dialog { transition: none; transform: none; }
+  .pg-dialog[data-pg-state='visible'],
+  .pg-dialog[data-pg-state='closing'] { transform: none; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .pg-dialog::backdrop {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
