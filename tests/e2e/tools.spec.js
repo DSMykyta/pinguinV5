@@ -27,7 +27,7 @@ test('the universal header and tabs remain aligned while main preview is blank',
   const [titleBox, tabsBox, mainBox] = await Promise.all([title,tabs,main].map(x => x.boundingBox()));
   const pad = await main.evaluate(node => parseFloat(getComputedStyle(node).paddingLeft));
   expect(Math.abs(titleBox.x - tabsBox.x)).toBeLessThan(1);
-  expect(Math.abs(titleBox.x - mainBox.x - 16)).toBeLessThan(1);
+  expect(Math.abs(titleBox.x - mainBox.x)).toBeLessThan(1);
   expect(tabsBox.y).toBeGreaterThan(titleBox.y + titleBox.height);
   expect(mainBox.y).toBeGreaterThan(tabsBox.y);
 

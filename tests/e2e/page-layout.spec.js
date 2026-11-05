@@ -50,7 +50,7 @@ test('five global zones reserve a real empty 56px footer rail', async ({ page })
 
   const x = await coordinates(page);
   expect(Math.abs(x.headerX - x.tabX)).toBeLessThan(1);
-  expect(Math.abs(x.headerX - x.chromeX - 16)).toBeLessThan(1);
+  expect(Math.abs(x.headerX - x.chromeX)).toBeLessThan(1);
 });
 
 test('tab changes do not move shared header, tabs or main section', async ({ page }) => {
@@ -75,11 +75,11 @@ test('header and content stay aligned with docked aside and on mobile', async ({
   await page.locator('[data-pg-action="aside-pin"]').click();
   const desktop = await coordinates(page);
   expect(Math.abs(desktop.headerX - desktop.tabX)).toBeLessThan(1);
-  expect(Math.abs(desktop.headerX - desktop.chromeX - 16)).toBeLessThan(1);
+  expect(Math.abs(desktop.headerX - desktop.chromeX)).toBeLessThan(1);
 
   await page.setViewportSize({ width: 390, height: 844 });
   const mobile = await coordinates(page);
-  expect(Math.abs(mobile.tabX - mobile.chromeX - 16)).toBeLessThan(1);
+  expect(Math.abs(mobile.tabX - mobile.chromeX)).toBeLessThan(1);
   await page.getByRole('tab', { name: 'Текст' }).click();
   const mobileText = await coordinates(page);
   for (const key of Object.keys(mobile))
@@ -202,8 +202,8 @@ test('structural side rails and footer share compact sidebar width', async ({ pa
   await expect(shell).toHaveAttribute('data-pg-aside-mode', 'docked');
   const pinned = await measure();
   expect(pinned.left).toBe(56);
-  expect(pinned.right).toBe(302 + 12 + 56);
-  // Symmetric whitespace: the collapsed sidebar rail equals the clear gap before docked aside.
+  expect(pinned.right).toBe(302 + 12 + 8);
+  // Visual symmetry: the 8px space after the sidebar's visible button matches the gap before the aside.
   expect(pinned.bottom).toBe(56);
   expect(pinned.footer).toBe(56);
   expect(pinned.canvasWidth).toBeLessThan(collapsed.canvasWidth - 250);
@@ -212,7 +212,13 @@ test('structural side rails and footer share compact sidebar width', async ({ pa
   await aside.evaluate(el => Promise.all(el.getAnimations().map(
     animation => animation.finished.catch(() => {}))));
   const asideBox = await aside.boundingBox();
-  expect(Math.abs(asideBox.x - pinned.canvasRight - 56)).toBeLessThan(1);
+  const sidebarLinkBox = await page.locator('.pg-sidebar__link[aria-current="page"]').boundingBox();
+  const mainBox = await main.boundingBox();
+  const visibleLeftGap = mainBox.x - sidebarLinkBox.x - sidebarLinkBox.width;
+  const visibleRightGap = asideBox.x - mainBox.x - mainBox.width;
+  expect(visibleLeftGap).toBe(8);
+  expect(visibleRightGap).toBe(8);
+  expect(Math.abs(visibleLeftGap - visibleRightGap)).toBeLessThan(1);
   expect(Math.abs(asideBox.y - 64)).toBeLessThan(1);
 
   await page.locator('[data-pg-action="aside-pin"]').click();
