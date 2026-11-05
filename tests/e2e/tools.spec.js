@@ -118,7 +118,7 @@ test('mobile tabs work while pinned desktop preference does not dock', async ({ 
 });
 
 
-test('legacy tab navigation is centered in the header and reveals labels on hover', async ({ page }) => {
+test('global tab navigation is centered on the viewport and reveals labels on hover', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/tools');
 
@@ -136,9 +136,8 @@ test('legacy tab navigation is centered in the header and reveals labels on hove
   await expect.poll(async () => (await tables.boundingBox()).width).toBeGreaterThan(80);
   await expect.poll(async () => (await text.boundingBox()).width).toBeLessThan(34);
 
-  const h = await header.boundingBox();
   const n = await nav.boundingBox();
-  expect(Math.abs((n.x + n.width / 2) - (h.x + h.width / 2))).toBeLessThan(1);
+  expect(Math.abs((n.x + n.width / 2) - 720)).toBeLessThan(1);
   expect(n.y).toBeLessThan(24);
 
   await text.hover();
