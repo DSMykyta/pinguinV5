@@ -176,3 +176,50 @@ test('legacy pills remain usable in mobile and respect reduced motion', async ({
   await tables.press('Home');
   await expect(tables).toHaveAttribute('aria-selected', 'true');
 });
+
+
+test('local navigation stays fixed at viewport center as labels expand and panels change', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/tools');
+
+  const nav = page.locator('.pg-shell__local-nav').getByRole('tablist', { name: 'Інструменти' });
+  const slots = nav.locator('.pg-tabs__slot');
+  const text = nav.getByRole('tab', { name: 'Текст' });
+
+  async function geometry() {
+    const group = await nav.boundingBox();
+    const buttons = await Promise.all([0, 1].map(index => slots.nth(index).boundingBox()));
+    return {
+      groupX: group.x,
+      groupWidth: group.width,
+      center: group.x + group.width / 2,
+      slots: buttons.map(box => box.x + box.width / 2),
+    };
+  }
+
+  const initial = await geometry();
+  expect(Math.abs(initial.center - 720)).toBeLessThan(1);
+
+  await text.hover();
+  await expect.poll(async () => (await text.boundingBox()).width).toBeGreaterThan(60);
+  expect(await geometry()).toEqual(initial);
+
+  await text.click();
+  await expect(text).toHaveAttribute('aria-selected', 'true');
+  expect(await geometry()).toEqual(initial);
+
+  await page.locator('[data-pg-action="sidebar-toggle"]').click();
+  await expect(page.locator('.pg-shell')).toHaveAttribute('data-pg-sidebar-state', 'collapsed');
+  expect(await geometry()).toEqual(initial);
+
+  await page.locator('[data-pg-action="aside-toggle"]').click();
+  await page.locator('[data-pg-action="aside-pin"]').click();
+  await expect(page.locator('.pg-shell')).toHaveAttribute('data-pg-aside-mode', 'docked');
+  expect(await geometry()).toEqual(initial);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const mobile = await geometry();
+  expect(Math.abs(mobile.center - 195)).toBeLessThan(1);
+  await nav.getByRole('tab', { name: 'Таблиці' }).click();
+  expect(await geometry()).toEqual(mobile);
+});
