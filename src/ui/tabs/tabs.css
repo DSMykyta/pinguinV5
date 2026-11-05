@@ -1,0 +1,56 @@
+/*
+ * ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — LOCAL TABS STYLES                                                                  ║
+ * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Спільний стриманий вигляд локальних вкладок як у legacy.                            ║
+ * ║ ЗАЛЕЖНОСТІ: Семантичні токени Pinguin.                                                            ║
+ * ║ ПУБЛІЧНИЙ API: pg-tabs.                                                                            ║
+ * ║ ПРИНЦИП: Вкладки не створюють карток і не змінюють фон Shell.                                     ║
+ * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
+.pg-tabs__nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--pg-space-1);
+  margin-bottom: var(--pg-space-8);
+}
+
+.pg-tabs__tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pg-space-2);
+  padding: 9px 13px;
+  min-height: 40px;
+  border: 0;
+  border-radius: var(--pg-radius-md);
+  background: transparent;
+  color: var(--pg-color-text-secondary);
+  cursor: pointer;
+  font-size: 13px;
+  transition: background-color var(--pg-duration-fast) ease,
+    color var(--pg-duration-fast) ease;
+}
+
+.pg-tabs__tab .pg-icon { width: 18px; height: 18px; }
+
+.pg-tabs__tab:hover { background: var(--pg-color-hover); }
+
+.pg-tabs__tab[aria-selected='true'] {
+  background: var(--pg-color-selected);
+  color: var(--pg-color-text-primary);
+  font-weight: 560;
+}
+
+.pg-tabs__panel[hidden] { display: none; }
+
+.pg-tabs__panel { min-height: 120px; }
+
+.pg-tabs__panel-title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 530;
+  letter-spacing: -.02em;
+}
