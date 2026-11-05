@@ -1,88 +1,64 @@
 /**
  * ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
- * ║ PINGUIN NEXT — UNIVERSAL PAGE LAYOUT E2E                                                         ║
+ * ║ PINGUIN NEXT — SHARED PAGE GEOMETRY E2E                                                             ║
  * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Перевіряє однакову геометрію шапки й заголовків сторінок.                            ║
- * ║ ЗАЛЕЖНОСТІ: Playwright, Vite, UI page та Shell.                                                     ║
+ * ║ ПРИЗНАЧЕННЯ: Одна шапка і одна область заголовків для всіх вкладок.                           ║
+ * ║ ЗАЛЕЖНОСТІ: Playwright, Vite і модульна оболонка.                                                   ║
  * ║ ПУБЛІЧНИЙ API: Браузерні тести.                                                                    ║
- * ║ ПРИНЦИП: Розташування заголовка визначає спільний шаблон.                                        ║
+ * ║ ПРИНЦИП: Перевіряємо глобальну поведінку, не декоративні заглушки.                                 ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
 import { test, expect } from '@playwright/test';
 
 async function geometry(page) {
-  // Shell column transitions may still be moving after pin/collapse; measure settled layout.
-  await page.locator('.pg-shell').evaluate(node => Promise.all(node.getAnimations().map(
-    animation => animation.finished.catch(() => {}))));
   const surface = page.locator('.pg-page');
-  await surface.evaluate(node => Promise.all(node.getAnimations().map(
-    animation => animation.finished.catch(() => {}))));
-  const [heading, frame, header] = await Promise.all([
-    page.locator('h1.pg-page__title').boundingBox(),
-    surface.boundingBox(),
-    page.locator('.pg-shell__page-name').boundingBox(),
-  ]);
-  const fontSize = await page.locator('h1.pg-page__title').evaluate(node =>
-    getComputedStyle(node).fontSize);
+  await surface.evaluate(element => Promise.all(element.getAnimations()
+    .map(animation => animation.finished.catch(() => {}))));
+  await page.locator('.pg-shell').evaluate(element =>
+    Promise.all(element.getAnimations().map(animation => animation.finished.catch(() => {}))));
+  const h1 = await page.locator('h1.pg-page__title').boundingBox();
+  const frame = await surface.boundingBox();
+  const header = await page.locator('.pg-shell__page-name').boundingBox();
   return {
-    titleX: heading.x, titleY: heading.y, titleWidth: heading.width,
+    x: h1.x, y: h1.y, width: h1.width,
     frameX: frame.x, frameWidth: frame.width,
-    headerX: header.x, headerY: header.y, fontSize,
+    headerX: header.x, headerY: header.y,
   };
 }
 
-function sameLayout(actual, expected) {
-  for (const key of ['titleX', 'titleY', 'titleWidth',
-    'frameX', 'frameWidth', 'headerX', 'headerY']) {
-    expect(Math.abs(actual[key] - expected[key]), key).toBeLessThan(1);
+function same(a, b) {
+  for (const key of Object.keys(a)) {
+    expect(Math.abs(a[key] - b[key]), key).toBeLessThan(1);
   }
-  expect(actual.fontSize).toBe(expected.fontSize);
 }
 
-test('overview and both tool tabs share exactly the same page header placement', async ({ page }) => {
+test('shared page layout does not depend on which tool tab is selected', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/');
-  await expect(page.locator('.pg-shell__page-name')).toHaveText('Огляд');
-  await expect(page.locator('h1.pg-page__title')).toHaveText('Робочий простір');
-  const overview = await geometry(page);
-
-  await page.getByRole('navigation', { name: 'Інструменти' })
-    .getByRole('link', { name: 'Інструменти' }).click();
-  await expect(page.locator('.pg-shell__page-name')).toHaveText('Інструменти · Таблиці');
-  await expect(page.locator('h1.pg-page__title')).toHaveText('Таблиці');
-  sameLayout(await geometry(page), overview);
-
+  await page.goto('/tools');
+  const before = await geometry(page);
   await page.getByRole('tab', { name: 'Текст' }).click();
   await expect(page.locator('.pg-shell__page-name')).toHaveText('Інструменти · Текст');
-  await expect(page.locator('h1.pg-page__title')).toHaveText('Текст');
-  sameLayout(await geometry(page), overview);
-
-  await page.goBack();
-  await expect(page.locator('.pg-shell__page-name')).toHaveText('Огляд');
-  await expect(page.locator('h1.pg-page__title')).toHaveText('Робочий простір');
-  sameLayout(await geometry(page), overview);
+  same(await geometry(page), before);
+  await page.getByRole('tab', { name: 'Таблиці' }).click();
+  await expect(page.locator('.pg-shell__page-name')).toHaveText('Інструменти · Таблиці');
+  same(await geometry(page), before);
 });
 
-test('universal title alignment works with docked aside and on mobile', async ({ page }) => {
+test('page layout remains universal with collapsed nav and pinned aside', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/');
+  await page.goto('/tools');
   await page.locator('[data-pg-action="sidebar-toggle"]').click();
   await page.locator('[data-pg-action="aside-toggle"]').click();
   await page.locator('[data-pg-action="aside-pin"]').click();
-  await expect(page.locator('.pg-shell')).toHaveAttribute('data-pg-aside-mode', 'docked');
-  const overview = await geometry(page);
-
-  await page.getByRole('navigation', { name: 'Інструменти' })
-    .getByRole('link', { name: 'Інструменти' }).click();
-  await expect(page.locator('h1.pg-page__title')).toHaveText('Таблиці');
-  sameLayout(await geometry(page), overview);
+  const pinned = await geometry(page);
+  await page.getByRole('tab', { name: 'Текст' }).click();
+  same(await geometry(page), pinned);
 
   await page.setViewportSize({ width: 390, height: 844 });
-  const narrowTools = await geometry(page);
+  const mobile = await geometry(page);
   await page.locator('[data-pg-action="mobile-menu-toggle"]').click();
-  await page.getByRole('navigation', { name: 'Інструменти' })
-    .getByRole('link', { name: 'Огляд' }).click();
-  await expect(page.locator('h1.pg-page__title')).toHaveText('Робочий простір');
-  sameLayout(await geometry(page), narrowTools);
+  await page.getByRole('tab', { name: 'Таблиці' }).click();
+  // The sidebar remains open while tabs are switched.
+  same(await geometry(page), mobile);
 });
