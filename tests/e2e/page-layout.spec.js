@@ -45,6 +45,8 @@ test('five global zones reserve a real empty 56px footer rail', async ({ page })
   const asideButton = await page.locator('[data-pg-action="aside-toggle"]').boundingBox();
   expect(Math.abs(title.y + title.height / 2 - (search.y + search.height / 2)))
     .toBeLessThan(3);
+  expect(search.height).toBe(asideButton.height);
+  expect(Math.abs(search.y - asideButton.y)).toBeLessThan(1);
   expect(Math.abs(title.y + title.height / 2 - (asideButton.y + asideButton.height / 2)))
     .toBeLessThan(3);
 
