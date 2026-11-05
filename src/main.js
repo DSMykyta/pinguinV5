@@ -16,6 +16,7 @@ import './ui/page/page.css';
 import './ui/tabs/tabs.css';
 import './ui/tooltip/tooltip.css';
 import './ui/toast/toast.css';
+import './ui/dialog/dialog.css';
 import './shell/sidebar/sidebar.css';
 import './shell/aside/aside.css';
 import './shell/aside/fab.css';
@@ -26,10 +27,12 @@ import './shell/shell.css';
 import { mountShell } from './shell/shell.js';
 import { initTooltips } from './ui/tooltip/tooltip.js';
 import { mountToasts } from './ui/toast/toast.js';
+import { mountDialogs } from './ui/dialog/dialog.js';
 
 const host = document.getElementById('app');
 const disposeTooltips = initTooltips();
 const disposeToasts = mountToasts();
+const disposeDialogs = mountDialogs();
 const unmountShell = mountShell(host);
 
 if (import.meta.hot) {
@@ -37,5 +40,6 @@ if (import.meta.hot) {
     unmountShell();
     disposeTooltips();
     disposeToasts();
+    disposeDialogs();
   });
 }
