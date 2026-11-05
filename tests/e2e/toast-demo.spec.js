@@ -72,5 +72,6 @@ test('repeated clicks on the demo button create separate visible Toasts and over
   await toasts.first().locator('[data-pg-action="toast-dismiss"]').click();
   await expect(toasts).toHaveCount(3);
 
-  await expect(page.locator('.pg-toast__host')).toHaveCSS('flex-direction', 'column-reverse');
+  await expect(page.locator('.pg-toast__host')).toHaveCSS('position', 'fixed');
+  await expect(page.locator('.pg-toast__host')).toHaveAttribute('data-pg-expanded', 'true');
 });
