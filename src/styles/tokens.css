@@ -50,6 +50,10 @@
   --pg-color-toast-warning: #f4ca88;
   --pg-color-toast-error: #f6a4a6;
   --pg-color-toast-shadow: rgb(0 0 0 / 0.24);
+  --pg-color-dialog-backdrop: rgb(12 14 18 / 0.36);
+  --pg-color-dialog-shadow: rgb(0 0 0 / 0.22);
+  --pg-color-dialog-action-text: #ffffff;
+  --pg-color-dialog-danger: #bd4249;
 
   --pg-space-1: 4px;
   --pg-space-2: 8px;
@@ -113,4 +117,8 @@
   --pg-color-toast-warning: #9a641a;
   --pg-color-toast-error: #b1343b;
   --pg-color-toast-shadow: rgb(0 0 0 / 0.32);
+  --pg-color-dialog-backdrop: rgb(0 0 0 / 0.56);
+  --pg-color-dialog-shadow: rgb(0 0 0 / 0.42);
+  --pg-color-dialog-action-text: #ffffff;
+  --pg-color-dialog-danger: #c34b54;
 }
