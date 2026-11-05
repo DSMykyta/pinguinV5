@@ -17,6 +17,7 @@ import './ui/tabs/tabs.css';
 import './ui/tooltip/tooltip.css';
 import './ui/toast/toast.css';
 import './ui/dialog/dialog.css';
+import './ui/input/input.css';
 import './shell/sidebar/sidebar.css';
 import './shell/aside/aside.css';
 import './shell/aside/fab.css';

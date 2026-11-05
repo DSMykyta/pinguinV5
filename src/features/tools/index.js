@@ -13,8 +13,10 @@ import { createTabs } from '../../ui/tabs/tabs.js';
 import { createPageView } from '../../ui/page/page.js';
 import { createToastDemo } from './toast-demo.js';
 import { createDialogDemo } from './dialog-demo.js';
+import { createInputDemo } from './input-demo.js';
 import './toast-demo.css';
 import './dialog-demo.css';
+import './input-demo.css';
 
 const TABS = Object.freeze([
   {
@@ -38,7 +40,7 @@ export function mount(host, { setAsideContext, setSearchEntries, localNavigation
   const tablePage = createPageView({ title: 'Таблиці' });
   tablePage.body.append(createToastDemo());
   const textPage = createPageView({ title: 'Текст' });
-  textPage.body.append(createDialogDemo());
+  textPage.body.append(createDialogDemo(), createInputDemo());
   const pageByTab = new Map([
     ['tables', tablePage],
     ['text', textPage],

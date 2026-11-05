@@ -55,6 +55,7 @@
   --pg-color-dialog-action-text: #ffffff;
   --pg-color-dialog-danger: #bd4249;
   --pg-color-dialog-danger-text: #ffffff;
+  --pg-color-input-error: #b1343b;
 
   --pg-space-1: 4px;
   --pg-space-2: 8px;
@@ -123,4 +124,5 @@
   --pg-color-dialog-action-text: #15281f;
   --pg-color-dialog-danger: #c34b54;
   --pg-color-dialog-danger-text: #ffffff;
+  --pg-color-input-error: #ff999f;
 }
