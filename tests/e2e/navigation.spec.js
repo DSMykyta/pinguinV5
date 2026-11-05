@@ -22,7 +22,7 @@ test('unknown URL gets a functioning home link without fake navigation entries',
   await expect(page.getByRole('heading', { name: 'Сторінку не знайдено' })).toBeVisible();
   await expect(page).toHaveTitle('Сторінку не знайдено · Pinguin');
 
-  const home = page.getByRole('link', { name: 'На головну' });
+  const home = page.getByRole('link', { name: 'На головну', exact: true });
   await home.click();
   await expect(page).toHaveURL(/\/$/);
   await expect(page.getByRole('heading', { name: 'Робочий простір' })).toBeVisible();
