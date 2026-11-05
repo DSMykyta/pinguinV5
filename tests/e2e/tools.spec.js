@@ -21,7 +21,8 @@ test('the universal header and tabs remain aligned with an isolated Toast previe
 
   await expect(title).toBeVisible();
   await expect(tabs).toBeVisible();
-  await expect(page.locator('.pg-page')).toBeHidden();
+  await expect(main.locator('#pg-tools-panel-tables .pg-page')).toBeVisible();
+  await expect(main.locator('#pg-tools-panel-text .pg-page')).toBeHidden();
   await expect(page.locator('.pg-sidebar').getByRole('tab')).toHaveCount(0);
 
   const [titleBox, tabsBox, mainBox] = await Promise.all([title,tabs,main].map(x => x.boundingBox()));
@@ -35,7 +36,8 @@ test('the universal header and tabs remain aligned with an isolated Toast previe
   await text.click();
   await expect(text).toHaveAttribute('aria-selected', 'true');
   await expect(title).toHaveText('Інструменти');
-  await expect(main.locator('.pg-page')).toBeHidden();
+  await expect(main.locator('#pg-tools-panel-tables .pg-page')).toBeHidden();
+  await expect(main.locator('#pg-tools-panel-text .pg-page')).toBeVisible();
   await expect(page.locator('#pg-aside-panel .pg-aside__heading')).toHaveText('Текст');
   await text.press('ArrowLeft');
   await expect(tabs.getByRole('tab', { name: 'Таблиці' })).toBeFocused();
