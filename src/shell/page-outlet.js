@@ -36,8 +36,8 @@ export function createPageOutlet({ content, pageName, sidebar, localNavigation, 
       document.title = 'Сторінку не знайдено · Pinguin';
       content.replaceChildren(createRouteMessage(
         'Сторінку не знайдено',
-        'Перевірте адресу або поверніться до робочого простору.',
-        () => onNavigate('/'),
+        'Перевірте адресу або поверніться до інструментів.',
+        () => onNavigate('/tools'),
       ));
       return;
     }
@@ -73,8 +73,8 @@ export function createPageOutlet({ content, pageName, sidebar, localNavigation, 
       console.error('Page failed to load:', page.id, error);
       content.replaceChildren(createRouteMessage(
         'Не вдалося відкрити сторінку',
-        'Спробуйте повернутися на головну.',
-        () => onNavigate('/'),
+        'Спробуйте відкрити інструменти.',
+        () => onNavigate('/tools'),
       ));
     }
   }

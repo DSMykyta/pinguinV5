@@ -69,10 +69,6 @@ export function mountShell(host) {
   pageName.textContent = 'Огляд';
   headingArea.append(mobileNavButton, pageName);
 
-  const localNavigation = document.createElement('div');
-  localNavigation.className = 'pg-shell__local-nav';
-  localNavigation.id = 'pg-local-navigation';
-
   const headerActions = document.createElement('div');
   headerActions.className = 'pg-shell__header-actions';
 
@@ -99,7 +95,7 @@ export function mountShell(host) {
   contextButton.setAttribute('aria-controls', 'pg-aside-panel');
   contextButton.setAttribute('aria-haspopup', 'true');
   headerActions.append(contextButton);
-  header.append(headingArea, localNavigation, headerActions);
+  header.append(headingArea, headerActions);
 
   const content = document.createElement('main');
   content.className = 'pg-shell__content';
@@ -170,7 +166,7 @@ export function mountShell(host) {
   }
 
   const pageOutlet = createPageOutlet({
-    content, pageName, sidebar, localNavigation,
+    content, pageName, sidebar, localNavigation: sidebar.localNavigation,
     onNavigate: path => router.navigate(path),
     onAsideContext: context => aside.setContext(context),
     onRouteChange() {
@@ -184,6 +180,7 @@ export function mountShell(host) {
   const router = createRouter({
     browserWindow: window,
     registry: pageRegistry,
+    defaultRoute: '/tools',
     onChange: pageOutlet.displayPage,
   });
 

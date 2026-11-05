@@ -3,14 +3,13 @@
  * ║ PINGUIN NEXT — PAGE REGISTRY                                                                       ║
  * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Валідує маніфести, маршрути та пункти меню.                                           ║
- * ║ ЗАЛЕЖНОСТІ: page-types, overview/tools manifests.                                                         ║
+ * ║ ЗАЛЕЖНОСТІ: page-types, tools manifest.                                                         ║
  * ║ ПУБЛІЧНИЙ API: createPageRegistry(), pageRegistry.                                                 ║
  * ║ ПРИНЦИП: Одне джерело істини для навігації.                                                        ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
 import { isPageType } from './page-types.js';
-import { manifest as overviewManifest } from '../features/overview/manifest.js';
 import { manifest as toolsManifest } from '../features/tools/manifest.js';
 
 const PAGE_ID = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
@@ -68,4 +67,4 @@ export function createPageRegistry(manifests) {
 }
 
 /** Only shipped, functional pages belong here. */
-export const pageRegistry = createPageRegistry([overviewManifest, toolsManifest]);
+export const pageRegistry = createPageRegistry([toolsManifest]);

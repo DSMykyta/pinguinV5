@@ -52,3 +52,22 @@ test('router navigates valid routes, ignores duplicates and handles back', () =>
   browser.emit('popstate');
   assert.equal(resolved.length, 3);
 });
+
+
+test('root replaces itself with the configured functional start page', () => {
+  const browser = createBrowser();
+  const registry = createPageRegistry([
+    { id: 'tools', route: '/tools', type: 'tool', title: 'Інструменти',
+      load: async () => ({}) },
+  ]);
+  const changes = [];
+  const router = createRouter({
+    browserWindow: browser, registry, defaultRoute: '/tools',
+    onChange: page => changes.push(page?.id),
+  });
+  router.start();
+  assert.equal(browser.location.pathname, '/tools');
+  assert.deepEqual(changes, ['tools']);
+  assert.equal(router.navigate('/'), false);
+  router.stop();
+});

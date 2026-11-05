@@ -69,14 +69,14 @@ export function createSidebar({ pages, onToggle, onNavigate, onCycleTheme }) {
   toggle.setAttribute('aria-controls', 'pg-sidebar-panel');
 
   const brand = document.createElement('a');
-  brand.href = '/';
+  brand.href = '/tools';
   brand.className = 'pg-sidebar__brand';
   brand.setAttribute('aria-label', 'Pinguin — на головну');
   brand.textContent = 'pinguin';
   brand.addEventListener('click', event => {
     if (!shouldInterceptNavigation(event)) return;
     event.preventDefault();
-    onNavigate('/');
+    onNavigate('/tools');
   });
   top.append(toggle, brand);
 
@@ -90,6 +90,13 @@ export function createSidebar({ pages, onToggle, onNavigate, onCycleTheme }) {
     links.set(page.route, link);
     nav.append(link);
   }
+
+  // Global local-navigation outlet lives beneath the selected menu entry.
+  // Every future page may mount its own shared tabs here.
+  const localNavigation = document.createElement('div');
+  localNavigation.className = 'pg-sidebar__local-nav';
+  localNavigation.id = 'pg-local-navigation';
+  nav.append(localNavigation);
 
   const bottom = document.createElement('div');
   bottom.className = 'pg-sidebar__bottom';
@@ -117,11 +124,18 @@ export function createSidebar({ pages, onToggle, onNavigate, onCycleTheme }) {
   }
 
   function setActiveRoute(route) {
+    let activeLink = null;
     for (const [path, link] of links) {
-      if (path === route) link.setAttribute('aria-current', 'page');
-      else link.removeAttribute('aria-current');
+      if (path === route) {
+        link.setAttribute('aria-current', 'page');
+        activeLink = link;
+      } else link.removeAttribute('aria-current');
     }
+    // Relocate the single outlet, not its component or event listeners.
+    if (activeLink) activeLink.after(localNavigation);
+    else nav.append(localNavigation);
   }
 
-  return { element: sidebar, brand, toggleButton: toggle, themeButton, setTheme, setActiveRoute };
+  return { element: sidebar, brand, localNavigation, toggleButton: toggle,
+    themeButton, setTheme, setActiveRoute };
 }
