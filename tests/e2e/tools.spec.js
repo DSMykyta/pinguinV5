@@ -11,7 +11,7 @@
 
 import { test, expect } from '@playwright/test';
 
-test('the universal header and tabs remain aligned while main preview is blank', async ({ page }) => {
+test('the universal header and tabs remain aligned with an isolated Toast preview', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/tools');
   const title = page.getByRole('heading', { level: 1, name: 'Інструменти' });

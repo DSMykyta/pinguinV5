@@ -1,0 +1,23 @@
+/*
+ * ╔════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — ISOLATED TOAST DEMO STYLES                                            ║
+ * ╠════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Лише розташування тексту й кнопки тестування у Tools.                  ║
+ * ║ ЗАЛЕЖНОСТІ: Семантичні токени; кнопка стилізується тільки через src/ui/button.     ║
+ * ║ ПУБЛІЧНИЙ API: pg-tools-toast-demo, pg-tools-toast-demo__label.                     ║
+ * ║ ПРИНЦИП: Не змінює Shell, Toast або глобальні кнопки.                                ║
+ * ╚════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
+.pg-tools-toast-demo {
+  display: flex;
+  align-items: center;
+  gap: var(--pg-space-2);
+  max-width: 100%;
+  width: max-content;
+}
+
+.pg-tools-toast-demo__label {
+  color: var(--pg-color-text-secondary);
+  font-size: 13px;
+}

@@ -11,6 +11,8 @@
 
 import { createTabs } from '../../ui/tabs/tabs.js';
 import { createPageView } from '../../ui/page/page.js';
+import { createToastDemo } from './toast-demo.js';
+import './toast-demo.css';
 
 const TABS = Object.freeze([
   {
@@ -68,7 +70,9 @@ export function mount(host, { setAsideContext, setSearchEntries, localNavigation
   // placeholder invisible until the shared spacing has been approved.
   page.body.append(tabs.element);
   page.element.hidden = true;
-  host.replaceChildren(page.element);
+  // Test-only preview lives in the canvas, separate from the hidden editors.
+  // It can be removed without changing Shell or the global Toast component.
+  host.replaceChildren(page.element, createToastDemo());
 
   return () => {
     tabs.destroy();
