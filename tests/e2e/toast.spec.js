@@ -150,10 +150,13 @@ test('action persists, executes once, and Escape from focused toast restores ori
 
 test('timer pauses during hover and keyboard focus and resumes afterwards', async ({ page }) => {
   await page.goto('/tools');
-  await notify(page, 'Hover pause', { duration: 400 });
+  await notify(page, 'Hover pause', { duration: 1200 });
   const toast = page.locator('.pg-toast');
+  await expect(toast).toHaveAttribute('data-pg-state', 'visible');
+  await toast.evaluate(el => Promise.all(el.getAnimations().map(
+    animation => animation.finished.catch(() => {}))));
   await toast.hover();
-  await page.waitForTimeout(650);
+  await page.waitForTimeout(1350);
   await expect(toast).toBeVisible();
   await page.mouse.move(700, 350);
   await expect(toast).toHaveCount(0, { timeout: 3000 });
