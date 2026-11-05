@@ -1,0 +1,48 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createPageRegistry, normalizePathname, pageRegistry } from './page-registry.js';
+import { PAGE_TYPES, isPageType } from './page-types.js';
+
+const testPage = (id, route, options = {}) => ({
+  id, route, type: PAGE_TYPES.tool, title: id,
+  load: async () => ({ mount: () => () => {} }),
+  ...options,
+});
+
+test('page types form a stable finite vocabulary', () => {
+  assert.equal(isPageType('overview'), true);
+  assert.equal(isPageType('tool'), true);
+  assert.equal(isPageType('collection'), true);
+  assert.equal(isPageType('record'), true);
+  assert.equal(isPageType('settings'), true);
+  assert.equal(isPageType('dashboard'), false);
+});
+
+test('normalizePathname strips trailing slash and query strings', () => {
+  assert.equal(normalizePathname('/'), '/');
+  assert.equal(normalizePathname('/table-generator/'), '/table-generator');
+  assert.equal(normalizePathname('table-generator?mode=html'), '/table-generator');
+  assert.equal(normalizePathname('/products/item-1/#edit'), '/products/item-1');
+});
+
+test('registry resolves real pages and excludes unshipped features', () => {
+  assert.equal(pageRegistry.resolve('/')?.id, 'overview');
+  assert.equal(pageRegistry.resolve('/table-generator'), null);
+  assert.equal(pageRegistry.getNavigation().length, 1);
+});
+
+test('registry rejects invalid and duplicate manifests', () => {
+  assert.throws(() => createPageRegistry([testPage('tool', '/bad path')]), /Invalid page route/);
+  assert.throws(() => createPageRegistry([testPage('tool', '/tool', { type: 'unknown' })]), /Invalid page type/);
+  assert.throws(() => createPageRegistry([testPage('tool', '/tool'), testPage('tool', '/another')]), /Duplicate/);
+  assert.throws(() => createPageRegistry([testPage('tool-a', '/tool'), testPage('tool-b', '/tool')]), /Duplicate/);
+});
+
+test('navigation ordering is deliberate and never materializes hidden pages', () => {
+  const registry = createPageRegistry([
+    testPage('second', '/second', { navigation: { icon: 'house', order: 20 } }),
+    testPage('hidden', '/hidden'),
+    testPage('first', '/first', { navigation: { icon: 'house', order: 10 } }),
+  ]);
+  assert.deepEqual(registry.getNavigation().map(x => x.id), ['first', 'second']);
+});
