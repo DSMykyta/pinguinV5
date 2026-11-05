@@ -34,6 +34,7 @@ const folderPattern = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 // own CSS files, never in the global Shell stylesheet.
 const cssOwnerByPrefix = new Map([
   ['pg-page', 'src/ui/page/page.css'],
+  ['pg-search', 'src/shell/search/search.css'],
   ['pg-tabs', 'src/ui/tabs/tabs.css'],
   ['pg-aside', 'src/shell/aside/aside.css'],
   ['pg-sidebar', 'src/shell/sidebar/sidebar.css'],

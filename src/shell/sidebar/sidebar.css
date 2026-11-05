@@ -72,10 +72,11 @@
 
 .pg-sidebar__local-nav {
   flex: 0 0 auto;
-  align-self: flex-start;
+  align-self: stretch;
   min-width: 0;
   max-width: 100%;
   padding: 7px 0 10px 11px;
+  container: pg-local-nav / inline-size;
 }
 
 .pg-sidebar__local-nav:empty { display: none; }
