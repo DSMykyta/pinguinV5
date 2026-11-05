@@ -12,6 +12,9 @@
 import { test, expect } from '@playwright/test';
 
 async function geometry(page) {
+  // Shell column transitions may still be moving after pin/collapse; measure settled layout.
+  await page.locator('.pg-shell').evaluate(node => Promise.all(node.getAnimations().map(
+    animation => animation.finished.catch(() => {}))));
   const surface = page.locator('.pg-page');
   await surface.evaluate(node => Promise.all(node.getAnimations().map(
     animation => animation.finished.catch(() => {}))));
