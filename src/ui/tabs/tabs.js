@@ -14,10 +14,14 @@ import { createIcon } from '../icon/icon.js';
 /**
  * Each item: { id, label, icon, content: HTMLElement }.
  * The caller owns content; the shared component owns selection and keyboard behavior.
+ * navHost can place the navigation in the shared header without moving page content.
  */
-export function createTabs({ idPrefix, label, items, onChange }) {
+export function createTabs({ idPrefix, label, items, onChange, navHost = null }) {
   if (!/^[a-z][a-z0-9-]*$/.test(idPrefix) || !Array.isArray(items) || !items.length) {
     throw new TypeError('Tabs require a stable idPrefix and at least one item');
+  }
+  if (navHost !== null && !(navHost instanceof HTMLElement)) {
+    throw new TypeError('navHost must be an HTMLElement');
   }
   const ids = new Set(items.map(item => item.id));
   if (ids.size !== items.length || items.some(item => !/^[a-z][a-z0-9-]*$/.test(item.id) ||
@@ -49,8 +53,10 @@ export function createTabs({ idPrefix, label, items, onChange }) {
     button.setAttribute('aria-selected', 'false');
     button.tabIndex = -1;
     button.dataset.pgTab = item.id;
+    button.setAttribute('aria-label', item.label);
     if (item.icon) button.append(createIcon(item.icon));
     const text = document.createElement('span');
+    text.className = 'pg-tabs__label';
     text.textContent = item.label;
     button.append(text);
     button.addEventListener('click', () => activate(item.id));
@@ -103,7 +109,9 @@ export function createTabs({ idPrefix, label, items, onChange }) {
   }
 
   nav.addEventListener('keydown', handleKeydown);
-  root.append(nav, panelHost);
+  if (navHost) navHost.replaceChildren(nav);
+  root.append(panelHost);
+  if (!navHost) root.prepend(nav);
   activate(orderedIds[0]);
 
   return {
@@ -112,6 +120,7 @@ export function createTabs({ idPrefix, label, items, onChange }) {
     getActive: () => currentId,
     destroy: () => {
       nav.removeEventListener('keydown', handleKeydown);
+      nav.remove();
       root.replaceChildren();
     },
   };

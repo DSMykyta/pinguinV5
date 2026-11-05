@@ -28,13 +28,14 @@ const TABS = Object.freeze([
   },
 ]);
 
-export function mount(host, { setAsideContext }) {
+export function mount(host, { setAsideContext, localNavigation }) {
   const content = document.createElement('div');
   content.className = 'pg-tools';
 
   const tabs = createTabs({
     idPrefix: 'pg-tools',
     label: 'Інструменти',
+    navHost: localNavigation,
     items: TABS.map(item => {
       const heading = document.createElement('h2');
       heading.className = 'pg-tabs__panel-title';

@@ -11,7 +11,7 @@
 
 import { createRouteMessage } from './route-message.js';
 
-export function createPageOutlet({ content, pageName, sidebar, onNavigate, onRouteChange, onAsideContext }) {
+export function createPageOutlet({ content, pageName, sidebar, localNavigation, onNavigate, onRouteChange, onAsideContext }) {
   let activePageCleanup = null;
   let activePageController = null;
   let pageRevision = 0;
@@ -22,6 +22,7 @@ export function createPageOutlet({ content, pageName, sidebar, onNavigate, onRou
     activePageController = null;
     activePageCleanup?.();
     activePageCleanup = null;
+    localNavigation.replaceChildren();
 
     onRouteChange();
     onAsideContext(null);
@@ -57,6 +58,7 @@ export function createPageOutlet({ content, pageName, sidebar, onNavigate, onRou
       }
       const cleanup = pageModule.mount(content, {
         signal: controller.signal,
+        localNavigation,
         setAsideContext: context => {
           if (revision === pageRevision && !controller.signal.aborted) onAsideContext(context);
         },
@@ -79,6 +81,7 @@ export function createPageOutlet({ content, pageName, sidebar, onNavigate, onRou
     activePageCleanup?.();
     activePageController = null;
     activePageCleanup = null;
+    localNavigation.replaceChildren();
   }
 
   return Object.freeze({ displayPage, dispose });
