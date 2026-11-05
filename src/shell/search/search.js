@@ -148,7 +148,7 @@ export function createSearch({ onOpen } = {}) {
     if (event.key === 'Escape' && isOpen) {
       event.preventDefault();
       event.stopImmediatePropagation();
-      close({ restoreFocus: true });
+      close();
     }
   }
 
