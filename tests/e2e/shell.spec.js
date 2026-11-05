@@ -155,7 +155,8 @@ test('left navigation icons stay on one axis during expansion and collapse', asy
   await page.goto('/');
 
   const toggle = page.locator('[data-pg-action="sidebar-toggle"]');
-  const home = page.locator('.pg-sidebar__link .pg-icon');
+  const home = page.getByRole('navigation', { name: 'Інструменти' })
+    .getByRole('link', { name: 'Огляд' }).locator('.pg-icon');
   const theme = page.locator('[data-pg-action="theme-cycle"]');
 
   async function centers() {
