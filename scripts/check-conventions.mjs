@@ -15,7 +15,7 @@
  *
  * Automates a deliberately small, reliable subset of docs/conventions.md:
  * file/folder kebab-case, pg- CSS selectors, --pg- variables,
- * colors declared only in tokens.css and no HTML inline style attributes.
+ * colors declared only in tokens.css, component CSS ownership and no HTML inline styles.
  * Function and domain naming still require code review.
  */
 
@@ -29,6 +29,18 @@ const ignoredDirs = new Set(['node_modules', 'dist', '.git', '.vercel']);
 const exceptions = new Set(['README.md', '.gitignore', '.editorconfig', '.env.example']);
 const filenamePattern = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:\.(?:test|spec|config))?\.(?:js|mjs|cjs|ts|tsx|css|html|json|md|svg|png|jpe?g|webp|gif|woff2?|ttf|ico|yml|yaml|txt)$/;
 const folderPattern = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
+
+// These components own their styles. Cross-component selectors belong in their
+// own CSS files, never in the global Shell stylesheet.
+const cssOwnerByPrefix = new Map([
+  ['pg-page', 'src/ui/page/page.css'],
+  ['pg-tabs', 'src/ui/tabs/tabs.css'],
+  ['pg-aside', 'src/shell/aside/aside.css'],
+  ['pg-sidebar', 'src/shell/sidebar/sidebar.css'],
+  ['pg-route-message', 'src/shell/route-message.css'],
+  ['pg-data-row', 'src/ui/data-row/data-row.css'],
+  ['pg-icon-button', 'src/ui/button/button.css'],
+]);
 const errors = [];
 let filesChecked = 0;
 let stylesChecked = 0;
@@ -75,6 +87,12 @@ async function checkCss(path, label) {
   stylesChecked += 1;
   const raw = await readFile(path, 'utf8');
   const css = raw.replace(/\/\*[\s\S]*?\*\//g, '');
+
+  for (const [prefix, owner] of cssOwnerByPrefix) {
+    if (label !== owner && new RegExp('\\.' + prefix + '(?:__|--|\\b)').test(css)) {
+      errors.push(label + ': component .' + prefix + ' must be styled only in ' + owner);
+    }
+  }
 
   for (const match of css.matchAll(/(?<![\w-])\.([A-Za-z_][\w-]*)/g)) {
     if (!match[1].startsWith('pg-')) {
