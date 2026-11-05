@@ -225,10 +225,16 @@ test('waiting queue stays bounded for regular items and preserves actions', asyn
   // stack before interacting with their individual close controls.
   await page.locator('.pg-toast__host').hover();
   await expect(page.locator('.pg-toast__host')).toHaveAttribute('data-pg-expanded', 'true');
+  // Queue order is a state-machine check. Click the close control directly:
+  // older collapsed cards are inert and cannot be physically clicked until
+  // expanded; pointer interaction is covered by the separate hover test.
+  const current = page.locator('.pg-toast:not([data-pg-state="closing"])');
   for (const title of ['Активне', ...Array.from({ length: 10 }, (_, i) => 'Очікування ' + i)]) {
-    await expect(page.locator('.pg-toast__message').last()).toHaveText(title);
-    await page.locator('.pg-toast').last().locator('[data-pg-action="toast-dismiss"]').click();
-    await expect(page.locator('.pg-toast__message').last()).not.toHaveText(title);
+    await expect(current.locator('.pg-toast__message').last()).toHaveText(title);
+    await current.last().evaluate(el => {
+      el.querySelector('[data-pg-action="toast-dismiss"]').click();
+    });
+    await expect(current.locator('.pg-toast__message').last()).not.toHaveText(title);
   }
   await expect(page.locator('.pg-toast__message')).toHaveText(['Дія в черзі']);
   await page.locator('[data-pg-action="toast-action"]').click();
