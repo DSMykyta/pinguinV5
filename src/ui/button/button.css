@@ -1,0 +1,25 @@
+.pg-icon-button {
+  width: var(--pg-control-size);
+  height: var(--pg-control-size);
+  padding: 0;
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--pg-radius-md);
+  background: transparent;
+  color: var(--pg-color-icon);
+  transition: background-color var(--pg-duration-fast) ease,
+    color var(--pg-duration-fast) ease;
+}
+
+.pg-icon-button:hover {
+  background: var(--pg-color-hover);
+  color: var(--pg-color-text-primary);
+}
+
+.pg-icon-button:active { background: var(--pg-color-selected); }
+
+.pg-icon-button[aria-expanded='true'] {
+  color: var(--pg-color-text-primary);
+}
