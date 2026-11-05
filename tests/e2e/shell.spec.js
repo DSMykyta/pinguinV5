@@ -17,13 +17,13 @@ test('desktop shell persists navigation, aside and theme preferences', async ({ 
   await asideButton.click();
   await expect(page.locator('#pg-aside-panel')).toBeHidden();
   await asideButton.click();
-  await page.getByRole('radio', { name: 'Темна' }).check();
+  await page.getByRole('radio', { name: 'Темна', exact: true }).check();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect(shell).toHaveAttribute('data-pg-sidebar-state', 'collapsed');
-  await expect(page.getByRole('radio', { name: 'Темна' })).toBeChecked();
+  await expect(page.getByRole('radio', { name: 'Темна', exact: true })).toBeChecked();
   expect(exceptions).toEqual([]);
 });
 
@@ -45,7 +45,7 @@ test('narrow screen opens and closes independent overlay panels', async ({ page 
 
   await asideToggle.click();
   await expect(shell).toHaveAttribute('data-pg-aside-state', 'open');
-  await page.getByRole('radio', { name: 'Світла' }).check();
+  await page.getByRole('radio', { name: 'Світла', exact: true }).check();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
 
   await page.locator('.pg-shell__backdrop').click({ position: { x: 12, y: 420 } });
