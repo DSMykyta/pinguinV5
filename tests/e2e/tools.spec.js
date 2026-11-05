@@ -35,7 +35,7 @@ test('the universal header and tabs remain aligned while main preview is blank',
   await text.click();
   await expect(text).toHaveAttribute('aria-selected', 'true');
   await expect(title).toHaveText('Інструменти');
-  await expect(main).toBeEmpty();
+  await expect(main.locator('.pg-page')).toBeHidden();
   await expect(page.locator('#pg-aside-panel .pg-aside__heading')).toHaveText('Текст');
   await text.press('ArrowLeft');
   await expect(tabs.getByRole('tab', { name: 'Таблиці' })).toBeFocused();

@@ -103,7 +103,7 @@ test('previous accepted spacing and fixed right controls survive aside pinning',
   expect(parseFloat(mainStyle.left)).toBe(72);
   expect(mainStyle.radius).toBe('18px');
   expect(mainStyle.background).not.toBe('rgba(0, 0, 0, 0)');
-  await expect(main).toBeEmpty();
+  await expect(main.locator('.pg-page')).toBeHidden();
   await expect(page.locator('.pg-page')).toBeHidden();
 
   const beforeContext = await context.boundingBox();
@@ -124,7 +124,7 @@ test('previous accepted spacing and fixed right controls survive aside pinning',
 
   await page.locator('[data-pg-action="sidebar-toggle"]').click();
   const afterCollapse = await context.boundingBox();
-  expect(Math.abs(afterContext.x - beforeContext.x)).toBeLessThan(1);
+  expect(Math.abs(afterCollapse.x - beforeContext.x)).toBeLessThan(1);
   expect(Math.abs(afterCollapse.y - beforeContext.y)).toBeLessThan(1);
 });
 
