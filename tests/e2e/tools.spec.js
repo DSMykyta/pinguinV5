@@ -32,7 +32,7 @@ test('second page and two local tabs follow the legacy navigation hierarchy', as
   await expect(tables).toHaveAttribute('aria-selected', 'true');
   await expect(text).toHaveAttribute('aria-selected', 'false');
   await expect(page.getByRole('tabpanel', { name: 'Таблиці' })).toBeVisible();
-  await expect(aside.getByRole('heading', { name: 'Таблиці' })).toHaveCount(1);
+  await expect(aside.locator('.pg-aside__heading')).toHaveText('Таблиці');
 
   await page.locator('[data-pg-action="aside-toggle"]').click();
   await expect(aside).toBeVisible();
