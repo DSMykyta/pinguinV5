@@ -5,6 +5,7 @@ import { createAside } from './aside/aside.js';
 import { createOverview } from './overview/overview.js';
 
 const NARROW_QUERY = '(max-width: 1080px)';
+const THEME_CYCLE = ['system', 'light', 'dark'];
 
 export function mountShell(host) {
   if (!host) throw new Error('Shell mount target is required');
@@ -13,7 +14,7 @@ export function mountShell(host) {
   try {
     storage = window.localStorage;
   } catch {
-    // Privacy settings can block access; shell still works without persistence.
+    // The shell also works when browser privacy settings block storage.
   }
   const preferences = loadPreferences(storage);
   const media = window.matchMedia(NARROW_QUERY);
@@ -34,16 +35,16 @@ export function mountShell(host) {
 
   const mobileNavButton = createIconButton({
     label: 'Відкрити меню',
-    icon: 'menu',
+    icon: 'panel-left',
     action: 'mobile-menu-toggle',
     onClick: () => {
       mobileAsideOpen = false;
       mobileNavOpen = !mobileNavOpen;
       updateView();
-      if (mobileNavOpen) sidebar.toggleButton.focus();
+      mobileNavButton.focus();
     },
   });
-  mobileNavButton.classList.add('pg-shell__mobile-menu');
+  mobileNavButton.classList.add('pg-shell__mobile-menu', 'pg-icon-button--corner');
   mobileNavButton.setAttribute('aria-controls', 'pg-sidebar-panel');
 
   const breadcrumb = document.createElement('div');
@@ -76,9 +77,10 @@ export function mountShell(host) {
         persist();
       }
       updateView();
-      if (mobileAsideOpen) aside.closeButton.focus();
+      contextButton.focus();
     },
   });
+  contextButton.classList.add('pg-shell__context-button', 'pg-icon-button--corner');
   contextButton.setAttribute('aria-controls', 'pg-aside-panel');
   headerActions.append(contextButton);
   header.append(headingArea, headerActions);
@@ -104,6 +106,12 @@ export function mountShell(host) {
       mobileNavOpen = false;
       updateView();
     },
+    onCycleTheme() {
+      const next = (THEME_CYCLE.indexOf(preferences.theme) + 1) % THEME_CYCLE.length;
+      preferences.theme = THEME_CYCLE[next];
+      persist();
+      updateView();
+    },
   });
 
   const aside = createAside({
@@ -112,16 +120,6 @@ export function mountShell(host) {
       preferences.theme = theme;
       persist();
       updateView();
-    },
-    onClose() {
-      if (media.matches) {
-        mobileAsideOpen = false;
-      } else {
-        preferences.asideOpen = false;
-        persist();
-      }
-      updateView();
-      contextButton.focus();
     },
   });
 
@@ -156,8 +154,7 @@ export function mountShell(host) {
     document.documentElement.dataset.theme = preferences.theme;
     document.body.dataset.pgOverlay = isOverlayOpen ? 'open' : 'closed';
 
-    // Keep the panel in the layout until the CSS width/opacity transition finishes.
-    // inert plus aria-hidden prevent interaction during its exit animation.
+    // Animate the panel out while keeping it out of the keyboard tab order.
     aside.element.inert = !isAsideVisible;
     aside.element.setAttribute('aria-hidden', String(!isAsideVisible));
 
@@ -166,15 +163,20 @@ export function mountShell(host) {
     backdrop.inert = !isOverlayOpen;
     backdrop.setAttribute('aria-hidden', String(!isOverlayOpen));
 
+    sidebar.toggleButton.setAttribute('aria-expanded',
+      String(isNarrow ? mobileNavOpen : !preferences.sidebarCollapsed));
     sidebar.toggleButton.setAttribute('aria-label', isNarrow
       ? 'Закрити меню'
       : preferences.sidebarCollapsed ? 'Розгорнути навігацію' : 'Згорнути навігацію');
 
     mobileNavButton.setAttribute('aria-expanded', String(mobileNavOpen));
     mobileNavButton.setAttribute('aria-label', mobileNavOpen ? 'Закрити меню' : 'Відкрити меню');
+
     contextButton.setAttribute('aria-expanded', String(isAsideVisible));
-    contextButton.setAttribute('aria-label',
-      isAsideVisible ? 'Сховати контекстну панель' : 'Показати контекстну панель');
+    contextButton.setAttribute('aria-label', isAsideVisible
+      ? 'Сховати контекстну панель' : 'Показати контекстну панель');
+
+    sidebar.setTheme(preferences.theme);
     aside.setTheme(preferences.theme);
   }
 

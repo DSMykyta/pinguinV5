@@ -1,5 +1,4 @@
 import { createIcon } from '../../ui/icon/icon.js';
-import { createIconButton } from '../../ui/button/button.js';
 
 const THEMES = [
   { value: 'system', label: 'Системна', icon: 'monitor' },
@@ -14,7 +13,7 @@ function createParagraph(className, content) {
   return p;
 }
 
-export function createAside({ theme, onThemeChange, onClose }) {
+export function createAside({ theme, onThemeChange }) {
   const aside = document.createElement('aside');
   aside.id = 'pg-aside-panel';
   aside.className = 'pg-aside';
@@ -26,15 +25,7 @@ export function createAside({ theme, onThemeChange, onClose }) {
   const heading = document.createElement('h2');
   heading.className = 'pg-aside__heading';
   heading.textContent = 'Контекст';
-
-  const close = createIconButton({
-    label: 'Закрити контекстну панель',
-    icon: 'x',
-    action: 'aside-close',
-    onClick: onClose,
-  });
-
-  header.append(heading, close);
+  header.append(heading);
 
   const body = document.createElement('div');
   body.className = 'pg-aside__body';
@@ -96,7 +87,6 @@ export function createAside({ theme, onThemeChange, onClose }) {
 
   return {
     element: aside,
-    closeButton: close,
     setTheme(value) {
       for (const input of inputs) input.checked = input.value === value;
     },

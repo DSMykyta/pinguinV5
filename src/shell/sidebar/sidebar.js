@@ -1,6 +1,18 @@
 import { createIcon } from '../../ui/icon/icon.js';
 import { createIconButton } from '../../ui/button/button.js';
 
+const THEME_NAMES = Object.freeze({
+  system: 'Системна',
+  light: 'Світла',
+  dark: 'Темна',
+});
+
+const THEME_ICONS = Object.freeze({
+  system: 'monitor',
+  light: 'sun',
+  dark: 'moon',
+});
+
 function createSidebarLink() {
   const link = document.createElement('a');
   link.href = '/';
@@ -14,11 +26,10 @@ function createSidebarLink() {
   text.className = 'pg-sidebar__link-text';
   text.textContent = 'Огляд';
   link.append(text);
-
   return link;
 }
 
-export function createSidebar({ onToggle, onNavigate }) {
+export function createSidebar({ onToggle, onNavigate, onCycleTheme }) {
   const sidebar = document.createElement('aside');
   sidebar.id = 'pg-sidebar-panel';
   sidebar.className = 'pg-sidebar';
@@ -26,6 +37,16 @@ export function createSidebar({ onToggle, onNavigate }) {
 
   const top = document.createElement('div');
   top.className = 'pg-sidebar__top';
+
+  // Four corners: top-left navigation trigger, bottom-left theme trigger.
+  const toggle = createIconButton({
+    label: 'Згорнути навігацію',
+    icon: 'panel-left',
+    action: 'sidebar-toggle',
+    onClick: onToggle,
+  });
+  toggle.classList.add('pg-sidebar__toggle', 'pg-icon-button--corner');
+  toggle.setAttribute('aria-controls', 'pg-sidebar-panel');
 
   const brand = document.createElement('a');
   brand.href = '/';
@@ -42,21 +63,8 @@ export function createSidebar({ onToggle, onNavigate }) {
   brandName.className = 'pg-sidebar__brand-label';
   brandName.textContent = 'pinguin';
 
-  const brandTag = document.createElement('span');
-  brandTag.className = 'pg-sidebar__brand-tag';
-  brandTag.textContent = 'next';
-  brand.append(mark, brandName, brandTag);
-
-  const toggle = createIconButton({
-    label: 'Згорнути навігацію',
-    icon: 'panel-left',
-    action: 'sidebar-toggle',
-    onClick: onToggle,
-  });
-  toggle.classList.add('pg-sidebar__toggle');
-  toggle.setAttribute('aria-controls', 'pg-sidebar-panel');
-
-  top.append(brand, toggle);
+  brand.append(mark, brandName);
+  top.append(toggle, brand);
 
   const nav = document.createElement('nav');
   nav.className = 'pg-sidebar__nav';
@@ -71,21 +79,26 @@ export function createSidebar({ onToggle, onNavigate }) {
   const bottom = document.createElement('div');
   bottom.className = 'pg-sidebar__bottom';
 
-  const status = document.createElement('div');
-  status.className = 'pg-sidebar__status';
-  status.append(createIcon('layers'));
-
-  const statusText = document.createElement('span');
-  statusText.className = 'pg-sidebar__status-label';
-  statusText.textContent = 'Нова архітектура';
-  status.append(statusText);
-
-  const version = document.createElement('span');
-  version.className = 'pg-sidebar__version';
-  version.textContent = 'WORK · 0.1';
-
-  bottom.append(status, version);
+  const themeButton = createIconButton({
+    label: 'Змінити тему',
+    icon: 'monitor',
+    action: 'theme-cycle',
+    onClick: onCycleTheme,
+  });
+  themeButton.classList.add('pg-sidebar__theme-button', 'pg-icon-button--corner');
+  bottom.append(themeButton);
   sidebar.append(top, nav, bottom);
 
-  return { element: sidebar, toggleButton: toggle };
+  let displayedTheme = null;
+  function setTheme(theme) {
+    if (displayedTheme === theme) return;
+    displayedTheme = theme;
+    themeButton.dataset.pgTheme = theme;
+    themeButton.replaceChildren(createIcon(THEME_ICONS[theme]));
+    const label = 'Тема: ' + THEME_NAMES[theme] + '. Змінити тему';
+    themeButton.setAttribute('aria-label', label);
+    themeButton.title = label;
+  }
+
+  return { element: sidebar, toggleButton: toggle, themeButton, setTheme };
 }
