@@ -80,7 +80,7 @@ test('select is native, retains values in a form and floats when filled', async 
   const select = page.getByRole('combobox', { name: 'Країна' });
   await select.selectOption('pl');
   await expect(select).toHaveValue('pl');
-  const shell = page.locator('.pg-select .pg-field');
+  const shell = page.locator('#pg-field-test-area .pg-select .pg-field');
   await expect(shell).toHaveAttribute('data-pg-filled', 'true');
   await page.evaluate(() => {
     const form = document.createElement('form');
@@ -99,14 +99,14 @@ test('combobox chooses by ArrowDown and Enter and stores stable value', async ({
   await combo.press('Enter');
   await expect(combo).toHaveValue('Креатин');
   await expect.poll(() => page.evaluate(() => window.pgFieldTest.combo.getValue())).toBe('two');
-  await expect(page.locator('.pg-combobox .pg-field')).toHaveAttribute('data-pg-filled', 'true');
+  await expect(page.locator('#pg-field-test-area .pg-combobox .pg-field')).toHaveAttribute('data-pg-filled', 'true');
   await combo.focus();
   await combo.press('Escape');
   await expect(combo).toHaveValue('Креатин');
 });
 
 test('tag field adds/removes values and floats its label for populated values', async ({ page }) => {
-  const field = page.locator('.pg-tag-field');
+  const field = page.locator('#pg-field-test-area .pg-tag-field');
   const input = field.locator('input[type=text]');
   await input.fill('Перший');
   await input.press('Enter');
