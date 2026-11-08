@@ -35,7 +35,9 @@ export function createCombobox({
   input.placeholder = placeholder;
   input.autocomplete = 'off';
   input.disabled = Boolean(disabled);
-  if (name !== undefined) input.name = String(name);
+  const stored = document.createElement('input');
+  stored.type = 'hidden';
+  if (name !== undefined) stored.name = String(name);
   input.setAttribute('role', 'combobox');
   input.setAttribute('aria-autocomplete', 'list');
   input.setAttribute('aria-haspopup', 'listbox');
@@ -67,7 +69,7 @@ export function createCombobox({
   status.setAttribute('role', 'status');
   status.setAttribute('aria-live', 'polite');
   support.append(detail, error, status);
-  element.append(caption, input, list, support);
+  element.append(caption, input, stored, list, support);
 
   const controller = new AbortController();
   let source = parseOptions(options);
@@ -210,6 +212,8 @@ export function createCombobox({
     if (!option || option.disabled || destroyed) return false;
     const changed = selected !== option.value;
     selected = option.value;
+    stored.value = selected;
+    input.setCustomValidity('');
     input.value = option.label;
     display(false);
     setError('');
@@ -221,6 +225,8 @@ export function createCombobox({
     const requested = String(value ?? '');
     const found = source.find(option => option.value === requested && !option.disabled);
     selected = found ? found.value : '';
+    stored.value = selected;
+    input.setCustomValidity(required && !selected ? 'Оберіть значення зі списку' : '');
     input.value = found ? found.label : '';
     display(false);
     return selected;
@@ -233,7 +239,8 @@ export function createCombobox({
   }
   function handleInput(event) {
     if (composing || event.isComposing) return;
-    if (selected) { selected = ''; onChange?.(''); }
+    if (selected) { selected = ''; stored.value = ''; onChange?.(''); }
+    input.setCustomValidity(required ? 'Оберіть значення зі списку' : '');
     refresh(input.value);
   }
   function handleKeys(event) {

@@ -81,8 +81,11 @@ export function createTagField({
   function announce(text) {
     status.textContent = '';
     // The region exists before its text changes for reliable announcements.
-    queueMicrotask(() => { if (!destroyed) status.textContent = text; });
-    syncSupport();
+    queueMicrotask(() => {
+      if (destroyed) return;
+      status.textContent = text;
+      syncSupport();
+    });
   }
   function emit() { onChange?.(tokens.slice()); }
   function render() {
@@ -134,21 +137,23 @@ export function createTagField({
   }
   function add(items) {
     let changes = 0;
+    let exceeded = false;
     for (const raw of items) {
       const candidate = normalize(raw);
       if (!candidate || tokens.some(value => keyFor(value) === keyFor(candidate))) continue;
-      if (tokens.length >= maxTags) { setError('Досягнуто максимальної кількості значень'); break; }
+      if (tokens.length >= maxTags) { exceeded = true; break; }
       tokens.push(candidate);
       changes++;
     }
     if (changes) {
       removed = null;
       armed = -1;
-      setError('');
+      setError(exceeded ? 'Досягнуто максимальної кількості значень' : '');
       render();
       announce(changes + ' значень додано');
       emit();
     }
+    if (exceeded && !changes) setError('Досягнуто максимальної кількості значень');
     return changes;
   }
   function remove(index, focusNeighbour = false) {

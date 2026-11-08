@@ -85,6 +85,10 @@ export function createSelect({
     const requested = String(nextValue ?? '');
     const match = Array.from(control.options).find(item => item.value === requested && !item.disabled);
     control.value = match ? requested : '';
+    if (!match && placeholder === null) {
+      const first = Array.from(control.options).find(item => !item.disabled);
+      if (first) control.value = first.value;
+    }
     return control.value;
   }
   function setOptions(items, nextValue = control.value) {
