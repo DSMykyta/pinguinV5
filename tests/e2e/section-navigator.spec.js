@@ -155,12 +155,12 @@ test('async guard blocks repeats, reports denial/error, and ignores completion a
   expect(await page.evaluate(() => window.pgNavigationTest.navigator.navigate('description'))).toBe(false);
   await page.evaluate(() => window.pgNavigationTest.resolve(false));
   await expect(heading(page)).toHaveText('Основне');
-  await expect(page.getByRole('status')).toContainText('залишаємося');
+  await expect(page.locator('.pg-section-navigator').getByRole('status')).toContainText('залишаємося');
   await page.evaluate(async () => {
     window.pgNavigationTest.guard = () => { throw new Error('test'); };
     await window.pgNavigationTest.navigator.navigate('photos');
   });
-  await expect(page.getByRole('status')).toContainText('Не вдалося');
+  await expect(page.locator('.pg-section-navigator').getByRole('status')).toContainText('Не вдалося');
   expect(await page.evaluate(async () => {
     const fixture = window.pgNavigationTest;
     fixture.guard = () => new Promise(resolve => { fixture.resolve = resolve; });
@@ -193,7 +193,9 @@ test('instances are isolated, reduced motion removes travel, and mobile stays wi
   const box = await root.boundingBox();
   expect(box.x).toBeGreaterThanOrEqual(0);
   expect(box.x + box.width).toBeLessThanOrEqual(390);
-  await expect(root.locator('.pg-section-navigator__meter')).toHaveCSS('transition-duration', '0s');
+  for (const meter of await root.locator('.pg-section-navigator__meter').all()) {
+    await expect(meter).toHaveCSS('transition-duration', '0s');
+  }
   await page.evaluate(() => window.pgNavigationTest.navigator.navigate('photos'));
   expect(await page.evaluate(() => window.pgNavigationTest.second.getActive())).toBe('one');
   const ids = await page.locator('[id]').evaluateAll(nodes => nodes.map(node => node.id));
