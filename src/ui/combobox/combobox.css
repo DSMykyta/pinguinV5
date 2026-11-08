@@ -1,0 +1,36 @@
+/* Pinguin editable combobox — one instance, no Shell selectors. */
+.pg-combobox { position: relative; display: grid; gap: 6px; min-inline-size: 0; }
+.pg-combobox__label { color: var(--pg-color-text-secondary); font-size: 13px; }
+.pg-combobox__input {
+  min-inline-size: 0; inline-size: 100%; min-block-size: 44px; padding: 10px 12px;
+  border: 1px solid var(--pg-color-border-strong); border-radius: var(--pg-radius-md);
+  background: var(--pg-color-surface); color: var(--pg-color-text-primary);
+  font: inherit;
+}
+.pg-combobox__input:focus-visible { outline: 2px solid var(--pg-color-focus); outline-offset: 2px; }
+.pg-combobox__input[aria-invalid='true'] { border-color: var(--pg-color-input-error); }
+.pg-combobox__input:disabled { opacity: .62; cursor: not-allowed; }
+.pg-combobox__list {
+  position: absolute; z-index: 20; inset: auto 0 auto 0; top: calc(100% - 1px);
+  box-sizing: border-box; max-block-size: 260px; min-inline-size: 0; margin: 0;
+  padding: 4px; overflow: auto; list-style: none;
+  border: 1px solid var(--pg-color-border-strong); border-radius: var(--pg-radius-md);
+  background: var(--pg-color-surface); color: var(--pg-color-text-primary);
+  box-shadow: 0 8px 22px var(--pg-color-shadow);
+}
+.pg-combobox__list[hidden] { display: none; }
+.pg-combobox__list:popover-open { margin: 0; inset: auto; }
+.pg-combobox__option, .pg-combobox__empty {
+  display: flex; align-items: center; min-block-size: 36px;
+  padding: 7px 10px; border-radius: var(--pg-radius-sm); font-size: 13px;
+}
+.pg-combobox__option { cursor: pointer; }
+.pg-combobox__option[aria-selected='true'], .pg-combobox__option:hover {
+  background: var(--pg-color-selected);
+}
+.pg-combobox__option[aria-disabled='true'] { opacity: .5; cursor: not-allowed; }
+.pg-combobox__empty { color: var(--pg-color-text-muted); }
+.pg-combobox__support { font-size: 12px; color: var(--pg-color-text-secondary); }
+.pg-combobox__support[hidden] { display: none; }
+.pg-combobox__error { color: var(--pg-color-input-error); }
+@media (prefers-reduced-motion: reduce) { .pg-combobox__list { scroll-behavior: auto; } }
