@@ -17,6 +17,7 @@
 ## Документація
 
 - [Архітектура та неймінг](docs/conventions.md)
+- [Шарми legacy — дослідження, сучасні методи й карта перенесення](docs/legacy-behavior-research.md)
 - [База спільного UI](docs/ui/overview.md)
 - [Toast — дослідження, контракт і стани](docs/ui/toast.md)
 - [Переходи між блоками — дослідження, контракт і демо](docs/ui/section-navigator.md)
