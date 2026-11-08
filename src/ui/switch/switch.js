@@ -63,6 +63,7 @@ export function createSwitch({
   }
   function setChecked(next) {
     generation++;
+    pending = false;
     input.checked = Boolean(next);
     message('');
     sync();

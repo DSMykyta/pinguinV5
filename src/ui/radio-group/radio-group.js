@@ -48,7 +48,7 @@ export function createRadioGroup({
   element.append(legend, list, hint, problem);
   let normalized = [];
   let inputs = [];
-  const controller = new AbortController();
+  let optionsController = new AbortController();
 
   function getValue() {
     return inputs.find(input => input.checked)?.value ?? '';
@@ -73,6 +73,8 @@ export function createRadioGroup({
     return chosen;
   }
   function setOptions(next) {
+    optionsController.abort();
+    optionsController = new AbortController();
     const previous = getValue();
     normalized = validateOptions(next);
     inputs = [];
@@ -105,7 +107,7 @@ export function createRadioGroup({
       inputs.push(input);
       input.addEventListener('change', event => {
         if (input.checked) onChange?.(input.value, event);
-      }, { signal: controller.signal });
+      }, { signal: optionsController.signal });
     });
     setValue(previous);
     setError(problem.textContent);
@@ -117,6 +119,6 @@ export function createRadioGroup({
     element, getValue, setValue, setOptions, setError,
     focus() { (inputs.find(input => input.checked && !input.disabled) ||
       inputs.find(input => !input.disabled))?.focus(); },
-    destroy() { controller.abort(); element.remove(); },
+    destroy() { optionsController.abort(); element.remove(); },
   });
 }

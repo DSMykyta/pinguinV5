@@ -45,7 +45,11 @@
 | Tag Field | `src/ui/tag-field` | Independent tag collection, paste parsing, two-step removal, undo; [contract](tag-field.md) |
 | Form Dialog | `src/ui/form-dialog` | Shared Dialog composition with validation and dirty close guard; [contract](form-dialog.md) |
 | Section navigator | `src/ui/section-navigator` | [Дослідження, API та жести](section-navigator.md): незалежні блоки, boundary scroll, ручки й кнопки |
-| Textarea, Checkbox, Radio, Switch, Number field | майбутні компоненти | Потрібне окреме дослідження |
+| Textarea | `src/ui/textarea` | [Multiline native editor, auto-height and count](textarea.md) |
+| Number Field | `src/ui/number-field` | [Native numeric steps, units and validation](number-field.md) |
+| Checkbox | `src/ui/checkbox` | [Native two-state and mixed-state control](choice-controls.md) |
+| Switch | `src/ui/switch` | [Native on/off semantics, async rollback](choice-controls.md) |
+| Radio Group | `src/ui/radio-group` | [Native exclusive selection with fieldset/legend](choice-controls.md) |
 
 Не ставити кнопки-пустушки на затверджений скелетон для демонстрації UI. Тестові сценарії повинні використовувати ізольовані перевірки й не вдавати готові інструменти.
 

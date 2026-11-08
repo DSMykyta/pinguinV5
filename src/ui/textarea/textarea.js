@@ -63,7 +63,7 @@ export function createTextarea({
 
   function syncCounter() {
     if (!showCount) return;
-    const length = Array.from(control.value).length;
+    const length = control.value.length;
     counter.textContent = maxLength === undefined ? String(length) : length + ' / ' + maxLength;
   }
   function resize() {
