@@ -1,8 +1,8 @@
 /**
  * PINGUIN NEXT — NATIVE SELECT
- * Public API: createSelect(options).
- * A finite list stays a native HTML select; business rules belong to the caller.
+ * Platform selection with the same outlined floating label as Input/Combobox.
  */
+import { createFieldFrame } from '../field/field.js';
 let nextSelectId = 0;
 
 function normalizedOptions(options) {
@@ -28,16 +28,20 @@ export function createSelect({
   const uid = id || 'pg-select-' + (++nextSelectId);
   const element = document.createElement('div');
   element.className = 'pg-select';
-  const caption = document.createElement('label');
-  caption.className = 'pg-select__label';
-  caption.htmlFor = uid;
-  caption.textContent = label;
+
   const control = document.createElement('select');
   control.className = 'pg-select__control';
-  control.id = uid;
   if (name !== undefined) control.name = String(name);
   control.required = Boolean(required);
   control.disabled = Boolean(disabled);
+
+  const caret = document.createElement('span');
+  caret.className = 'pg-select__caret';
+  caret.setAttribute('aria-hidden', 'true');
+  const frame = createFieldFrame({ label, control, controlId: uid, trailing: caret });
+  frame.field.classList.add('pg-select__field');
+  frame.label.classList.add('pg-select__label');
+
   const support = document.createElement('div');
   support.className = 'pg-select__support';
   const detail = document.createElement('span');
@@ -48,8 +52,9 @@ export function createSelect({
   problem.id = uid + '-error';
   problem.className = 'pg-select__error';
   problem.setAttribute('role', 'status');
+  problem.hidden = true;
   support.append(detail, problem);
-  element.append(caption, control, support);
+  element.append(frame.field, support);
 
   function syncA11y() {
     const ids = [!detail.hidden && detail.id, !problem.hidden && problem.id].filter(Boolean);
@@ -59,10 +64,15 @@ export function createSelect({
     if (problem.hidden) control.removeAttribute('aria-invalid');
     else control.setAttribute('aria-invalid', 'true');
   }
+  function syncValue() {
+    frame.setFilled(control.value !== '');
+    element.dataset.pgFilled = String(control.value !== '');
+  }
   function setError(message = '') {
     problem.textContent = String(message || '');
     problem.hidden = !problem.textContent;
     element.dataset.pgState = problem.hidden ? 'ready' : 'error';
+    frame.setError(!problem.hidden);
     syncA11y();
   }
   function appendOptions(target, items) {
@@ -89,6 +99,7 @@ export function createSelect({
       const first = Array.from(control.options).find(item => !item.disabled);
       if (first) control.value = first.value;
     }
+    syncValue();
     return control.value;
   }
   function setOptions(items, nextValue = control.value) {
@@ -103,21 +114,21 @@ export function createSelect({
     }
     appendOptions(control, normalized);
     if (nextValue !== undefined && nextValue !== null) setValue(nextValue);
-    else if (placeholder !== null) control.value = '';
+    else if (placeholder !== null) { control.value = ''; syncValue(); }
+    else setValue(null);
     return control.value;
   }
   function handleChange(event) {
+    syncValue();
     onChange?.(control.value, event);
   }
   control.addEventListener('change', handleChange);
+  frame.setDisabled(disabled);
   setOptions(options, value);
   setError(error);
   return Object.freeze({
     element, select: control, getValue: () => control.value,
     setValue, setOptions, setError, focus: () => control.focus(),
-    destroy() {
-      control.removeEventListener('change', handleChange);
-      element.remove();
-    },
+    destroy() { control.removeEventListener('change', handleChange); element.remove(); },
   });
 }

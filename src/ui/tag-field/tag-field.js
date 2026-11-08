@@ -3,6 +3,7 @@
  * Owns a collection of short text values, independently of feature data.
  * Public API: createTagField(options).
  */
+import { createFieldFrame } from '../field/field.js';
 let nextTagFieldId = 0;
 const normalize = value => String(value ?? '').trim().replace(/\s+/gu, ' ');
 const keyFor = value => normalize(value).toLocaleLowerCase('uk');
@@ -19,12 +20,6 @@ export function createTagField({
   const uid = id || 'pg-tag-field-' + (++nextTagFieldId);
   const element = document.createElement('div');
   element.className = 'pg-tag-field';
-  const caption = document.createElement('label');
-  caption.className = 'pg-tag-field__label';
-  caption.htmlFor = uid;
-  caption.textContent = label;
-  const field = document.createElement('div');
-  field.className = 'pg-tag-field__field';
   const collection = document.createElement('div');
   collection.className = 'pg-tag-field__tokens';
   const input = document.createElement('input');
@@ -53,8 +48,19 @@ export function createTagField({
   status.setAttribute('role', 'status');
   status.setAttribute('aria-live', 'polite');
   support.append(detail, error, status);
-  field.append(collection, input, hiddenValues);
-  element.append(caption, field, support);
+  const composite = document.createElement('div');
+  composite.className = 'pg-tag-field__composite';
+  composite.append(collection, input, hiddenValues);
+  const frame = createFieldFrame({
+    label, control: composite, controlId: uid + '-contents',
+  });
+  const field = frame.field;
+  field.classList.add('pg-tag-field__field');
+  const caption = frame.label;
+  caption.classList.add('pg-tag-field__label');
+  caption.htmlFor = uid; // Always label the real editable input, never the composite.
+  frame.setDisabled(disabled);
+  element.append(field, support);
   let tokens = [];
   let armed = -1;
   let destroyed = false;
@@ -76,6 +82,7 @@ export function createTagField({
     error.textContent = String(message || '');
     error.hidden = !error.textContent;
     element.dataset.pgState = error.hidden ? 'ready' : 'error';
+    frame.setError(!error.hidden);
     syncSupport();
   }
   function announce(text) {
@@ -133,6 +140,7 @@ export function createTagField({
       }
     });
     element.dataset.pgFilled = String(tokens.length > 0);
+    frame.setFilled(tokens.length > 0 || input.value.length > 0);
     syncSupport();
   }
   function add(items) {
@@ -188,6 +196,7 @@ export function createTagField({
   function handleInput() {
     armed = -1;
     // Visual state is reset as soon as the user starts typing.
+    frame.setFilled(tokens.length > 0 || input.value.length > 0);
     if (input.value) setError('');
   }
   function handleKeydown(event) {
@@ -196,6 +205,7 @@ export function createTagField({
       event.preventDefault();
       add(input.value.split(/[;,\n]+/u));
       input.value = '';
+      frame.setFilled(tokens.length > 0);
     } else if (event.key === 'Backspace' && !input.value && tokens.length) {
       event.preventDefault();
       if (armed === tokens.length - 1) remove(armed);
@@ -228,6 +238,7 @@ export function createTagField({
     const tail = parts.pop() || '';
     add(parts);
     input.value = tail;
+    frame.setFilled(tokens.length > 0 || Boolean(tail));
   }
   input.addEventListener('input', handleInput, { signal: controller.signal });
   input.addEventListener('keydown', handleKeydown, { signal: controller.signal });

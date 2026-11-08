@@ -3,6 +3,7 @@
  * Native text editing + WAI-ARIA listbox; selection has a stable value.
  * API: createCombobox({label,options?,loadOptions?,onChange?}).
  */
+import { createFieldFrame } from '../field/field.js';
 let nextComboId = 0;
 const normalize = value => String(value ?? '').toLocaleLowerCase('uk').trim();
 function parseOptions(items) {
@@ -24,10 +25,6 @@ export function createCombobox({
   const uid = id || 'pg-combobox-' + (++nextComboId);
   const element = document.createElement('div');
   element.className = 'pg-combobox';
-  const caption = document.createElement('label');
-  caption.className = 'pg-combobox__label';
-  caption.htmlFor = uid;
-  caption.textContent = label;
   const input = document.createElement('input');
   input.type = 'text';
   input.id = uid;
@@ -69,7 +66,14 @@ export function createCombobox({
   status.setAttribute('role', 'status');
   status.setAttribute('aria-live', 'polite');
   support.append(detail, error, status);
-  element.append(caption, input, stored, list, support);
+  const caret = document.createElement('span');
+  caret.className = 'pg-combobox__caret';
+  caret.setAttribute('aria-hidden', 'true');
+  const frame = createFieldFrame({ label, control: input, controlId: uid, trailing: caret });
+  frame.field.classList.add('pg-combobox__field');
+  frame.label.classList.add('pg-combobox__label');
+  frame.setDisabled(disabled);
+  element.append(frame.field, stored, list, support);
 
   const controller = new AbortController();
   let source = parseOptions(options);
@@ -95,6 +99,7 @@ export function createCombobox({
     error.textContent = String(message || '');
     error.hidden = !error.textContent;
     element.dataset.pgState = error.hidden ? 'ready' : 'error';
+    frame.setError(!error.hidden);
     a11y();
   }
   function setStatus(value) {
@@ -215,6 +220,7 @@ export function createCombobox({
     stored.value = selected;
     input.setCustomValidity('');
     input.value = option.label;
+    frame.setFilled(true);
     display(false);
     setError('');
     if (changed) onChange?.(selected);
@@ -228,6 +234,7 @@ export function createCombobox({
     stored.value = selected;
     input.setCustomValidity(required && !selected ? 'Оберіть значення зі списку' : '');
     input.value = found ? found.label : '';
+    frame.setFilled(Boolean(found));
     display(false);
     return selected;
   }
@@ -241,6 +248,7 @@ export function createCombobox({
     if (composing || event.isComposing) return;
     if (selected) { selected = ''; stored.value = ''; onChange?.(''); }
     input.setCustomValidity(required ? 'Оберіть значення зі списку' : '');
+    frame.setFilled(Boolean(input.value));
     refresh(input.value);
   }
   function handleKeys(event) {
