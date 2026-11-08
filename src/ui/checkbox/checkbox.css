@@ -1,0 +1,18 @@
+/* Native checkbox with a full-height touch-friendly label. */
+.pg-checkbox { display: grid; min-inline-size: 0; gap: 2px; }
+.pg-checkbox__row {
+  display: flex; align-items: center; gap: 10px; min-block-size: 44px;
+  padding: 4px 2px; color: var(--pg-color-text-primary);
+  font-size: 14px; cursor: pointer;
+}
+.pg-checkbox__control {
+  flex: 0 0 19px; inline-size: 19px; block-size: 19px; margin: 0;
+  accent-color: var(--pg-color-accent); cursor: inherit;
+}
+.pg-checkbox__control:focus-visible { outline: 2px solid var(--pg-color-focus); outline-offset: 3px; }
+.pg-checkbox__description {
+  margin: 0 0 0 31px; font-size: 12px; line-height: 1.45;
+  color: var(--pg-color-text-secondary);
+}
+.pg-checkbox[data-pg-state='disabled'] { opacity: .6; }
+.pg-checkbox[data-pg-state='disabled'] .pg-checkbox__row { cursor: not-allowed; }

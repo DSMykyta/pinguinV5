@@ -1,0 +1,28 @@
+/* Native fieldset avoids custom roving-tabindex and duplicate ARIA roles. */
+.pg-radio-group {
+  display: grid; gap: 10px; min-inline-size: 0; margin: 0; padding: 0;
+  border: 0; color: var(--pg-color-text-primary);
+}
+.pg-radio-group__legend { margin-block-end: 8px; padding: 0; font-size: 14px; font-weight: 600; }
+.pg-radio-group__list { display: grid; gap: 3px; }
+.pg-radio-group__row {
+  display: flex; align-items: center; gap: 10px;
+  min-block-size: 44px; padding: 6px 9px;
+  border-radius: var(--pg-radius-sm); cursor: pointer;
+}
+.pg-radio-group__row:hover { background: var(--pg-color-hover); }
+.pg-radio-group__control {
+  flex: 0 0 19px; inline-size: 19px; block-size: 19px; margin: 0;
+  accent-color: var(--pg-color-accent);
+}
+.pg-radio-group__control:focus-visible { outline: 2px solid var(--pg-color-focus); outline-offset: 3px; }
+.pg-radio-group__copy { display: grid; gap: 2px; min-inline-size: 0; }
+.pg-radio-group__option-label { font-size: 14px; }
+.pg-radio-group__option-description, .pg-radio-group__description {
+  font-size: 12px; color: var(--pg-color-text-secondary); line-height: 1.4;
+}
+.pg-radio-group__description, .pg-radio-group__error { margin: 0; padding-inline: 9px; }
+.pg-radio-group__description[hidden], .pg-radio-group__error[hidden] { display: none; }
+.pg-radio-group__error { color: var(--pg-color-input-error); font-size: 12px; }
+.pg-radio-group:disabled { opacity: .6; }
+.pg-radio-group:disabled .pg-radio-group__row { cursor: not-allowed; }

@@ -1,0 +1,33 @@
+/* Switch semantics are native; CSS only draws the track and thumb. */
+.pg-switch { display: grid; gap: 4px; min-inline-size: 0; }
+.pg-switch__row {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  min-block-size: 44px; padding: 4px 2px; cursor: pointer;
+}
+.pg-switch__copy { display: grid; gap: 3px; flex: 1; min-inline-size: 0; }
+.pg-switch__label { font-size: 14px; color: var(--pg-color-text-primary); }
+.pg-switch__description { font-size: 12px; color: var(--pg-color-text-secondary); line-height: 1.4; }
+.pg-switch__control {
+  -webkit-appearance: none; appearance: none; position: relative;
+  flex: 0 0 44px; inline-size: 44px; block-size: 26px; margin: 0;
+  border: 1px solid var(--pg-color-border-strong); border-radius: var(--pg-radius-full);
+  background: var(--pg-color-selected);
+  transition: background-color var(--pg-duration-fast) ease;
+  cursor: pointer;
+}
+.pg-switch__control::before {
+  content: ''; position: absolute; inset-block-start: 2px; inset-inline-start: 2px;
+  inline-size: 20px; block-size: 20px; border-radius: var(--pg-radius-full);
+  background: var(--pg-color-surface); box-shadow: 0 1px 3px var(--pg-color-shadow);
+  transition: transform var(--pg-duration-fast) var(--pg-ease);
+}
+.pg-switch__control:checked { background: var(--pg-color-accent); border-color: var(--pg-color-accent); }
+.pg-switch__control:checked::before { transform: translateX(18px); }
+.pg-switch__control:focus-visible { outline: 2px solid var(--pg-color-focus); outline-offset: 3px; }
+.pg-switch[data-pg-state='disabled'] .pg-switch__control { opacity: .55; cursor: not-allowed; }
+.pg-switch[data-pg-state='pending'] .pg-switch__control { opacity: .65; cursor: progress; }
+.pg-switch__status { padding-inline: 2px; font-size: 12px; color: var(--pg-color-text-secondary); }
+.pg-switch__status[hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .pg-switch__control, .pg-switch__control::before { transition: none; }
+}
