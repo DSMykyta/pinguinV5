@@ -124,7 +124,10 @@ test('local tooltip lifecycle cancels pending work, remounts and disposes indepe
     for (const label of ['Перший', 'Другий']) {
       const frame = document.createElement('iframe');
       frame.title = label;
+      const loaded = new Promise(resolve => frame.addEventListener('load', resolve, { once: true }));
+      frame.srcdoc = '<!doctype html><html><head><title>Tooltip lifecycle</title></head><body></body></html>';
       document.body.append(frame);
+      await loaded;
       const doc = frame.contentDocument;
       const view = frame.contentWindow;
       const button = doc.createElement('button');
@@ -135,6 +138,9 @@ test('local tooltip lifecycle cancels pending work, remounts and disposes indepe
       const start = () => button.dispatchEvent(new view.MouseEvent('mouseover', { bubbles: true, clientX: 20, clientY: 20 }));
       frames.push({ frame, doc, view, start, mount: () => initTooltips({ doc, view }) });
     }
+    // Initial iframe layout can dispatch resize, which correctly hides a tooltip.
+    // Start the interaction after native loading and layout have settled.
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     for (const fixture of frames) fixture.dispose = fixture.mount();
     frames[0].start();
     frames[0].dispose();
