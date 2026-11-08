@@ -17,6 +17,7 @@ import './ui/tabs/tabs.css';
 import './ui/tooltip/tooltip.css';
 import './ui/toast/toast.css';
 import './ui/dialog/dialog.css';
+import './ui/field/field.css';
 import './ui/input/input.css';
 import './ui/select/select.css';
 import './ui/combobox/combobox.css';

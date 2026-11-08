@@ -1,68 +1,35 @@
 /**
- * ╔════════════════════════════════════════════════════════════════════════════════════╗
- * ║ PINGUIN NEXT — SHARED INPUT                                                            ║
- * ╠════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Доступне текстове поле з floating, standard та search варіантами.        ║
- * ║ ЗАЛЕЖНОСТІ: UI icon; native HTML input і label.                                       ║
- * ║ ПУБЛІЧНИЙ API: createInput(options).                                                  ║
- * ║ ПРИНЦИП: Єдине джерело значення — native input.value; без глобального стану.           ║
- * ╚════════════════════════════════════════════════════════════════════════════════════╝
+ * PINGUIN NEXT — SHARED INPUT
+ * Floating label geometry comes from field-frame, not the feature.
+ * Supports DOM adornments on either side of the editable region.
  */
-
 import { createIcon } from '../icon/icon.js';
+import { createFieldFrame } from '../field/field.js';
 
 const VARIANTS = new Set(['floating', 'standard', 'search']);
 const INPUT_TYPES = new Set(['text', 'email', 'password', 'tel', 'url']);
 let nextInputId = 0;
 
-/**
- * Create a text field. The label is mandatory even when the search variant
- * hides its visual presentation. onInput/onChange receive (value, nativeEvent).
- */
 export function createInput({
-  label,
-  id,
-  name,
-  variant = 'floating',
-  type = 'text',
-  value = '',
-  placeholder = '',
-  description = '',
-  error = '',
-  required = false,
-  disabled = false,
-  readOnly = false,
-  autocomplete,
-  inputMode,
-  clearable,
-  onInput,
-  onChange,
+  label, id, name, variant = 'floating', type = 'text',
+  value = '', placeholder = '', description = '', error = '',
+  required = false, disabled = false, readOnly = false,
+  autocomplete, inputMode, clearable, leading, trailing, onInput, onChange,
 } = {}) {
-  if (typeof label !== 'string' || !label.trim()) {
-    throw new TypeError('Input label must be a non-empty string');
-  }
-  if (!VARIANTS.has(variant)) {
-    throw new TypeError('Unknown input variant: ' + variant);
-  }
-  if (variant !== 'search' && !INPUT_TYPES.has(type)) {
-    throw new TypeError('Unsupported input type: ' + type);
-  }
+  if (typeof label !== 'string' || !label.trim()) throw new TypeError('Input label must be a non-empty string');
+  if (!VARIANTS.has(variant)) throw new TypeError('Unknown input variant: ' + variant);
+  if (variant !== 'search' && !INPUT_TYPES.has(type)) throw new TypeError('Unsupported input type: ' + type);
 
   const inputId = id || 'pg-input-' + (++nextInputId);
   const element = document.createElement('div');
   element.className = 'pg-input pg-input--' + variant;
   element.dataset.pgState = disabled ? 'disabled' : 'ready';
 
-  const field = document.createElement('div');
-  field.className = 'pg-input__field';
-
   const input = document.createElement('input');
   input.className = 'pg-input__control';
   input.type = variant === 'search' ? 'search' : type;
-  input.id = inputId;
   if (name !== undefined) input.name = name;
   input.value = String(value ?? '');
-  // A whitespace placeholder makes :placeholder-shown reliable even without visible hint.
   input.placeholder = typeof placeholder === 'string' && placeholder ? placeholder : ' ';
   input.required = Boolean(required);
   input.disabled = Boolean(disabled);
@@ -70,26 +37,19 @@ export function createInput({
   if (autocomplete !== undefined) input.autocomplete = autocomplete;
   if (inputMode !== undefined) input.inputMode = inputMode;
 
-  const caption = document.createElement('label');
-  caption.className = 'pg-input__label';
-  caption.htmlFor = inputId;
-  caption.textContent = label;
-
+  const addons = [];
   if (variant === 'search') {
-    const leadingIcon = document.createElement('span');
-    leadingIcon.className = 'pg-input__leading-icon';
-    leadingIcon.append(createIcon('search'));
-    field.append(leadingIcon);
-    element.append(caption);
-  } else if (variant === 'standard') {
-    element.append(caption);
+    const icon = document.createElement('span');
+    icon.className = 'pg-input__leading-icon';
+    icon.append(createIcon('search'));
+    addons.push(icon);
   }
-
-  field.append(input);
-  if (variant === 'floating') field.append(caption);
+  if (leading != null) addons.push(...(Array.isArray(leading) ? leading : [leading]));
 
   const shouldClear = clearable === undefined ? variant === 'search' : Boolean(clearable);
   let clearButton = null;
+  const suffixes = [];
+  if (trailing != null) suffixes.push(...(Array.isArray(trailing) ? trailing : [trailing]));
   if (shouldClear) {
     clearButton = document.createElement('button');
     clearButton.type = 'button';
@@ -97,28 +57,39 @@ export function createInput({
     clearButton.dataset.pgAction = 'input-clear';
     clearButton.setAttribute('aria-label', 'Очистити поле ' + label);
     clearButton.append(createIcon('x'));
-    field.append(clearButton);
+    suffixes.push(clearButton);
   }
+  const frame = createFieldFrame({
+    label, control: input, controlId: inputId,
+    floating: variant === 'floating',
+    leading: addons, trailing: suffixes,
+  });
+  const field = frame.field;
+  field.classList.add('pg-input__field');
+  const caption = frame.label;
+  caption.classList.add('pg-input__label');
 
+  if (variant === 'standard') {
+    caption.remove();
+    element.append(caption);
+  }
   element.append(field);
 
   const support = document.createElement('div');
   support.className = 'pg-input__support';
-
   const descriptionElement = document.createElement('span');
   descriptionElement.className = 'pg-input__description';
   descriptionElement.id = inputId + '-description';
   descriptionElement.textContent = String(description ?? '');
   descriptionElement.hidden = !descriptionElement.textContent;
-
   const errorElement = document.createElement('span');
   errorElement.className = 'pg-input__error';
   errorElement.id = inputId + '-error';
   errorElement.setAttribute('role', 'status');
-  errorElement.textContent = '';
   errorElement.hidden = true;
   support.append(descriptionElement, errorElement);
   element.append(support);
+  const controller = new AbortController();
 
   function updateDescribedBy() {
     const ids = [];
@@ -128,30 +99,29 @@ export function createInput({
     else input.removeAttribute('aria-describedby');
     support.hidden = ids.length === 0;
   }
-
-  function updateFilledState() {
-    element.dataset.pgFilled = String(input.value.length > 0);
+  function syncValue() {
+    const filled = input.value.length > 0;
+    element.dataset.pgFilled = String(filled);
+    frame.setFilled(filled);
+    if (clearButton) clearButton.hidden = !filled || input.disabled || input.readOnly;
   }
-
   function setError(message = '') {
     errorElement.textContent = String(message ?? '');
     errorElement.hidden = !errorElement.textContent;
     if (errorElement.hidden) input.removeAttribute('aria-invalid');
     else input.setAttribute('aria-invalid', 'true');
     element.dataset.pgState = disabled ? 'disabled' : errorElement.hidden ? 'ready' : 'error';
+    frame.setError(!errorElement.hidden);
     updateDescribedBy();
   }
-
   function handleInput(event) {
-    updateFilledState();
+    syncValue();
     if (typeof onInput === 'function') onInput(input.value, event);
   }
-
   function handleChange(event) {
-    updateFilledState();
+    syncValue();
     if (typeof onChange === 'function') onChange(input.value, event);
   }
-
   function handleClear() {
     if (input.disabled || input.readOnly || !input.value) return;
     input.value = '';
@@ -159,32 +129,23 @@ export function createInput({
     input.dispatchEvent(new Event('change', { bubbles: true }));
     input.focus();
   }
-
-  input.addEventListener('input', handleInput);
-  input.addEventListener('change', handleChange);
-  if (clearButton) clearButton.addEventListener('click', handleClear);
-  updateFilledState();
+  input.addEventListener('input', handleInput, { signal: controller.signal });
+  input.addEventListener('change', handleChange, { signal: controller.signal });
+  clearButton?.addEventListener('click', handleClear, { signal: controller.signal });
+  frame.setDisabled(disabled);
+  frame.setReadOnly(readOnly);
+  syncValue();
   setError(error);
 
   return Object.freeze({
-    element,
-    input,
-    getValue() {
-      return input.value;
-    },
+    element, input, leadingSlot: frame.leadingSlot, trailingSlot: frame.trailingSlot,
+    getValue: () => input.value,
     setValue(nextValue) {
       input.value = String(nextValue ?? '');
-      updateFilledState();
+      syncValue();
     },
     setError,
-    focus() {
-      input.focus();
-    },
-    destroy() {
-      input.removeEventListener('input', handleInput);
-      input.removeEventListener('change', handleChange);
-      if (clearButton) clearButton.removeEventListener('click', handleClear);
-      element.remove();
-    },
+    focus: () => input.focus(),
+    destroy() { controller.abort(); element.remove(); },
   });
 }

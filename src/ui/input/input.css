@@ -1,193 +1,34 @@
-/*
- * ╔════════════════════════════════════════════════════════════════════════════════════╗
- * ║ PINGUIN NEXT — SHARED INPUT STYLES                                                  ║
- * ╠════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Floating, standard, search, error і disabled стани.                   ║
- * ║ ЗАЛЕЖНОСТІ: Тільки семантичні токени.                                                ║
- * ║ ПУБЛІЧНИЙ API: .pg-input та .pg-input__*.                                            ║
- * ║ ПРИНЦИП: Не змінює Shell, інші компоненти чи CSS поза input.                        ║
- * ╚════════════════════════════════════════════════════════════════════════════════════╝
- */
-
-.pg-input {
-  display: grid;
-  gap: 6px;
-  width: 100%;
-  min-width: 0;
+/* Pinguin Input adds only variant-specific geometry on shared field.css. */
+.pg-input { display: grid; gap: 6px; inline-size: 100%; min-inline-size: 0; }
+.pg-input__label { color: var(--pg-color-text-secondary); }
+.pg-input--standard > .pg-input__label {
+  position: static; padding-inline: 2px; background: none;
+  font-size: 13px; line-height: 1.4; cursor: text; transform: none;
 }
-
-.pg-input__field {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  min-width: 0;
-  min-height: 44px;
-  border: 1px solid var(--pg-color-border-strong);
-  border-radius: 10px;
-  background: var(--pg-color-surface);
-  transition: border-color var(--pg-duration-fast) ease,
-    box-shadow var(--pg-duration-fast) ease,
-    background-color var(--pg-duration-fast) ease;
-}
-
-.pg-input__field:hover { border-color: var(--pg-color-text-muted); }
-.pg-input:focus-within .pg-input__field {
-  border-color: var(--pg-color-focus);
-  box-shadow: 0 0 0 2px var(--pg-color-accent-soft);
-}
-
-.pg-input__control {
-  display: block;
-  flex: 1 1 auto;
-  width: 100%;
-  min-width: 0;
-  height: 42px;
-  padding: 0 14px;
-  border: 0;
-  border-radius: inherit;
-  outline: none;
-  background: transparent;
-  color: var(--pg-color-text-primary);
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.45;
-  text-overflow: ellipsis;
-}
-.pg-input__control:focus-visible { outline: none; }
-.pg-input__control::placeholder { color: var(--pg-color-text-muted); opacity: 1; }
-.pg-input__control::-webkit-search-cancel-button { display: none; }
-
-.pg-input__label {
-  color: var(--pg-color-text-secondary);
-  font-size: 13px;
-  font-weight: 450;
-  line-height: 1.4;
-  min-width: 0;
-}
-
-.pg-input--standard .pg-input__label {
-  display: block;
-  padding-inline: 2px;
-}
-.pg-input--floating .pg-input__field { min-height: 56px; }
-.pg-input--floating .pg-input__control {
-  height: 54px;
-  padding-top: 21px;
-  padding-bottom: 8px;
-}
-.pg-input--floating .pg-input__control::placeholder {
-  opacity: 0;
-  transition: opacity var(--pg-duration-fast) ease;
-}
-.pg-input--floating .pg-input__label {
-  position: absolute;
-  top: 50%;
-  inset-inline-start: 14px;
-  inset-inline-end: 42px;
-  width: max-content;
-  max-width: calc(100% - 56px);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 14px;
-  font-weight: 400;
-  transform-origin: left center;
-  transform: translateY(-50%) scale(1);
-  transition: transform var(--pg-duration-fast) var(--pg-ease),
-    color var(--pg-duration-fast) ease;
-  cursor: text;
-}
-
-.pg-input--floating .pg-input__field:focus-within .pg-input__label,
-.pg-input--floating .pg-input__control:not(:placeholder-shown) ~ .pg-input__label {
-  transform: translateY(calc(-50% - 14px)) scale(.79);
-  color: var(--pg-color-text-secondary);
-}
-.pg-input--floating .pg-input__field:focus-within .pg-input__control::placeholder {
-  opacity: 1;
-}
-@media (hover: hover) {
-  .pg-input--floating:not([data-pg-state='disabled']) .pg-input__field:hover .pg-input__label {
-    transform: translateY(calc(-50% - 14px)) scale(.79);
-  }
-  .pg-input--floating .pg-input__field:hover .pg-input__control::placeholder {
-    opacity: 1;
-  }
-}
-
 .pg-input--search .pg-input__label {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip-path: inset(50%);
+  position: absolute; inline-size: 1px; block-size: 1px;
+  padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%);
   white-space: nowrap;
 }
 .pg-input__leading-icon {
-  display: grid;
-  flex: 0 0 18px;
-  place-items: center;
-  margin-inline-start: 13px;
-  color: var(--pg-color-icon);
-  pointer-events: none;
+  display: grid; place-items: center; flex: 0 0 18px;
+  color: var(--pg-color-icon); pointer-events: none;
 }
-.pg-input__leading-icon > .pg-icon { width: 18px; height: 18px; }
+.pg-input__leading-icon > .pg-icon { inline-size: 18px; block-size: 18px; }
 .pg-input--search .pg-input__control { padding-inline-start: 10px; }
-
+.pg-input__control::-webkit-search-cancel-button { display: none; }
 .pg-input__clear {
-  display: grid;
-  flex: 0 0 34px;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  margin-inline-end: 4px;
-  padding: 0;
-  border: 0;
-  border-radius: var(--pg-radius-sm);
-  background: transparent;
-  color: var(--pg-color-text-secondary);
-  cursor: pointer;
+  display: grid; place-items: center; inline-size: 34px; block-size: 34px;
+  padding: 0; border: 0; border-radius: var(--pg-radius-sm);
+  background: transparent; color: var(--pg-color-text-secondary); cursor: pointer;
 }
-.pg-input__clear > .pg-icon { width: 16px; height: 16px; }
+.pg-input__clear[hidden] { display: none; }
+.pg-input__clear > .pg-icon { inline-size: 16px; block-size: 16px; }
 .pg-input__clear:hover { background: var(--pg-color-hover); color: var(--pg-color-text-primary); }
-.pg-input__clear:focus-visible {
-  outline: 2px solid var(--pg-color-focus);
-  outline-offset: -2px;
-}
-.pg-input__control:placeholder-shown ~ .pg-input__clear,
-.pg-input__control:disabled ~ .pg-input__clear,
-.pg-input__control[readonly] ~ .pg-input__clear { display: none; }
-
-.pg-input__support {
-  display: grid;
-  gap: 3px;
-  padding-inline: 2px;
-  font-size: 12px;
-  line-height: 1.4;
-}
-.pg-input__support[hidden],
-.pg-input__support > [hidden] { display: none; }
+.pg-input__clear:focus-visible { outline: 2px solid var(--pg-color-focus); outline-offset: -2px; }
+.pg-input__support { display: grid; gap: 3px; padding-inline: 2px; font-size: 12px; line-height: 1.4; }
+.pg-input__support[hidden], .pg-input__support > [hidden] { display: none; }
 .pg-input__description { color: var(--pg-color-text-secondary); }
 .pg-input__error { color: var(--pg-color-input-error); }
-
-.pg-input[data-pg-state='error'] .pg-input__field {
-  border-color: var(--pg-color-input-error);
-}
-.pg-input[data-pg-state='error'] .pg-input__label { color: var(--pg-color-input-error); }
-.pg-input[data-pg-state='disabled'] .pg-input__field {
-  border-color: var(--pg-color-border);
-  background: var(--pg-color-surface-soft);
-  box-shadow: none;
-}
-.pg-input[data-pg-state='disabled'] .pg-input__control { cursor: not-allowed; color: var(--pg-color-text-muted); }
-.pg-input[data-pg-state='disabled'] .pg-input__label { color: var(--pg-color-text-muted); }
-.pg-input[data-pg-state='disabled'] .pg-input__field:hover { border-color: var(--pg-color-border); }
-
-@media (prefers-reduced-motion: reduce) {
-  .pg-input__field,
-  .pg-input--floating .pg-input__label,
-  .pg-input--floating .pg-input__control::placeholder { transition: none; }
-}
+.pg-input[data-pg-state='error'] > .pg-input__label { color: var(--pg-color-input-error); }
+.pg-input[data-pg-state='disabled'] > .pg-input__label { color: var(--pg-color-text-muted); }
