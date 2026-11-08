@@ -14,10 +14,12 @@ import { createPageView } from '../../ui/page/page.js';
 import { createToastDemo } from './toast-demo.js';
 import { createDialogDemo } from './dialog-demo.js';
 import { createInputDemo } from './input-demo.js';
+import { createFieldDemo } from './field-demo.js';
 import { createSectionNavigatorDemo } from './section-navigator-demo.js';
 import './toast-demo.css';
 import './dialog-demo.css';
 import './input-demo.css';
+import './field-demo.css';
 
 const TABS = Object.freeze([
   {
@@ -48,7 +50,8 @@ export function mount(host, { setAsideContext, setSearchEntries, localNavigation
   const tablePage = createPageView({ title: 'Таблиці' });
   tablePage.body.append(createToastDemo());
   const textPage = createPageView({ title: 'Текст' });
-  textPage.body.append(createDialogDemo(), createInputDemo());
+  const fieldDemo = createFieldDemo();
+  textPage.body.append(createDialogDemo(), createInputDemo(), fieldDemo.element);
   const navigationPage = createPageView({ title: 'Переходи між блоками' });
   const navigationDemo = createSectionNavigatorDemo();
   navigationPage.body.append(navigationDemo.element);
@@ -94,6 +97,7 @@ export function mount(host, { setAsideContext, setSearchEntries, localNavigation
 
   return () => {
     navigationDemo.destroy();
+    fieldDemo.destroy();
     tabs.destroy();
     host.replaceChildren();
   };
