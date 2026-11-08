@@ -7,6 +7,7 @@
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { setMaxListeners } from 'node:events';
 import { mountNavigationGestures } from './navigation-gestures.js';
 
 function fixture() {
@@ -31,6 +32,10 @@ function fixture() {
   }
   const view = new EventTarget();
   Object.assign(view, {
+    // Native browsers have no Node EventTarget listener warning limit.
+    AbortController: class extends AbortController {
+      constructor() { super(); setMaxListeners(0, this.signal); }
+    },
     HTMLElement: Element,
     performance: { now: () => now },
     getComputedStyle: () => ({ overflowY: 'auto', lineHeight: '20px' }),
@@ -168,4 +173,27 @@ test('destroy clears pending wheel confirmation and removes input listeners', ()
   input.wheel(); input.wheel(); input.wheel();
   input.advance(1000);
   assert.equal(input.changes.length, 0);
+});
+
+test('destroying one adapter preserves another mounted on the same document', () => {
+  const input = fixture();
+  const secondChanges = [];
+  const Element = input.viewport.constructor;
+  const secondViewport = new Element();
+  const second = mountNavigationGestures({
+    viewport: secondViewport, handles: { previous: new Element(), next: new Element() },
+    canGo: () => true, isEnabled: () => true,
+    onProgress() {}, onNavigate: (...args) => secondChanges.push(args),
+  });
+  input.wheel(); input.wheel(); input.wheel();
+  for (let index = 0; index < 3; index++) {
+    secondViewport.dispatchEvent(Object.assign(new Event('wheel', { cancelable: true }), {
+      deltaMode: 0, deltaY: 80, deltaX: 0,
+    }));
+  }
+  input.gestures.destroy();
+  input.advance(201);
+  assert.equal(input.changes.length, 0);
+  assert.deepEqual(secondChanges, [['next', 'wheel']]);
+  second.destroy();
 });

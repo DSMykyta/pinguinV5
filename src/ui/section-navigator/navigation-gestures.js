@@ -13,7 +13,7 @@ const IGNORED_TARGETS = 'input, textarea, select, button, a, [contenteditable]:n
 
 export function mountNavigationGestures({ viewport, handles, wheel = true, canGo, isEnabled, onProgress, onNavigate }) {
   const view = viewport.ownerDocument.defaultView;
-  const disposers = [];
+  const controller = new view.AbortController();
   let wheelSession = null;
   let lastWheelAt = -Infinity;
   let wheelTimer = null;
@@ -23,9 +23,8 @@ export function mountNavigationGestures({ viewport, handles, wheel = true, canGo
   let suppressClick = null;
   let destroyed = false;
 
-  function listen(target, type, listener, options) {
-    target.addEventListener(type, listener, options);
-    disposers.push(() => target.removeEventListener(type, listener, options));
+  function listen(target, type, listener, options = {}) {
+    target.addEventListener(type, listener, { ...options, signal: controller.signal });
   }
 
   function reset({ cooldown = false } = {}) {
@@ -211,7 +210,7 @@ export function mountNavigationGestures({ viewport, handles, wheel = true, canGo
     destroy() {
       destroyed = true;
       reset();
-      for (const dispose of disposers) dispose();
+      controller.abort();
     },
   };
 }

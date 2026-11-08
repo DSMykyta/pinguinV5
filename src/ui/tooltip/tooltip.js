@@ -16,6 +16,8 @@
  * Keyboard focus gets the same tooltip beside its element.
  */
 export function initTooltips({ doc = document, view = window } = {}) {
+  const controller = new view.AbortController();
+  const { signal } = controller;
   const SELECTOR = '[data-pg-tooltip], [data-pg-tooltip-collapsed], [data-tooltip], [title]';
   const OFFSET = 15;
   const EDGE = 8;
@@ -201,30 +203,20 @@ export function initTooltips({ doc = document, view = window } = {}) {
     if (doc.hidden) hide();
   }
 
-  doc.addEventListener('mouseover', onMouseOver);
-  doc.addEventListener('mouseout', onMouseOut);
-  doc.addEventListener('mousemove', onMouseMove);
-  doc.addEventListener('keydown', onKeyDown);
-  doc.addEventListener('focusin', onFocusIn);
-  doc.addEventListener('focusout', onFocusOut);
-  doc.addEventListener('pointerdown', onPointerDown);
-  doc.addEventListener('click', onClick);
-  doc.addEventListener('visibilitychange', onVisibilityChange);
-  view.addEventListener('scroll', hide, true);
-  view.addEventListener('resize', hide);
+  doc.addEventListener('mouseover', onMouseOver, { signal });
+  doc.addEventListener('mouseout', onMouseOut, { signal });
+  doc.addEventListener('mousemove', onMouseMove, { signal });
+  doc.addEventListener('keydown', onKeyDown, { signal });
+  doc.addEventListener('focusin', onFocusIn, { signal });
+  doc.addEventListener('focusout', onFocusOut, { signal });
+  doc.addEventListener('pointerdown', onPointerDown, { signal });
+  doc.addEventListener('click', onClick, { signal });
+  doc.addEventListener('visibilitychange', onVisibilityChange, { signal });
+  view.addEventListener('scroll', hide, { capture: true, signal });
+  view.addEventListener('resize', hide, { signal });
 
   return function disposeTooltips() {
+    controller.abort();
     hide();
-    doc.removeEventListener('mouseover', onMouseOver);
-    doc.removeEventListener('mouseout', onMouseOut);
-    doc.removeEventListener('mousemove', onMouseMove);
-    doc.removeEventListener('keydown', onKeyDown);
-    doc.removeEventListener('focusin', onFocusIn);
-    doc.removeEventListener('focusout', onFocusOut);
-    doc.removeEventListener('pointerdown', onPointerDown);
-    doc.removeEventListener('click', onClick);
-    doc.removeEventListener('visibilitychange', onVisibilityChange);
-    view.removeEventListener('scroll', hide, true);
-    view.removeEventListener('resize', hide);
   };
 }

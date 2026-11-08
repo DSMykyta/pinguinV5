@@ -115,3 +115,50 @@ test('legacy data-tooltip for truncated content is supported without duplicating
   await page.locator('#test-tooltip-overflow').hover();
   await expect(page.getByRole('tooltip')).toHaveCount(0, { timeout: 800 });
 });
+
+test('local tooltip lifecycle cancels pending work, remounts and disposes independently', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(async () => {
+    const { initTooltips } = await import('/src/ui/tooltip/tooltip.js');
+    const frames = [];
+    for (const label of ['Перший', 'Другий']) {
+      const frame = document.createElement('iframe');
+      frame.title = label;
+      document.body.append(frame);
+      const doc = frame.contentDocument;
+      const view = frame.contentWindow;
+      const button = doc.createElement('button');
+      button.textContent = label;
+      button.dataset.pgTooltip = label;
+      button.setAttribute('data-pg-tooltip-always', '');
+      doc.body.append(button);
+      const start = () => button.dispatchEvent(new view.MouseEvent('mouseover', { bubbles: true, clientX: 20, clientY: 20 }));
+      frames.push({ frame, doc, view, start, mount: () => initTooltips({ doc, view }) });
+    }
+    for (const fixture of frames) fixture.dispose = fixture.mount();
+    frames[0].start();
+    frames[0].dispose();
+    frames[0].start(); // No old listener should be able to schedule a tooltip.
+    frames[1].start();
+    window.pgTooltipLifecycle = frames;
+  });
+  const first = page.frameLocator('iframe[title="Перший"]');
+  const second = page.frameLocator('iframe[title="Другий"]');
+  await expect(second.getByRole('tooltip')).toHaveText('Другий');
+  await expect(first.getByRole('tooltip')).toHaveCount(0);
+  await page.evaluate(() => {
+    const fixture = window.pgTooltipLifecycle[0];
+    fixture.dispose = fixture.mount();
+    fixture.start();
+  });
+  await expect(first.getByRole('tooltip')).toHaveText('Перший');
+  await page.evaluate(() => {
+    const fixture = window.pgTooltipLifecycle[0];
+    fixture.dispose();
+    fixture.dispose();
+  });
+  await expect(first.getByRole('tooltip')).toHaveCount(0);
+  await expect(second.getByRole('tooltip')).toHaveText('Другий');
+  await page.evaluate(() => window.pgTooltipLifecycle[1].dispose());
+  await expect(second.getByRole('tooltip')).toHaveCount(0);
+});
