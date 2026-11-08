@@ -103,7 +103,7 @@
 | [scrollend](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollend_event) | Оновлення після фактичного завершення прокручування, за feature detection. | Коли позиція не змінюється на межі, подія не замінює розпізнавання додаткового wheel наміру. |
 | [Native dialog та APG](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/) | Використовувати існуючий Dialog для top layer, модальності й фокусу. | Навігатор не створює власного modal stack або focus trap. |
 | [APG Tabs](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/) | Чинний createTabs для незалежних панелей і клавіатури. | Tablist має власну семантику; пункти scroll spy не отримують role=tab автоматично. |
-| [View Transition API](https://developer.mozilla.org/en-US/docs/Web/API/Document/startViewTransition) | Опційне візуальне оформлення завершеної зміни стану з feature detection. | Не визначає стан/guards; fallback виконує ту саму дію. Reduced motion вимикає декор; без нього функція працює повністю. |
+| [View Transition API](https://developer.mozilla.org/en-US/docs/Web/API/Document/startViewTransition) | Опційне оформлення підтвердженої зміни: оновлення DOM передається в update callback, після знімка попереднього стану. | Не визначає guards; feature detection і fallback виконують ту саму дію. Reduced motion вимикає декор; основна функція працює повністю. |
 | [Vite / ESM](https://vite.dev/guide/features.html) | Малі source modules із явними імпортами, lazy loading на межі feature. | Кількість файлів не дорівнює кількості production requests. Runtime plugin loader для кожної кнопки зайвий. Версії залежностей цією роботою не оновлюються. |
 
 Ці застосування — інженерні висновки для Pinguin, а не універсальна вимога стандартів. Сумісність нових API перевіряється під конкретну підтримку браузерів; основна робота форми не залежить від прогресивних анімацій.
@@ -149,6 +149,8 @@ dispose();
 Обрано native lifecycle listeners для вже наявних Tooltip та navigation gestures. Це два конкретні споживачі; кожен використовує власний AbortController напряму. Нова спільна бібліотека/шина не вводиться. Timers, frames, pointer capture та tooltip DOM очищаються їхніми чинними destroy/hide/reset методами. Вигляд, геометрія Shell і публічні API не змінюються.
 
 Критерії приймання: після destroy жоден старий listener не реагує; pending tooltip/pull не виконується; повторний mount працює; два екземпляри не скасовують один одного; повний набір перевірок залишається зеленим. Цей розділ задає межі адаптації; підтвердження реалізації фіксується окремо після перевірок.
+
+**Реалізація перевірена 2026-11-08:** naming/build, **29 Node tests** та **55 Chromium browser tests** пройшли. [Повний CI](https://github.com/DSMykyta/pinguinV5/actions/runs/42505894390) перевірив native iframe lifecycle, повторний mount/dispose, незалежність двох навігаторів, wheel/touch, фокус і попередні сценарії інтерфейсу. Native listeners знімаються через AbortSignal; тести перевіряють видиму поведінку й відсутність старих реакцій, без інспекції внутрішнього реєстру браузерних listeners. Фізичні пристрої та старі браузери окремо не перевірялися.
 
 ### Контроль розміру
 
