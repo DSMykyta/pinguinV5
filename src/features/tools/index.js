@@ -15,11 +15,13 @@ import { createToastDemo } from './toast-demo.js';
 import { createDialogDemo } from './dialog-demo.js';
 import { createInputDemo } from './input-demo.js';
 import { createFieldDemo } from './field-demo.js';
+import { createAdvancedFieldDemo } from './advanced-field-demo.js';
 import { createSectionNavigatorDemo } from './section-navigator-demo.js';
 import './toast-demo.css';
 import './dialog-demo.css';
 import './input-demo.css';
 import './field-demo.css';
+import './advanced-field-demo.css';
 
 const TABS = Object.freeze([
   {
@@ -51,7 +53,8 @@ export function mount(host, { setAsideContext, setSearchEntries, localNavigation
   tablePage.body.append(createToastDemo());
   const textPage = createPageView({ title: 'Текст' });
   const fieldDemo = createFieldDemo();
-  textPage.body.append(createDialogDemo(), createInputDemo(), fieldDemo.element);
+  const advancedDemo = createAdvancedFieldDemo();
+  textPage.body.append(createDialogDemo(), createInputDemo(), fieldDemo.element, advancedDemo.element);
   const navigationPage = createPageView({ title: 'Переходи між блоками' });
   const navigationDemo = createSectionNavigatorDemo();
   navigationPage.body.append(navigationDemo.element);
@@ -98,6 +101,7 @@ export function mount(host, { setAsideContext, setSearchEntries, localNavigation
   return () => {
     navigationDemo.destroy();
     fieldDemo.destroy();
+    advancedDemo.destroy();
     tabs.destroy();
     host.replaceChildren();
   };
