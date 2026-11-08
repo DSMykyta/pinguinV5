@@ -33,3 +33,15 @@ Do not replace native Select for short finite lists. Do not make a single univer
 ## Verification
 
 Keyboard and pointer selection, Escape preservation, disabled values, duplicate labels with different values, empty results, async races/unmount, input composition, light/dark/reduced motion, narrow containers, two independent instances and native form data.
+
+## Unified outlined floating-label shell (approved 2026-11-08)
+
+All Select, Input, Combobox, and complex future inputs share `src/ui/field`.
+- Empty and idle: a real label rests **inside** the outlined field.
+- Focus or nonempty value: it scales down and moves to the **top outline itself**, with a background-colored notch under the label; it must never simply hover above the field.
+- Label retains `for` association and stays readable while filled. The border notch is visual only, never replaces the DOM label.
+- Leading and trailing slots are true flexible-width DOM slots. Text/labels align within the **editing portion**, independent of icon, unit, suffix, password toggle, clear button, spinner, or future actions.
+- All variants share a 56px floating outline, consistent radius, state colors and transitions from tokens; additional local CSS may control only unique behavior. Standard and search input retain their deliberately different label modes.
+- Complex inputs can place multiple DOM nodes into their slots. Accessory actions remain keyboard accessible; interaction never changes field value unless the owner explicitly handles it.
+- Select remains native for its options and keyboard. Placeholder should not visually collide with the resting label.
+- Label follows `prefers-reduced-motion`, supports narrow containers, long labels, light/dark themes and user zoom.
