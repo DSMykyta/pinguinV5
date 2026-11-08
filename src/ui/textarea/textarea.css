@@ -1,0 +1,16 @@
+/* Multiline geometry only: shared field.css still owns border, notch and states. */
+.pg-textarea { display: grid; gap: 6px; inline-size: 100%; min-inline-size: 0; }
+.pg-textarea .pg-field__edit { align-items: stretch; }
+.pg-textarea__control.pg-field__control {
+  box-sizing: border-box; display: block; block-size: auto;
+  min-block-size: 94px; padding: 23px 14px 10px; line-height: 1.5;
+  white-space: pre-wrap; text-overflow: clip;
+}
+.pg-textarea[data-pg-auto-resize='true'] .pg-textarea__control { resize: none; }
+.pg-textarea[data-pg-auto-resize='false'] .pg-textarea__control { resize: vertical; }
+.pg-textarea .pg-field--floating .pg-field__label { top: 27px; }
+.pg-textarea .pg-field--floating:focus-within .pg-field__label,
+.pg-textarea .pg-field--floating[data-pg-filled='true'] .pg-field__label { top: 0; }
+.pg-textarea__meta { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+.pg-textarea__meta .pg-field-support { flex: 1; min-inline-size: 0; }
+.pg-textarea__counter { font-size: 12px; color: var(--pg-color-text-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }

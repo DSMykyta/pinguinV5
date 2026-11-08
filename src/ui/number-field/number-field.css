@@ -1,0 +1,17 @@
+/* Number field's step controls; outlined shell shared by all editing fields. */
+.pg-number-field { display: grid; gap: 6px; min-inline-size: 0; }
+.pg-number-field__control { font-variant-numeric: tabular-nums; }
+.pg-number-field__control::-webkit-inner-spin-button,
+.pg-number-field__control::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.pg-number-field__control { appearance: textfield; }
+.pg-number-field__unit { font-size: 12px; white-space: nowrap; color: var(--pg-color-text-secondary); }
+.pg-number-field__steppers { display: inline-flex; align-items: center; gap: 2px; }
+.pg-number-field__step {
+  display: grid; place-items: center; inline-size: 32px; block-size: 32px;
+  padding: 0; border: 0; border-radius: var(--pg-radius-sm);
+  background: var(--pg-color-selected); color: var(--pg-color-text-primary);
+  font-size: 18px; font-weight: 500;
+}
+.pg-number-field__step:hover:not(:disabled) { background: var(--pg-color-hover); }
+.pg-number-field__step:focus-visible { outline: 2px solid var(--pg-color-focus); outline-offset: 1px; }
+.pg-number-field__step:disabled { opacity: .35; cursor: not-allowed; }

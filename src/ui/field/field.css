@@ -81,3 +81,9 @@
 @media (prefers-reduced-motion: reduce) {
   .pg-field, .pg-field__label, .pg-field__control::placeholder { transition: none !important; }
 }
+
+/* Reusable help text shared by multiline and numeric fields. */
+.pg-field-support { display: grid; gap: 3px; padding-inline: 2px; font-size: 12px; line-height: 1.4; }
+.pg-field-support[hidden], .pg-field-support > [hidden] { display: none; }
+.pg-field-support__description { color: var(--pg-color-text-secondary); }
+.pg-field-support__error { color: var(--pg-color-input-error); }
