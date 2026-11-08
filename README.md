@@ -19,6 +19,7 @@
 - [Архітектура та неймінг](docs/conventions.md)
 - [База спільного UI](docs/ui/overview.md)
 - [Toast — дослідження, контракт і стани](docs/ui/toast.md)
+- [Переходи між блоками — дослідження, контракт і демо](docs/ui/section-navigator.md)
 - [Правила шапок файлів](docs/file-headers.md)
 - [Глобальна навігація](docs/page-navigation.md)
 - [Універсальний п'ятизонний шаблон](docs/universal-page-layout.md)

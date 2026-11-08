@@ -1,0 +1,30 @@
+/*
+ * PINGUIN NEXT — SECTION NAVIGATOR DEMO LAYOUT
+ * ПРИЗНАЧЕННЯ: Розміщення тільки прикладного вмісту.
+ * ЗАЛЕЖНОСТІ: Семантичні --pg- токени.
+ * ПУБЛІЧНИЙ API: .pg-tools-section-navigator-demo.
+ * ПРИНЦИП: Не перевизначає CSS універсальних компонентів або Shell.
+ */
+.pg-tools-section-navigator-demo { max-inline-size: 780px; min-inline-size: 0; }
+.pg-tools-section-navigator-demo__hint {
+  max-inline-size: 620px;
+  margin: 0 0 var(--pg-space-5);
+  color: var(--pg-color-text-secondary);
+  font-size: 13px;
+  text-wrap: pretty;
+}
+.pg-tools-section-navigator-demo__fields,
+.pg-tools-section-navigator-demo__description { display: grid; gap: var(--pg-space-5); }
+.pg-tools-section-navigator-demo__note { margin: 0; color: var(--pg-color-text-secondary); text-wrap: pretty; }
+.pg-tools-section-navigator-demo__photos { display: grid; gap: var(--pg-space-4); }
+.pg-tools-section-navigator-demo__photo {
+  display: grid;
+  place-content: center;
+  gap: var(--pg-space-2);
+  min-block-size: 128px;
+  border: 1px dashed var(--pg-color-border-strong);
+  border-radius: var(--pg-radius-md);
+  background: var(--pg-color-surface-soft);
+  text-align: center;
+}
+.pg-tools-section-navigator-demo__photo-symbol { color: var(--pg-color-text-muted); font-size: 24px; font-variant-numeric: tabular-nums; }

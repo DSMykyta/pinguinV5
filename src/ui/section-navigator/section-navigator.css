@@ -1,0 +1,127 @@
+/*
+ * PINGUIN NEXT — SECTION NAVIGATOR STYLES
+ * ПРИЗНАЧЕННЯ: Власний viewport, ручки та прогрес переходу.
+ * ЗАЛЕЖНОСТІ: Існуючі семантичні --pg- токени.
+ * ПУБЛІЧНИЙ API: .pg-section-navigator, --pg-section-navigator-height.
+ * ПРИНЦИП: Локальна геометрія; без стилів Shell чи вмісту редакторів.
+ */
+.pg-section-navigator {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  block-size: var(--pg-section-navigator-height, min(440px, 65dvh));
+  min-block-size: 300px;
+  min-inline-size: 0;
+  inline-size: 100%;
+  overflow: hidden;
+  border: 1px solid var(--pg-color-border);
+  border-radius: var(--pg-radius-lg);
+  background: var(--pg-color-surface);
+  color: var(--pg-color-text-primary);
+}
+.pg-section-navigator__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pg-space-3);
+  padding: var(--pg-space-4) var(--pg-space-5);
+}
+.pg-section-navigator__title {
+  min-inline-size: 0;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+.pg-section-navigator__title:focus-visible,
+.pg-section-navigator__viewport:focus-visible {
+  outline: 2px solid var(--pg-color-focus);
+  outline-offset: -3px;
+}
+.pg-section-navigator__counter {
+  flex-shrink: 0;
+  color: var(--pg-color-text-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.pg-section-navigator__viewport {
+  min-block-size: 0;
+  min-inline-size: 0;
+  overflow: auto;
+  overscroll-behavior-y: contain;
+  overflow-anchor: none;
+  scrollbar-gutter: stable;
+  padding: var(--pg-space-5);
+}
+.pg-section-navigator__panel { min-inline-size: 0; overflow-wrap: anywhere; }
+.pg-section-navigator__panel[hidden] { display: none; }
+.pg-section-navigator__handle {
+  --pg-section-navigator-progress: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pg-space-3);
+  min-block-size: 48px;
+  padding: var(--pg-space-3) var(--pg-space-4);
+  border: 0;
+  border-block: 1px solid var(--pg-color-border);
+  background: var(--pg-color-surface-soft);
+  color: var(--pg-color-text-secondary);
+  font: inherit;
+  font-size: 13px;
+  touch-action: pan-x pinch-zoom;
+  user-select: none;
+  cursor: grab;
+}
+.pg-section-navigator__handle:active { cursor: grabbing; }
+.pg-section-navigator__handle:focus-visible { outline-offset: -3px; }
+.pg-section-navigator__handle:disabled { color: var(--pg-color-text-muted); cursor: default; }
+.pg-section-navigator__handle[data-pg-state='armed'] { color: var(--pg-color-accent); }
+.pg-section-navigator__symbol {
+  display: grid;
+  place-items: center;
+  flex: 0 0 28px;
+  inline-size: 28px;
+  block-size: 28px;
+  border: 1px solid currentColor;
+  border-radius: var(--pg-radius-full);
+  font-size: 16px;
+  transform: translateY(calc(var(--pg-section-navigator-progress) * -6px));
+  transition: transform var(--pg-duration-fast) ease-out;
+}
+.pg-section-navigator__handle[data-pg-direction='previous'] .pg-section-navigator__symbol {
+  transform: translateY(calc(var(--pg-section-navigator-progress) * 6px));
+}
+.pg-section-navigator__caption { min-inline-size: 0; overflow-wrap: anywhere; text-wrap: pretty; }
+.pg-section-navigator__meter {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  block-size: 2px;
+  background: var(--pg-color-accent);
+  transform: scaleX(var(--pg-section-navigator-progress));
+  transform-origin: center;
+  transition: transform var(--pg-duration-fast) ease-out;
+}
+.pg-section-navigator__handle[data-pg-state='pulling'] .pg-section-navigator__meter,
+.pg-section-navigator__handle[data-pg-state='pulling'] .pg-section-navigator__symbol,
+.pg-section-navigator__handle[data-pg-state='armed'] .pg-section-navigator__meter,
+.pg-section-navigator__handle[data-pg-state='armed'] .pg-section-navigator__symbol { transition: none; }
+.pg-section-navigator__status {
+  min-block-size: 32px;
+  margin: 0;
+  padding: var(--pg-space-2) var(--pg-space-4);
+  color: var(--pg-color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  text-wrap: pretty;
+}
+@media (hover: hover) and (pointer: fine) {
+  .pg-section-navigator__handle:not(:disabled):hover { background: var(--pg-color-hover); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pg-section-navigator__symbol,
+  .pg-section-navigator__handle[data-pg-direction='previous'] .pg-section-navigator__symbol { transform: none; transition: none; }
+  .pg-section-navigator__meter { transition: none; }
+}

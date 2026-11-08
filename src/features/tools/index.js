@@ -14,6 +14,7 @@ import { createPageView } from '../../ui/page/page.js';
 import { createToastDemo } from './toast-demo.js';
 import { createDialogDemo } from './dialog-demo.js';
 import { createInputDemo } from './input-demo.js';
+import { createSectionNavigatorDemo } from './section-navigator-demo.js';
 import './toast-demo.css';
 import './dialog-demo.css';
 import './input-demo.css';
@@ -33,6 +34,13 @@ const TABS = Object.freeze([
     sourceUrl: 'https://github.com/DSMykyta/pinguinV5/tree/legacy/js/components/editor',
     sourceLabel: 'Редактор у legacy',
   },
+  {
+    id: 'navigation',
+    label: 'Переходи',
+    icon: 'layers',
+    sourceUrl: 'https://github.com/DSMykyta/pinguinV5/blob/work/docs/ui/section-navigator.md',
+    sourceLabel: 'Дослідження переходів',
+  },
 ]);
 
 export function mount(host, { setAsideContext, setSearchEntries, localNavigation }) {
@@ -41,9 +49,13 @@ export function mount(host, { setAsideContext, setSearchEntries, localNavigation
   tablePage.body.append(createToastDemo());
   const textPage = createPageView({ title: 'Текст' });
   textPage.body.append(createDialogDemo(), createInputDemo());
+  const navigationPage = createPageView({ title: 'Переходи між блоками' });
+  const navigationDemo = createSectionNavigatorDemo();
+  navigationPage.body.append(navigationDemo.element);
   const pageByTab = new Map([
     ['tables', tablePage],
     ['text', textPage],
+    ['navigation', navigationPage],
   ]);
 
   const tabs = createTabs({
@@ -81,6 +93,7 @@ export function mount(host, { setAsideContext, setSearchEntries, localNavigation
   host.replaceChildren(tabs.element);
 
   return () => {
+    navigationDemo.destroy();
     tabs.destroy();
     host.replaceChildren();
   };

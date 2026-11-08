@@ -37,6 +37,7 @@
 | Toast | `src/ui/toast` | [Специфікація](toast.md), перший новий компонент |
 | Dialog / Confirm | `src/ui/dialog` | [Специфікація](dialog.md): native modal + blur |
 | Input / Search field | `src/ui/input` | [Дослідження, контракт та реалізація](input.md): floating, standard, search |
+| Section navigator | `src/ui/section-navigator` | [Дослідження, API та жести](section-navigator.md): незалежні блоки, boundary scroll, ручки й кнопки |
 | Textarea, Select, Checkbox, Feedback states | майбутні компоненти | Не створені |
 
 Не ставити кнопки-пустушки на затверджений скелетон для демонстрації UI. Тестові сценарії повинні використовувати ізольовані перевірки й не вдавати готові інструменти.
