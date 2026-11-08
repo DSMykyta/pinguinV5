@@ -20,6 +20,7 @@ import './ui/dialog/dialog.css';
 import './ui/input/input.css';
 import './ui/select/select.css';
 import './ui/combobox/combobox.css';
+import './ui/tag-field/tag-field.css';
 import './shell/sidebar/sidebar.css';
 import './shell/aside/aside.css';
 import './shell/aside/fab.css';
