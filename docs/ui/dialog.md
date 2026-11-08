@@ -66,3 +66,7 @@ const approved = await showConfirmDialog({
 4. Темна тема, reduced motion/transparency, мобільна ширина й довгі повідомлення.
 5. Одне активне вікно, наступне відкривається після закриття; HMR cleanup без слухачів/таймерів.
 6. Вкладки мають незалежні власні panel DOM, їхній контент змінюється, коли натискають вкладку. Тимчасові UI-дезоми не живуть поза panel DOM.
+
+## Editor/Form composition (2026-11-08)
+
+The shared Dialog additionally supports an `editor` size, caller-owned DOM `content`, async `validate` / `onConfirm`, `closeGuard`, an optional destructive left action, and a stationary header/footer around a scrollable body. `src/ui/form-dialog/form-dialog.js` composes these primitives and delegates business validation/persistence to the calling feature. Compact Dialog/Confirm remain unchanged. See [form-dialog.md](form-dialog.md).

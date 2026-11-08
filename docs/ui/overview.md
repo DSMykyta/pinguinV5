@@ -38,9 +38,14 @@
 | Data row | `src/ui/data-row` | Є |
 | Toast | `src/ui/toast` | [Специфікація](toast.md), перший новий компонент |
 | Dialog / Confirm | `src/ui/dialog` | [Специфікація](dialog.md): native modal + blur |
-| Input / Search field | `src/ui/input` | [Дослідження, контракт та реалізація](input.md): floating, standard, search |
+| Input / Search field | `src/ui/input` | [Дослідження, контракт та реалізація](input.md): floating, standard, search; supports flexible adornments |
+| Shared Field | `src/ui/field` | [One outline, border-notch label, leading/trailing slots](field.md) |
+| Native Select | `src/ui/select` | Native browser choice with shared floating label; [contract](selection-fields.md) |
+| Combobox | `src/ui/combobox` | Editable selection, async search and keyboard listbox; [contract](selection-fields.md) |
+| Tag Field | `src/ui/tag-field` | Independent tag collection, paste parsing, two-step removal, undo; [contract](tag-field.md) |
+| Form Dialog | `src/ui/form-dialog` | Shared Dialog composition with validation and dirty close guard; [contract](form-dialog.md) |
 | Section navigator | `src/ui/section-navigator` | [Дослідження, API та жести](section-navigator.md): незалежні блоки, boundary scroll, ручки й кнопки |
-| Textarea, Select, Checkbox, Feedback states | майбутні компоненти | Не створені |
+| Textarea, Checkbox, Radio, Switch, Number field | майбутні компоненти | Потрібне окреме дослідження |
 
 Не ставити кнопки-пустушки на затверджений скелетон для демонстрації UI. Тестові сценарії повинні використовувати ізольовані перевірки й не вдавати готові інструменти.
 

@@ -66,3 +66,7 @@
 3. `search` має лупу, не плаває, placeholder може бути або ні, очищення доступне.
 4. Label пов'язаний із native input; error доступний через `aria-describedby`/`aria-invalid`, clear із клавіатури; кнопки не перекривають текст.
 5. Теми, autofill, мобільний viewport, long label, `prefers-reduced-motion` і приховані вкладки не ламають UI.
+
+## Уточнення visual contract 2026-11-08
+
+The shared `src/ui/field` now owns the outlined label geometry. Floating label moves from the inside of an empty field **onto the top border** and rests there while focused or filled. A surface-backed notch is visible behind it. Input, Select, Combobox and Tag Field use one outline. `leading` / `trailing` DOM slots let an Input contain arbitrary icons, text, units, or buttons without moving the label or duplicating CSS. Standard and search variants retain their accessible separate patterns. See [field.md](field.md).
