@@ -25,6 +25,7 @@ export function createAsideFab() {
     element.dataset.pgFabState = open ? 'open' : 'closed';
     actions.inert = !open;
     actions.setAttribute('aria-hidden', String(!open));
+    if (open) syncChoices();
     button.setAttribute('aria-expanded', String(open));
     const label = open ? 'Закрити швидкі дії' : 'Відкрити швидкі дії';
     button.setAttribute('aria-label', label);
@@ -41,17 +42,41 @@ export function createAsideFab() {
   button.setAttribute('aria-controls', actions.id);
   button.setAttribute('aria-haspopup', 'true');
 
+  // One existing FAB supports links or page-provided actions, never two launchers.
+  let actionContext = null;
+
+  function syncChoices() {
+    if (!actionContext) return;
+    for (const item of actions.querySelectorAll('[data-pg-fab-value]')) {
+      const choice = actionContext.items.find(entry => String(entry.value) === item.dataset.pgFabValue);
+      const active = typeof choice?.selected === 'function'
+        ? Boolean(choice.selected()) : Boolean(choice?.selected);
+      item.setAttribute('aria-pressed', String(active));
+    }
+  }
+
   function setContext(context) {
     setOpen(false);
     actions.replaceChildren();
-    const entries = context?.links ?? DEFAULT_LINKS;
+    actionContext = context?.fabActions ?? null;
+    const entries = actionContext ? actionContext.items : context?.links ?? DEFAULT_LINKS;
+    if (!Array.isArray(entries)) throw new TypeError('FAB items must be an array');
+    if (actionContext && typeof actionContext.onSelect !== 'function') {
+      throw new TypeError('FAB actions require onSelect');
+    }
     for (const [index, entry] of entries.entries()) {
-      const link = document.createElement('a');
-      link.className = 'pg-fab__item';
-      link.href = entry.url;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.style.setProperty('--pg-fab-delay', `${index * 45}ms`);
+      const item = document.createElement(actionContext ? 'button' : 'a');
+      item.className = 'pg-fab__item';
+      item.style.setProperty('--pg-fab-delay', `${index * 45}ms`);
+      if (actionContext) {
+        item.type = 'button';
+        item.dataset.pgFabValue = String(entry.value);
+        item.setAttribute('aria-label', entry.label);
+      } else {
+        item.href = entry.url;
+        item.target = '_blank';
+        item.rel = 'noopener noreferrer';
+      }
 
       const label = document.createElement('span');
       label.className = 'pg-fab__label';
@@ -59,13 +84,23 @@ export function createAsideFab() {
 
       const symbol = document.createElement('span');
       symbol.className = 'pg-fab__symbol';
-      symbol.append(createIcon(entry.icon));
-      link.append(label, symbol);
-      actions.append(link);
+      if (entry.icon) symbol.append(createIcon(entry.icon));
+      else symbol.textContent = String(entry.symbol ?? entry.value ?? '');
+      item.append(label, symbol);
+      actions.append(item);
     }
+    syncChoices();
   }
 
   actions.addEventListener('click', event => {
+    const choice = event.target.closest('[data-pg-fab-value]');
+    if (choice && actions.contains(choice) && actionContext) {
+      actionContext.onSelect(choice.dataset.pgFabValue);
+      syncChoices();
+      setOpen(false);
+      button.focus();
+      return;
+    }
     if (event.target.closest('a')) setOpen(false);
   });
 

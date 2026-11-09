@@ -7,6 +7,7 @@ import { createCollectionView } from '../../ui/collection-view/collection-view.j
 import { createStoredChoice } from '../../core/preferences.js';
 import { createSelect } from '../../ui/select/select.js';
 import { createSegmentSwitch } from '../../ui/segment-switch/segment-switch.js';
+import { DEFAULT_PAGE_SIZES } from '../../ui/pagination/pagination.js';
 
 const BRAND_NAMES = [
   'Pinguin', 'Nimbus', 'Kraken', 'Aurora', 'Vento', 'Solstice',
@@ -163,7 +164,18 @@ export function createDataViewsDemo() {
   return Object.freeze({
     element,headerActions:collection.headerActions,
     footerContent:collection.footerContent,
-    getAsideContext:()=>({title:'Макети даних',controls}),
+    getAsideContext:()=>({
+      title:'Макети даних',controls,
+      fabActions:{
+        items:DEFAULT_PAGE_SIZES.map(value=>({
+          value:String(value),
+          label:value===0?'Усі записи':value+' записів',
+          symbol:value===0?'∞':String(value),
+          selected:()=>collection.getPagination().pageSize===value,
+        })),
+        onSelect:value=>collection.setPageSize(Number(value)),
+      },
+    }),
     getSearchContext:()=>({
       placeholder:'Пошук у таблиці',label:'Шукати у таблиці брендів',
       value:collection.getQuery(),onQuery:query=>collection.setQuery(query),

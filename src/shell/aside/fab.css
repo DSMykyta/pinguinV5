@@ -107,3 +107,9 @@
     transition: none;
   }
 }
+
+/* Action buttons reuse the same FAB item/symbol geometry as navigation links. */
+.pg-fab__item:is(button) { border:0; padding:0; background:transparent; font:inherit; cursor:pointer; text-align:right; }
+.pg-fab__item:focus-visible { outline:2px solid var(--pg-color-focus); outline-offset:3px; border-radius:var(--pg-radius-sm); }
+.pg-fab__item[aria-pressed='true'] .pg-fab__symbol { color:var(--pg-color-accent); background:var(--pg-color-accent-soft); font-weight:700; }
+.pg-fab__symbol { font-size:12px; font-variant-numeric:tabular-nums; }
