@@ -4,12 +4,12 @@
  */
 import { test, expect } from '@playwright/test';
 
-const root = page => page.locator('.pg-collection-view');
+const root = page => page.locator('#pg-tools-panel-data-views .pg-collection-view');
 const table = page => root(page).locator('.pg-collection-view__table');
 const switchTo = async (page, mode) => {
   const label = mode === 'tiles' ? 'Плитки' : 'Таблиця';
   await page.locator('.pg-view-switch .pg-segment-switch__label[title="' + label + '"]').click();
-  await expect(page.locator('.pg-view-switch').getByRole('radio',{name:label})).toBeChecked();
+  await expect(page.locator('#pg-tools-panel-data-views .pg-view-switch').getByRole('radio',{name:label})).toBeChecked();
 };
 test.beforeEach(async ({page})=>{
   await page.goto('/tools');
@@ -37,7 +37,7 @@ test('dense table renders selection, nine fields, row actions and fixed footer p
   await expect(table(page).locator('thead th')).toHaveCount(11);
   await expect(table(page).locator('tbody tr')).toHaveCount(25);
   await expect(page.locator('.pg-shell__footer .pg-pagination__status')).toHaveText('Показано 25 з 32');
-  await expect(page.locator('.pg-collection-view .pg-pagination')).toHaveCount(0);
+  await expect(root(page).locator('.pg-pagination')).toHaveCount(0);
   await expect(page.locator('.pg-shell__footer')).toHaveAttribute('data-pg-has-content','true');
   await expect(page.locator('.pg-shell__footer')).toHaveCSS('border-top-style','solid');
   const footer=await page.locator('.pg-shell__footer').boundingBox();
@@ -45,8 +45,8 @@ test('dense table renders selection, nine fields, row actions and fixed footer p
   expect(Math.abs((pages.x+pages.width/2)-(footer.x+footer.width/2))).toBeLessThan(2);
   await expect(table(page).locator('tbody .pg-collection-view__row-menu')).toHaveCount(25);
   await expect(root(page).locator('.pg-collection-view__tiles')).toBeHidden();
-  await expect(page.locator('.pg-view-switch')).toHaveAttribute('role','radiogroup');
-  await expect(page.locator('.pg-view-switch').getByRole('radio',{name:'Таблиця'})).toBeChecked();
+  await expect(page.locator('#pg-tools-panel-data-views .pg-view-switch')).toHaveAttribute('role','radiogroup');
+  await expect(page.locator('#pg-tools-panel-data-views .pg-view-switch').getByRole('radio',{name:'Таблиця'})).toBeChecked();
 });
 
 test('native header checkbox uses checked, mixed and empty states across visible page',async({page})=>{
@@ -86,7 +86,7 @@ test('pagination advances from 25 to 7, changes rows-per-page and preserves sele
     .toHaveAttribute('aria-pressed','true');
   await page.locator('#pg-page-fab-actions [data-pg-fab-value="50"]').click();
   await expect(table(page).locator('tbody tr')).toHaveCount(32);
-  await expect(page.locator('.pg-pagination__status')).toHaveText('Показано 32 з 32');
+  await expect(page.locator('.pg-shell__footer .pg-pagination__status')).toHaveText('Показано 32 з 32');
 });
 
 test('sorted header and aside share one collection sorting state',async({page})=>{
@@ -117,7 +117,7 @@ test('row action menu is functional and uses one shared Menu implementation',asy
   const item=page.getByRole('menuitem',{name:'Дублювати'});
   await expect(item).toBeVisible();
   await item.click();
-  await expect(page.locator('.pg-pagination__status')).toHaveText('Показано 25 з 33');
+  await expect(page.locator('.pg-shell__footer .pg-pagination__status')).toHaveText('Показано 25 з 33');
   await page.locator('[data-pg-action="aside-toggle"]').click();
   await expect(page.locator('.pg-tools-data-views__aside-detail')).toContainText('Створено локальну копію');
 });
@@ -150,7 +150,7 @@ test('saved view is isolated per feature and survives page reload',async({page})
   await page.reload();
   await page.getByRole('tab',{name:'Макети даних'}).click();
   await expect(root(page)).toHaveAttribute('data-pg-view','tiles');
-  await expect(page.locator('.pg-view-switch').getByRole('radio',{name:'Плитки'})).toBeChecked();
+  await expect(page.locator('#pg-tools-panel-data-views .pg-view-switch').getByRole('radio',{name:'Плитки'})).toBeChecked();
 });
 
 test('search belongs only to data tab and filtering updates pagination',async({page})=>{
@@ -158,7 +158,7 @@ test('search belongs only to data tab and filtering updates pagination',async({p
   await expect(input).toBeVisible();
   await input.fill('Pinguin');
   await expect(table(page).locator('tbody tr')).toHaveCount(1);
-  await expect(page.locator('.pg-pagination__status')).toHaveText('Показано 1 з 1');
+  await expect(page.locator('.pg-shell__footer .pg-pagination__status')).toHaveText('Показано 1 з 1');
   await page.getByRole('tab',{name:'Текст'}).click();
   await expect(page.locator('.pg-search')).toBeHidden();
   await page.getByRole('tab',{name:'Переходи'}).click();
@@ -207,7 +207,7 @@ test('unified tab animation and static Shell geometry, with no flush/fill except
 
 test('narrow table scrolls locally while tile cards fit and view switch works',async({page})=>{
   await page.setViewportSize({width:390,height:800});
-  const area=page.locator('.pg-collection-view__table-scroll');
+  const area=root(page).locator('.pg-collection-view__table-scroll');
   const metrics=await area.evaluate(node=>{
     node.scrollLeft=400;
     return {clientWidth:node.clientWidth,scrollWidth:node.scrollWidth,
@@ -229,13 +229,14 @@ test('dark mode and reduced motion keep native segmented switch accessible',asyn
   await expect(root(page).locator('.pg-collection-view__tiles')).toBeVisible();
 });
 
-test('row actions are the second column and the entire menu fits without horizontal scrolling',async({page})=>{
+test('row actions are the final column and the entire menu fits without horizontal scrolling',async({page})=>{
   const labels=await table(page).locator('thead th').evaluateAll(nodes=>nodes.slice(0,3).map(node=>({
     label:node.textContent.trim(),className:node.className,
   })));
   expect(labels[0].className).toContain('selection-cell');
-  expect(labels[1].className).toContain('actions-cell');
-  expect(labels[2].label).toMatch(/^Бренд/);
+  expect(labels[1].label).toMatch(/^Бренд/);
+  const lastHead = await table(page).locator('thead th').last().evaluate(node => node.className);
+  expect(lastHead).toContain('actions-cell');
   const trigger=table(page).locator('tbody tr').first().getByRole('button',{name:/Дії:/});
   await trigger.click();
   await expect(trigger).toHaveAttribute('aria-expanded','true');
