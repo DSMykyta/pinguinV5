@@ -47,13 +47,13 @@ test('native header checkbox uses checked, mixed and empty states across visible
   const all=table(page).getByRole('checkbox',{name:'Вибрати всі на поточній сторінці'});
   const first=table(page).locator('tbody tr').first().getByRole('checkbox');
   await expect(all).not.toBeChecked();
-  await first.check();
+  await table(page).locator('tbody tr').first().locator('.pg-checkbox__row').click();
   await expect(all).not.toBeChecked();
   await expect(table(page).locator('thead .pg-checkbox')).toHaveAttribute('data-pg-mixed','true');
-  await all.check();
+  await table(page).locator('thead .pg-checkbox__row').click();
   await expect(all).toBeChecked();
   await expect(table(page).locator('tbody tr[data-pg-selected="true"]')).toHaveCount(25);
-  await all.uncheck();
+  await table(page).locator('thead .pg-checkbox__row').click();
   await expect(all).not.toBeChecked();
   await expect(table(page).locator('thead .pg-checkbox')).toHaveAttribute('data-pg-mixed','false');
   await expect(table(page).locator('tbody tr[data-pg-selected="true"]')).toHaveCount(0);
@@ -61,7 +61,7 @@ test('native header checkbox uses checked, mixed and empty states across visible
 
 test('pagination advances from 25 to 7, changes rows-per-page and preserves selection ids',async({page})=>{
   const one=table(page).locator('tbody tr').first().getByRole('checkbox');
-  await one.check();
+  await table(page).locator('tbody tr').first().locator('.pg-checkbox__row').click();
   await page.getByRole('button',{name:'Наступна сторінка'}).click();
   await expect(table(page).locator('tbody tr')).toHaveCount(7);
   await expect(page.locator('.pg-pagination__status')).toHaveText('26–32 із 32');
