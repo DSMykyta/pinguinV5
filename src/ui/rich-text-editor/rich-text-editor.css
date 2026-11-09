@@ -1,0 +1,85 @@
+/*
+ * PINGUIN NEXT — RICH TEXT EDITOR
+ * Scope: only pg-rich-text-editor. Colors, spaces and radii use existing tokens.
+ * The central text canvas dominates; mirrors are read-only, responsive projections.
+ */
+.pg-rich-text-editor {
+  color: var(--pg-color-text-primary);
+  display: grid;
+  gap: var(--pg-space-4);
+  min-inline-size: 0;
+  font: inherit;
+}
+.pg-rich-text-editor--split { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.pg-rich-text-editor__main, .pg-rich-text-editor__mirror {
+  min-inline-size: 0;
+  overflow: hidden;
+  background: var(--pg-color-surface);
+  border: 1px solid var(--pg-color-border);
+  border-radius: var(--pg-radius-md);
+}
+.pg-rich-text-editor__toolbar {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: var(--pg-space-1); padding: var(--pg-space-2);
+  border-block-end: 1px solid var(--pg-color-border);
+}
+.pg-rich-text-editor__tool, .pg-rich-text-editor__mirror-switch {
+  min-inline-size: 36px; min-block-size: 36px;
+  padding: var(--pg-space-2); border: 0; border-radius: var(--pg-radius-sm);
+  background: transparent; color: var(--pg-color-text-primary);
+  font: inherit; font-size: 13px; cursor: pointer;
+  transition: background-color var(--pg-duration-fast) ease;
+}
+.pg-rich-text-editor__tool:hover, .pg-rich-text-editor__mirror-switch:hover { background: var(--pg-color-hover); }
+.pg-rich-text-editor__tool[aria-pressed='true'] { background: var(--pg-color-accent-soft); color: var(--pg-color-accent); }
+.pg-rich-text-editor__tool:focus-visible, .pg-rich-text-editor__mirror-switch:focus-visible {
+  outline: 2px solid var(--pg-color-focus); outline-offset: 2px;
+}
+.pg-rich-text-editor__tool:disabled { opacity: .45; cursor: not-allowed; }
+.pg-rich-text-editor__surface { min-block-size: 260px; }
+.pg-rich-text-editor__content {
+  padding: var(--pg-space-5); min-block-size: 260px;
+  outline: none; overflow-wrap: anywhere; line-height: 1.6;
+}
+.pg-rich-text-editor__content:focus-visible { box-shadow: inset 0 0 0 1px var(--pg-color-focus); }
+.pg-rich-text-editor__stats {
+  border-block-start: 1px solid var(--pg-color-border);
+  padding: var(--pg-space-3) var(--pg-space-4);
+  color: var(--pg-color-text-secondary); font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.pg-rich-text-editor__mirror { display: flex; flex-direction: column; min-block-size: 306px; }
+.pg-rich-text-editor__mirror-header {
+  min-block-size: 53px; padding: var(--pg-space-2) var(--pg-space-4);
+  display: flex; align-items: center; justify-content: space-between; gap: var(--pg-space-2);
+  border-block-end: 1px solid var(--pg-color-border);
+}
+.pg-rich-text-editor__mirror-title { color: var(--pg-color-text-secondary); font-size: 13px; }
+.pg-rich-text-editor__mirror-body {
+  min-inline-size: 0; padding: var(--pg-space-5); overflow: auto; flex: 1;
+}
+.pg-rich-text-editor__html {
+  margin: 0; overflow-wrap: anywhere; white-space: pre-wrap;
+  font: 12px/1.7 ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+.pg-rich-text-editor :is(.pg-rich-text-editor__content, .pg-rich-text-editor__rendered) :is(p, blockquote, ul, ol, pre) { margin: 0 0 .85em; }
+.pg-rich-text-editor :is(.pg-rich-text-editor__content, .pg-rich-text-editor__rendered) :is(h1, h2, h3) { font: inherit; font-weight: 650; margin: .8em 0 .4em; }
+.pg-rich-text-editor :is(.pg-rich-text-editor__content, .pg-rich-text-editor__rendered) h1 { font-size: 1.7em; }
+.pg-rich-text-editor :is(.pg-rich-text-editor__content, .pg-rich-text-editor__rendered) h2 { font-size: 1.35em; }
+.pg-rich-text-editor :is(.pg-rich-text-editor__content, .pg-rich-text-editor__rendered) h3 { font-size: 1.15em; }
+.pg-rich-text-editor :is(.pg-rich-text-editor__content, .pg-rich-text-editor__rendered) :is(ul, ol) { padding-inline-start: var(--pg-space-6); }
+.pg-rich-text-editor :is(.pg-rich-text-editor__content, .pg-rich-text-editor__rendered) blockquote {
+  border-inline-start: 3px solid var(--pg-color-border-strong);
+  padding-inline-start: var(--pg-space-4); color: var(--pg-color-text-secondary);
+}
+.pg-rich-text-editor :is(.pg-rich-text-editor__content, .pg-rich-text-editor__rendered) a { color: var(--pg-color-accent); text-decoration: underline; }
+.pg-rich-text-editor :is(.pg-rich-text-editor__content, .pg-rich-text-editor__rendered) pre {
+  background: var(--pg-color-surface-soft); padding: var(--pg-space-3);
+  border-radius: var(--pg-radius-sm); overflow: auto;
+}
+@media (max-width: 900px) {
+  .pg-rich-text-editor--split { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pg-rich-text-editor__tool, .pg-rich-text-editor__mirror-switch { transition: none; }
+}

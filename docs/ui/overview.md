@@ -50,6 +50,7 @@
 | Tag Field | `src/ui/tag-field` | Independent tag collection, paste parsing, two-step removal, undo; [contract](tag-field.md) |
 | Form Dialog | `src/ui/form-dialog` | Shared Dialog composition with validation and dirty close guard; [contract](form-dialog.md) |
 | Section navigator | `src/ui/section-navigator` | [Дослідження, API та жести](section-navigator.md): незалежні блоки, boundary scroll, ручки й кнопки |
+| Rich Text Editor | `src/ui/rich-text-editor` | [WYSIWYG, read-only mirror, HTML view, toolbar, stats](rich-text-editor.md); [research](../research/rich-text-editor.md) |
 | Textarea | `src/ui/textarea` | [Multiline native editor, auto-height and count](textarea.md) |
 | Number Field | `src/ui/number-field` | [Native numeric steps, units and validation](number-field.md) |
 | Checkbox | `src/ui/checkbox` | [Native two-state and mixed-state control](choice-controls.md) |
