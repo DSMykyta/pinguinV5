@@ -227,7 +227,12 @@ export function mountShell(host) {
       if (element !== null && !(element instanceof HTMLElement)) {
         throw new TypeError('Footer content must be an HTMLElement or null');
       }
-      footer.replaceChildren(...(element ? [element, pageFab.element] : []));
+      if (element) {
+        // The page-size FAB belongs to the pagination control in the footer,
+        // not beside the persistent aside FAB in the right-hand rail.
+        element.append(pageFab.element);
+      }
+      footer.replaceChildren(...(element ? [element] : []));
       footer.dataset.pgHasContent = String(Boolean(element));
       footer.setAttribute('aria-hidden', String(!element));
     },
