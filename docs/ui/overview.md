@@ -42,6 +42,8 @@
 | Shared Field | `src/ui/field` | [One outline, border-notch label, leading/trailing slots](field.md) |
 | Native Select | `src/ui/select` | Native browser choice with shared floating label; [contract](selection-fields.md) |
 | Combobox | `src/ui/combobox` | Editable selection, async search and keyboard listbox; [contract](selection-fields.md) |
+| Listbox | `src/ui/listbox` | [Single/multiple listbox with chips, search and select-all](listbox.md) |
+| Menu | `src/ui/menu` | [Keyboard action/check menus](menu.md) |
 | Tag Field | `src/ui/tag-field` | Independent tag collection, paste parsing, two-step removal, undo; [contract](tag-field.md) |
 | Form Dialog | `src/ui/form-dialog` | Shared Dialog composition with validation and dirty close guard; [contract](form-dialog.md) |
 | Section navigator | `src/ui/section-navigator` | [Дослідження, API та жести](section-navigator.md): незалежні блоки, boundary scroll, ручки й кнопки |

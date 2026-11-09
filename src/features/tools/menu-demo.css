@@ -1,0 +1,6 @@
+/* Preview layout only. */
+.pg-tools-menu-demo {max-inline-size:780px;margin-block-start:var(--pg-space-10);}
+.pg-tools-menu-demo h3 {font-size:15px;margin:0 0 5px;}
+.pg-tools-menu-demo>p {color:var(--pg-color-text-secondary);font-size:13px;margin:0 0 16px;}
+.pg-tools-menu-demo__row {display:flex;flex-wrap:wrap;gap:12px;align-items:center;}
+.pg-tools-menu-demo__status {font-size:12px;color:var(--pg-color-text-secondary);}

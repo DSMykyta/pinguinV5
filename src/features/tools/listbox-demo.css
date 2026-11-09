@@ -1,0 +1,9 @@
+/* Preview layout only; individual Listbox CSS is in src/ui/listbox. */
+.pg-tools-listbox-demo {max-inline-size:780px;margin-block-start:var(--pg-space-10);}
+.pg-tools-listbox-demo h3 {font-size:15px;margin:0 0 5px;}
+.pg-tools-listbox-demo>p {color:var(--pg-color-text-secondary);font-size:13px;margin:0 0 16px;}
+.pg-tools-listbox-demo__grid {
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:var(--pg-space-5) var(--pg-space-6);align-items:start;
+}
+@media(max-width:680px){.pg-tools-listbox-demo__grid{grid-template-columns:minmax(0,1fr);}}
