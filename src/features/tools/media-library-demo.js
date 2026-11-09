@@ -30,6 +30,7 @@ const EXAMPLES = NAMES.map((name,i)=>({
   motif:i%4,colors:PALETTE[i%PALETTE.length],
 }));
 const COLUMNS = Object.freeze([
+  {key:'preview',label:'Зображення',sortable:false,render:renderTableThumbnail},
   {key:'name',label:'Назва',primary:true},
   {key:'format',label:'Формат'},
   {key:'dimensions',label:'Розмір'},
@@ -63,6 +64,17 @@ function thumb(row) {
     '<rect width="640" height="400" fill="'+sky+'"/>'+art+'</svg>');
 }
 
+function renderTableThumbnail(row) {
+  // The table and tile view reuse the same generated image source.
+  const image=node('img','table-thumb');
+  image.src=thumb(row);
+  image.alt='Мініатюра: '+row.name;
+  image.width=72;
+  image.height=45;
+  image.decoding='async';
+  return image;
+}
+
 function renderTile(row) {
   const card=node('article','card');
   const image=node('img','image');
@@ -85,7 +97,7 @@ export function createMediaLibraryDemo() {
   details.setAttribute('role','status');
   const sortBy=createSelect({
     label:'Сортувати за',placeholder:null,value:'name',
-    options:COLUMNS.map(col=>({label:col.label,value:col.key})),
+    options:COLUMNS.filter(col=>col.sortable!==false).map(col=>({label:col.label,value:col.key})),
     onChange:key=>collection.setSort(key),
   });
   controls.append(sortBy.element,details);
