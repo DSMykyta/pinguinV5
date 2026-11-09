@@ -262,10 +262,12 @@ export function createListbox({
     filter('');
     position();
     (searchable?search:list).focus({ preventScroll: true });
+    scrollDismiss.arm();
   }
   function close(restore=false) {
     if(!opened)return;
     opened=false;
+    scrollDismiss.disarm();
     if(hasPopover && panel.matches(':popover-open'))panel.hidePopover();
     panel.hidden=true;
     trigger.setAttribute('aria-expanded','false');
@@ -330,7 +332,7 @@ export function createListbox({
     if(opened&&!element.contains(event.target))close();
   },{signal:controller.signal});
   window.addEventListener('resize',position,{signal:controller.signal});
-  dismissOnOutsideScroll({
+  const scrollDismiss = dismissOnOutsideScroll({
     popup: panel, isOpen: () => opened, dismiss: () => close(),
     signal: controller.signal,
   });

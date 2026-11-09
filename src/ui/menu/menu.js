@@ -89,10 +89,12 @@ export function createMenu({label,id,items=[],align='start',disabled=false,onSel
     if(supportsPopover)panel.showPopover();
     position();
     focusItem(0);
+    scrollDismiss.arm();
   }
   function close(restore=false){
     if(!openState)return;
     openState=false;
+    scrollDismiss.disarm();
     if(supportsPopover&&panel.matches(':popover-open'))panel.hidePopover();
     panel.hidden=true;
     trigger.setAttribute('aria-expanded','false');
@@ -121,7 +123,7 @@ export function createMenu({label,id,items=[],align='start',disabled=false,onSel
     if(openState&&!element.contains(event.target))close();
   },{signal:controller.signal});
   window.addEventListener('resize',position,{signal:controller.signal});
-  dismissOnOutsideScroll({
+  const scrollDismiss = dismissOnOutsideScroll({
     popup: panel, isOpen: () => openState, dismiss: () => close(),
     signal: controller.signal,
   });

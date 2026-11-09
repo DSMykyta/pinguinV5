@@ -123,7 +123,9 @@ export function createCombobox({
       list.hidden = false;
       if (hasPopover) list.showPopover();
       position();
+      scrollDismiss.arm();
     } else {
+      scrollDismiss.disarm();
       if (hasPopover && list.matches(':popover-open')) list.hidePopover();
       list.hidden = true;
       activeIndex = -1;
@@ -278,7 +280,7 @@ export function createCombobox({
   document.addEventListener('pointerdown', handleOutside, { signal: controller.signal });
   document.addEventListener('focusin', handleOutside, { signal: controller.signal });
   window.addEventListener('resize', position, { signal: controller.signal });
-  dismissOnOutsideScroll({
+  const scrollDismiss = dismissOnOutsideScroll({
     popup: list, isOpen: () => open, dismiss: () => display(false),
     signal: controller.signal,
   });

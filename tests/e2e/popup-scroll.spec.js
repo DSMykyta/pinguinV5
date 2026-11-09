@@ -62,6 +62,8 @@ for(const {name,trigger,popup,expanded} of components) {
     await page.waitForTimeout(100);
     await expect(scroller.locator(expanded)).toHaveAttribute('aria-expanded','true');
 
+    // Let the open gesture's browser scroll-to-focus events finish before external scroll.
+    await page.waitForTimeout(80);
     await scroller.evaluate(node=>{node.scrollTop=75;});
     await expect(scroller.locator(expanded)).toHaveAttribute('aria-expanded','false');
     await expect(options).toBeHidden();
@@ -73,6 +75,7 @@ test('window scroll dismisses an open Listbox while leaving the selected value u
   const trigger=scroller.locator('.pg-listbox__trigger');
   await trigger.click();
   await expect(trigger).toHaveAttribute('aria-expanded','true');
+  await page.waitForTimeout(80);
   await page.evaluate(()=>window.dispatchEvent(new Event('scroll')));
   await expect(trigger).toHaveAttribute('aria-expanded','false');
   await expect(scroller.locator('.pg-listbox__panel')).toBeHidden();
