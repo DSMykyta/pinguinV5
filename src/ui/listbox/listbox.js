@@ -466,10 +466,8 @@ export function createListbox({
   document.addEventListener('pointermove', event => {
     if (trayOpened && !belongsToSelection(event.target)) hideTray();
   }, { signal: controller.signal });
-  element.addEventListener('focusout', event => {
-    if (!trayOpened || belongsToSelection(event.relatedTarget)) return;
-    hideTray();
-  }, { signal: controller.signal });
+  // Focus-out of a removed chip is NOT an intentional dismissal. The next
+  // focusin on another control or an outside pointer press handles dismissal.
 
   trigger.addEventListener('keydown',event=>{
     if(!opened && ['ArrowDown','Enter',' '].includes(event.key)) {
