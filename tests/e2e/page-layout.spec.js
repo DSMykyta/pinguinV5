@@ -16,7 +16,8 @@ async function coordinates(page) {
     .map(a => a.finished.catch(() => {}))));
   const [header, tabs, main] = await Promise.all([
     page.locator('h1.pg-shell__page-name').boundingBox(),
-    page.locator('.pg-shell__local-nav [role="tablist"]').boundingBox(),
+    // The nav host is fixed; its inner tablist scrolls horizontally on mobile.
+    page.locator('.pg-shell__local-nav').boundingBox(),
     page.locator('.pg-shell__content').boundingBox(),
   ]);
   const inset = await page.locator('.pg-shell__content').evaluate(node =>
