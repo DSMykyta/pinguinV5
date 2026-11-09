@@ -221,26 +221,22 @@ test('both FAB instances share the exact same hover and open movement for icon a
   });
   const settle = element => element.locator('.pg-fab__face').evaluate(node =>
     Promise.all(node.getAnimations().map(anim => anim.finished.catch(() => {}))));
-  const compare = async () => {
-    await Promise.all([settle(global),settle(pagination)]);
-    expect(await properties(global)).toEqual(await properties(pagination));
-  };
-
-  await compare(); // idle
+  // Compare equivalent states sequentially: only one pointer hover can exist.
+  expect(await properties(global)).toEqual(await properties(pagination));
   await global.hover();
-  await compare();
+  await settle(global);
   const hovered = await properties(global);
   expect(hovered.transform).not.toBe('none');
   await pagination.hover();
-  // Global loses :hover, so compare the matching state independently.
-  const paginationHover = await properties(pagination);
   await settle(pagination);
-  expect((await properties(pagination)).transform).toBe(hovered.transform);
-  expect(paginationHover.duration).toBe(hovered.duration);
+  expect(await properties(pagination)).toEqual(hovered);
+
   await global.click();
-  await compare();
+  await settle(global);
+  const opened = await properties(global);
   await pagination.click();
-  await compare();
+  await settle(pagination);
+  expect(await properties(pagination)).toEqual(opened);
 });
 
 test('selected pagination FAB action still gets the same hover response as global FAB links', async ({ page }) => {
@@ -254,9 +250,15 @@ test('selected pagination FAB action still gets the same hover response as globa
   const bg = selected.locator('.pg-fab__symbol');
   const before = await bg.evaluate(node => getComputedStyle(node).backgroundColor);
   await selected.hover();
-  await expect(bg).toHaveCSS('background-color',
-    await page.evaluate(() => getComputedStyle(document.documentElement)
-      .getPropertyValue('--pg-color-fab-action-hover').trim()));
+  const expectedHover = await bg.evaluate(node => {
+    const sample = document.createElement('span');
+    sample.style.background = 'var(--pg-color-fab-action-hover)';
+    node.ownerDocument.body.append(sample);
+    const value = getComputedStyle(sample).backgroundColor;
+    sample.remove();
+    return value;
+  });
+  await expect(bg).toHaveCSS('background-color', expectedHover);
   const after = await bg.evaluate(node => getComputedStyle(node).backgroundColor);
   expect(after).not.toBe(before);
   await pageFab.click();
