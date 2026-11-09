@@ -21,6 +21,7 @@ import { createListboxDemo } from './listbox-demo.js';
 import { createMenuDemo } from './menu-demo.js';
 import { createImageFieldDemo } from './image-field-demo.js';
 import { createDataViewsDemo } from './data-views-demo.js';
+import { createMediaLibraryDemo } from './media-library-demo.js';
 import { createSectionNavigatorDemo } from './section-navigator-demo.js';
 import './toast-demo.css';
 import './rich-text-editor-demo.css';
@@ -32,6 +33,7 @@ import './listbox-demo.css';
 import './menu-demo.css';
 import './image-field-demo.css';
 import './data-views-demo.css';
+import './media-library-demo.css';
 
 const TABS = Object.freeze([
   {
@@ -47,6 +49,13 @@ const TABS = Object.freeze([
     icon: 'layout-grid',
     sourceUrl: 'https://github.com/DSMykyta/pinguinV5/blob/work/docs/ui/collection-view.md',
     sourceLabel: 'Специфікація таблиць і плиток',
+  },
+  {
+    id: 'media-library',
+    label: 'Медіатека',
+    icon: 'image',
+    sourceUrl: 'https://github.com/DSMykyta/pinguinV5/blob/work/docs/ui/collection-view.md',
+    sourceLabel: 'Незалежні колекції',
   },
   {
     id: 'text',
@@ -70,6 +79,12 @@ export function mount(host, { setAsideContext, setSearchEntries, setSearchContex
   tablePage.body.append(createToastDemo());
   // The table itself is the page surface; there is no duplicate title or card.
   const dataViewsDemo = createDataViewsDemo();
+  const mediaLibraryDemo = createMediaLibraryDemo();
+  // Separate collections own their own rows, selection sets, pagination and tiles.
+  const collections = new Map([
+    ['data-views', dataViewsDemo],
+    ['media-library', mediaLibraryDemo],
+  ]);
   const textPage = createPageView({ title: 'Текст' });
   const richTextEditorDemo = createRichTextEditorDemo();
   const fieldDemo = createFieldDemo();
@@ -82,6 +97,7 @@ export function mount(host, { setAsideContext, setSearchEntries, setSearchContex
   const pageByTab = new Map([
     ['tables', tablePage],
     ['data-views', dataViewsDemo.element],
+    ['media-library', mediaLibraryDemo.element],
     ['text', textPage],
     ['navigation', navigationDemo.element],
   ]);
@@ -98,12 +114,13 @@ export function mount(host, { setAsideContext, setSearchEntries, setSearchContex
         ? pageByTab.get(item.id) : pageByTab.get(item.id).element,
     })),
     onChange(id) {
-      setHeaderActions(id === 'data-views' ? dataViewsDemo.headerActions : null);
-      setFooterContent(id === 'data-views' ? dataViewsDemo.footerContent : null);
-      setPageFabContext(id === 'data-views' ? dataViewsDemo.getPageFabContext() : null);
-      setSearchContext(id === 'data-views' ? dataViewsDemo.getSearchContext() : false);
-      if (id === 'data-views') {
-        setAsideContext(dataViewsDemo.getAsideContext());
+      const collection = collections.get(id);
+      setHeaderActions(collection?.headerActions ?? null);
+      setFooterContent(collection?.footerContent ?? null);
+      setPageFabContext(collection?.getPageFabContext() ?? null);
+      setSearchContext(collection?.getSearchContext() ?? false);
+      if (collection) {
+        setAsideContext(collection.getAsideContext());
         return;
       }
       const item = TABS.find(tab => tab.id === id);
@@ -138,6 +155,7 @@ export function mount(host, { setAsideContext, setSearchEntries, setSearchContex
     setPageFabContext(null);
     setSearchContext(null);
     dataViewsDemo.destroy();
+    mediaLibraryDemo.destroy();
     richTextEditorDemo.destroy();
     navigationDemo.destroy();
     fieldDemo.destroy();

@@ -94,15 +94,16 @@
   gap:8px;pointer-events:none;
 }
 .pg-collection-view__tile-controls > * {pointer-events:auto;}
-.pg-collection-view__tile-check,
-.pg-collection-view__tile-menu .pg-menu__trigger {
-  display:grid;place-items:center;min-inline-size:32px;min-block-size:32px;
-  border:1px solid var(--pg-color-border);
-  border-radius:var(--pg-radius-md);
-  background:var(--pg-color-surface);
-  box-shadow:0 2px 10px var(--pg-color-shadow);
+.pg-collection-view__tile-check {
+  display:flex;align-items:center;justify-content:center;
+  min-inline-size:28px;min-block-size:28px;
+  /* The existing checkbox already has its own surface and focus styling. */
 }
-.pg-collection-view__tile-check .pg-checkbox__row {min-block-size:30px;}
+.pg-collection-view__tile-menu .pg-menu__trigger {
+  /* Reuse pg-mini-button and Menu styling: no second card behind the button. */
+  box-shadow:none;
+}
+.pg-collection-view__tile-check .pg-checkbox__row {min-block-size:28px;}
 .pg-collection-view__tile-menu {margin-inline-start:auto;}
 @media (prefers-reduced-motion:reduce) {
   .pg-collection-view__tile-open {scroll-behavior:auto;}
