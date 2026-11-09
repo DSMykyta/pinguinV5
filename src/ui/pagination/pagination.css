@@ -1,5 +1,5 @@
 /* PINGUIN PAGINATION — quiet, modern navigation within the shared footer. */
-/* The existing Shell FAB is the only launcher for choosing page size. */
+/* Page-size selection reuses the existing FAB next to page numbers in the footer. */
 .pg-pagination {
   display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
   align-items:center;column-gap:16px;width:100%;height:100%;
@@ -17,6 +17,14 @@
   border-radius:var(--pg-radius-full);
   background:var(--pg-color-surface);
 }
+/* Placement only: the FAB component owns all its shared visual styles. */
+.pg-pagination > .pg-fab[data-pg-fab-position='footer'] {
+  grid-column:3;
+  justify-self:start;
+  align-self:center;
+  margin-left:12px;
+}
+
 .pg-pagination__button {
   display:inline-grid;place-items:center;flex:0 0 auto;
   min-inline-size:34px;block-size:34px;padding:0 8px;
