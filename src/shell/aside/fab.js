@@ -14,9 +14,10 @@ export function createAsideFab({
   label = 'швидкі дії',
   icon = 'plus',
   position = 'corner',
+  showLabels = true,
   onOpen,
 } = {}) {
-  if (!['corner', 'adjacent'].includes(position)) throw new RangeError('Invalid FAB position');
+  if (!['corner', 'adjacent', 'footer'].includes(position)) throw new RangeError('Invalid FAB position');
   const element = document.createElement('div');
   element.className = 'pg-fab';
   element.dataset.pgFabState = 'closed';
@@ -97,7 +98,9 @@ export function createAsideFab({
       symbol.className = 'pg-fab__symbol';
       if (entry.icon) symbol.append(createIcon(entry.icon));
       else symbol.textContent = String(entry.symbol ?? entry.value ?? '');
-      item.append(label, symbol);
+      item.setAttribute('aria-label', entry.label);
+      if (showLabels) item.append(label);
+      item.append(symbol);
       actions.append(item);
     }
     syncChoices();
