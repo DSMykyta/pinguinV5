@@ -197,3 +197,30 @@ test('destroying one adapter preserves another mounted on the same document', ()
   assert.deepEqual(secondChanges, [['next', 'wheel']]);
   second.destroy();
 });
+
+
+test('one handle uses dynamic direction for both click and drag', () => {
+  const input = fixture();
+  const Handle = input.handles.next.constructor;
+  const single = new Handle();
+  let direction = 'previous';
+  const changes = [];
+  const adapter = mountNavigationGestures({
+    viewport: input.viewport, handles: { next: single },
+    getHandleDirection: () => direction,
+    canGo: () => true, isEnabled: () => true,
+    onProgress() {}, onNavigate: (...args) => changes.push(args),
+  });
+  single.dispatchEvent(Object.assign(new Event('click', { cancelable: true }), { detail: 1 }));
+  assert.deepEqual(changes, [['previous', 'button']]);
+  const dispatch = (type, args = {}) => single.dispatchEvent(Object.assign(
+    new Event(type, { cancelable: true }),
+    { isPrimary: true, pointerId: 1, button: 0, clientX: 100, clientY: 100, ...args },
+  ));
+  dispatch('pointerdown');
+  dispatch('pointermove', { clientY: 220 });
+  dispatch('pointerup', { clientY: 220 });
+  assert.deepEqual(changes[1], ['previous', 'pointer']);
+  adapter.destroy();
+  input.gestures.destroy();
+});

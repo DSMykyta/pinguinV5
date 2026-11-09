@@ -79,6 +79,9 @@ test('buttons and native keyboard preserve field DOM, values, scroll and focus',
   await next.press('Enter');
   await expect(heading(page)).toHaveText('Фото');
   await expect(heading(page)).toBeFocused();
+  await viewport(page).evaluate(node => node.dispatchEvent(new WheelEvent('wheel', {
+    deltaY: -20, cancelable: true, bubbles: true,
+  })));
   await page.getByRole('button', { name: 'Перейти до розділу «Основне»', exact: true }).click();
   await expect(heading(page)).toHaveText('Основне');
   await expect(page.getByRole('textbox', { name: 'Значення' })).toHaveValue('Мій товар');
@@ -300,24 +303,57 @@ test('configuration requires string IDs and errors in observers cannot reject na
 });
 
 
-test('page scroll drives circular progress without a nested scroll card', async ({ page }) => {
+test('ordinary scrolling leaves the ring empty; only edge pull charges it', async ({ page }) => {
   await page.goto('/tools');
   await page.getByRole('tab', { name: 'Переходи' }).click();
   const root = page.locator('.pg-section-navigator');
   const scroller = page.locator('#pg-tools-panel-navigation');
   await expect(root).toHaveAttribute('data-pg-scroll-container', 'external');
   await expect(root.locator('.pg-section-navigator__viewport')).toHaveCSS('overflow-y', 'visible');
-  await expect(root.locator('.pg-section-navigator__handle:visible')).toHaveCount(1);
-  await expect(root.locator('.pg-section-navigator__caption:visible')).toHaveText('Фото');
-  await expect(root).toHaveCSS('border-top-width', '0px');
-  const meter = root.locator('.pg-section-navigator__handle:visible .pg-section-navigator__ring-fill');
-  const getMeter = async () => Number(await meter.evaluate(node => node.style.strokeDashoffset));
-  expect(await getMeter()).toBe(100);
+  const button = root.locator('.pg-section-navigator__handle');
+  const circle = button.locator('.pg-section-navigator__ring-fill');
+  const progress = () => circle.evaluate(node => Number(node.style.strokeDashoffset));
+  await expect(button).toHaveCount(1);
+  await expect(button.locator('.pg-section-navigator__caption')).toHaveText('Фото');
   await scroller.evaluate(node => { node.scrollTop = (node.scrollHeight - node.clientHeight) / 2; });
-  await expect.poll(getMeter).toBeLessThan(100);
-  await expect.poll(getMeter).toBeGreaterThan(0);
+  await expect.poll(progress).toBe(100);
   await scroller.evaluate(node => { node.scrollTop = node.scrollHeight; });
-  await expect.poll(getMeter).toBe(0);
-  await scroller.evaluate(node => { node.scrollTop = 0; });
-  await expect.poll(getMeter).toBe(100);
+  await expect.poll(progress).toBe(100);
+  await scroller.evaluate(node => {
+    node.dispatchEvent(new WheelEvent('wheel', { deltaY: 60, cancelable: true, bubbles: true }));
+  });
+  await expect.poll(progress).toBeLessThan(100);
+  await expect.poll(progress).toBeGreaterThan(0);
+  await scroller.evaluate(node => {
+    node.dispatchEvent(new WheelEvent('wheel', { deltaY: 60, cancelable: true, bubbles: true }));
+    node.dispatchEvent(new WheelEvent('wheel', { deltaY: 60, cancelable: true, bubbles: true }));
+  });
+  await expect(root.locator('.pg-section-navigator__title')).toHaveText('Фото');
+  await expect.poll(progress).toBe(100);
+});
+
+test('only one stable right control, with the label to the left and smooth section transition', async ({ page }) => {
+  await page.goto('/tools');
+  await page.getByRole('tab', { name: 'Переходи' }).click();
+  const root = page.locator('.pg-section-navigator');
+  const scroll = page.locator('#pg-tools-panel-navigation');
+  const button = root.locator('.pg-section-navigator__handle');
+  const caption = button.locator('.pg-section-navigator__caption');
+  const icon = button.locator('.pg-section-navigator__symbol');
+  const title = root.locator('.pg-section-navigator__title');
+  await expect(button).toHaveCount(1);
+  const originalButton = await button.boundingBox();
+  const [textBounds, iconBounds] = await Promise.all([caption.boundingBox(), icon.boundingBox()]);
+  expect(textBounds.x + textBounds.width).toBeLessThan(iconBounds.x);
+  await button.click();
+  await expect(root).toHaveAttribute('data-pg-transition', 'forward');
+  await expect(title).toHaveText('Фото');
+  await scroll.evaluate(node => {
+    node.dispatchEvent(new WheelEvent('wheel', { deltaY: -60, cancelable: true, bubbles: true }));
+  });
+  await expect(button).toHaveAttribute('data-pg-direction', 'previous');
+  await expect(caption).toHaveText('Основне');
+  const reversedButton = await button.boundingBox();
+  expect(Math.abs((originalButton.x + originalButton.width) -
+    (reversedButton.x + reversedButton.width))).toBeLessThan(2);
 });
