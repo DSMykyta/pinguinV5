@@ -271,6 +271,9 @@ test('page footer is shared across tabs, with no duplicated pagination controls'
   await expect(footer).toHaveAttribute('data-pg-has-content','true');
   await expect(pager).toHaveCount(1);
   await expect(footer).toHaveCSS('height','56px');
+  // Pagination has a bottom-to-top entrance; measure after reaching its rest position.
+  await footer.locator('.pg-shell__footer-panel').evaluate(node =>
+    Promise.all(node.getAnimations().map(animation => animation.finished.catch(() => {}))));
   const bounds=await Promise.all([footer.boundingBox(),pager.boundingBox()]);
   expect(bounds[1].y+bounds[1].height).toBeLessThanOrEqual(bounds[0].y+bounds[0].height+2);
 });
