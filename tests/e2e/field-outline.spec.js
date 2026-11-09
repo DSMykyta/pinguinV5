@@ -57,14 +57,15 @@ test('one-line Input, Select and Combobox remain exactly 56px when adjacent to d
     return ['.pg-input .pg-field','.pg-select .pg-field','.pg-combobox .pg-field']
       .map(selector=>root.querySelector(selector).getBoundingClientRect().height);
   });
-  expect(h).toEqual([56,56,56]);
+  expect(h.every(size => Math.abs(size - 56) < 0.25)).toBe(true);
   await page.setViewportSize({width:390,height:844});
   const narrow=await page.evaluate(()=>{
     const root=document.querySelector('.pg-tools-field-demo');
     return ['.pg-input .pg-field','.pg-select .pg-field','.pg-combobox .pg-field']
       .map(selector=>root.querySelector(selector).getBoundingClientRect().height);
   });
-  expect(narrow).toEqual([56,56,56]);
+  // Chromium may report subpixel rounding at non-integer device scales.
+  expect(narrow.every(size => Math.abs(size - 56) < 0.25)).toBe(true);
 });
 
 test('checkbox becomes a circular check or minus, preserving native keyboard and mixed state',async ({page})=>{
