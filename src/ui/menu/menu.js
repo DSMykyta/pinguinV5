@@ -6,12 +6,11 @@ import { dismissOnOutsideScroll } from '../position/dismiss-on-scroll.js';
  * Native button + ARIA menu keyboard model. No feature state/global registry.
  */
 let sequence = 0;
-const allowed = new Set(['action','navigation','check','radio']);
+const allowed = new Set(['action','navigation','check']);
 
-export function createMenu({label,id,items=[],align='start',disabled=false,presentation='list',onSelect}={}) {
+export function createMenu({label,id,items=[],align='start',disabled=false,onSelect}={}) {
   if(typeof label!=='string'||!label.trim())throw new TypeError('Menu label is required');
   if(!['start','end'].includes(align))throw new TypeError('Invalid menu alignment');
-  if(!['list','dial'].includes(presentation))throw new TypeError('Invalid menu presentation');
   if(!Array.isArray(items)||!items.length)throw new TypeError('Menu needs items');
   const entries=items.map((item,i)=>{
     if(!item||typeof item.label!=='string'||!item.label.trim())throw new TypeError('Menu item needs label');
@@ -24,7 +23,6 @@ export function createMenu({label,id,items=[],align='start',disabled=false,prese
   const element=document.createElement('div');
   element.className='pg-menu';
   element.dataset.pgAlign=align;
-  element.dataset.pgPresentation=presentation;
   const trigger=document.createElement('button');
   trigger.className='pg-menu__trigger';
   trigger.type='button';
@@ -52,8 +50,8 @@ export function createMenu({label,id,items=[],align='start',disabled=false,prese
     action.textContent=item.label;
     action.dataset.pgValue=item.value;
     action.disabled=item.disabled;
-    action.setAttribute('role',item.type==='check'?'menuitemcheckbox':item.type==='radio'?'menuitemradio':'menuitem');
-    if(['check','radio'].includes(item.type))action.setAttribute('aria-checked',String(item.checked));
+    action.setAttribute('role',item.type==='check'?'menuitemcheckbox':'menuitem');
+    if(item.type==='check')action.setAttribute('aria-checked',String(item.checked));
     if(item.danger)action.dataset.pgDanger='true';
     action.tabIndex=-1;
     action.addEventListener('click',event=>{
@@ -61,8 +59,6 @@ export function createMenu({label,id,items=[],align='start',disabled=false,prese
       if(item.type==='check') {
         item.checked=!item.checked;
         action.setAttribute('aria-checked',String(item.checked));
-      } else if(item.type==='radio') {
-        setSelected(item.value);
       }
       onSelect?.(item.value,{...item},event);
       close(true);
@@ -72,23 +68,14 @@ export function createMenu({label,id,items=[],align='start',disabled=false,prese
   });
   element.append(trigger,panel);
   function enabledButtons(){return buttons.filter(button=>!button.disabled);}
-  function setSelected(value){
-    entries.forEach((entry,index)=>{
-      if(entry.type!=='radio')return;
-      entry.checked=entry.value===String(value);
-      buttons[index].setAttribute('aria-checked',String(entry.checked));
-    });
-  }
   function position(){
     if (!openState || !supportsPopover) return;
     // Width follows the longest action rather than the small trigger.
     // Dialog/popup positioning and viewport clamping stay in one shared helper.
-    const width=presentation==='dial' ? 58
-      : Math.max(170,...buttons.map(button=>button.scrollWidth+12));
+    const width=Math.max(170,...buttons.map(button=>button.scrollWidth+12));
     positionPopup({
-      anchor:trigger,popup:panel,maxHeight:presentation==='dial'?400:320,
-      matchWidth:false,minWidth:presentation==='dial'?58:170,
-      maxWidth:presentation==='dial'?58:360,preferredWidth:width,align,
+      anchor:trigger,popup:panel,maxHeight:320,
+      matchWidth:false,minWidth:170,maxWidth:360,preferredWidth:width,align,
     });
   }
   function focusItem(index){
@@ -144,7 +131,7 @@ export function createMenu({label,id,items=[],align='start',disabled=false,prese
     signal: controller.signal,
   });
   return Object.freeze({
-    element,trigger,open,close,setSelected,
+    element,trigger,open,close,
     destroy(){disposed=true;close();controller.abort();element.remove();},
   });
 }
