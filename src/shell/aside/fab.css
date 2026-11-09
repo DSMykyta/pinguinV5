@@ -131,8 +131,12 @@
   .pg-fab__item {
     transition: none;
   }
+  /* The original hover selector has greater specificity; neutralize both
+     hover and open states for users requesting reduced motion. */
   .pg-fab__trigger > .pg-fab__face,
-  .pg-fab__trigger:is(:hover, [aria-expanded='true']) > .pg-fab__face {
+  .pg-fab__trigger:not([aria-expanded='true']):hover > .pg-fab__face,
+  .pg-fab__trigger[aria-expanded='true'] > .pg-fab__face,
+  .pg-fab__trigger[aria-expanded='true']:hover > .pg-fab__face {
     transform: none;
   }
 }
