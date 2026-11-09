@@ -97,7 +97,14 @@
   background: var(--pg-color-hover);
 }
 
-/* Another instance of this exact component may sit beside the fixed corner FAB. */
+/* Optional page controls share this same FAB implementation inside the footer. */
+.pg-fab[data-pg-fab-position='footer'] {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  flex: 0 0 var(--pg-control-size);
+}
+/* Keep existing positioning available to other consumers. */
 .pg-fab[data-pg-fab-position='adjacent'] {
   right: calc(12px + var(--pg-control-size) + 8px);
 }
