@@ -198,13 +198,14 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
       incoming.hidden = false;
       scrollContainer.scrollTop = positions.get(id) ?? 0;
       renderControls();
+      // The section is active now; consumers must not wait for the visual entrance.
+      try { onChange?.(request); } catch (error) { reportError(error); }
       await animatePanel(incoming, 'enter', movement);
       if (destroyed) return false;
       for (const { ring } of Object.values(controls)) ring.style.strokeDashoffset = '100';
       delete element.dataset.pgTransition;
       status.textContent = 'Блок ' + (currentIndex + 1) + ' з ' + sections.length + ': ' + sections[currentIndex].label;
       if (shouldFocus) title.focus({ preventScroll: true });
-      try { onChange?.(request); } catch (error) { reportError(error); }
       return true;
     } catch (error) {
       if (!destroyed) reportError(error);
