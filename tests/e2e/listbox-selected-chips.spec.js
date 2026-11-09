@@ -40,14 +40,18 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
+async function movePointerTo(page, target) {
+  const rect = await target.boundingBox();
+  expect(rect).not.toBeNull();
+  await page.mouse.move(rect.x + rect.width / 2, rect.y + rect.height / 2);
+}
+
 async function hoverOverflow(page, root) {
   // Showing the expanded surface deliberately covers +N. Playwright's
   // locator.hover() waits for the button to stay visible and retries forever.
   // A real mouse move initiates the UI transition without that false condition.
   const more = root.getByRole('button', { name: 'Показати всі вибрані значення' });
-  const rect = await more.boundingBox();
-  expect(rect).not.toBeNull();
-  await page.mouse.move(rect.x + rect.width / 2, rect.y + rect.height / 2);
+  await movePointerTo(page, more);
   await expect(root.locator('.pg-listbox__selection-tray')).toBeVisible();
 }
 
@@ -56,9 +60,9 @@ test('ordinary hovering shows nothing; hovering +N replaces compact chips with o
   const more=root.getByRole('button',{name:'Показати всі вибрані значення'});
   const tray=root.locator('.pg-listbox__selection-tray');
   await expect(root.locator('.pg-listbox__chip')).toHaveCount(4);
-  await root.locator('.pg-field__label').first().hover();
+  await movePointerTo(page, root.locator('.pg-field__label').first());
   await expect(tray).toBeHidden();
-  await root.locator('.pg-listbox__chip-text').first().hover();
+  await movePointerTo(page, root.locator('.pg-listbox__chip-text').first());
   await expect(tray).toBeHidden();
 
   await hoverOverflow(page, root);
