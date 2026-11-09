@@ -32,6 +32,11 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
   const positions = new Map();
   const panels = new Map();
   const prefix = 'pg-section-navigator-' + (++nextNavigatorId);
+  let visibleDirection = 'next';
+  let gestures = null;
+  let stopScroll = () => {};
+  let lastScrollTop = 0;
+  let ignoreScrollDirectionOnce = false;
 
   function createNode(tag, part, text) {
     const node = document.createElement(tag);
@@ -63,6 +68,8 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
     panels.set(section.id, panel);
     viewport.append(panel);
   }
+  const rail = createNode('div', 'rail');
+  let scrollContainer = viewport;
   const status = createNode('p', 'status');
   status.setAttribute('role', 'status');
   status.setAttribute('aria-atomic', 'true');
@@ -74,17 +81,42 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
     button.setAttribute('aria-controls', viewport.id);
     const symbol = createNode('span', 'symbol', direction === 'next' ? '↓' : '↑');
     symbol.setAttribute('aria-hidden', 'true');
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.classList.add('pg-section-navigator__ring');
+    svg.setAttribute('viewBox', '0 0 44 44');
+    svg.setAttribute('aria-hidden', 'true');
+    for (const role of ['track', 'fill']) {
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.classList.add('pg-section-navigator__ring-' + role);
+      circle.setAttribute('cx', '22');
+      circle.setAttribute('cy', '22');
+      circle.setAttribute('r', '19');
+      if (role === 'fill') {
+        circle.setAttribute('pathLength', '100');
+        circle.style.strokeDashoffset = '100';
+      }
+      svg.append(circle);
+    }
+    symbol.append(svg);
     const caption = createNode('span', 'caption');
-    const meter = createNode('span', 'meter');
-    meter.setAttribute('aria-hidden', 'true');
-    button.append(symbol, caption, meter);
-    return { button, caption };
+    button.append(symbol, caption);
+    rail.append(button);
+    return { button, caption, ring: svg.lastElementChild };
   }
   const controls = { previous: createHandle('previous'), next: createHandle('next') };
-  element.append(header, controls.previous.button, viewport, controls.next.button, status);
+  element.append(header, rail, viewport, status);
 
   function adjacent(direction) {
     return sections[currentIndex + (direction === 'next' ? 1 : -1)];
+  }
+
+  function showDirection(direction) {
+    if (!adjacent(direction)) direction = adjacent(direction === 'next' ? 'previous' : 'next')
+      ? (direction === 'next' ? 'previous' : 'next') : direction;
+    visibleDirection = direction;
+    for (const [side, control] of Object.entries(controls)) {
+      control.button.hidden = !adjacent(side) || side !== visibleDirection;
+    }
   }
 
   function renderControls() {
@@ -92,28 +124,37 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
     counter.textContent = (currentIndex + 1) + ' / ' + sections.length;
     for (const [direction, { button, caption }] of Object.entries(controls)) {
       const destination = adjacent(direction);
-      const text = destination
-        ? (direction === 'next' ? 'Далі: ' : 'Назад: ') + destination.label
-        : direction === 'next' ? 'Останній блок' : 'Перший блок';
       button.disabled = busy || !destination;
-      button.setAttribute('aria-label', text);
-      caption.textContent = text;
+      if (destination) {
+        button.setAttribute('aria-label', 'Перейти до розділу «' + destination.label + '»');
+        caption.textContent = destination.label;
+      } else {
+        button.removeAttribute('aria-label');
+        caption.textContent = '';
+      }
+      button.dataset.pgState = 'ready';
     }
+    showDirection(visibleDirection);
     element.setAttribute('aria-busy', String(busy));
     element.dataset.pgState = busy ? 'busy' : 'ready';
   }
 
-  function renderProgress(direction, progress, source) {
+  function syncProgress() {
     if (destroyed) return;
-    for (const [side, { button, caption }] of Object.entries(controls)) {
-      const value = direction === side ? progress : 0;
-      button.style.setProperty('--pg-section-navigator-progress', String(value));
-      button.dataset.pgState = value >= 1 ? 'armed' : value > 0 ? 'pulling' : 'ready';
-      const destination = adjacent(side);
-      if (!destination) continue;
-      caption.textContent = value >= 1
-        ? (source === 'wheel' ? 'Перехід після зупинки: ' : 'Відпустіть: ') + destination.label
-        : (side === 'next' ? 'Далі: ' : 'Назад: ') + destination.label;
+    const max = Math.max(0, scrollContainer.scrollHeight - scrollContainer.clientHeight);
+    const progress = max <= 1 ? 0 : Math.min(1, Math.max(0, scrollContainer.scrollTop / max));
+    element.style.setProperty('--pg-section-scroll-progress', progress.toFixed(5));
+    for (const { ring } of Object.values(controls)) {
+      ring.style.strokeDashoffset = String((100 * (1 - progress)).toFixed(3));
+    }
+  }
+
+  function renderProgress(direction, progress) {
+    if (destroyed) return;
+    if (direction && adjacent(direction)) showDirection(direction);
+    for (const [side, { button }] of Object.entries(controls)) {
+      const amount = direction === side ? progress : 0;
+      button.dataset.pgState = amount >= 1 ? 'armed' : amount > 0 ? 'pulling' : 'ready';
     }
   }
 
@@ -139,11 +180,15 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
       }
       const outgoing = panels.get(request.fromId);
       const shouldFocus = focus || outgoing.contains(document.activeElement);
-      positions.set(request.fromId, viewport.scrollTop);
+      positions.set(request.fromId, scrollContainer.scrollTop);
       outgoing.hidden = true;
       currentIndex = sections.findIndex(item => item.id === id);
       panels.get(id).hidden = false;
-      viewport.scrollTop = positions.get(id) ?? 0;
+      ignoreScrollDirectionOnce = true;
+      scrollContainer.scrollTop = positions.get(id) ?? 0;
+      lastScrollTop = scrollContainer.scrollTop;
+      visibleDirection = adjacent('next') ? 'next' : 'previous';
+      syncProgress();
       renderControls();
       status.textContent = 'Блок ' + (currentIndex + 1) + ' з ' + sections.length + ': ' + sections[currentIndex].label;
       if (shouldFocus) title.focus({ preventScroll: true });
@@ -160,28 +205,72 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
     }
   }
 
-  const gestures = mountNavigationGestures({
-    viewport,
-    handles: { previous: controls.previous.button, next: controls.next.button },
-    wheel,
-    canGo: direction => Boolean(adjacent(direction)),
-    isEnabled: () => !destroyed && !busy && element.isConnected && viewport.getClientRects().length > 0,
-    onProgress: renderProgress,
-    onNavigate: (direction, source) => {
-      const destination = adjacent(direction);
-      if (destination) void navigateTo(destination.id, { source, focus: source === 'button' });
-    },
-  });
+  function bindScroll(container) {
+    gestures?.destroy();
+    stopScroll();
+    scrollContainer = container;
+    element.dataset.pgScrollContainer = container === viewport ? 'local' : 'external';
+    const onScroll = () => {
+      const current = container.scrollTop;
+      if (!ignoreScrollDirectionOnce && Math.abs(current - lastScrollTop) > 1) {
+        showDirection(current > lastScrollTop ? 'next' : 'previous');
+      }
+      ignoreScrollDirectionOnce = false;
+      lastScrollTop = current;
+      syncProgress();
+    };
+    const onWheel = event => {
+      if (Math.abs(event.deltaY) > Math.abs(event.deltaX) && !event.ctrlKey && !event.metaKey) {
+        showDirection(event.deltaY > 0 ? 'next' : 'previous');
+      }
+    };
+    container.addEventListener('scroll', onScroll, { passive: true });
+    container.addEventListener('wheel', onWheel, { passive: true });
+    const view = container.ownerDocument.defaultView;
+    view.addEventListener('resize', syncProgress, { passive: true });
+    const observer = typeof view.ResizeObserver === 'function' ? new view.ResizeObserver(syncProgress) : null;
+    observer?.observe(container);
+    observer?.observe(viewport);
+    stopScroll = () => {
+      container.removeEventListener('scroll', onScroll);
+      container.removeEventListener('wheel', onWheel);
+      view.removeEventListener('resize', syncProgress);
+      observer?.disconnect();
+    };
+    gestures = mountNavigationGestures({
+      viewport: container,
+      handles: { previous: controls.previous.button, next: controls.next.button },
+      wheel,
+      canGo: direction => Boolean(adjacent(direction)),
+      isEnabled: () => !destroyed && !busy && element.isConnected && container.getClientRects().length > 0,
+      onProgress: renderProgress,
+      onNavigate: (direction, source) => {
+        const destination = adjacent(direction);
+        if (destination) void navigateTo(destination.id, { source, focus: source === 'button' });
+      },
+    });
+    lastScrollTop = container.scrollTop;
+    syncProgress();
+  }
+  bindScroll(viewport);
   renderControls();
+  syncProgress();
 
   return Object.freeze({
     element,
     navigate: (id, options) => navigateTo(id, { focus: options?.focus ?? true }),
     getActive: () => sections[currentIndex].id,
+    setScrollContainer(container) {
+      if (destroyed || !(container instanceof HTMLElement) || !container.contains(element)) {
+        throw new TypeError('Scroll container must contain the mounted navigator');
+      }
+      if (container !== scrollContainer) bindScroll(container);
+    },
     destroy() {
       if (destroyed) return;
       destroyed = true;
-      gestures.destroy();
+      gestures?.destroy();
+      stopScroll();
       element.remove();
     },
   });

@@ -40,6 +40,7 @@ async function mountFixture(page) {
       canNavigate: request => window.pgNavigationTest.guard?.(request) ?? true,
       onChange: request => events.push(request),
     });
+    navigator.element.style.blockSize = '520px';
     document.body.append(navigator.element);
     window.pgNavigationTest = { navigator, events, main, input, createSectionNavigator };
   });
@@ -59,7 +60,7 @@ async function wheel(page, count = 3, deltaY = 80) {
   for (let index = 0; index < count; index++) await page.mouse.wheel(0, deltaY);
 }
 async function drag(page, distance) {
-  const box = await page.getByRole('button', { name: 'Далі: Фото', exact: true }).boundingBox();
+  const box = await page.getByRole('button', { name: 'Перейти до розділу «Фото»', exact: true }).boundingBox();
   const x = box.x + box.width / 2;
   const y = box.y + box.height / 2;
   await page.mouse.move(x, y);
@@ -73,12 +74,12 @@ test('buttons and native keyboard preserve field DOM, values, scroll and focus',
   await page.getByRole('textbox', { name: 'Значення' }).fill('Мій товар');
   await edge(page);
   const position = await viewport(page).evaluate(node => node.scrollTop);
-  const next = page.getByRole('button', { name: 'Далі: Фото', exact: true });
+  const next = page.getByRole('button', { name: 'Перейти до розділу «Фото»', exact: true });
   await next.focus();
   await next.press('Enter');
   await expect(heading(page)).toHaveText('Фото');
   await expect(heading(page)).toBeFocused();
-  await page.getByRole('button', { name: 'Назад: Основне', exact: true }).click();
+  await page.getByRole('button', { name: 'Перейти до розділу «Основне»', exact: true }).click();
   await expect(heading(page)).toHaveText('Основне');
   await expect(page.getByRole('textbox', { name: 'Значення' })).toHaveValue('Мій товар');
   expect(await viewport(page).evaluate(node => node.scrollTop)).toBe(position);
@@ -108,8 +109,9 @@ test('short pull cancels, threshold commits once, and first/last have no wrap', 
   await drag(page, 110);
   await expect(heading(page)).toHaveText('Фото');
   expect(await page.evaluate(() => window.pgNavigationTest.events.length)).toBe(1);
-  await page.getByRole('button', { name: 'Далі: Опис', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Останній блок', exact: true })).toBeDisabled();
+  await page.getByRole('button', { name: 'Перейти до розділу «Опис»', exact: true }).click();
+  await expect(page.locator('.pg-section-navigator__handle:visible')).toHaveCount(1);
+  await expect(page.getByRole('button', { name: 'Перейти до розділу «Фото»' })).toBeVisible();
   await edge(page);
   await wheel(page, 6);
   await page.waitForTimeout(260);
@@ -193,7 +195,7 @@ test('instances are isolated, reduced motion removes travel, and mobile stays wi
   const box = await root.boundingBox();
   expect(box.x).toBeGreaterThanOrEqual(0);
   expect(box.x + box.width).toBeLessThanOrEqual(390);
-  for (const meter of await root.locator('.pg-section-navigator__meter').all()) {
+  for (const meter of await root.locator('.pg-section-navigator__ring-fill').all()) {
     await expect(meter).toHaveCSS('transition-duration', '0s');
   }
   await page.evaluate(() => window.pgNavigationTest.navigator.navigate('photos'));
@@ -246,7 +248,7 @@ test('touch scroll stays native; a new upward pull at the bottom navigates on re
 
 test('Escape, pointer cancellation and a reversed armed pull do not commit', async ({ page }) => {
   await mountFixture(page);
-  const button = page.getByRole('button', { name: 'Далі: Фото', exact: true });
+  const button = page.getByRole('button', { name: 'Перейти до розділу «Фото»', exact: true });
   const box = await button.boundingBox();
   const x = box.x + box.width / 2;
   const y = box.y + box.height / 2;
@@ -295,4 +297,27 @@ test('configuration requires string IDs and errors in observers cannot reject na
     return { invalidRejected, succeeded, active };
   });
   expect(result).toEqual({ invalidRejected: true, succeeded: true, active: 'two' });
+});
+
+
+test('page scroll drives circular progress without a nested scroll card', async ({ page }) => {
+  await page.goto('/tools');
+  await page.getByRole('tab', { name: 'Переходи' }).click();
+  const root = page.locator('.pg-section-navigator');
+  const scroller = page.locator('#pg-tools-panel-navigation');
+  await expect(root).toHaveAttribute('data-pg-scroll-container', 'external');
+  await expect(root.locator('.pg-section-navigator__viewport')).toHaveCSS('overflow-y', 'visible');
+  await expect(root.locator('.pg-section-navigator__handle:visible')).toHaveCount(1);
+  await expect(root.locator('.pg-section-navigator__caption:visible')).toHaveText('Фото');
+  await expect(root).toHaveCSS('border-top-width', '0px');
+  const meter = root.locator('.pg-section-navigator__handle:visible .pg-section-navigator__ring-fill');
+  const getMeter = async () => Number(await meter.evaluate(node => node.style.strokeDashoffset));
+  expect(await getMeter()).toBe(100);
+  await scroller.evaluate(node => { node.scrollTop = node.scrollHeight / 2; });
+  await expect.poll(getMeter).toBeLessThan(100);
+  await expect.poll(getMeter).toBeGreaterThan(0);
+  await scroller.evaluate(node => { node.scrollTop = node.scrollHeight; });
+  await expect.poll(getMeter).toBe(0);
+  await scroller.evaluate(node => { node.scrollTop = 0; });
+  await expect.poll(getMeter).toBe(100);
 });

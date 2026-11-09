@@ -18,7 +18,6 @@ export function createSectionNavigatorDemo() {
     return node;
   }
   const element = createNode('section');
-  const hint = createNode('p', 'hint', 'Прокрутіть блок донизу, зупиніться та прокрутіть ще. Або потягніть нижню ручку вгору й відпустіть. Кнопки теж працюють.');
   const main = createNode('div', 'fields');
   const fields = [
     ['Назва', 'Товар для прикладу'], ['Бренд', 'Pinguin'], ['Артикул', 'PG-001'],
@@ -46,9 +45,10 @@ export function createSectionNavigatorDemo() {
       { id: 'description', label: 'Опис', content: description },
     ],
   });
-  element.append(hint, navigator.element);
+  element.append(navigator.element);
   return {
     element,
+    setScrollContainer: navigator.setScrollContainer,
     destroy() {
       navigator.destroy();
       for (const field of [...fields, note]) field.destroy();

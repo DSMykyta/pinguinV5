@@ -129,6 +129,9 @@ export function mount(host, { setAsideContext, setSearchEntries, setSearchContex
 
   // Tabs control independent panels inside the approved Shell workspace.
   host.replaceChildren(tabs.element);
+  // One native page scrollbar; no scrollable card nested inside the workspace.
+  navigationDemo.setScrollContainer(tabs.element.querySelector('#pg-tools-panel-navigation'));
+
 
   return () => {
     setHeaderActions(null);

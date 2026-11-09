@@ -1,18 +1,5 @@
-/*
- * PINGUIN NEXT — SECTION NAVIGATOR DEMO LAYOUT
- * ПРИЗНАЧЕННЯ: Розміщення тільки прикладного вмісту.
- * ЗАЛЕЖНОСТІ: Семантичні --pg- токени.
- * ПУБЛІЧНИЙ API: .pg-tools-section-navigator-demo.
- * ПРИНЦИП: Не перевизначає CSS універсальних компонентів або Shell.
- */
-.pg-tools-section-navigator-demo { max-inline-size: 780px; min-inline-size: 0; }
-.pg-tools-section-navigator-demo__hint {
-  max-inline-size: 620px;
-  margin: 0 0 var(--pg-space-5);
-  color: var(--pg-color-text-secondary);
-  font-size: 13px;
-  text-wrap: pretty;
-}
+/* PINGUIN NEXT — DEMO SECTION CONTENT (no extra containers). */
+.pg-tools-section-navigator-demo { inline-size: 100%; min-block-size: 100%; min-inline-size: 0; }
 .pg-tools-section-navigator-demo__fields,
 .pg-tools-section-navigator-demo__description { display: grid; gap: var(--pg-space-5); }
 .pg-tools-section-navigator-demo__note { margin: 0; color: var(--pg-color-text-secondary); text-wrap: pretty; }
