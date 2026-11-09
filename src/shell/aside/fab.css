@@ -7,7 +7,7 @@
   position: fixed;
   right: 12px;
   /* Same vertical centerline as the 56px footer's 40px controls. */
-  bottom: calc((var(--pg-sidebar-compact-width) - var(--pg-control-size)) / 2);
+  bottom: 12px; /* Align with the permanent lower-left theme control. */
   z-index: 95;
   width: var(--pg-control-size);
   height: var(--pg-control-size);
@@ -104,6 +104,7 @@
   right: auto;
   bottom: auto;
   flex: 0 0 var(--pg-control-size);
+  translate: 0 -4px; /* Center on the same 12px corner baseline as the global FAB. */
 }
 /* Keep existing positioning available to other consumers. */
 .pg-fab[data-pg-fab-position='adjacent'] {
