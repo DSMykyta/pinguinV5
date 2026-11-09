@@ -33,12 +33,9 @@
 }
 .pg-listbox__panel[hidden] {display:none;}
 .pg-listbox__panel:popover-open {margin:0; inset:auto;}
-.pg-listbox__search {
-  inline-size:100%; min-block-size:38px; box-sizing:border-box;
-  padding:8px 10px; border:1px solid var(--pg-color-border-strong);
-  border-radius:var(--pg-radius-sm);
-  background:var(--pg-color-surface); color:var(--pg-color-text-primary); font:inherit;
-}
+/* Search reuses createInput + the shared field frame, not a second border system. */
+.pg-listbox__search-field { inline-size: 100%; min-inline-size: 0; }
+.pg-listbox__search-field .pg-field { gap: 4px; }
 .pg-listbox__select-all {
   min-block-size:34px; padding:4px 10px; border:0; border-radius:var(--pg-radius-sm);
   background:var(--pg-color-selected); color:var(--pg-color-text-primary);

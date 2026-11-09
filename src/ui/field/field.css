@@ -28,7 +28,7 @@
 .pg-field:not([data-pg-disabled='true']):hover .pg-field__surface {
   border-color: var(--pg-color-text-muted);
 }
-.pg-field:not([data-pg-disabled='true']):focus-within .pg-field__surface {
+.pg-field:not([data-pg-disabled='true']):is(:focus-within, [data-pg-active='true']) .pg-field__surface {
   border-color: var(--pg-color-focus);
   box-shadow: 0 0 0 2px var(--pg-color-accent-soft);
 }

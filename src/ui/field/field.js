@@ -52,6 +52,7 @@ export function createFieldFrame({ label, control, controlId, leading, trailing 
     setLeading(value) { setSlot(lead, value); },
     setTrailing(value) { setSlot(trail, value); },
     setFilled(value) { field.dataset.pgFilled = String(Boolean(value)); },
+    setActive(value) { field.dataset.pgActive = String(Boolean(value)); },
     setDisabled(value) { field.dataset.pgDisabled = String(Boolean(value)); },
     setReadOnly(value) { field.dataset.pgReadonly = String(Boolean(value)); },
     setError(value) { field.dataset.pgState = value ? 'error' : 'ready'; },

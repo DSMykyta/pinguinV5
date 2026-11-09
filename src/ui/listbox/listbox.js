@@ -3,6 +3,7 @@
  * Separate from native Select and editable Combobox; no feature ownership.
  */
 import { createFieldFrame } from '../field/field.js';
+import { createInput } from '../input/input.js';
 import { positionPopup } from '../position/position-popup.js';
 import { dismissOnOutsideScroll } from '../position/dismiss-on-scroll.js';
 import { ensureOptionVisible } from '../position/ensure-option-visible.js';
@@ -58,17 +59,24 @@ export function createListbox({
   panel.hidden = true;
   const hasPopover = typeof panel.showPopover === 'function';
   if (hasPopover) panel.setAttribute('popover', 'manual');
-  const search = document.createElement('input');
-  search.type = 'search';
-  search.className = 'pg-listbox__search';
-  search.placeholder = 'Пошук…';
-  search.autocomplete = 'off';
-  search.setAttribute('aria-label', 'Пошук у списку ' + label);
-  search.setAttribute('role','combobox');
-  search.setAttribute('aria-autocomplete','list');
-  search.setAttribute('aria-controls', uid + '-options');
-  search.setAttribute('aria-expanded','true');
-  if (searchable) panel.append(search);
+  // Compose the existing Input instead of inventing another styled input.
+  // Only Listbox owns searching/filtering; the Input owns border, focus and label.
+  const searchField = searchable ? createInput({
+    label: 'Пошук', id: uid + '-search', variant: 'search',
+    placeholder: 'Пошук…', autocomplete: 'off', clearable: false,
+    onInput: query => filter(query),
+  }) : null;
+  const search = searchField?.input ?? document.createElement('input');
+  if (searchField) {
+    searchField.element.classList.add('pg-listbox__search-field');
+    search.classList.add('pg-listbox__search');
+    search.setAttribute('aria-label', 'Пошук у списку ' + label);
+    search.setAttribute('role', 'combobox');
+    search.setAttribute('aria-autocomplete', 'list');
+    search.setAttribute('aria-controls', uid + '-options');
+    search.setAttribute('aria-expanded', 'true');
+    panel.append(searchField.element);
+  }
   const all = document.createElement('button');
   all.className = 'pg-listbox__select-all';
   all.type = 'button';
@@ -248,8 +256,9 @@ export function createListbox({
     panel.hidden=false;
     trigger.setAttribute('aria-expanded','true');
     element.dataset.pgOpen='true';
+    frame.setActive(true);
     if(hasPopover)panel.showPopover();
-    search.value='';
+    searchField?.setValue('');
     filter('');
     position();
     (searchable?search:list).focus({ preventScroll: true });
@@ -261,6 +270,7 @@ export function createListbox({
     panel.hidden=true;
     trigger.setAttribute('aria-expanded','false');
     element.dataset.pgOpen='false';
+    frame.setActive(false);
     activate(-1);
     if(restore)trigger.focus();
   }
@@ -290,7 +300,7 @@ export function createListbox({
     if(event.key===' ' && event.target===search)return;
     keyboard(event);
   },{signal:controller.signal});
-  search.addEventListener('input',()=>filter(search.value),{signal:controller.signal});
+  // The shared Input's onInput callback already forwards queries to filter().
   list.addEventListener('click',event=>{
     const option=event.target.closest('[role="option"]');
     if(!option)return;
@@ -331,7 +341,7 @@ export function createListbox({
     element, trigger, getValue:selection,setValue,setOptions,setError,open,close,
     focus(){trigger.focus();},
     destroy(){
-      destroyed=true;close();controller.abort();frame.destroy();element.remove();
+      destroyed=true;close();controller.abort();searchField?.destroy();frame.destroy();element.remove();
     },
   });
 }
