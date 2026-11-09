@@ -64,13 +64,14 @@
   .pg-tools-data-views__card { transition: none; }
 }
 
-/* Layout only: native reusable Selection Actions and View Switch share one header slot. */
+/* Fixed-position host: only the view switch participates in the header flex row.
+ * Contextual selection actions anchor outside its left edge, with no reflow. */
 .pg-tools-data-views__header-actions {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  flex: 0 1 auto;
-  min-width: 0;
-  gap: 8px;
+  flex: 0 0 auto;
+  gap: 0;
 }
 .pg-tools-data-views__aside-controls { display: grid; gap: 14px; min-inline-size: 0; }
 .pg-tools-data-views__aside-detail {
