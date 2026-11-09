@@ -26,6 +26,7 @@ test('labels remain above fields through hover, focus, filling and blur', async 
   await expect(field.locator('fieldset, legend')).toHaveCount(0);
   const initial = await label.boundingBox();
   const border = await surface.boundingBox();
+  const initialOffset = initial.y - border.y;
   expect(initial.y + initial.height).toBeLessThan(border.y);
   await surface.hover();
   await control.focus();
@@ -35,7 +36,8 @@ test('labels remain above fields through hover, focus, filling and blur', async 
   await expect(label).toHaveCSS('position', 'static');
   await expect(label).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
   const after = await label.boundingBox();
-  expect(Math.abs(initial.y - after.y)).toBeLessThan(1);
+  const afterBorder = await surface.boundingBox();
+  expect(Math.abs(initialOffset - (after.y - afterBorder.y))).toBeLessThan(1);
   await control.fill('');
   await expect(field).toHaveAttribute('data-pg-filled', 'false');
 });

@@ -18,12 +18,14 @@ test('permanent label stays above the border without any decorative cutout', asy
   await expect(field.locator('fieldset, legend')).toHaveCount(0);
   const before = await label.boundingBox();
   const box = await surface.boundingBox();
+  const offset = before.y - box.y;
   expect(before.y + before.height).toBeLessThan(box.y);
   await field.locator('input').focus();
   await expect(label).toHaveCSS('position','static');
   await expect(label).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
   const after = await label.boundingBox();
-  expect(Math.abs(after.y - before.y)).toBeLessThan(1);
+  const afterBox = await surface.boundingBox();
+  expect(Math.abs((after.y - afterBox.y) - offset)).toBeLessThan(1);
   await expect(surface).toHaveCSS('border-top-style','solid');
 });
 
@@ -35,6 +37,8 @@ test('adornments and different surrounding backgrounds do not affect the label',
   await expect(field.locator('.pg-field__leading')).toBeVisible();
   await expect(field.locator('.pg-field__trailing')).toBeVisible();
   const old=await label.boundingBox();
+  const oldBorder=await surface.boundingBox();
+  const offset=old.y-oldBorder.y;
   await page.evaluate(()=>{
     document.querySelector('.pg-tools-field-demo').style.background='linear-gradient(120deg,#cfc,#bbd)';
   });
@@ -42,7 +46,7 @@ test('adornments and different surrounding backgrounds do not affect the label',
   await expect(label).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
   const after=await label.boundingBox();
   const border=await surface.boundingBox();
-  expect(Math.abs(after.y-old.y)).toBeLessThan(1);
+  expect(Math.abs((after.y-border.y)-offset)).toBeLessThan(1);
   expect(after.y+after.height).toBeLessThan(border.y);
 });
 

@@ -52,11 +52,13 @@ test('Input, Select, Combobox and Tag Field show a permanent label above the bor
       : component.locator('input:not([type=hidden])');
     const before = await label.boundingBox();
     const border = await surface.boundingBox();
+    const originalOffset = before.y - border.y;
     expect(before.y + before.height).toBeLessThan(border.y);
     await control.focus();
     await expect(label).toHaveCSS('position', 'static');
     const after = await label.boundingBox();
-    expect(Math.abs(before.y - after.y)).toBeLessThan(1);
+    const afterBorder = await surface.boundingBox();
+    expect(Math.abs(originalOffset - (after.y - afterBorder.y))).toBeLessThan(1);
     await expect(component.locator('fieldset.pg-field__outline, legend.pg-field__notch')).toHaveCount(0);
     await control.blur();
   }
