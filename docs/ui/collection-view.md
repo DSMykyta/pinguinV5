@@ -67,3 +67,10 @@ Shared `createCollectionView` now includes:
   No page-specific `flush` mode, `fill` switch or duplicate header exists.
 
 This remains a **UI alignment preview**, not a production Brands route.
+
+## Legacy footer, menu and checkbox corrections
+
+- Header checkbox `−` is a clear action: if **any** row on the current page is selected, clicking it deselects all visible selected rows; if none, clicking selects the visible page. The checked state also clears selection. Individual checkboxes keep the generic circular appearance.
+- The order of table cells is **selection checkbox, action menu, data columns**. A table without selection still places actions before the data. No sticky actions column at the far right.
+- Action Menu uses the existing `createMenu` and shared popup positioning. The panel measures text and fits the longest label without horizontal scrolling, and both hovered/focused items and the open trigger have visible state.
+- Pagination is rendered in the existing Shell footer via one optional `setFooterContent` callback. It uses the same `createPagination` instance for table and tiles, not a clone and not a separate work-area mode. The shared footer remains empty on unrelated tabs.
