@@ -78,14 +78,12 @@ export function mount(host, { setAsideContext, setSearchEntries, setSearchContex
   const menuDemo = createMenuDemo();
   const imageDemo = createImageFieldDemo();
   textPage.body.append(richTextEditorDemo.element, createDialogDemo(), createInputDemo(), fieldDemo.element, advancedDemo.element, listboxDemo.element, menuDemo.element, imageDemo.element);
-  const navigationPage = createPageView({ title: 'Переходи між блоками' });
   const navigationDemo = createSectionNavigatorDemo();
-  navigationPage.body.append(navigationDemo.element);
   const pageByTab = new Map([
     ['tables', tablePage],
     ['data-views', dataViewsDemo.element],
     ['text', textPage],
-    ['navigation', navigationPage],
+    ['navigation', navigationDemo.element],
   ]);
 
   const tabs = createTabs({

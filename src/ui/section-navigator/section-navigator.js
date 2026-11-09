@@ -32,11 +32,7 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
   const positions = new Map();
   const panels = new Map();
   const prefix = 'pg-section-navigator-' + (++nextNavigatorId);
-  let visibleDirection = 'next';
   let gestures = null;
-  let stopScroll = () => {};
-  let lastScrollTop = 0;
-  let ignoreScrollDirectionOnce = false;
 
   function createNode(tag, part, text) {
     const node = document.createElement(tag);
@@ -68,30 +64,34 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
     panels.set(section.id, panel);
     viewport.append(panel);
   }
-  const rail = createNode('div', 'rail');
+  const topRail = createNode('div', 'rail');
+  topRail.dataset.pgPlacement = 'top';
+  const bottomRail = createNode('div', 'rail');
+  bottomRail.dataset.pgPlacement = 'bottom';
   let scrollContainer = viewport;
   const status = createNode('p', 'status');
   status.setAttribute('role', 'status');
   status.setAttribute('aria-atomic', 'true');
 
-  function createHandle() {
+  function createHandle(direction, rail) {
     const button = createNode('button', 'handle');
     button.type = 'button';
+    button.dataset.pgDirection = direction;
     button.setAttribute('aria-controls', viewport.id);
     const caption = createNode('span', 'caption');
     const symbol = createNode('span', 'symbol');
     symbol.setAttribute('aria-hidden', 'true');
-    const arrow = createNode('span', 'arrow', '↓');
+    const arrow = createNode('span', 'arrow', direction === 'next' ? '↓' : '↑');
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.classList.add('pg-section-navigator__ring');
-    svg.setAttribute('viewBox', '0 0 44 44');
+    svg.setAttribute('viewBox', '0 0 32 32');
     svg.setAttribute('aria-hidden', 'true');
     for (const role of ['track', 'fill']) {
       const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
       circle.classList.add('pg-section-navigator__ring-' + role);
-      circle.setAttribute('cx', '22');
-      circle.setAttribute('cy', '22');
-      circle.setAttribute('r', '19');
+      circle.setAttribute('cx', '16');
+      circle.setAttribute('cy', '16');
+      circle.setAttribute('r', '14');
       if (role === 'fill') {
         circle.setAttribute('pathLength', '100');
         circle.style.strokeDashoffset = '100';
@@ -103,53 +103,41 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
     rail.append(button);
     return { button, caption, ring: svg.lastElementChild };
   }
-  const control = createHandle();
-  element.append(header, rail, viewport, status);
+  const controls = {
+    previous: createHandle('previous', topRail),
+    next: createHandle('next', bottomRail),
+  };
+  element.append(header, topRail, viewport, bottomRail, status);
 
   function adjacent(direction) {
     return sections[currentIndex + (direction === 'next' ? 1 : -1)];
   }
 
-  function showDirection(direction) {
-    const fallback = direction === 'next' ? 'previous' : 'next';
-    const selected = adjacent(direction) ? direction : adjacent(fallback) ? fallback : null;
-    if (!selected) {
-      control.button.hidden = true;
-      return;
-    }
-    control.button.hidden = false;
-    const target = adjacent(selected);
-    const changed = control.caption.textContent !== target.label;
-    control.caption.textContent = target.label;
-    control.button.setAttribute('aria-label', 'Перейти до розділу «' + target.label + '»');
-    control.button.dataset.pgDirection = selected;
-    if (visibleDirection !== selected && changed &&
-      !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      control.caption.animate([
-        { opacity: 0.45, transform: 'translateY(4px)' },
-        { opacity: 1, transform: 'translateY(0)' },
-      ], { duration: 190, easing: 'ease-out' });
-    }
-    visibleDirection = selected;
-  }
-
   function renderControls() {
     title.textContent = sections[currentIndex].label;
     counter.textContent = (currentIndex + 1) + ' / ' + sections.length;
-    control.button.disabled = busy;
-    control.button.dataset.pgState = busy ? 'committing' : 'ready';
-    showDirection(visibleDirection);
+    for (const [direction, { button, caption }] of Object.entries(controls)) {
+      const destination = adjacent(direction);
+      button.disabled = busy || !destination;
+      caption.textContent = destination?.label ?? '';
+      button.dataset.pgState = busy ? 'committing' : 'ready';
+      button.setAttribute('aria-label', destination
+        ? 'Перейти до розділу «' + destination.label + '»'
+        : (direction === 'previous' ? 'Перший розділ' : 'Останній розділ'));
+    }
     element.setAttribute('aria-busy', String(busy));
     element.dataset.pgState = busy ? 'busy' : 'ready';
   }
 
-  // A pure pull indicator. Ordinary page scroll does not fill the circle.
+  // The ring records only the extra pull beyond the scroll boundary.
   function renderProgress(direction, progress) {
     if (destroyed || busy) return;
-    if (direction && adjacent(direction)) showDirection(direction);
-    const value = direction ? Math.min(1, Math.max(0, progress)) : 0;
-    control.button.dataset.pgState = value >= 1 ? 'armed' : value > 0 ? 'pulling' : 'ready';
-    control.ring.style.strokeDashoffset = String((100 * (1 - value)).toFixed(3));
+    for (const [side, { button, ring }] of Object.entries(controls)) {
+      const value = direction === side && adjacent(side)
+        ? Math.min(1, Math.max(0, progress)) : 0;
+      button.dataset.pgState = value >= 1 ? 'armed' : value > 0 ? 'pulling' : 'ready';
+      ring.style.strokeDashoffset = String((100 * (1 - value)).toFixed(3));
+    }
   }
 
   let activeAnimation = null;
@@ -200,7 +188,7 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
       const shouldFocus = focus || outgoing.contains(document.activeElement);
       const movement = sections.findIndex(item => item.id === id) > currentIndex ? 1 : -1;
       positions.set(request.fromId, scrollContainer.scrollTop);
-      control.ring.style.strokeDashoffset = '0';
+      controls[movement > 0 ? 'next' : 'previous'].ring.style.strokeDashoffset = '0';
       element.dataset.pgTransition = movement > 0 ? 'forward' : 'backward';
       await animatePanel(outgoing, 'exit', movement);
       if (destroyed) return false;
@@ -208,14 +196,11 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
       currentIndex = sections.findIndex(item => item.id === id);
       const incoming = panels.get(id);
       incoming.hidden = false;
-      ignoreScrollDirectionOnce = true;
       scrollContainer.scrollTop = positions.get(id) ?? 0;
-      lastScrollTop = scrollContainer.scrollTop;
-      visibleDirection = adjacent('next') ? 'next' : 'previous';
       renderControls();
       await animatePanel(incoming, 'enter', movement);
       if (destroyed) return false;
-      control.ring.style.strokeDashoffset = '100';
+      for (const { ring } of Object.values(controls)) ring.style.strokeDashoffset = '100';
       delete element.dataset.pgTransition;
       status.textContent = 'Блок ' + (currentIndex + 1) + ' з ' + sections.length + ': ' + sections[currentIndex].label;
       if (shouldFocus) title.focus({ preventScroll: true });
@@ -234,33 +219,11 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
 
   function bindScroll(container) {
     gestures?.destroy();
-    stopScroll();
     scrollContainer = container;
     element.dataset.pgScrollContainer = container === viewport ? 'local' : 'external';
-    const onScroll = () => {
-      const current = container.scrollTop;
-      if (!busy && !ignoreScrollDirectionOnce && Math.abs(current - lastScrollTop) > 1) {
-        showDirection(current > lastScrollTop ? 'next' : 'previous');
-      }
-      ignoreScrollDirectionOnce = false;
-      lastScrollTop = current;
-    };
-    const onWheel = event => {
-      if (!busy && Math.abs(event.deltaY) > Math.abs(event.deltaX) &&
-        !event.ctrlKey && !event.metaKey) {
-        showDirection(event.deltaY > 0 ? 'next' : 'previous');
-      }
-    };
-    container.addEventListener('scroll', onScroll, { passive: true });
-    container.addEventListener('wheel', onWheel, { passive: true });
-    stopScroll = () => {
-      container.removeEventListener('scroll', onScroll);
-      container.removeEventListener('wheel', onWheel);
-    };
     gestures = mountNavigationGestures({
       viewport: container,
-      handles: { next: control.button },
-      getHandleDirection: () => visibleDirection,
+      handles: { previous: controls.previous.button, next: controls.next.button },
       wheel,
       canGo: direction => Boolean(adjacent(direction)),
       isEnabled: () => !destroyed && !busy && element.isConnected && container.getClientRects().length > 0,
@@ -270,7 +233,6 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
         if (destination) void navigateTo(destination.id, { source, focus: source === 'button' });
       },
     });
-    lastScrollTop = container.scrollTop;
     renderProgress(null, 0);
   }
   bindScroll(viewport);
@@ -293,7 +255,6 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
       gestures?.destroy();
       activeAnimation?.cancel();
       activeAnimation = null;
-      stopScroll();
       element.remove();
     },
   });

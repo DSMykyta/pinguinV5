@@ -17,7 +17,6 @@ export function createSectionNavigatorDemo() {
     if (text) node.textContent = text;
     return node;
   }
-  const element = createNode('section');
   const main = createNode('div', 'fields');
   const fields = [
     ['Назва', 'Товар для прикладу'], ['Бренд', 'Pinguin'], ['Артикул', 'PG-001'],
@@ -45,14 +44,13 @@ export function createSectionNavigatorDemo() {
       { id: 'description', label: 'Опис', content: description },
     ],
   });
-  element.append(navigator.element);
+  navigator.element.classList.add('pg-tools-section-navigator-demo');
   return {
-    element,
+    element: navigator.element,
     setScrollContainer: navigator.setScrollContainer,
     destroy() {
       navigator.destroy();
       for (const field of [...fields, note]) field.destroy();
-      element.remove();
     },
   };
 }
