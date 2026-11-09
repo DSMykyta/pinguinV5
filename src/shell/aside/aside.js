@@ -11,6 +11,7 @@
 
 import { createIcon } from '../../ui/icon/icon.js';
 import { createIconButton } from '../../ui/button/button.js';
+import { createSizeTransition } from '../../ui/size-transition/size-transition.js';
 
 export const DEFAULT_LINKS = Object.freeze([
   { label: 'Код проєкту', url: 'https://github.com/DSMykyta/pinguinV5/tree/work', icon: 'code' },
@@ -54,7 +55,10 @@ export function createAside({ onPinToggle }) {
   list.className = 'pg-aside__list';
   list.setAttribute('aria-label', 'Посилання проєкту');
 
+  const sizeMotion = createSizeTransition({ element: aside });
+
   function setContext(context) {
+    return sizeMotion.change(() => {
     const heading = context?.title || 'Проєкт';
     const links = context?.links || DEFAULT_LINKS;
     title.textContent = heading;
@@ -83,7 +87,18 @@ export function createAside({ onPinToggle }) {
     item.append(symbol, label);
     list.append(item);
   }
-
+    // New content enters from the pinned upper edge while the aside's
+    // container height interpolates. Hidden/closed panels skip both motions.
+    const active = controls ? controlsHost : list;
+    if (aside.isConnected && !aside.inert &&
+        !window.matchMedia('(prefers-reduced-motion: reduce)').matches &&
+        typeof active.animate === 'function') {
+      active.animate([
+        { opacity: 0, transform: 'translateY(-6px)' },
+        { opacity: 1, transform: 'translateY(0)' },
+      ], { duration: 220, easing: 'cubic-bezier(.22, 1, .36, 1)' });
+    }
+    });
   }
 
   setContext(null);
@@ -98,5 +113,8 @@ export function createAside({ onPinToggle }) {
     pinButton.dataset.pgTooltip = label;
   }
 
-  return { element: aside, pinButton, setPinned, setContext };
+  return {
+    element: aside, pinButton, setPinned, setContext,
+    destroy() { sizeMotion.destroy(); },
+  };
 }

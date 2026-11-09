@@ -424,6 +424,7 @@ export function mountShell(host) {
     contextReveal.destroy();
     footerReveal.destroy();
     pageOutlet.dispose();
+    aside.destroy();
     search.destroy();
     router.stop();
     document.removeEventListener('keydown', handleKeydown);
