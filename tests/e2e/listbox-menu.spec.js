@@ -70,7 +70,7 @@ test('Menu keyboard navigation executes current item, restores focus, persists c
   await expect(choice).toHaveAttribute('aria-checked','false');
   await choice.press('Escape');
   await expect(appearance.locator('.pg-menu__trigger')).toBeFocused();
-  await expect(menus.nth(2).locator('button')).toBeDisabled();
+  await expect(menus.nth(2).locator('.pg-menu__trigger')).toBeDisabled();
 });
 
 test('Select and Combobox are independent from Listbox and Menu collections', async ({page})=>{

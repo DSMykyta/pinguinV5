@@ -83,7 +83,8 @@ export function createImageField({
     picker.hidden=filled;
     preview.hidden=!filled;
     imageName.textContent=current?.name||'';
-    image.src=current?.url||'';
+    if(current)image.src=current.url;
+    else image.removeAttribute('src');
     image.alt=current?'Попередній перегляд: '+current.name:'';
     element.dataset.pgDisabled=String(Boolean(disabled));
   }
@@ -117,12 +118,8 @@ export function createImageField({
     const issue=validateFile(file);
     if(issue){setError(issue);return false;}
     const url=URL.createObjectURL(file);
-    objectUrl=url; // commit() releases the *previous* owned URL; keep new until after.
-    // Temporarily detach new URL before commit so only the prior preview is revoked.
-    const latest=objectUrl;
-    objectUrl=null;
     commit({name:file.name,url,file},event);
-    objectUrl=latest;
+    objectUrl=url; // component owns this URL until replacement, removal or destroy
     return true;
   }
   function setValue(next){
