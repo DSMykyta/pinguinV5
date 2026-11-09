@@ -5,6 +5,8 @@
  */
 import { createCollectionView } from '../../ui/collection-view/collection-view.js';
 import { createStoredChoice } from '../../core/preferences.js';
+import { createSelect } from '../../ui/select/select.js';
+import { createSegmentSwitch } from '../../ui/segment-switch/segment-switch.js';
 
 const BRAND_NAMES = [
   'Pinguin', 'Nimbus', 'Kraken', 'Aurora', 'Vento', 'Solstice',
@@ -89,36 +91,86 @@ const COLUMNS = Object.freeze([
 
 export function createDataViewsDemo() {
   let storage = null;
-  try {
-    storage = window.localStorage;
-  } catch {
-    // Preview remains fully usable if browser storage is denied.
-  }
-  const viewPreference = createStoredChoice({
-    storage, key: 'pg:v1:tools-data-views:view',
-    choices: ['table', 'tiles'], defaultValue: 'table',
+  try { storage = window.localStorage; } catch { /* Storage is optional. */ }
+  const preference=createStoredChoice({
+    storage,key:'pg:v1:tools-data-views:view',
+    choices:['table','tiles'],defaultValue:'table',
   });
-
-  const element = node('section', 'root');
-  const collection = createCollectionView({
-    label: 'Приклад списку брендів',
-    rows: EXAMPLE_BRANDS,
-    columns: COLUMNS,
-    getRowId: row => row.id,
-    renderTile,
-    modes: ['tiles', 'table'],
-    initialMode: viewPreference.getValue(),
-    initialSort: { key: 'name', direction: 'asc' },
-    onModeChange: view => viewPreference.setValue(view),
+  const element=node('section','root');
+  let records=EXAMPLE_BRANDS.map(item=>({...item}));
+  let nextCopy=0;
+  const controls=node('div','aside-controls');
+  const sortBy=createSelect({
+    label:'Сортувати за',placeholder:null,value:'name',
+    options:COLUMNS.map(col=>({label:col.label,value:col.key})),
+    onChange:key=>collection.setSort(key,direction.getValue()),
+  });
+  const direction=createSegmentSwitch({
+    label:'Напрямок сортування',variant:'outline',compact:true,
+    options:[{value:'asc',label:'А–Я'},{value:'desc',label:'Я–А'}],
+    value:'asc',onChange:value=>collection.setSort(sortBy.getValue(),value),
+  });
+  const count=node('span','selected-count','Нічого не вибрано');
+  count.setAttribute('role','status');
+  const archive=document.createElement('button');
+  archive.type='button';archive.className='pg-tools-data-views__bulk';
+  archive.textContent='Архівувати вибрані';archive.disabled=true;
+  const details=node('div','aside-detail','Оберіть дію біля запису.');
+  details.setAttribute('role','status');
+  controls.append(sortBy.element,direction.element,count,archive,details);
+  const collection=createCollectionView({
+    label:'Приклад списку брендів',rows:records,columns:COLUMNS,
+    getRowId:row=>row.id,renderTile,modes:['tiles','table'],
+    initialMode:preference.getValue(),
+    initialSort:{key:'name',direction:'asc'},
+    selectable:true,pageSize:25,
+    rowActions:[
+      {value:'details',label:'Переглянути деталі'},
+      {value:'duplicate',label:'Дублювати'},
+      {value:'archive',label:'Архівувати або відновити'},
+    ],
+    onModeChange:mode=>preference.setValue(mode),
+    onSortChange:sort=>{
+      sortBy.setValue(sort.key);direction.setValue(sort.direction);
+    },
+    onSelectionChange:ids=>{
+      count.textContent=ids.length?'Вибрано: '+ids.length:'Нічого не вибрано';
+      archive.disabled=ids.length===0;
+    },
+    onRowAction:(action,row)=>{
+      if(action==='details') {
+        details.textContent=row.name+' · '+row.category+' · '+row.products+' товарів · '+row.status;
+      } else if(action==='duplicate') {
+        const copy={...row,id:'preview-copy-'+(++nextCopy),name:row.name+' (копія)'};
+        records=[...records,copy];collection.setRows(records);
+        details.textContent='Створено локальну копію: '+copy.name;
+      } else if(action==='archive') {
+        records=records.map(item=>item.id===row.id?{...item,
+          status:item.status==='Архівний'?'Активний':'Архівний'}:item);
+        collection.setRows(records);details.textContent='Змінено статус: '+row.name;
+      }
+    },
+  });
+  archive.addEventListener('click',()=>{
+    const selected=new Set(collection.getSelectedIds());
+    if(!selected.size)return;
+    records=records.map(item=>selected.has(item.id)?{...item,status:'Архівний'}:item);
+    collection.setRows(records);
+    details.textContent='Архівовано локально: '+selected.size;
+    collection.clearSelection();
   });
   element.append(collection.element);
   return Object.freeze({
-    element,
-    headerActions: collection.headerActions,
-    getMode: collection.getMode,
-    destroy() {
-      collection.destroy();
-      element.remove();
+    element,headerActions:collection.headerActions,
+    getAsideContext:()=>({title:'Макети даних',controls}),
+    getSearchContext:()=>({
+      placeholder:'Пошук у таблиці',label:'Шукати у таблиці брендів',
+      value:collection.getQuery(),onQuery:query=>collection.setQuery(query),
+    }),
+    getMode:collection.getMode,getCollection:()=>collection,
+    destroy(){
+      collection.destroy();sortBy.destroy();direction.destroy();
+      element.remove();controls.remove();
     },
   });
 }
