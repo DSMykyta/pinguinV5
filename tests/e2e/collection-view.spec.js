@@ -285,6 +285,9 @@ test('the original FAB stays unchanged, with a second instance alongside only on
   await expect(primary).toBeVisible();
   await expect(secondary).toBeVisible();
   await expect(page.locator('.pg-fab')).toHaveCount(2);
+  // Both the pagination FAB and its surface enter from below.
+  await page.locator('.pg-shell__footer-panel').evaluate(node =>
+    Promise.all(node.getAnimations().map(animation => animation.finished.catch(() => {}))));
   const [a,b]=await Promise.all([primary.boundingBox(),secondary.boundingBox()]);
   expect(Math.abs(a.y-b.y)).toBeLessThan(2);
   expect(Math.abs(b.x+b.width+8-a.x)).toBeLessThan(2);
