@@ -11,7 +11,20 @@ test.beforeEach(async ({page}) => {
 
 test('new tab uses existing Shell header and contains 32 native table records', async ({page}) => {
   await expect(page.getByRole('heading', { name: 'Інструменти', level: 1 })).toHaveCount(1);
-  await expect(page.getByRole('heading', { name: 'Таблиця та плитки', level: 2 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Таблиця та плитки', level: 2 })).toHaveCount(0);
+  await expect(page.locator('.pg-tools-data-views__intro, .pg-tools-data-views__meta')).toHaveCount(0);
+  await expect(page.locator('.pg-shell__content')).toHaveAttribute('data-pg-workspace-layout','flush');
+  await expect(page.locator('.pg-tabs')).toHaveAttribute('data-pg-fill','true');
+  await expect(page.locator('.pg-collection-view__table-scroll')).toHaveCSS('border-top-style','none');
+  const geometry = await page.evaluate(() => {
+    const area = document.querySelector('.pg-shell__content').getBoundingClientRect();
+    const viewport = document.querySelector('.pg-collection-view__table-scroll').getBoundingClientRect();
+    return {area,viewport};
+  });
+  expect(Math.abs(geometry.area.left - geometry.viewport.left)).toBeLessThan(2);
+  expect(Math.abs(geometry.area.right - geometry.viewport.right)).toBeLessThan(2);
+  expect(Math.abs(geometry.area.top - geometry.viewport.top)).toBeLessThan(2);
+  expect(Math.abs(geometry.area.bottom - geometry.viewport.bottom)).toBeLessThan(2);
   await expect(page.locator('.pg-tools-data-views__root h1')).toHaveCount(0);
   await expect(page.locator('.pg-shell__header-actions .pg-search')).toHaveCount(1);
   await expect(page.locator('.pg-shell__context-button')).toHaveCount(1);
@@ -24,6 +37,30 @@ test('new tab uses existing Shell header and contains 32 native table records', 
   await expect(table.locator('thead th')).toHaveCount(9);
   await expect(table.locator('tbody tr')).toHaveCount(32);
   await expect(page.locator('.pg-collection-view__tiles')).toBeHidden();
+});
+
+test('navigating away restores the normal workspace layout', async ({page}) => {
+  await page.getByRole('tab', {name:'Текст'}).click();
+  await expect(page.locator('.pg-shell__content')).toHaveAttribute('data-pg-workspace-layout','default');
+  const pad = await page.locator('.pg-shell__content').evaluate(node =>
+    Number.parseFloat(getComputedStyle(node).paddingLeft));
+  expect(pad).toBeGreaterThan(0);
+  await page.getByRole('tab', {name:'Макети даних'}).click();
+  await expect(page.locator('.pg-shell__content')).toHaveAttribute('data-pg-workspace-layout','flush');
+});
+
+test('sidebar and context aside use shared arrowless scrollbar styles', async ({page}) => {
+  const nav = page.locator('.pg-sidebar__nav');
+  const aside = page.locator('.pg-aside');
+  await expect(nav).toHaveClass(/pg-scrollbar/);
+  await expect(aside).toHaveClass(/pg-scrollbar/);
+  await expect(page.locator('.pg-shell__content')).toHaveClass(/pg-scrollbar/);
+  await expect(page.locator('.pg-aside__item-arrow')).toHaveCount(0);
+  const props = await nav.evaluate(node => ({
+    thickness: getComputedStyle(node).scrollbarWidth,
+    arrows: getComputedStyle(node,'::-webkit-scrollbar-button').display,
+  }));
+  expect(props).toEqual({thickness:'thin',arrows:'none'});
 });
 
 test('sorting native headers changes shared record order and aria-sort', async({page}) => {
