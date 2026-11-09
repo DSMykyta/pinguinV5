@@ -44,6 +44,7 @@
   font-size: 11.48px; line-height: 11px; font-weight: 450;
   visibility: hidden;
 }
+.pg-field__notch > span::before { content: attr(data-pg-label); }
 .pg-field--floating:is(:focus-within, [data-pg-filled='true']) .pg-field__notch {
   max-inline-size: 100%;
 }

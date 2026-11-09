@@ -50,7 +50,7 @@ export function createFieldFrame({
   const notch = document.createElement('legend');
   notch.className = 'pg-field__notch';
   const notchText = document.createElement('span');
-  notchText.textContent = label;
+  notchText.dataset.pgLabel = label; // CSS-generated text does not duplicate the real DOM label.
   notch.append(notchText);
   outline.append(notch);
   field.append(outline, lead, edit, trail);
