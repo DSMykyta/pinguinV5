@@ -43,14 +43,34 @@ export function createFieldFrame({
   }
   setSlot(lead, leading);
   setSlot(trail, trailing);
-  field.append(lead, edit, trail);
+  // This is a real interruption in the border, not an opaque label patch.
+  const outline = document.createElement('fieldset');
+  outline.className = 'pg-field__outline';
+  outline.setAttribute('aria-hidden', 'true');
+  const notch = document.createElement('legend');
+  notch.className = 'pg-field__notch';
+  const notchText = document.createElement('span');
+  notchText.textContent = label;
+  notch.append(notchText);
+  outline.append(notch);
+  field.append(outline, lead, edit, trail);
+
+  // The text cutout sizes itself in CSS. Only the optional prefix width is measured.
+  function syncLeadWidth() {
+    if (lead.hidden) field.style.removeProperty('--pg-field-leading-size');
+    else field.style.setProperty('--pg-field-leading-size', lead.getBoundingClientRect().width + 'px');
+  }
+  const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(syncLeadWidth) : null;
+  if (!lead.hidden) observer?.observe(lead);
+  syncLeadWidth();
   return Object.freeze({
     field, edit, label: caption, leadingSlot: lead, trailingSlot: trail,
-    setLeading(value) { setSlot(lead, value); },
+    setLeading(value) { setSlot(lead, value); observer?.disconnect(); if (!lead.hidden) observer?.observe(lead); syncLeadWidth(); },
     setTrailing(value) { setSlot(trail, value); },
     setFilled(value) { field.dataset.pgFilled = String(Boolean(value)); },
     setDisabled(value) { field.dataset.pgDisabled = String(Boolean(value)); },
     setReadOnly(value) { field.dataset.pgReadonly = String(Boolean(value)); },
     setError(value) { field.dataset.pgState = value ? 'error' : 'ready'; },
+    destroy() { observer?.disconnect(); },
   });
 }
