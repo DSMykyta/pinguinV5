@@ -18,9 +18,24 @@
   z-index: 1;
 }
 
-.pg-fab__trigger[aria-expanded='true'] > .pg-icon,
-.pg-fab__trigger[aria-expanded='true']:hover > .pg-icon {
-  transform: rotate(45deg);
+/* Identical trigger motion for icon and number; only the content differs. */
+.pg-fab__face {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 100%;
+  block-size: 100%;
+  transform-origin: center;
+  transition: transform var(--pg-duration-layout) cubic-bezier(.34, 1.56, .64, 1);
+}
+.pg-fab__face > .pg-icon { display: block; }
+.pg-fab__trigger:not([aria-expanded='true']):hover > .pg-fab__face {
+  transform: translateY(-1px) scale(1.08);
+}
+.pg-fab__trigger[aria-expanded='true'] > .pg-fab__face {
+  transform: translateY(-1px) scale(1.12);
+}
+.pg-fab__trigger[aria-expanded='true']:hover > .pg-fab__face {
+  transform: translateY(-2px) scale(1.15);
 }
 
 .pg-fab__actions {
@@ -93,10 +108,7 @@
   transition-delay: var(--pg-fab-delay);
 }
 
-.pg-fab__item:is(:hover, :focus-visible) :is(.pg-fab__label, .pg-fab__symbol) {
-  background: var(--pg-color-fab-action-hover);
-  color: var(--pg-color-fab-action-text);
-}
+/* Hover/focus must win over the pressed state on BOTH FAB instances. */
 
 /* Optional page controls share this same FAB implementation inside the footer. */
 .pg-fab[data-pg-fab-position='footer'] {
@@ -113,9 +125,13 @@
 .pg-fab[hidden] { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
-  .pg-fab__trigger > .pg-icon,
+  .pg-fab__face,
   .pg-fab__item {
     transition: none;
+  }
+  .pg-fab__trigger > .pg-fab__face,
+  .pg-fab__trigger:is(:hover, [aria-expanded='true']) > .pg-fab__face {
+    transform: none;
   }
 }
 
@@ -127,6 +143,14 @@
   background:var(--pg-color-fab-action-selected);
   border-color:var(--pg-color-fab-action-selected-border);
   font-weight:700;
+}
+.pg-fab__item:is(:hover, :focus-visible) {
+  transform: translateY(-2px) scale(1);
+}
+.pg-fab__item:is(:hover, :focus-visible) :is(.pg-fab__label, .pg-fab__symbol) {
+  background:var(--pg-color-fab-action-hover);
+  color:var(--pg-color-fab-action-text);
+  border-color:var(--pg-color-fab-action-border);
 }
 .pg-fab__symbol { font-size:12px; font-variant-numeric:tabular-nums; }
 
@@ -152,15 +176,4 @@
   color:var(--pg-color-text-primary);
 }
 
-/* The existing FAB's numeric face is animated without rotating readable digits. */
-.pg-fab__trigger--value > .pg-fab__trigger-value {
-  transition: transform var(--pg-duration-normal) var(--pg-ease-layout),
-    opacity var(--pg-duration-normal) ease;
-  transform-origin: center;
-}
-.pg-fab__trigger--value[aria-expanded='true'] > .pg-fab__trigger-value {
-  transform: translateY(-1px) scale(1.12);
-}
-@media (prefers-reduced-motion: reduce) {
-  .pg-fab__trigger--value > .pg-fab__trigger-value { transition: none; }
-}
+/* Numeric updates keep their short entrance; hover/open use the shared face. */

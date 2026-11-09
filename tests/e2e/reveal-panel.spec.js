@@ -201,3 +201,79 @@ test('FAB action list is dark, visible and readable in both themes without white
   expect(actual).toBe(dark.background);
   await expect(pageAction).toBeVisible();
 });
+
+
+test('both FAB instances share the exact same hover and open movement for icon and number', async ({ page }) => {
+  await page.goto('/tools');
+  await page.getByRole('tab', { name: 'Макети даних' }).click();
+  const global = page.locator('[data-pg-action="aside-fab-toggle"]');
+  const pagination = page.locator('[data-pg-action="page-fab-toggle"]');
+  await expect(global.locator('.pg-fab__face')).toHaveCount(1);
+  await expect(pagination.locator('.pg-fab__face')).toHaveCount(1);
+  await expect(global.locator('.pg-fab__face > .pg-icon')).toHaveCount(1);
+  await expect(pagination.locator('.pg-fab__face > .pg-fab__trigger-value')).toHaveText('25');
+
+  const properties = element => element.evaluate(node => {
+    const face = node.querySelector('.pg-fab__face');
+    const style = getComputedStyle(face);
+    return { transform: style.transform, timing: style.transitionTimingFunction,
+      duration: style.transitionDuration, property: style.transitionProperty };
+  });
+  const settle = element => element.locator('.pg-fab__face').evaluate(node =>
+    Promise.all(node.getAnimations().map(anim => anim.finished.catch(() => {}))));
+  const compare = async () => {
+    await Promise.all([settle(global),settle(pagination)]);
+    expect(await properties(global)).toEqual(await properties(pagination));
+  };
+
+  await compare(); // idle
+  await global.hover();
+  await compare();
+  const hovered = await properties(global);
+  expect(hovered.transform).not.toBe('none');
+  await pagination.hover();
+  // Global loses :hover, so compare the matching state independently.
+  const paginationHover = await properties(pagination);
+  await settle(pagination);
+  expect((await properties(pagination)).transform).toBe(hovered.transform);
+  expect(paginationHover.duration).toBe(hovered.duration);
+  await global.click();
+  await compare();
+  await pagination.click();
+  await compare();
+});
+
+test('selected pagination FAB action still gets the same hover response as global FAB links', async ({ page }) => {
+  await page.goto('/tools');
+  await page.getByRole('tab', { name: 'Макети даних' }).click();
+  const globalFab = page.locator('[data-pg-action="aside-fab-toggle"]');
+  const pageFab = page.locator('[data-pg-action="page-fab-toggle"]');
+  await pageFab.click();
+  const selected = page.locator('#pg-page-fab-actions .pg-fab__item[aria-pressed="true"]');
+  await expect(selected).toHaveCount(1);
+  const bg = selected.locator('.pg-fab__symbol');
+  const before = await bg.evaluate(node => getComputedStyle(node).backgroundColor);
+  await selected.hover();
+  await expect(bg).toHaveCSS('background-color',
+    await page.evaluate(() => getComputedStyle(document.documentElement)
+      .getPropertyValue('--pg-color-fab-action-hover').trim()));
+  const after = await bg.evaluate(node => getComputedStyle(node).backgroundColor);
+  expect(after).not.toBe(before);
+  await pageFab.click();
+  await globalFab.click();
+  const link = page.locator('#pg-fab-actions .pg-fab__item').first();
+  await link.hover();
+  await expect(link.locator('.pg-fab__symbol')).toHaveCSS('background-color', after);
+});
+
+test('FAB shared hover has no transform motion under reduced-motion preference', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/tools');
+  await page.getByRole('tab', { name: 'Макети даних' }).click();
+  for (const action of ['aside-fab-toggle','page-fab-toggle']) {
+    const button = page.locator('[data-pg-action="' + action + '"]');
+    await button.hover();
+    await expect(button.locator('.pg-fab__face')).toHaveCSS('transform', 'none');
+    await expect(button.locator('.pg-fab__face')).toHaveCSS('transition-duration', '0s');
+  }
+});

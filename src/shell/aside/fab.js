@@ -50,6 +50,13 @@ export function createAsideFab({
     onClick: () => setOpen(!open),
   });
   button.classList.add('pg-fab__trigger', 'pg-icon-button--corner');
+  // Both FAB instances use exactly the same face and same hover/open motion.
+  // It may contain either an SVG icon or text, but is never replaced.
+  const face = document.createElement('span');
+  face.className = 'pg-fab__face';
+  const iconNode = button.firstElementChild;
+  if (iconNode) face.append(iconNode);
+  button.append(face);
   button.setAttribute('aria-controls', actions.id);
   button.setAttribute('aria-haspopup', 'true');
 
@@ -70,12 +77,12 @@ export function createAsideFab({
       valueAnimation?.cancel();
       valueAnimation = null;
       lastValue = null;
-      button.replaceChildren(createIcon(icon));
+      face.replaceChildren(createIcon(icon));
       button.classList.remove('pg-fab__trigger--value');
       return;
     }
-    if (!button.contains(valueIndicator)) {
-      button.replaceChildren(valueIndicator);
+    if (!face.contains(valueIndicator)) {
+      face.replaceChildren(valueIndicator);
       button.classList.add('pg-fab__trigger--value');
     }
     if (next === lastValue) return;
