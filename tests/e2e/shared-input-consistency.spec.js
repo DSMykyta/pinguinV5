@@ -36,7 +36,7 @@ test('selected value and popup search reuse the same frame, 56px geometry and la
   await expect(choice).toHaveAttribute('data-pg-open','true');
   await expect(frame).toHaveAttribute('data-pg-active','true');
   const inner=choice.locator('.pg-listbox__search-field');
-  await expect(inner.locator('.pg-input--search')).toHaveCount(1);
+  await expect(choice.locator('.pg-listbox__search-field.pg-input--search')).toHaveCount(1);
   await expect(inner.locator('.pg-field__label')).toHaveText('Пошук');
   await expect(inner.locator('.pg-field__surface')).toHaveCSS('height','56px');
   await expect(inner.getByRole('combobox',{name:'Пошук у списку Маркетплейси'})).toBeFocused();
