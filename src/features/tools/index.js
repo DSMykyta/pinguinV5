@@ -53,7 +53,7 @@ const TABS = Object.freeze([
   {
     id: 'media-library',
     label: 'Медіатека',
-    icon: 'image',
+    icon: 'layout-grid',
     sourceUrl: 'https://github.com/DSMykyta/pinguinV5/blob/work/docs/ui/collection-view.md',
     sourceLabel: 'Незалежні колекції',
   },
