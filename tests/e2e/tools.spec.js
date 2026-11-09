@@ -40,6 +40,8 @@ test('the universal header and tabs remain aligned with an isolated Toast previe
   await expect(main.locator('#pg-tools-panel-text .pg-page')).toBeVisible();
   await expect(page.locator('#pg-aside-panel .pg-aside__heading')).toHaveText('Текст');
   await text.press('ArrowLeft');
+  await expect(tabs.getByRole('tab', { name: 'Макети даних' })).toBeFocused();
+  await tabs.getByRole('tab', { name: 'Макети даних' }).press('ArrowLeft');
   await expect(tabs.getByRole('tab', { name: 'Таблиці' })).toBeFocused();
 });
 
