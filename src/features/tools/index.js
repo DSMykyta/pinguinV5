@@ -18,6 +18,7 @@ import { createFieldDemo } from './field-demo.js';
 import { createAdvancedFieldDemo } from './advanced-field-demo.js';
 import { createListboxDemo } from './listbox-demo.js';
 import { createMenuDemo } from './menu-demo.js';
+import { createImageFieldDemo } from './image-field-demo.js';
 import { createSectionNavigatorDemo } from './section-navigator-demo.js';
 import './toast-demo.css';
 import './dialog-demo.css';
@@ -26,6 +27,7 @@ import './field-demo.css';
 import './advanced-field-demo.css';
 import './listbox-demo.css';
 import './menu-demo.css';
+import './image-field-demo.css';
 
 const TABS = Object.freeze([
   {
@@ -60,7 +62,8 @@ export function mount(host, { setAsideContext, setSearchEntries, localNavigation
   const advancedDemo = createAdvancedFieldDemo();
   const listboxDemo = createListboxDemo();
   const menuDemo = createMenuDemo();
-  textPage.body.append(createDialogDemo(), createInputDemo(), fieldDemo.element, advancedDemo.element, listboxDemo.element, menuDemo.element);
+  const imageDemo = createImageFieldDemo();
+  textPage.body.append(createDialogDemo(), createInputDemo(), fieldDemo.element, advancedDemo.element, listboxDemo.element, menuDemo.element, imageDemo.element);
   const navigationPage = createPageView({ title: 'Переходи між блоками' });
   const navigationDemo = createSectionNavigatorDemo();
   navigationPage.body.append(navigationDemo.element);
@@ -110,6 +113,7 @@ export function mount(host, { setAsideContext, setSearchEntries, localNavigation
     advancedDemo.destroy();
     listboxDemo.destroy();
     menuDemo.destroy();
+    imageDemo.destroy();
     tabs.destroy();
     host.replaceChildren();
   };
