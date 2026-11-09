@@ -1,4 +1,5 @@
 import { positionPopup } from '../position/position-popup.js';
+import { dismissOnOutsideScroll } from '../position/dismiss-on-scroll.js';
 
 /**
  * PINGUIN NEXT — INDEPENDENT ACTION MENU
@@ -77,7 +78,7 @@ export function createMenu({label,id,items=[],align='start',disabled=false,onSel
   function focusItem(index){
     const enabled=enabledButtons();
     if(!enabled.length)return;
-    enabled[(index+enabled.length)%enabled.length].focus();
+    enabled[(index+enabled.length)%enabled.length].focus({ preventScroll: true });
   }
   function open(){
     if(openState||disposed||trigger.disabled)return;
@@ -120,7 +121,10 @@ export function createMenu({label,id,items=[],align='start',disabled=false,onSel
     if(openState&&!element.contains(event.target))close();
   },{signal:controller.signal});
   window.addEventListener('resize',position,{signal:controller.signal});
-  window.addEventListener('scroll',position,{signal:controller.signal,capture:true,passive:true});
+  dismissOnOutsideScroll({
+    popup: panel, isOpen: () => openState, dismiss: () => close(),
+    signal: controller.signal,
+  });
   return Object.freeze({
     element,trigger,open,close,
     destroy(){disposed=true;close();controller.abort();element.remove();},

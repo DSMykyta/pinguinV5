@@ -4,6 +4,7 @@
  */
 import { createFieldFrame } from '../field/field.js';
 import { positionPopup } from '../position/position-popup.js';
+import { dismissOnOutsideScroll } from '../position/dismiss-on-scroll.js';
 
 let sequence = 0;
 const normalized = text => String(text ?? '').toLocaleLowerCase('uk').trim();
@@ -250,7 +251,7 @@ export function createListbox({
     search.value='';
     filter('');
     position();
-    (searchable?search:list).focus();
+    (searchable?search:list).focus({ preventScroll: true });
   }
   function close(restore=false) {
     if(!opened)return;
@@ -318,7 +319,10 @@ export function createListbox({
     if(opened&&!element.contains(event.target))close();
   },{signal:controller.signal});
   window.addEventListener('resize',position,{signal:controller.signal});
-  window.addEventListener('scroll',position,{signal:controller.signal,capture:true,passive:true});
+  dismissOnOutsideScroll({
+    popup: panel, isOpen: () => opened, dismiss: () => close(),
+    signal: controller.signal,
+  });
   setOptions(options);
   setValue(value);
   setError(error);

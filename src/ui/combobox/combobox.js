@@ -5,6 +5,7 @@
  */
 import { createFieldFrame } from '../field/field.js';
 import { positionPopup } from '../position/position-popup.js';
+import { dismissOnOutsideScroll } from '../position/dismiss-on-scroll.js';
 let nextComboId = 0;
 const normalize = value => String(value ?? '').toLocaleLowerCase('uk').trim();
 function parseOptions(items) {
@@ -275,7 +276,10 @@ export function createCombobox({
   document.addEventListener('pointerdown', handleOutside, { signal: controller.signal });
   document.addEventListener('focusin', handleOutside, { signal: controller.signal });
   window.addEventListener('resize', position, { signal: controller.signal });
-  window.addEventListener('scroll', position, { signal: controller.signal, capture: true, passive: true });
+  dismissOnOutsideScroll({
+    popup: list, isOpen: () => open, dismiss: () => display(false),
+    signal: controller.signal,
+  });
   setValue(value);
   setError('');
 
