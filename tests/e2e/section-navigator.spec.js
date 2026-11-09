@@ -354,6 +354,7 @@ test('top previous arrow returns to the first section after animated next', asyn
   const down = root.locator('.pg-section-navigator__handle[data-pg-direction="next"]');
   await down.click();
   await expect(root.locator('.pg-section-navigator__title')).toHaveText('Фото');
+  await expect(root).toHaveAttribute('aria-busy', 'false');
   await up.focus();
   await up.press('Enter');
   await expect(root.locator('.pg-section-navigator__title')).toHaveText('Основне');
