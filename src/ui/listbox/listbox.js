@@ -460,9 +460,10 @@ export function createListbox({
     if (event.target.closest('[data-pg-show-selected]')) showTray(true);
   }, { signal: controller.signal });
   trayClose.addEventListener('click', () => hideTray(true), { signal: controller.signal });
-  element.addEventListener('pointerout', event => {
-    if (!trayOpened || belongsToSelection(event.relatedTarget)) return;
-    hideTray();
+  // Moving the pointer into the top-layer popover may produce a transient
+  // pointerout with relatedTarget=null. Only real movement OUTSIDE closes it.
+  document.addEventListener('pointermove', event => {
+    if (trayOpened && !belongsToSelection(event.target)) hideTray();
   }, { signal: controller.signal });
   element.addEventListener('focusout', event => {
     if (!trayOpened || belongsToSelection(event.relatedTarget)) return;
