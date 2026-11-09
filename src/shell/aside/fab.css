@@ -136,3 +136,17 @@
 @media (prefers-reduced-motion: reduce) {
   .pg-fab__item :is(.pg-fab__label, .pg-fab__symbol) { transition: none; }
 }
+
+/* One shared FAB trigger: selected pagination size instead of an icon. */
+.pg-fab__trigger-value {
+  display:grid;place-items:center;
+  min-width:0;
+  line-height:1;
+  font-size:12px;
+  font-weight:650;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:-.015em;
+}
+.pg-fab__trigger--value {
+  color:var(--pg-color-text-primary);
+}

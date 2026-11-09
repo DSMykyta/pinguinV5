@@ -58,12 +58,35 @@ export function createAsideFab({
   let actionContext = null;
 
   function syncChoices() {
-    if (!actionContext) return;
+    if (!actionContext) {
+      if (position === 'footer') {
+        button.replaceChildren(createIcon(icon));
+        button.classList.remove('pg-fab__trigger--value');
+      }
+      return;
+    }
     for (const item of actions.querySelectorAll('[data-pg-fab-value]')) {
       const choice = actionContext.items.find(entry => String(entry.value) === item.dataset.pgFabValue);
       const active = typeof choice?.selected === 'function'
         ? Boolean(choice.selected()) : Boolean(choice?.selected);
       item.setAttribute('aria-pressed', String(active));
+    }
+    // Footer uses the SAME FAB; its trigger reflects the current page size
+    // rather than an unrelated static table icon. Global FAB keeps its icon.
+    if (position === 'footer') {
+      const current = actionContext.items.find(entry =>
+        typeof entry.selected === 'function' ? entry.selected() : entry.selected);
+      if (current) {
+        const value = document.createElement('span');
+        value.className = 'pg-fab__trigger-value';
+        value.textContent = String(current.symbol ?? current.value);
+        value.setAttribute('aria-hidden', 'true');
+        button.replaceChildren(value);
+        button.classList.add('pg-fab__trigger--value');
+      } else {
+        button.replaceChildren(createIcon(icon));
+        button.classList.remove('pg-fab__trigger--value');
+      }
     }
   }
 
@@ -127,5 +150,6 @@ export function createAsideFab({
     setContext,
     close: () => setOpen(false),
     isOpen: () => open,
+    refresh: syncChoices,
   };
 }
