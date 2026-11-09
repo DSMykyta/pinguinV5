@@ -244,7 +244,6 @@ export function mountShell(host) {
     footer.dataset.pgHasContent = String(show);
     footer.setAttribute('aria-hidden', String(!show));
     if (show) {
-      delete footer.dataset.pgRevealExiting;
       // Reuse the existing Pagination and the already shared FAB instance.
       if (element !== currentFooterContent || !footerPanel.contains(element)) {
         element.append(pageFab.element);
@@ -254,10 +253,8 @@ export function mountShell(host) {
       if (!footerPanel.isConnected) footer.append(footerPanel);
       footerReveal.setVisible(true);
     } else {
-      if (footerPanel.isConnected) footer.dataset.pgRevealExiting = 'true';
       footerReveal.setVisible(false, { onHidden() {
         if (footer.dataset.pgHasContent === 'true') return;
-        delete footer.dataset.pgRevealExiting;
         currentFooterContent = null;
         footerPanel.replaceChildren();
         footerPanel.remove();

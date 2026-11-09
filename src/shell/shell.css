@@ -26,13 +26,15 @@
 .pg-shell__local-nav:empty { display: none; }
 .pg-shell__content { flex:1 1 auto;display:flex;flex-direction:column;min-height:0;min-width:0;overflow:hidden;padding:0;margin:0;background:var(--pg-color-surface);border-radius:18px; }
 .pg-shell__footer {
-  flex:0 0 var(--pg-sidebar-compact-width);min-width:0;min-height:0;
-}
-.pg-shell__footer[data-pg-has-content='true'],
-.pg-shell__footer[data-pg-reveal-exiting='true'] {
-  display:flex;align-items:center;box-sizing:border-box;
-  border-top:1px solid var(--pg-color-border);
-  background:var(--pg-color-page);
+  flex:0 0 var(--pg-sidebar-compact-width);
+  display:flex;
+  align-items:center;
+  box-sizing:border-box;
+  min-width:0;
+  min-height:0;
+  /* The permanent 56px rail stays empty behind the moving surface. */
+  border-top:1px solid transparent;
+  background:transparent;
 }
 .pg-shell__footer-panel {
   flex:1 1 auto;
@@ -40,6 +42,9 @@
   inline-size:100%;
   min-inline-size:0;
   min-block-size:0;
+  box-sizing:border-box;
+  border-top:1px solid var(--pg-color-border);
+  background:var(--pg-color-page);
 }
 .pg-shell__mobile-menu { display: none; }
 .pg-shell__backdrop { display: none; position: fixed; inset: 0; z-index: 70; padding: 0; border: 0; background: var(--pg-color-overlay); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity var(--pg-duration-layout) ease, visibility 0s linear var(--pg-duration-layout); }
