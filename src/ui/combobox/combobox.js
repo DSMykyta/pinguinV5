@@ -6,6 +6,7 @@
 import { createFieldFrame } from '../field/field.js';
 import { positionPopup } from '../position/position-popup.js';
 import { dismissOnOutsideScroll } from '../position/dismiss-on-scroll.js';
+import { ensureOptionVisible } from '../position/ensure-option-visible.js';
 let nextComboId = 0;
 const normalize = value => String(value ?? '').toLocaleLowerCase('uk').trim();
 function parseOptions(items) {
@@ -138,7 +139,7 @@ export function createCombobox({
       option.setAttribute('aria-selected', String(current));
       if (current) {
         input.setAttribute('aria-activedescendant', option.id);
-        option.scrollIntoView({ block: 'nearest' });
+        ensureOptionVisible(list, option);
       }
     });
   }

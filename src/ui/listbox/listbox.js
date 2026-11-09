@@ -5,6 +5,7 @@
 import { createFieldFrame } from '../field/field.js';
 import { positionPopup } from '../position/position-popup.js';
 import { dismissOnOutsideScroll } from '../position/dismiss-on-scroll.js';
+import { ensureOptionVisible } from '../position/ensure-option-visible.js';
 
 let sequence = 0;
 const normalized = text => String(text ?? '').toLocaleLowerCase('uk').trim();
@@ -176,7 +177,7 @@ export function createListbox({
       node.classList.add('pg-listbox__option--active');
       list.setAttribute('aria-activedescendant',node.id);
       search.setAttribute('aria-activedescendant',node.id);
-      node.scrollIntoView({block:'nearest'});
+      ensureOptionVisible(panel, node);
     } else {
       list.removeAttribute('aria-activedescendant');
       search.removeAttribute('aria-activedescendant');
