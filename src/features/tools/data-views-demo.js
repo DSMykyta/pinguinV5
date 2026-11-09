@@ -162,6 +162,7 @@ export function createDataViewsDemo() {
   element.append(collection.element);
   return Object.freeze({
     element,headerActions:collection.headerActions,
+    footerContent:collection.footerContent,
     getAsideContext:()=>({title:'Макети даних',controls}),
     getSearchContext:()=>({
       placeholder:'Пошук у таблиці',label:'Шукати у таблиці брендів',

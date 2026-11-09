@@ -24,6 +24,13 @@ function appendContent(target,value) {
 function validateColumns(columns) {
   if(!Array.isArray(columns)||!columns.length)throw new TypeError('Collection needs columns');
   const keys=new Set();
+  if(rowActions.length) {
+    const th=document.createElement('th');
+    th.scope='col';
+    th.className='pg-collection-view__actions-cell';
+    th.textContent='Дії';
+    heading.append(th);
+  }
   for(const column of columns) {
     if(!column||typeof column.key!=='string'||!column.key||
       typeof column.label!=='string'||!column.label.trim()||keys.has(column.key)||
@@ -107,11 +114,14 @@ export function createCollectionView({
     th.setAttribute('aria-label','Вибір записів');
     allCheckbox=createCheckbox({
       label:'Вибрати всі на поточній сторінці',compact:true,
-      onChange:checked=>{
+      onChange:()=>{
         const pageRows=getVisibleRows();
+        // Mixed means "clear what is selected", never "select the rest".
+        // The same rule applies when every visible row is already selected.
+        const hadSelection=pageRows.some(row=>selected.has(String(getRowId(row))));
         pageRows.forEach(row=>{
           const id=String(getRowId(row));
-          if(checked)selected.add(id);else selected.delete(id);
+          if(hadSelection)selected.delete(id);else selected.add(id);
         });
         syncSelection();
         onSelectionChange?.(getSelectedIds());
@@ -147,13 +157,6 @@ export function createCollectionView({
     heading.append(th);
   }
 
-  if(rowActions.length) {
-    const th=document.createElement('th');
-    th.scope='col';
-    th.className='pg-collection-view__actions-cell';
-    th.textContent='Дії';
-    heading.append(th);
-  }
   thead.append(heading);
   table.append(caption,thead,tbody);
   tableScroller.append(table);
@@ -225,19 +228,6 @@ export function createCollectionView({
         cell.append(checkbox.element);
         tr.append(cell);
       }
-      for(const column of columns) {
-        const td=document.createElement('td');
-        if(column.align==='end')td.dataset.pgAlign='end';
-        if(column.primary)td.dataset.pgPrimary='true';
-        if(column.muted)td.dataset.pgMuted='true';
-        const value=column.render?column.render(row):row[column.key];
-        const span=document.createElement('span');
-        span.className='pg-collection-view__cell-content';
-        appendContent(span,value);
-        if(!(value instanceof Node)&&value!=null)span.title=String(value);
-        td.append(span);
-        tr.append(td);
-      }
       let menu=null;
       if(rowActions.length) {
         menu=createMenu({
@@ -252,6 +242,19 @@ export function createCollectionView({
         cell.className='pg-collection-view__actions-cell';
         cell.append(menu.element);
         tr.append(cell);
+      }
+      for(const column of columns) {
+        const td=document.createElement('td');
+        if(column.align==='end')td.dataset.pgAlign='end';
+        if(column.primary)td.dataset.pgPrimary='true';
+        if(column.muted)td.dataset.pgMuted='true';
+        const value=column.render?column.render(row):row[column.key];
+        const span=document.createElement('span');
+        span.className='pg-collection-view__cell-content';
+        appendContent(span,value);
+        if(!(value instanceof Node)&&value!=null)span.title=String(value);
+        td.append(span);
+        tr.append(td);
       }
       rowControls.push({id,checkbox,menu});
       tbody.append(tr);
