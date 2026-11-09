@@ -1,0 +1,67 @@
+/* Native radio switch with one sliding plate. Styles are local and token based. */
+.pg-segment-switch {
+  --pg-switch-padding: 3px;
+  --pg-switch-gap: 2px;
+  --pg-switch-radius: var(--pg-radius-full);
+  position: relative; isolation: isolate;
+  display: grid;
+  grid-template-columns: repeat(var(--pg-switch-count), minmax(0, 1fr));
+  gap: var(--pg-switch-gap); align-items: center;
+  padding: var(--pg-switch-padding);
+  min-inline-size: 0;
+  border-radius: var(--pg-switch-radius);
+  background: var(--pg-color-selected);
+}
+.pg-segment-switch[data-pg-variant='outline'] {
+  background: var(--pg-color-surface);
+  border: 1px solid var(--pg-color-border-strong);
+  --pg-switch-radius: var(--pg-radius-sm);
+}
+.pg-segment-switch[data-pg-compact='true'] { --pg-switch-padding: 2px; }
+.pg-segment-switch[data-pg-fit='true'] { inline-size: max-content; max-inline-size: 100%; }
+.pg-segment-switch__plate {
+  position: absolute;
+  z-index: 0;
+  inset-block: var(--pg-switch-padding);
+  inset-inline-start: var(--pg-switch-padding);
+  inline-size: calc((100% - 2 * var(--pg-switch-padding) - (var(--pg-switch-count) - 1) * var(--pg-switch-gap)) / var(--pg-switch-count));
+  border-radius: inherit;
+  background: var(--pg-color-surface);
+  box-shadow: 0 1px 4px var(--pg-color-shadow);
+  transform: translateX(calc(var(--pg-switch-index, 0) * (100% + var(--pg-switch-gap))));
+  transition: transform 280ms var(--pg-ease-layout);
+  pointer-events: none;
+}
+.pg-segment-switch__radio {
+  position: absolute; opacity: 0; inline-size: 1px; block-size: 1px;
+  padding: 0; margin: 0; pointer-events: none;
+}
+.pg-segment-switch__label {
+  position: relative; z-index: 1;
+  display: inline-flex; gap: 6px; align-items: center; justify-content: center;
+  min-block-size: 36px; min-inline-size: 38px;
+  padding: 6px 12px;
+  box-sizing: border-box;
+  border-radius: inherit;
+  color: var(--pg-color-text-secondary);
+  font-size: 12px; font-weight: 560;
+  line-height: 1.3; white-space: nowrap; cursor: pointer;
+  transition: color var(--pg-duration-fast) ease;
+}
+.pg-segment-switch__label .pg-icon { inline-size: 17px; block-size: 17px; }
+.pg-segment-switch[data-pg-compact='true'] .pg-segment-switch__label {
+  min-block-size: 32px; min-inline-size: 34px; padding: 5px 9px;
+}
+.pg-segment-switch__radio:checked + .pg-segment-switch__label {
+  color: var(--pg-color-text-primary);
+}
+.pg-segment-switch__radio:focus-visible + .pg-segment-switch__label {
+  outline: 2px solid var(--pg-color-focus); outline-offset: -2px;
+}
+.pg-segment-switch__radio:disabled + .pg-segment-switch__label {
+  cursor: not-allowed; opacity: .45;
+}
+.pg-segment-switch[data-pg-disabled='true'] { opacity: .65; }
+@media (prefers-reduced-motion: reduce) {
+  .pg-segment-switch__plate, .pg-segment-switch__label { transition: none; }
+}
