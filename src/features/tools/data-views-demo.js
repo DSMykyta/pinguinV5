@@ -127,7 +127,6 @@ export function createDataViewsDemo() {
       {value:'restore',label:'Відновити'},
       {value:'delete',label:'Видалити'},
     ],
-    onClear:()=>collection.clearSelection(),
     onAction:action=>{
       void applySelectedAction(action).catch(error=>{
         console.error('Selected brand action failed:',error);
