@@ -45,6 +45,7 @@ export function createSegmentSwitch({
     radio.name = 'pg-segment-switch-group-' + (sequence - index);
     radio.id = id;
     radio.value = item.value;
+    radio.setAttribute('aria-label',item.label);
     radio.disabled = Boolean(disabled || item.disabled);
     radio.checked = item.value === current;
     const optionLabel = document.createElement('label');
