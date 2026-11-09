@@ -360,3 +360,33 @@ test('top previous arrow returns to the first section after animated next', asyn
   await expect(root.locator('.pg-section-navigator__title')).toHaveText('Основне');
   await expect(up).toBeDisabled();
 });
+
+
+test('compact controls use ordinary cursor; short sections have no artificial blank spacer', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/tools');
+  await page.getByRole('tab', { name: 'Переходи' }).click();
+  const root = page.locator('.pg-section-navigator');
+  const down = root.locator('[data-pg-direction="next"]');
+  const up = root.locator('[data-pg-direction="previous"]');
+  await expect(down).toHaveCSS('cursor', 'default');
+  await expect(up).toHaveCSS('cursor', 'default');
+
+  const title = root.locator('.pg-section-navigator__title');
+  const field = root.locator('[data-pg-section="main"] .pg-tools-section-navigator-demo__fields');
+  const header = await title.boundingBox();
+  const form = await field.boundingBox();
+  expect(Math.abs(header.x - form.x)).toBeLessThan(2);
+
+  await down.click();
+  await expect(title).toHaveText('Фото');
+  await expect(root).toHaveAttribute('aria-busy', 'false');
+  await down.click();
+  await expect(title).toHaveText('Опис');
+  await expect(root).toHaveAttribute('aria-busy', 'false');
+  const textPanel = await root.locator('[data-pg-section="description"]').boundingBox();
+  const downBounds = await down.boundingBox();
+  expect(downBounds.y - (textPanel.y + textPanel.height)).toBeLessThan(58);
+  expect(downBounds.y - (textPanel.y + textPanel.height)).toBeGreaterThanOrEqual(-2);
+  await expect(root).toHaveCSS('grid-template-rows', /.+/);
+});

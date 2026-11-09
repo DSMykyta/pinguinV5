@@ -1,5 +1,5 @@
 /* PINGUIN NEXT — DEMO SECTION CONTENT (no extra containers). */
-.pg-tools-section-navigator-demo { inline-size: 100%; min-block-size: 100%; min-inline-size: 0; }
+.pg-tools-section-navigator-demo { inline-size: 100%; min-block-size: 0; min-inline-size: 0; }
 .pg-tools-section-navigator-demo__fields,
 .pg-tools-section-navigator-demo__description { display: grid; gap: var(--pg-space-5); }
 .pg-tools-section-navigator-demo__note { margin: 0; color: var(--pg-color-text-secondary); text-wrap: pretty; }
