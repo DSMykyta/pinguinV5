@@ -6,7 +6,8 @@
 .pg-fab {
   position: fixed;
   right: 12px;
-  bottom: 12px;
+  /* Same vertical centerline as the 56px footer's 40px controls. */
+  bottom: calc((var(--pg-sidebar-compact-width) - var(--pg-control-size)) / 2);
   z-index: 95;
   width: var(--pg-control-size);
   height: var(--pg-control-size);
@@ -109,9 +110,6 @@
   right: calc(12px + var(--pg-control-size) + 8px);
 }
 .pg-fab[hidden] { display: none; }
-@media (max-width: 640px) {
-  .pg-fab { bottom: 12px; }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .pg-fab__trigger > .pg-icon,
