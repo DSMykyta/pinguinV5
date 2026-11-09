@@ -196,15 +196,27 @@ export function createCollectionView({
     const n=visible.filter(row=>selected.has(String(getRowId(row)))).length;
     allCheckbox.setChecked(visible.length>0&&n===visible.length);
     allCheckbox.setIndeterminate(n>0&&n<visible.length);
-    rowControls.forEach(({id,checkbox})=>checkbox.setChecked(selected.has(id)));
+    rowControls.forEach(({id,checkbox,tileCheckbox})=>{
+      checkbox?.setChecked(selected.has(id));
+      tileCheckbox?.setChecked(selected.has(id));
+    });
     element.dataset.pgSelectedCount=String(selected.size);
     tbody.querySelectorAll('tr').forEach(row=>{
       row.dataset.pgSelected=String(selected.has(row.dataset.pgRowId));
     });
+    tiles.querySelectorAll('[data-pg-row-id]').forEach(tile=>{
+      tile.dataset.pgSelected=String(selected.has(tile.dataset.pgRowId));
+    });
+  }
+  function setRowSelected(id,checked) {
+    if(checked)selected.add(id);else selected.delete(id);
+    syncSelection();
+    onSelectionChange?.(getSelectedIds());
   }
   function cleanupRows() {
-    rowControls.forEach(({checkbox,menu})=>{
+    rowControls.forEach(({checkbox,menu,tileCheckbox,tileMenu})=>{
       checkbox?.destroy();menu?.destroy();
+      tileCheckbox?.destroy();tileMenu?.destroy();
     });
     rowControls.length=0;
   }
@@ -225,11 +237,7 @@ export function createCollectionView({
         checkbox=createCheckbox({
           label:'Вибрати: '+String(row.name??id),compact:true,
           checked:selected.has(id),
-          onChange:checked=>{
-            if(checked)selected.add(id);else selected.delete(id);
-            syncSelection();
-            onSelectionChange?.(getSelectedIds());
-          },
+          onChange:checked=>setRowSelected(id,checked),
         });
         const cell=document.createElement('td');
         cell.className='pg-collection-view__selection-cell';
@@ -278,18 +286,59 @@ export function createCollectionView({
         cell.append(menu.element);
         tr.append(cell);
       }
-      rowControls.push({id,checkbox,menu});
       tbody.append(tr);
+      let tileCheckbox=null;
+      let tileMenu=null;
       if(modes.includes('tiles')) {
         const tile=renderTile(row);
         if(!(tile instanceof HTMLElement))throw new TypeError('renderTile must return HTMLElement');
         const wrapper=document.createElement('div');
         wrapper.className='pg-collection-view__tile';
         wrapper.dataset.pgRowId=id;
+        wrapper.dataset.pgSelected=String(selected.has(id));
         wrapper.setAttribute('role','listitem');
         wrapper.append(tile);
+
+        // Native button overlays only the card body. Independent controls
+        // remain above it and never activate edit or selection implicitly.
+        if(typeof onEditRow==='function') {
+          const open=document.createElement('button');
+          open.type='button';
+          open.className='pg-collection-view__tile-open';
+          open.setAttribute('aria-label','Редагувати: '+String(row.name??id));
+          open.addEventListener('click',()=>onEditRow(row),{signal:controller.signal});
+          wrapper.append(open);
+        }
+        if(selectable||rowActions.length) {
+          const actions=document.createElement('div');
+          actions.className='pg-collection-view__tile-controls';
+          if(selectable) {
+            const checkHost=document.createElement('div');
+            checkHost.className='pg-collection-view__tile-check';
+            tileCheckbox=createCheckbox({
+              label:'Вибрати: '+String(row.name??id),compact:true,
+              checked:selected.has(id),
+              onChange:checked=>setRowSelected(id,checked),
+            });
+            checkHost.append(tileCheckbox.element);
+            actions.append(checkHost);
+          }
+          if(rowActions.length) {
+            tileMenu=createMenu({
+              label:'Дії: '+String(row.name??id),align:'end',
+              items:rowActions,onSelect:action=>onRowAction?.(action,row),
+            });
+            tileMenu.trigger.replaceChildren(createIcon('ellipsis'));
+            tileMenu.trigger.classList.add('pg-mini-button');
+            tileMenu.trigger.setAttribute('aria-label','Дії: '+String(row.name??id));
+            tileMenu.element.classList.add('pg-collection-view__tile-menu');
+            actions.append(tileMenu.element);
+          }
+          wrapper.append(actions);
+        }
         tiles.append(wrapper);
       }
+      rowControls.push({id,checkbox,menu,tileCheckbox,tileMenu});
     }
     empty.hidden=all.length>0;
     tableScroller.hidden=!all.length||currentMode!=='table';

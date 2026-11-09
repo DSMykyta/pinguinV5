@@ -105,3 +105,8 @@ Unit checks: `tests/selection-actions.test.js`. The demo's scenarios are one ite
 ### Invariant: stable header control positions
 
 The selection action strip must remain outside the measured header flex flow. Do not animate width/max-width or place it between the fixed view switch and search. Reuse the universal `ui/reveal-panel` motion; content ownership belongs to `ui/selection-actions`, layout anchoring to the feature's existing header-actions host. Any new page using selection actions must keep its persistent header controls stationary.
+
+
+## Плитки: вибір, дії, відкриття (2026-11-09)
+
+Плитка використовує **той самий** `selected` Set і `rowActions`, що таблиця. Вона отримує незалежний нативний checkbox та той самий `createMenu` з «…»; `syncSelection` відображає стан в обох режимах, `cleanupRows` очищає усі екземпляри. Якщо передано `onEditRow`, прозора доступна кнопка перекриває лише тіло плитки й викликає редагування на натискання або Enter/Space. Checkbox та меню розташовані над цією кнопкою й не викликають редагування. Зміна режиму таблиця/плитки не скидає виділення.
