@@ -1,4 +1,7 @@
-/** PINGUIN NEXT — RICH TEXT EDITOR browser verification in the Text workspace. */
+/**
+ * PINGUIN NEXT — RICH TEXT EDITOR / HTML MODE
+ * Full app regression scenarios, not a standalone demo mock.
+ */
 import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
@@ -6,71 +9,154 @@ test.beforeEach(async ({ page }) => {
   await page.getByRole('tab', { name: 'Текст' }).click();
 });
 
-test('edits formatted text and mirrors HTML without a second editable surface', async ({ page }) => {
-  const editor = page.locator('#pg-tools-panel-text .pg-rich-text-editor');
-  const input = editor.getByRole('textbox', { name: 'Редактор тексту' });
-  await expect(input).toBeVisible();
-  await expect(editor.locator('.pg-rich-text-editor__formatted')).toContainText('Опис товару');
-  await input.evaluate(element => {
-    const node = [...element.querySelectorAll('p')].flatMap(p => [...p.childNodes])
-      .find(child => child.nodeType === Node.TEXT_NODE && child.nodeValue.includes('Виділіть'));
-    const range = document.createRange();
-    range.setStart(node, 0);
-    range.setEnd(node, 'Виділіть'.length);
-    const selection = document.getSelection();
+function getEditor(page) {
+  const root = page.locator('#pg-tools-panel-text .pg-rich-text-editor');
+  return {
+    root,
+    visual: root.getByRole('textbox', { name: 'Редактор тексту' }),
+    code: root.getByRole('textbox', { name: 'HTML-код тексту' }),
+    editorMode: root.getByRole('button', { name: 'Редактор', exact: true }),
+    htmlMode: root.getByRole('button', { name: 'HTML', exact: true }),
+  };
+}
+
+test('one working surface switches from WYSIWYG to editable HTML and back', async ({ page }) => {
+  const { root, visual, code, editorMode, htmlMode } = getEditor(page);
+  await expect(visual).toBeVisible();
+  await expect(code).toBeHidden();
+  await expect(root.locator('.pg-rich-text-editor__mirror')).toHaveCount(0);
+  await expect(editorMode).toHaveAttribute('aria-pressed', 'true');
+  await htmlMode.click();
+  await expect(visual).toBeHidden();
+  await expect(code).toBeVisible();
+  await expect(code).toBeEditable();
+  await expect(code).toBeFocused();
+  await expect(code).toHaveValue(/<h2>Опис товару<\/h2>/);
+  await expect(root.getByRole('button', { name: /Жирний/ })).toBeDisabled();
+  await code.fill('<h1>Новий заголовок</h1><p>Опис <strong>оновлено</strong></p>');
+  await editorMode.click();
+  await expect(code).toBeHidden();
+  await expect(visual).toBeVisible();
+  await expect(visual.locator('h1')).toHaveText('Новий заголовок');
+  await expect(visual.locator('strong')).toHaveText('оновлено');
+  await expect(root.getByRole('button', { name: /Жирний/ })).toBeEnabled();
+  await htmlMode.click();
+  await expect(code).toHaveValue('<h1>Новий заголовок</h1><p>Опис <strong>оновлено</strong></p>');
+});
+
+test('edits in source mode stay raw while typing, but export and commit are sanitized', async ({ page }) => {
+  const { root, visual, code, editorMode, htmlMode } = getEditor(page);
+  await htmlMode.click();
+  const risky = '<p>Текст<img src=x onerror="alert(1)"><a href="javascript:alert(1)">link</a><script>alert(2)</script></p>';
+  await code.fill(risky);
+  await expect(code).toHaveValue(risky);
+  const sanitized = await root.evaluate(async element => {
+    const { createRichTextEditor } = await import('/src/ui/rich-text-editor/rich-text-editor.js');
+    const instance = createRichTextEditor({ content: '<p></p>', toolbar: false, stats: false });
+    element.after(instance.element);
+    instance.setMode('html');
+    instance.source.value = '<p><img src=x onerror="alert(1)"><script>alert(2)</script>текст</p>';
+    const output = instance.getHTML();
+    instance.destroy();
+    return output;
+  });
+  expect(sanitized).not.toMatch(/<img|<script|onerror/);
+  await editorMode.click();
+  await expect(visual).toContainText('Текст');
+  await expect(visual.locator('img, script')).toHaveCount(0);
+  await expect(root.locator('.pg-rich-text-editor__notice')).toBeVisible();
+  await htmlMode.click();
+  await expect(code).not.toHaveValue(/onerror|javascript:|<script/);
+});
+
+test('HTML changes are undoable after returning to editor; WYSIWYG formatting works', async ({ page }) => {
+  const { root, visual, code, editorMode, htmlMode } = getEditor(page);
+  await htmlMode.click();
+  await code.fill('<p>Нова версія</p>');
+  await editorMode.click();
+  await expect(visual).toContainText('Нова версія');
+  await root.getByRole('button', { name: /Скасувати/ }).click();
+  await expect(visual).toContainText('Опис товару');
+  await root.getByRole('button', { name: /Повторити/ }).click();
+  await expect(visual).toContainText('Нова версія');
+  await visual.evaluate(node => {
+    const text = node.querySelector('p').firstChild;
+    const selection = node.ownerDocument.getSelection();
+    const range = node.ownerDocument.createRange();
+    range.setStart(text, 0);
+    range.setEnd(text, 4);
     selection.removeAllRanges();
     selection.addRange(range);
   });
-  await editor.getByRole('button', { name: /Жирний/ }).click();
-  await expect(input.locator('strong').filter({hasText:'Виділіть'}).first()).toContainText('Виділіть');
-  await expect(editor.locator('.pg-rich-text-editor__formatted strong').filter({hasText:'Виділіть'}).first()).toContainText('Виділіть');
-  await editor.getByRole('button', { name: 'Перемкнути вигляд і HTML-код' }).click();
-  await expect(editor.locator('.pg-rich-text-editor__code')).toContainText('<strong>Виділіть</strong>');
-  await editor.getByRole('button', { name: /Скасувати/ }).click();
-  await expect(editor.locator('.pg-rich-text-editor__code')).not.toContainText('<strong>Виділіть</strong>');
-  await editor.getByRole('button', { name: /Повторити/ }).click();
-  await expect(editor.locator('.pg-rich-text-editor__code')).toContainText('<strong>Виділіть</strong>');
-  await expect(editor.locator('[contenteditable="true"]')).toHaveCount(1);
+  await root.getByRole('button', { name: /Жирний/ }).click();
+  await expect(visual.locator('strong')).toContainText('Нова');
+  await htmlMode.click();
+  await expect(code).toHaveValue(/<strong>Нова<\/strong>/);
 });
 
-test('native typing synchronizes mirror and keyboard undo', async ({ page }) => {
-  const editor = page.locator('#pg-tools-panel-text .pg-rich-text-editor');
-  const input = editor.getByRole('textbox', { name: 'Редактор тексту' });
-  await input.click();
-  await input.press('ControlOrMeta+End');
-  await input.press('End');
-  await input.type(' Тест');
-  await expect(editor.locator('.pg-rich-text-editor__formatted')).toContainText('Тест');
-  await input.press('ControlOrMeta+z');
-  await expect(editor.locator('.pg-rich-text-editor__formatted')).not.toContainText('Тест');
-});
-
-test('sanitizes inserted HTML and keeps separate instances', async ({ page }) => {
+test('HTML is optional, source and visual honor readonly, instances are isolated', async ({ page }) => {
+  const { visual, code, editorMode, htmlMode } = getEditor(page);
+  await expect(visual).toBeVisible();
   const result = await page.evaluate(async () => {
     const { createRichTextEditor } = await import('/src/ui/rich-text-editor/rich-text-editor.js');
-    const first = createRichTextEditor({ content: '<p>One</p>', toolbar: false });
-    const second = createRichTextEditor({ content: '<p>Two</p>', mirror: false, stats: false, toolbar: false });
+    const first = createRichTextEditor({ content: '<p>Перший</p>', toolbar: false, stats: false });
+    const second = createRichTextEditor({ content: '<p>Другий</p>', toolbar: false, code: false, stats: false });
     document.body.append(first.element, second.element);
-    first.setHTML('<p>Safe<img src=x onerror="alert(1)"><script>alert(2)</script><a href="javascript:alert(3)">link</a></p>');
-    const safe = first.getHTML();
-    const independent = second.getText();
+    first.setMode('html');
+    first.source.value = '<p>Змінено</p>';
+    first.source.dispatchEvent(new Event('input', { bubbles: true }));
+    const values = [first.getHTML(), second.getHTML()];
+    first.setEditable(false);
+    const readonly = first.source.readOnly;
     first.destroy();
-    const stillMounted = second.element.isConnected;
+    const alive = second.element.isConnected;
+    const noSwitch = second.element.querySelectorAll('.pg-rich-text-editor__mode').length === 0;
     second.destroy();
-    return { safe, independent, stillMounted };
+    return { values, readonly, alive, noSwitch };
   });
-  expect(result.safe).not.toMatch(/onerror|<script|javascript:|<img/);
-  expect(result.safe).toContain('Safe');
-  expect(result.independent).toContain('Two');
-  expect(result.stillMounted).toBe(true);
+  expect(result).toEqual({ values: ['<p>Змінено</p>', '<p>Другий</p>'], readonly: true, alive: true, noSwitch: true });
+  await htmlMode.click();
+  await expect(code).toBeEditable();
+  await editorMode.click();
+  await expect(visual).toBeVisible();
 });
 
+test('editor and source use same full-width workspace on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const { root, visual, code, htmlMode } = getEditor(page);
+  await expect(visual).toBeVisible();
+  await htmlMode.click();
+  await expect(code).toBeVisible();
+  const dimensions = await root.evaluate(node => {
+    const root = node.getBoundingClientRect();
+    const source = node.querySelector('.pg-rich-text-editor__source').getBoundingClientRect();
+    return {
+      root: root.width,
+      window: document.documentElement.clientWidth,
+      source: source.width,
+    };
+  });
+  expect(dimensions.root).toBeLessThanOrEqual(dimensions.window);
+  expect(dimensions.source).toBeLessThanOrEqual(dimensions.root);
+});
 
-test('pasted HTML is sanitized before insertion', async ({ page }) => {
-  const editor = page.locator('#pg-tools-panel-text .pg-rich-text-editor');
-  const input = editor.getByRole('textbox', { name: 'Редактор тексту' });
-  await input.click();
-  const result = await input.evaluate(element => {
+test('plain WYSIWYG typing and keyboard undo remain available', async ({ page }) => {
+  const { visual, htmlMode, code } = getEditor(page);
+  await visual.click();
+  await visual.press('ControlOrMeta+End');
+  await visual.press('End');
+  await visual.pressSequentially(' Тест');
+  await expect(visual).toContainText('Тест');
+  await visual.press('ControlOrMeta+z');
+  await expect(visual).not.toContainText('Тест');
+  await htmlMode.click();
+  await expect(code).not.toHaveValue(/ Тест/);
+});
+
+test('rich HTML paste uses allowlist without executing content', async ({ page }) => {
+  const { visual, htmlMode, code } = getEditor(page);
+  await visual.click();
+  const result = await visual.evaluate(element => {
     const clipboardData = new DataTransfer();
     clipboardData.setData('text/html', '<strong>Вставлено</strong><img src=x onerror="alert(1)"><script>alert(2)</script>');
     element.dispatchEvent(new ClipboardEvent('paste', { clipboardData, bubbles: true, cancelable: true }));
@@ -78,18 +164,6 @@ test('pasted HTML is sanitized before insertion', async ({ page }) => {
   });
   expect(result).toContain('<strong>Вставлено</strong>');
   expect(result).not.toMatch(/onerror|<script|<img/);
-  await expect(editor.locator('.pg-rich-text-editor__formatted')).toContainText('Вставлено');
-});
-
-test('editor and mirror stack at mobile width without horizontal overflow', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  const editor = page.locator('#pg-tools-panel-text .pg-rich-text-editor');
-  await expect(editor).toBeVisible();
-  const geometry = await editor.evaluate(node => {
-    const own = node.getBoundingClientRect();
-    const parts = [...node.children].map(child => child.getBoundingClientRect());
-    return { width: own.width, widthAvailable: document.documentElement.clientWidth, panelsStack: parts[1].top >= parts[0].bottom - 1 };
-  });
-  expect(geometry.panelsStack).toBe(true);
-  expect(geometry.width).toBeLessThanOrEqual(geometry.widthAvailable);
+  await htmlMode.click();
+  await expect(code).toHaveValue(/<strong>Вставлено<\/strong>/);
 });

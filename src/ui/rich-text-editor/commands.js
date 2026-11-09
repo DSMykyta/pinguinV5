@@ -169,7 +169,9 @@ function toggleMark(surface, tag) {
 export function executeRichTextCommand(surface, name) {
   if (MARKS[name]) return toggleMark(surface, MARKS[name]);
   if (name === 'paragraph') return setBlock(surface, 'p');
+  if (name === 'heading-1') return setBlock(surface, 'h1');
   if (name === 'heading') return setBlock(surface, 'h2');
+  if (name === 'heading-3') return setBlock(surface, 'h3');
   if (name === 'quote') return setBlock(surface, 'blockquote');
   if (name === 'bullet-list') return setList(surface, 'ul');
   if (name === 'ordered-list') return setList(surface, 'ol');
