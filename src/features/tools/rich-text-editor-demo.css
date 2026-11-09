@@ -1,0 +1,7 @@
+/* Tools gallery positioning only. All editor visuals live in its UI CSS. */
+.pg-tools-rich-text-editor-demo { min-inline-size: 0; margin-block: var(--pg-space-8); }
+.pg-tools-rich-text-editor-demo__heading { margin: 0; font-size: 16px; font-weight: 600; }
+.pg-tools-rich-text-editor-demo__hint {
+  margin: var(--pg-space-2) 0 var(--pg-space-5); max-inline-size: 72ch;
+  color: var(--pg-color-text-secondary); font-size: 13px;
+}

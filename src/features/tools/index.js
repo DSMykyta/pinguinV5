@@ -12,6 +12,7 @@
 import { createTabs } from '../../ui/tabs/tabs.js';
 import { createPageView } from '../../ui/page/page.js';
 import { createToastDemo } from './toast-demo.js';
+import { createRichTextEditorDemo } from './rich-text-editor-demo.js';
 import { createDialogDemo } from './dialog-demo.js';
 import { createInputDemo } from './input-demo.js';
 import { createFieldDemo } from './field-demo.js';
@@ -22,6 +23,7 @@ import { createImageFieldDemo } from './image-field-demo.js';
 import { createDataViewsDemo } from './data-views-demo.js';
 import { createSectionNavigatorDemo } from './section-navigator-demo.js';
 import './toast-demo.css';
+import './rich-text-editor-demo.css';
 import './dialog-demo.css';
 import './input-demo.css';
 import './field-demo.css';
@@ -69,12 +71,13 @@ export function mount(host, { setAsideContext, setSearchEntries, setHeaderAction
   // The table itself is the page surface; there is no duplicate title or card.
   const dataViewsDemo = createDataViewsDemo();
   const textPage = createPageView({ title: 'Текст' });
+  const richTextEditorDemo = createRichTextEditorDemo();
   const fieldDemo = createFieldDemo();
   const advancedDemo = createAdvancedFieldDemo();
   const listboxDemo = createListboxDemo();
   const menuDemo = createMenuDemo();
   const imageDemo = createImageFieldDemo();
-  textPage.body.append(createDialogDemo(), createInputDemo(), fieldDemo.element, advancedDemo.element, listboxDemo.element, menuDemo.element, imageDemo.element);
+  textPage.body.append(richTextEditorDemo.element, createDialogDemo(), createInputDemo(), fieldDemo.element, advancedDemo.element, listboxDemo.element, menuDemo.element, imageDemo.element);
   const navigationPage = createPageView({ title: 'Переходи між блоками' });
   const navigationDemo = createSectionNavigatorDemo();
   navigationPage.body.append(navigationDemo.element);
@@ -127,6 +130,7 @@ export function mount(host, { setAsideContext, setSearchEntries, setHeaderAction
     setHeaderActions(null);
     setWorkspaceLayout('default');
     dataViewsDemo.destroy();
+    richTextEditorDemo.destroy();
     navigationDemo.destroy();
     fieldDemo.destroy();
     advancedDemo.destroy();

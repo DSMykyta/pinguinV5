@@ -30,6 +30,7 @@ import './ui/menu/menu.css';
 import './ui/image-field/image-field.css';
 import './ui/tag-field/tag-field.css';
 import './ui/textarea/textarea.css';
+import './ui/rich-text-editor/rich-text-editor.css';
 import './ui/number-field/number-field.css';
 import './ui/checkbox/checkbox.css';
 import './ui/radio-group/radio-group.css';

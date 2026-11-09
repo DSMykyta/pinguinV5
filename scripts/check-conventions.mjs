@@ -44,6 +44,7 @@ const cssOwnerByPrefix = new Map([
   ['pg-toast', 'src/ui/toast/toast.css'],
   ['pg-dialog', 'src/ui/dialog/dialog.css'],
   ['pg-input', 'src/ui/input/input.css'],
+  ['pg-rich-text-editor', 'src/ui/rich-text-editor/rich-text-editor.css'],
   ['pg-section-navigator', 'src/ui/section-navigator/section-navigator.css'],
   ['pg-tools-section-navigator-demo', 'src/features/tools/section-navigator-demo.css'],
   ['pg-tools-input-demo', 'src/features/tools/input-demo.css'],
