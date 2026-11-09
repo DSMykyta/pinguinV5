@@ -150,3 +150,16 @@
 .pg-fab__trigger--value {
   color:var(--pg-color-text-primary);
 }
+
+/* The existing FAB's numeric face is animated without rotating readable digits. */
+.pg-fab__trigger--value > .pg-fab__trigger-value {
+  transition: transform var(--pg-duration-normal) var(--pg-ease-layout),
+    opacity var(--pg-duration-normal) ease;
+  transform-origin: center;
+}
+.pg-fab__trigger--value[aria-expanded='true'] > .pg-fab__trigger-value {
+  transform: translateY(-1px) scale(1.12);
+}
+@media (prefers-reduced-motion: reduce) {
+  .pg-fab__trigger--value > .pg-fab__trigger-value { transition: none; }
+}

@@ -56,13 +56,44 @@ export function createAsideFab({
   // Each independent instance can expose links or page-supplied actions.
   // The Shell owns placement; page content never creates a second FAB implementation.
   let actionContext = null;
+  // Preserve one value element: replacing it on each refresh loses CSS/WAAPI motion.
+  const valueIndicator = document.createElement('span');
+  valueIndicator.className = 'pg-fab__trigger-value';
+  valueIndicator.setAttribute('aria-hidden', 'true');
+  let lastValue = null;
+  let valueAnimation = null;
+
+  function setTriggerValue(value) {
+    const next = value === null ? null : String(value);
+    if (position !== 'footer') return;
+    if (next === null) {
+      valueAnimation?.cancel();
+      valueAnimation = null;
+      lastValue = null;
+      button.replaceChildren(createIcon(icon));
+      button.classList.remove('pg-fab__trigger--value');
+      return;
+    }
+    if (!button.contains(valueIndicator)) {
+      button.replaceChildren(valueIndicator);
+      button.classList.add('pg-fab__trigger--value');
+    }
+    if (next === lastValue) return;
+    lastValue = next;
+    valueIndicator.textContent = next;
+    valueAnimation?.cancel();
+    if (valueIndicator.isConnected && typeof valueIndicator.animate === 'function' &&
+        !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      valueAnimation = valueIndicator.animate([
+        { opacity: .25, transform: 'translateY(6px) scale(.87)' },
+        { opacity: 1, transform: 'translateY(0) scale(1)' },
+      ], { duration: 260, easing: 'cubic-bezier(.22,1,.36,1)' });
+    }
+  }
 
   function syncChoices() {
     if (!actionContext) {
-      if (position === 'footer') {
-        button.replaceChildren(createIcon(icon));
-        button.classList.remove('pg-fab__trigger--value');
-      }
+      setTriggerValue(null);
       return;
     }
     for (const item of actions.querySelectorAll('[data-pg-fab-value]')) {
@@ -76,17 +107,7 @@ export function createAsideFab({
     if (position === 'footer') {
       const current = actionContext.items.find(entry =>
         typeof entry.selected === 'function' ? entry.selected() : entry.selected);
-      if (current) {
-        const value = document.createElement('span');
-        value.className = 'pg-fab__trigger-value';
-        value.textContent = String(current.symbol ?? current.value);
-        value.setAttribute('aria-hidden', 'true');
-        button.replaceChildren(value);
-        button.classList.add('pg-fab__trigger--value');
-      } else {
-        button.replaceChildren(createIcon(icon));
-        button.classList.remove('pg-fab__trigger--value');
-      }
+      setTriggerValue(current ? (current.symbol ?? current.value) : null);
     }
   }
 
