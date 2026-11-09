@@ -85,3 +85,19 @@ The global fourth-corner FAB stays in place and keeps its original actions. A se
 - The `rowActions` menu is the **last cell after all record fields**, with its own trailing header `Дії`; it never occupies the column between the checkbox and the record name.
 - Both the edit button and the trailing action-menu trigger reuse the global `.pg-mini-button` style in `ui/button/button.css`: a 20px checkbox-shaped square, a 28px accessible click target, and an animated square-to-circle morph on hover/focus. This is an appearance shared by action buttons; the native checkbox retains its distinct selection semantics.
 - Keep the first cell and primary name visible during horizontal scrolling; keep the final action cell attached to the right edge. Do not add independent feature CSS copies of the mini-control style.
+
+## Contextual selection actions in the existing header (2026-11-09)
+
+The existing Shell header-actions slot hosts the current view switch **followed by** the shared `createSelectionActions` strip. Selection data stays in `createCollectionView`; the action strip only responds to `onSelectionChange(ids)`, and each feature supplies its own action policies and handlers. Do not place these actions in aside, the pagination footer, or a new floating FAB.
+
+For the Tools → Макети даних preview only:
+
+- Zero selected: strip is hidden, inert and non-interactive.
+- Exactly one selected: show count and **Дублювати**. It duplicates just that sample record.
+- Two or more selected: hide duplication; show count and **Архівувати**, **Відновити**, **Видалити**. The latter requires confirmation through existing Dialog. The close icon clears selection.
+- All operations update local preview records only; they never call a production API.
+- Actions are reusable controls with role/accessibility names. Old aside sort controls remain; the duplicated aside archive/count controls have been removed.
+- Both the one-to-many transition and hiding on deselection have a CSS animation with reduced-motion support. Buttons and groups are retained in the DOM; no rebuild is needed when selection changes.
+- Selection survives ordinary sort/page navigation. When selected records disappear from `setRows`, `onSelectionChange` updates the header strip.
+
+Unit checks: `tests/selection-actions.test.js`. The demo's scenarios are one item → duplicate; two items → archive/restore/delete with confirmation; clear → hidden.
