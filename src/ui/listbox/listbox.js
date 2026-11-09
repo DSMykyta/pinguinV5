@@ -3,6 +3,7 @@
  * Separate from native Select and editable Combobox; no feature ownership.
  */
 import { createFieldFrame } from '../field/field.js';
+import { positionPopup } from '../position/position-popup.js';
 
 let sequence = 0;
 const normalized = text => String(text ?? '').toLocaleLowerCase('uk').trim();
@@ -234,19 +235,8 @@ export function createListbox({
     if(!multiple)close(true);
   }
   function position() {
-    if(!opened||!hasPopover)return;
-    const rect=trigger.getBoundingClientRect();
-    const below=innerHeight-rect.bottom;
-    const above=rect.top;
-    const height=Math.min(320,Math.max(120,panel.scrollHeight));
-    const upward=below<height && above>below;
-    const space=Math.max(100,(upward?above:below)-12);
-    const limit=Math.min(320,space);
-    panel.style.position='fixed';
-    panel.style.left=Math.max(8,rect.left)+'px';
-    panel.style.width=Math.max(0,Math.min(rect.width,innerWidth-16))+'px';
-    panel.style.maxHeight=limit+'px';
-    panel.style.top=(upward?Math.max(8,rect.top-limit-4):rect.bottom+4)+'px';
+    if (!opened || !hasPopover) return;
+    positionPopup({ anchor: trigger, popup: panel, maxHeight: 320 });
   }
   function open() {
     if(opened||destroyed||trigger.disabled)return;

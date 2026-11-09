@@ -1,3 +1,5 @@
+import { positionPopup } from '../position/position-popup.js';
+
 /**
  * PINGUIN NEXT — INDEPENDENT ACTION MENU
  * Native button + ARIA menu keyboard model. No feature state/global registry.
@@ -66,19 +68,11 @@ export function createMenu({label,id,items=[],align='start',disabled=false,onSel
   element.append(trigger,panel);
   function enabledButtons(){return buttons.filter(button=>!button.disabled);}
   function position(){
-    if(!openState||!supportsPopover)return;
-    const rect=trigger.getBoundingClientRect();
-    const width=Math.min(300,Math.max(170,rect.width));
-    const left=align==='end'?rect.right-width:rect.left;
-    const height=Math.min(panel.scrollHeight,320);
-    const down=innerHeight-rect.bottom;
-    const above=rect.top;
-    const upward=height>down&&above>down;
-    panel.style.position='fixed';
-    panel.style.width=Math.min(width,innerWidth-16)+'px';
-    panel.style.maxHeight=Math.max(90,Math.min(320,(upward?above:down)-12))+'px';
-    panel.style.left=Math.max(8,Math.min(left,innerWidth-width-8))+'px';
-    panel.style.top=(upward?Math.max(8,rect.top-Math.min(height,above-12)-4):rect.bottom+4)+'px';
+    if (!openState || !supportsPopover) return;
+    positionPopup({
+      anchor: trigger, popup: panel, maxHeight: 320,
+      matchWidth: false, minWidth: 170, maxWidth: 300, align,
+    });
   }
   function focusItem(index){
     const enabled=enabledButtons();

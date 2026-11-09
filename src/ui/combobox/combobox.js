@@ -4,6 +4,7 @@
  * API: createCombobox({label,options?,loadOptions?,onChange?}).
  */
 import { createFieldFrame } from '../field/field.js';
+import { positionPopup } from '../position/position-popup.js';
 let nextComboId = 0;
 const normalize = value => String(value ?? '').toLocaleLowerCase('uk').trim();
 function parseOptions(items) {
@@ -108,16 +109,7 @@ export function createCombobox({
   }
   function position() {
     if (!hasPopover || !open) return;
-    const rect = input.getBoundingClientRect();
-    const below = window.innerHeight - rect.bottom;
-    const above = rect.top;
-    const top = below >= 180 || below >= above ? rect.bottom + 4 : undefined;
-    const height = Math.max(100, Math.min(260, (top === undefined ? above : below) - 12));
-    list.style.position = 'fixed';
-    list.style.left = Math.max(8, rect.left) + 'px';
-    list.style.width = Math.min(rect.width, window.innerWidth - 16) + 'px';
-    list.style.maxHeight = height + 'px';
-    list.style.top = (top === undefined ? Math.max(8, rect.top - height - 4) : top) + 'px';
+    positionPopup({ anchor: input, popup: list, maxHeight: 260 });
   }
   function display(openNow) {
     if (destroyed || input.disabled) return;
