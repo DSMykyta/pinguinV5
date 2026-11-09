@@ -180,6 +180,9 @@ test('FAB action list is dark, visible and readable in both themes without white
 
   // Theme preference is global; use the existing sidebar button to change it.
   await page.evaluate(() => { document.documentElement.dataset.theme = 'dark'; });
+  // Shared FAB tokens animate over 150ms; measure only after the new theme settles.
+  await expect(actions.first().locator('.pg-fab__label'))
+    .toHaveCSS('background-color', 'rgb(96, 112, 123)');
   let dark = await checkColors();
   expect(dark.symbolBackground).toBe(dark.background);
   expect(dark.background).not.toBe('rgb(255, 255, 255)');
