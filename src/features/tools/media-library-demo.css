@@ -37,3 +37,19 @@
 @media (prefers-reduced-motion:reduce) {
   .pg-media-library__card {transition:none;}
 }
+
+/* Compact media preview inside the native table cell; same image as the tile. */
+.pg-media-library__table-thumb {
+  display:block;
+  inline-size:72px;
+  block-size:45px;
+  object-fit:cover;
+  border-radius:var(--pg-radius-sm);
+}
+.pg-media-library__root .pg-collection-view__table [data-pg-column='preview'] {
+  min-inline-size:112px;
+  inline-size:112px;
+}
+.pg-media-library__root .pg-collection-view__table tbody td:has(.pg-media-library__table-thumb) {
+  padding-block:6px;
+}
