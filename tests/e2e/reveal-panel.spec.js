@@ -184,6 +184,7 @@ test('FAB action list is dark, visible and readable in both themes without white
   expect(dark.symbolBackground).toBe(dark.background);
   expect(dark.background).not.toBe('rgb(255, 255, 255)');
   expect(dark.background).not.toBe('rgb(241, 241, 241)');
+  expect(dark.background).toBe('rgb(96, 112, 123)');
   expect(ratio(dark.foreground, dark.background)).toBeGreaterThanOrEqual(4.5);
   expect(ratio(dark.background, 'rgb(33, 33, 33)')).toBeGreaterThanOrEqual(3);
 
