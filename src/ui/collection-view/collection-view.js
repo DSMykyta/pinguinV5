@@ -310,8 +310,10 @@ export function createCollectionView({
       throw new TypeError('Rows need unique stable ids');
     dataset=[...next];
     const available=new Set(ids);
+    const previousSelectionSize=selected.size;
     for(const id of selected)if(!available.has(id))selected.delete(id);
     renderData();
+    if(selected.size!==previousSelectionSize)onSelectionChange?.(getSelectedIds());
   }
   function setQuery(next) {
     query=String(next??'');
