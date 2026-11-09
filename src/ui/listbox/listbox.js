@@ -58,6 +58,7 @@ export function createListbox({
   selectionText.id = uid + '-selection-text';
   selectionText.className = 'pg-listbox__sr';
   if (multiple) {
+    frame.field.classList.add('pg-listbox__field--multi');
     frame.edit.append(display);
     display.classList.add('pg-listbox__value--interactive');
     trigger.setAttribute('aria-labelledby', frame.label.id + ' ' + selectionText.id);
