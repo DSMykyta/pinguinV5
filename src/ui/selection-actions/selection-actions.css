@@ -24,8 +24,8 @@
 }
 .pg-selection-actions__group {
   /* Both modes fill the SAME anchored rectangle even when one is hidden.
-     Never size the animated element from its content (width: max-content):
-     a reveal frame would then recalculate its horizontal origin. */
+     Never derive the animated group's width from its contents:
+     that would recalculate its horizontal origin. */
   position: absolute;
   inset: 0;
   box-sizing: border-box;
