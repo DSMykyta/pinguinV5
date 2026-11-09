@@ -14,7 +14,8 @@
   max-width: none;
   margin-inline: 0;
   min-width: 0;
-  animation: pg-page-enter 320ms var(--pg-ease-layout) both;
+  padding: 40px var(--pg-workspace-gutter, clamp(20px, 5vw, 72px)) 72px;
+  box-sizing: border-box;
 }
 
 .pg-page__title {
@@ -38,3 +39,5 @@
 @media (prefers-reduced-motion: reduce) {
   .pg-page { animation: none; }
 }
+
+@media (max-width: 640px) { .pg-page { padding-block: 32px 56px; } }

@@ -26,7 +26,7 @@ test('the universal header and tabs remain aligned with an isolated Toast previe
   await expect(page.locator('.pg-sidebar').getByRole('tab')).toHaveCount(0);
 
   const [titleBox, tabsBox, mainBox] = await Promise.all([title,tabs,main].map(x => x.boundingBox()));
-  const pad = await main.evaluate(node => parseFloat(getComputedStyle(node).paddingLeft));
+  const pad = await main.locator('#pg-tools-panel-tables .pg-page').evaluate(node => parseFloat(getComputedStyle(node).paddingLeft));
   expect(Math.abs(titleBox.x - tabsBox.x)).toBeLessThan(1);
   expect(Math.abs(titleBox.x - mainBox.x)).toBeLessThan(1);
   expect(tabsBox.y).toBeGreaterThan(titleBox.y + titleBox.height);

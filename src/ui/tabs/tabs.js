@@ -82,8 +82,6 @@ export function createTabs({ idPrefix, label, items, onChange, navHost = null })
     if (!buttons.has(id)) return false;
     if (currentId !== id) {
       currentId = id;
-      // Generic fill layout for full-workspace panels, no knowledge of features.
-      root.dataset.pgFill = String(items.find(item => item.id === id)?.fill === true);
       for (const itemId of orderedIds) {
         const active = itemId === id;
         const button = buttons.get(itemId);

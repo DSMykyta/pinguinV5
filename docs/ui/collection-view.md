@@ -37,3 +37,7 @@ This is a **design alignment tab**. Final production Brands implementation, API 
 The table **is the workspace**, not a card within a page. Remove the illustrative H2, explanatory paragraphs, meta text, extra 40px Shell content padding, inner border/radius, and nested maximum height. The table viewport occupies all available workspace space below the **existing** header/tabs, with one scrollable region retaining vertical and horizontal scroll and a sticky header. Tiles occupy the same space, scrolling within it, with internal gap between tiles. An opt-in `setWorkspaceLayout('flush')` from the feature and a `fill` tab item control the existing Shell/Tabs layout; changing tabs restores normal spacing. Other pages remain untouched.
 
 Sidebar and aside scrollable areas reuse `.pg-scrollbar` (8px thin, arrowless); the contextual aside links no longer have redundant arrow decorations. The shared style remains owned by `src/ui/scrollbar`; no new scrollbar implementation.
+
+## Single universal workspace (2026-11-09)
+
+A special workspace `flush/fill` mode is **forbidden and removed**. Shell always uses one full-height, unpadded content area. Tabs always share the same layout and entry animation. Generic `.pg-page` supplies conventional article padding; collections already fill their parent. No context-specific workspace attributes, separate transition, or alternative Shell handling.

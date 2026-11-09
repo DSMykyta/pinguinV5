@@ -13,8 +13,8 @@ test('new tab uses existing Shell header and contains 32 native table records', 
   await expect(page.getByRole('heading', { name: 'Інструменти', level: 1 })).toHaveCount(1);
   await expect(page.getByRole('heading', { name: 'Таблиця та плитки', level: 2 })).toHaveCount(0);
   await expect(page.locator('.pg-tools-data-views__intro, .pg-tools-data-views__meta')).toHaveCount(0);
-  await expect(page.locator('.pg-shell__content')).toHaveAttribute('data-pg-workspace-layout','flush');
-  await expect(page.locator('.pg-tabs')).toHaveAttribute('data-pg-fill','true');
+  await expect(page.locator('.pg-shell__content')).not.toHaveAttribute('data-pg-workspace-layout', /.+/);
+  await expect(page.locator('.pg-tabs')).not.toHaveAttribute('data-pg-fill', /.+/);
   await expect(page.locator('.pg-collection-view__table-scroll')).toHaveCSS('border-top-style','none');
   const geometry = await page.evaluate(() => {
     const area = document.querySelector('.pg-shell__content').getBoundingClientRect();
@@ -39,14 +39,18 @@ test('new tab uses existing Shell header and contains 32 native table records', 
   await expect(page.locator('.pg-collection-view__tiles')).toBeHidden();
 });
 
-test('navigating away restores the normal workspace layout', async ({page}) => {
+test('all tabs share identical workspace geometry and animation', async ({page}) => {
+  const main = page.locator('.pg-shell__content');
+  const before = await main.evaluate(node => [getComputedStyle(node).padding, getComputedStyle(node).overflow]);
+  const animation = await page.locator('#pg-tools-panel-data-views').evaluate(node => getComputedStyle(node).animationName);
   await page.getByRole('tab', {name:'Текст'}).click();
-  await expect(page.locator('.pg-shell__content')).toHaveAttribute('data-pg-workspace-layout','default');
-  const pad = await page.locator('.pg-shell__content').evaluate(node =>
-    Number.parseFloat(getComputedStyle(node).paddingLeft));
-  expect(pad).toBeGreaterThan(0);
-  await page.getByRole('tab', {name:'Макети даних'}).click();
-  await expect(page.locator('.pg-shell__content')).toHaveAttribute('data-pg-workspace-layout','flush');
+  const after = await main.evaluate(node => [getComputedStyle(node).padding, getComputedStyle(node).overflow]);
+  const textAnimation = await page.locator('#pg-tools-panel-text').evaluate(node => getComputedStyle(node).animationName);
+  expect(after).toEqual(before);
+  expect(textAnimation).toBe(animation);
+  expect(animation).toBe('pg-page-enter');
+  await expect(page.locator('#pg-tools-panel-text .pg-page')).toHaveCSS('padding-top','40px');
+  await expect(page.locator('.pg-tabs')).not.toHaveAttribute('data-pg-fill', /.+/);
 });
 
 test('sidebar and context aside use shared arrowless scrollbar styles', async ({page}) => {

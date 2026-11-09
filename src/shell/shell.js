@@ -214,13 +214,6 @@ export function mountShell(host) {
       }
       pageActionsHost.replaceChildren(...(element ? [element] : []));
     },
-    onWorkspaceLayout: mode => {
-      if (!['default', 'flush'].includes(mode)) {
-        throw new RangeError('Unsupported workspace layout: ' + mode);
-      }
-      content.dataset.pgWorkspaceLayout = mode;
-      content.scrollTop = 0;
-    },
     onAsideContext: context => {
       aside.setContext(context);
       asideFab.setContext(context);
@@ -230,7 +223,6 @@ export function mountShell(host) {
       refreshSearch();
     },
     onRouteChange() {
-      content.dataset.pgWorkspaceLayout = 'default';
       pageActionsHost.replaceChildren();
       search.close();
       asideFab.close();
