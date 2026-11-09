@@ -7,7 +7,8 @@ import { createCollectionView } from '../../ui/collection-view/collection-view.j
 import { createStoredChoice } from '../../core/preferences.js';
 import { createSelect } from '../../ui/select/select.js';
 import { createInput } from '../../ui/input/input.js';
-import { showDialog } from '../../ui/dialog/dialog.js';
+import { showDialog, showConfirmDialog } from '../../ui/dialog/dialog.js';
+import { createSelectionActions } from '../../ui/selection-actions/selection-actions.js';
 import { createSegmentSwitch } from '../../ui/segment-switch/segment-switch.js';
 import { DEFAULT_PAGE_SIZES } from '../../ui/pagination/pagination.js';
 
@@ -113,14 +114,29 @@ export function createDataViewsDemo() {
     options:[{value:'asc',label:'А–Я'},{value:'desc',label:'Я–А'}],
     value:'asc',onChange:value=>collection.setSort(sortBy.getValue(),value),
   });
-  const count=node('span','selected-count','Нічого не вибрано');
-  count.setAttribute('role','status');
-  const archive=document.createElement('button');
-  archive.type='button';archive.className='pg-tools-data-views__bulk';
-  archive.textContent='Архівувати вибрані';archive.disabled=true;
   const details=node('div','aside-detail','Оберіть дію біля запису.');
   details.setAttribute('role','status');
-  controls.append(sortBy.element,direction.element,count,archive,details);
+  controls.append(sortBy.element,direction.element,details);
+
+  // The shared header strip observes collection selection; this demo alone
+  // defines which actions are relevant and what they do to sample records.
+  const selectedActions=createSelectionActions({
+    single:[{value:'duplicate',label:'Дублювати'}],
+    multiple:[
+      {value:'archive',label:'Архівувати'},
+      {value:'restore',label:'Відновити'},
+      {value:'delete',label:'Видалити'},
+    ],
+    onClear:()=>collection.clearSelection(),
+    onAction:action=>{
+      void applySelectedAction(action).catch(error=>{
+        console.error('Selected brand action failed:',error);
+        details.textContent='Не вдалося виконати дію.';
+      });
+    },
+  });
+  const headerActions=document.createElement('div');
+  headerActions.className='pg-tools-data-views__header-actions';
   async function editRecord(row) {
     // The demo owns its data changes; the shared collection only emits the edit intent.
     const nameField=createInput({
@@ -171,10 +187,7 @@ export function createDataViewsDemo() {
     onSortChange:sort=>{
       sortBy.setValue(sort.key);direction.setValue(sort.direction);
     },
-    onSelectionChange:ids=>{
-      count.textContent=ids.length?'Вибрано: '+ids.length:'Нічого не вибрано';
-      archive.disabled=ids.length===0;
-    },
+    onSelectionChange:ids=>selectedActions.setSelection(ids),
     onRowAction:(action,row)=>{
       if(action==='details') {
         details.textContent=row.name+' · '+row.category+' · '+row.products+' товарів · '+row.status;
@@ -189,17 +202,47 @@ export function createDataViewsDemo() {
       }
     },
   });
-  archive.addEventListener('click',()=>{
-    const selected=new Set(collection.getSelectedIds());
-    if(!selected.size)return;
-    records=records.map(item=>selected.has(item.id)?{...item,status:'Архівний'}:item);
+  // Reuse the existing view switch and the single Shell header slot.
+  headerActions.append(collection.headerActions,selectedActions.element);
+
+  async function applySelectedAction(action) {
+    const ids=collection.getSelectedIds();
+    const selected=new Set(ids);
+    if(!ids.length)return;
+    if(action==='duplicate') {
+      if(ids.length!==1)return;
+      const original=records.find(row=>selected.has(row.id));
+      if(!original)return;
+      const name=original.name+' (копія)';
+      const copy={...original,id:'preview-copy-'+(++nextCopy),name};
+      records=[...records,copy];
+      details.textContent='Дубльовано локально: '+original.name;
+    } else if(action==='archive'||action==='restore') {
+      const status=action==='archive'?'Архівний':'Активний';
+      records=records.map(row=>selected.has(row.id)?{...row,status}:row);
+      details.textContent=(action==='archive'?'Архівовано: ':'Відновлено: ')+ids.length;
+    } else if(action==='delete') {
+      if(ids.length<2)return;
+      const confirmed=await showConfirmDialog({
+        title:'Видалити вибрані записи?',
+        message:'З тестової таблиці буде видалено '+ids.length+' записи.',
+        confirmText:'Видалити',
+        cancelText:'Скасувати',
+        destructive:true,
+      });
+      if(!confirmed)return;
+      // Re-check at confirmation time: selection can change during a dialog.
+      const current=new Set(collection.getSelectedIds());
+      const removed=records.filter(row=>current.has(row.id)).length;
+      records=records.filter(row=>!current.has(row.id));
+      details.textContent='Видалено локально: '+removed;
+    } else throw new RangeError('Unknown selection action');
     collection.setRows(records);
-    details.textContent='Архівовано локально: '+selected.size;
     collection.clearSelection();
-  });
+  }
   element.append(collection.element);
   return Object.freeze({
-    element,headerActions:collection.headerActions,
+    element,headerActions,
     footerContent:collection.footerContent,
     getAsideContext:()=>({ title:'Макети даних', controls }),
     getPageFabContext:()=>({
@@ -217,8 +260,8 @@ export function createDataViewsDemo() {
     }),
     getMode:collection.getMode,getCollection:()=>collection,
     destroy(){
-      collection.destroy();sortBy.destroy();direction.destroy();
-      element.remove();controls.remove();
+      selectedActions.destroy();collection.destroy();sortBy.destroy();direction.destroy();
+      headerActions.remove();element.remove();controls.remove();
     },
   });
 }
