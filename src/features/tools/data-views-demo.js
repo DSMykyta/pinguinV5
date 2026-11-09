@@ -100,11 +100,6 @@ export function createDataViewsDemo() {
   });
 
   const element = node('section', 'root');
-  const summary = node('p', 'intro',
-    'Чернетка оформлення для великих списків: 32 умовні бренди, 9 стовпців. ' +
-    'Натискай заголовки для сортування; піктограми режимів — у вже наявній шапці.');
-  const meta = node('p', 'meta',
-    'Ті самі записи в обох режимах · вигляд запам’ятовується для кожної сторінки окремо');
   const collection = createCollectionView({
     label: 'Приклад списку брендів',
     rows: EXAMPLE_BRANDS,
@@ -116,7 +111,7 @@ export function createDataViewsDemo() {
     initialSort: { key: 'name', direction: 'asc' },
     onModeChange: view => viewPreference.setValue(view),
   });
-  element.append(summary, meta, collection.element);
+  element.append(collection.element);
   return Object.freeze({
     element,
     headerActions: collection.headerActions,

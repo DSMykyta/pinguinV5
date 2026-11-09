@@ -119,7 +119,7 @@ export function mountShell(host) {
   header.append(headingArea, headerActions);
 
   const content = document.createElement('main');
-  content.className = 'pg-shell__content';
+  content.className = 'pg-shell__content pg-scrollbar';
   content.id = 'pg-main-content';
   content.setAttribute('tabindex', '-1');
 
@@ -214,6 +214,13 @@ export function mountShell(host) {
       }
       pageActionsHost.replaceChildren(...(element ? [element] : []));
     },
+    onWorkspaceLayout: mode => {
+      if (!['default', 'flush'].includes(mode)) {
+        throw new RangeError('Unsupported workspace layout: ' + mode);
+      }
+      content.dataset.pgWorkspaceLayout = mode;
+      content.scrollTop = 0;
+    },
     onAsideContext: context => {
       aside.setContext(context);
       asideFab.setContext(context);
@@ -223,6 +230,7 @@ export function mountShell(host) {
       refreshSearch();
     },
     onRouteChange() {
+      content.dataset.pgWorkspaceLayout = 'default';
       pageActionsHost.replaceChildren();
       search.close();
       asideFab.close();

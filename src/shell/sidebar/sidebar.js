@@ -81,7 +81,7 @@ export function createSidebar({ pages, onToggle, onNavigate, onCycleTheme }) {
   top.append(toggle, brand);
 
   const nav = document.createElement('nav');
-  nav.className = 'pg-sidebar__nav';
+  nav.className = 'pg-sidebar__nav pg-scrollbar';
   nav.setAttribute('aria-label', 'Інструменти');
 
   const links = new Map();

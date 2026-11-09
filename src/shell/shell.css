@@ -47,3 +47,9 @@
 @media (prefers-reduced-motion: reduce) {
   .pg-shell, .pg-shell__backdrop { animation: none; transition: none; }
 }
+
+/* Universal flush workspace: used for collections that ARE the work surface. */
+.pg-shell__content[data-pg-workspace-layout='flush'] {
+  padding: 0; min-height: 0;
+  overflow: hidden; background: var(--pg-color-surface);
+}

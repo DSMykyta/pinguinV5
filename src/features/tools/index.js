@@ -62,13 +62,12 @@ const TABS = Object.freeze([
   },
 ]);
 
-export function mount(host, { setAsideContext, setSearchEntries, setHeaderActions, localNavigation }) {
+export function mount(host, { setAsideContext, setSearchEntries, setHeaderActions, setWorkspaceLayout, localNavigation }) {
   // Each tab owns a separate persistent workspace (not shared placeholder DOM).
   const tablePage = createPageView({ title: 'Таблиці' });
   tablePage.body.append(createToastDemo());
-  const designPage = createPageView({ title: 'Таблиця та плитки' });
+  // The table itself is the page surface; there is no duplicate title or card.
   const dataViewsDemo = createDataViewsDemo();
-  designPage.body.append(dataViewsDemo.element);
   const textPage = createPageView({ title: 'Текст' });
   const fieldDemo = createFieldDemo();
   const advancedDemo = createAdvancedFieldDemo();
@@ -81,7 +80,7 @@ export function mount(host, { setAsideContext, setSearchEntries, setHeaderAction
   navigationPage.body.append(navigationDemo.element);
   const pageByTab = new Map([
     ['tables', tablePage],
-    ['data-views', designPage],
+    ['data-views', dataViewsDemo.element],
     ['text', textPage],
     ['navigation', navigationPage],
   ]);
@@ -94,10 +93,13 @@ export function mount(host, { setAsideContext, setSearchEntries, setHeaderAction
       id: item.id,
       label: item.label,
       // Content and future editor state belong exclusively to this panel.
-      content: pageByTab.get(item.id).element,
+      content: pageByTab.get(item.id) instanceof HTMLElement
+        ? pageByTab.get(item.id) : pageByTab.get(item.id).element,
+      fill: item.id === 'data-views',
     })),
     onChange(id) {
       setHeaderActions(id === 'data-views' ? dataViewsDemo.headerActions : null);
+      setWorkspaceLayout(id === 'data-views' ? 'flush' : 'default');
       const item = TABS.find(tab => tab.id === id);
       setAsideContext({
         title: item.label,
@@ -123,6 +125,7 @@ export function mount(host, { setAsideContext, setSearchEntries, setHeaderAction
 
   return () => {
     setHeaderActions(null);
+    setWorkspaceLayout('default');
     dataViewsDemo.destroy();
     navigationDemo.destroy();
     fieldDemo.destroy();

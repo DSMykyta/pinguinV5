@@ -102,13 +102,6 @@
 
 .pg-aside__item-icon { width: 17px; height: 17px; color: var(--pg-color-icon); }
 
-.pg-aside__item-arrow {
-  width: 14px;
-  height: 14px;
-  margin-left: auto;
-  color: var(--pg-color-text-muted);
-}
-
 @media (max-width: 640px) {
   .pg-aside { right: 8px; top: 64px; width: min(302px, calc(100vw - 16px)); }
 }

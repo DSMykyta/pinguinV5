@@ -23,7 +23,7 @@ export const DEFAULT_LINKS = Object.freeze([
 export function createAside({ onPinToggle }) {
   const aside = document.createElement('aside');
   aside.id = 'pg-aside-panel';
-  aside.className = 'pg-aside';
+  aside.className = 'pg-aside pg-scrollbar';
   aside.setAttribute('aria-label', 'Контекстне меню');
   aside.setAttribute('aria-hidden', 'true');
   aside.inert = true;
@@ -69,9 +69,7 @@ export function createAside({ onPinToggle }) {
     const label = document.createElement('span');
     label.textContent = link.label;
 
-    const arrow = createIcon('external-link');
-    arrow.classList.add('pg-aside__item-arrow');
-    item.append(symbol, label, arrow);
+    item.append(symbol, label);
     list.append(item);
   }
 
