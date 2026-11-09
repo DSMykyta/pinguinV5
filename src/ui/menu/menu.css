@@ -60,3 +60,8 @@
     white-space:normal;overflow-wrap:anywhere;
   }
 }
+
+/* Shared checkbox-morph mini button handles its own background inside ::before. */
+.pg-menu__trigger.pg-mini-button:hover:not([aria-expanded='true']) {
+  background: transparent;
+}
