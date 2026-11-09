@@ -105,7 +105,7 @@ test('keyboard focus on +N opens expanded values; Escape closes and returns to t
   await more.focus();
   const tray=root.locator('.pg-listbox__selection-tray');
   await expect(tray).toBeVisible();
-  await expect(tray.getByRole('button',{name:'Видалити Пром.ua'})).toBeFocused();
+  await expect(tray.getByRole('button',{name:'Згорнути вибрані значення'})).toBeFocused();
   await page.keyboard.press('Escape');
   await expect(tray).toBeHidden();
   await expect(root.locator('.pg-listbox__trigger')).toBeFocused();

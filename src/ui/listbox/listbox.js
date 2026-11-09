@@ -381,7 +381,8 @@ export function createListbox({
     if (trayPopover) tray.showPopover();
     positionTray();
     display.querySelector('[data-pg-show-selected]')?.setAttribute('aria-expanded', 'true');
-    if (autofocus) trayChips.querySelector('.pg-listbox__chip-remove')?.focus({ preventScroll: true });
+    // Do not move keyboard focus onto a destructive × control on expansion.
+    if (autofocus) trayClose.focus({ preventScroll: true });
     trayScrollDismiss.arm();
   }
   function hideTray(restore = false) {
