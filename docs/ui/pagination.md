@@ -23,3 +23,12 @@ The footer carries the top separator line. Inside: row count at left, a centered
 ## Correction: two shared FAB instances, no replacement
 
 The page-size FAB is created from the existing `src/shell/aside/fab.js` factory and mounted into `pagination.element` in the Shell's footer, adjacent to the numbered pages, completely separate from the unchanged original aside FAB. Its contextual action values call the one shared collection paginator. The page passes `setPageFabContext` when active; elsewhere that second instance is hidden. The original always retains its existing quick links. This is a second instance, **not a second component**.
+
+## Shared geometry of the footer and right rail
+
+The Shell footer height and right-rail width use the same `--pg-sidebar-compact-width` token (56px). Both FAB triggers reuse the common `--pg-control-size` (40px).
+
+- Align their centers vertically: the persistent aside FAB uses `bottom: (rail size - control size) / 2`; the pagination FAB is centered by the footer's grid.
+- Use the same 12px right inset (`--pg-space-3`) from **each respective zone boundary**, so the buttons' centers are separated by exactly one 56px rail width in the normal compact aside layout.
+- The page-size FAB stays in the Footer's pagination element; the existing actions FAB remains independently mounted in the Shell's aside rail.
+- Do not introduce per-feature FAB sizes, bottom offsets, or separate appearance rules.
