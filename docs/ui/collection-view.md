@@ -93,14 +93,14 @@ The existing Shell header-actions slot hosts the view switch in normal flow, whi
 For the Tools → Макети даних preview only:
 
 - Zero selected: strip is hidden, inert and non-interactive.
-- Exactly one selected: show count and **Дублювати**. It duplicates just that sample record.
-- Two or more selected: hide duplication; show count and **Архівувати**, **Відновити**, **Видалити**. The latter requires confirmation through existing Dialog. The close icon clears selection.
+- Exactly one selected: show **Дублювати** only, without a count. It duplicates just that sample record.
+- Two or more selected: hide duplication; show count and **Архівувати**, **Відновити**, **Видалити**. The latter requires confirmation through existing Dialog. There is no close/cross control in this strip; deselection remains in table checkboxes.
 - All operations update local preview records only; they never call a production API.
 - Actions are reusable controls with role/accessibility names. Old aside sort controls remain; the duplicated aside archive/count controls have been removed.
-- The existing shared `createRevealPanel({ direction: 'top' })` owns the entrance/exit; selection-actions CSS adds no bespoke entrance animation or width transition. The actions are out of the flex flow, so selecting/deselecting never moves the view switch, search, or aside toggle. The one/multiple groups toggle content in place without moving those anchors.
+- The existing shared `createRevealPanel({ direction: 'top' })` owns the entrance/exit; selection-actions CSS adds no bespoke entrance animation or width transition. The actions are out of the flex flow, so selecting/deselecting never moves the view switch, search, or aside toggle. The single/multiple groups each reuse `createRevealPanel()` and occupy exactly the same absolutely positioned, 100%-width rectangle. Their appearance transitions vertically, never horizontally or by changing their intrinsic width.
 - Selection survives ordinary sort/page navigation. When selected records disappear from `setRows`, `onSelectionChange` updates the header strip.
 
-Unit checks: `tests/selection-actions.test.js`. The demo's scenarios are one item → duplicate; two items → archive/restore/delete with confirmation; clear → hidden.
+Unit checks: `tests/selection-actions.test.js`. The demo's scenarios are one item → duplicate without count; two items → count and archive/restore/delete with confirmation; deselect all in table → hidden.
 
 ### Invariant: stable header control positions
 
