@@ -15,7 +15,7 @@ test.beforeEach(async ({ page }) => {
     ]);
     const cases = [
       ['listbox', createListbox({
-        label: 'Список для тесту', multiple: true,
+        label: 'Список для тесту', multiple: true, searchable: true,
         options: [
           { value: 'a', label: 'Альфа' }, { value: 'b', label: 'Бета' },
           { value: 'c', label: 'Гамма' },
@@ -73,6 +73,9 @@ async function verifyUpward(page, holder, anchorSelector, popupSelector) {
 test('Listbox opens immediately above the trigger with a 4px gap', async ({ page }) => {
   const holder = page.locator('#popup-test-listbox');
   await holder.locator('.pg-listbox__trigger').click();
+  await verifyUpward(page, 'listbox', '.pg-listbox__trigger', '.pg-listbox__panel');
+  // Search shrinks the popup while it is open; it must stay near the trigger.
+  await holder.locator('.pg-listbox__search').fill('Гамма');
   await verifyUpward(page, 'listbox', '.pg-listbox__trigger', '.pg-listbox__panel');
 });
 
