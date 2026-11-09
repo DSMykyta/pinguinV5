@@ -253,6 +253,7 @@ export function createTagField({
     destroy() {
       destroyed = true;
       controller.abort();
+      frame.destroy();
       element.remove();
     },
   });

@@ -296,6 +296,7 @@ export function createCombobox({
       abortPending();
       if (hasPopover && list.matches(':popover-open')) list.hidePopover();
       controller.abort();
+      frame.destroy();
       element.remove();
     },
   });

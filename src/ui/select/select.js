@@ -129,6 +129,6 @@ export function createSelect({
   return Object.freeze({
     element, select: control, getValue: () => control.value,
     setValue, setOptions, setError, focus: () => control.focus(),
-    destroy() { control.removeEventListener('change', handleChange); element.remove(); },
+    destroy() { control.removeEventListener('change', handleChange); frame.destroy(); element.remove(); },
   });
 }

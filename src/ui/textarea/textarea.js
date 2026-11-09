@@ -121,6 +121,7 @@ export function createTextarea({
       if (destroyed) return;
       destroyed = true;
       controller.abort();
+      frame.destroy();
       if (scheduledFrame !== null) cancelAnimationFrame(scheduledFrame);
       element.remove();
     },

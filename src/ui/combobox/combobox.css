@@ -1,5 +1,5 @@
 /* Combobox owns only its listbox; field geometry is shared with Input/Select. */
-.pg-combobox { position: relative; display: grid; gap: 6px; min-inline-size: 0; }
+.pg-combobox { position: relative; display: grid; gap: 6px; min-inline-size: 0; align-content: start; align-self: start; }
 .pg-combobox__caret {
   inline-size: 9px; block-size: 9px; display: block;
   border-inline-end: 2px solid currentColor; border-block-end: 2px solid currentColor;

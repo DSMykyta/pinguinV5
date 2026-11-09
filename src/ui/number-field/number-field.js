@@ -114,6 +114,6 @@ export function createNumberField({
     element, input, getValue, getRawValue: () => input.value,
     setValue(next) { input.value = next == null ? '' : String(next); sync(); },
     setError, focus() { input.focus(); },
-    destroy() { controller.abort(); element.remove(); },
+    destroy() { controller.abort(); frame.destroy(); element.remove(); },
   });
 }

@@ -146,6 +146,6 @@ export function createInput({
     },
     setError,
     focus: () => input.focus(),
-    destroy() { controller.abort(); element.remove(); },
+    destroy() { controller.abort(); frame.destroy(); element.remove(); },
   });
 }
