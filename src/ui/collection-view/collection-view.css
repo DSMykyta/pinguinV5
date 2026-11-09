@@ -3,6 +3,7 @@
 .pg-collection-view__table-scroll {
   flex: 1 1 auto; min-block-size: 0; min-inline-size: 0;
   overflow: auto;
+  scrollbar-gutter: stable;
   border: 0; border-radius: 0;
   background: var(--pg-color-surface);
 }
