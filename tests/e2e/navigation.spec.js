@@ -47,10 +47,10 @@ test('search appears only for records that can be searched', async ({ page }) =>
   await page.keyboard.press('Control+k');
   await expect(input).toBeFocused();
   await input.fill('Pinguin');
-  await expect(page.locator('.pg-collection-view__table tbody tr')).toHaveCount(1);
+  await expect(page.locator('#pg-tools-panel-data-views .pg-collection-view__table tbody tr')).toHaveCount(1);
   await input.press('Escape');
   await expect(input).toHaveValue('');
-  await expect(page.locator('.pg-collection-view__table tbody tr')).toHaveCount(25);
+  await expect(page.locator('#pg-tools-panel-data-views .pg-collection-view__table tbody tr')).toHaveCount(25);
   await page.getByRole('tab',{name:'Текст'}).click();
   await expect(search).toBeHidden();
 });
