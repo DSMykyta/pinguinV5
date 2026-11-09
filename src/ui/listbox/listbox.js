@@ -130,16 +130,12 @@ export function createListbox({
   tray.hidden = true;
   const trayPopover = typeof tray.showPopover === 'function';
   if (trayPopover) tray.setAttribute('popover', 'manual');
-  const trayClose = document.createElement('button');
-  trayClose.type = 'button';
-  trayClose.className = 'pg-listbox__selection-close';
-  trayClose.textContent = 'Згорнути';
-  trayClose.setAttribute('aria-label', 'Згорнути вибрані значення');
-  const trayHeading = document.createElement('span');
-  trayHeading.className = 'pg-listbox__selection-heading';
+  // The chip collection is the entire expansion: no heading or collapse row
+  // that could displace the first visible chips.
+  tray.tabIndex = -1;
   const trayChips = document.createElement('div');
   trayChips.className = 'pg-listbox__selection-chips';
-  tray.append(trayHeading, trayClose, trayChips);
+  tray.append(trayChips);
   element.append(frame.field,holder,panel,tray,support);
   const controller = new AbortController();
   let items = [];
@@ -188,7 +184,6 @@ export function createListbox({
     const chosen = items.filter(item => selected.has(item.value));
     selectionText.textContent = chosen.length
       ? chosen.map(item => item.label).join(', ') : String(placeholder);
-    trayHeading.textContent = 'Вибрані (' + chosen.length + ')';
     if (!chosen.length) {
       display.classList.add('pg-listbox__value--placeholder');
       display.textContent = String(placeholder);
@@ -382,7 +377,8 @@ export function createListbox({
     positionTray();
     display.querySelector('[data-pg-show-selected]')?.setAttribute('aria-expanded', 'true');
     // Do not move keyboard focus onto a destructive × control on expansion.
-    if (autofocus) trayClose.focus({ preventScroll: true });
+    // Focus the non-destructive group, not any of the remove buttons.
+    if (autofocus) tray.focus({ preventScroll: true });
     trayScrollDismiss.arm();
   }
   function hideTray(restore = false) {
@@ -460,7 +456,6 @@ export function createListbox({
   display.addEventListener('focusin', event => {
     if (event.target.closest('[data-pg-show-selected]')) showTray(true);
   }, { signal: controller.signal });
-  trayClose.addEventListener('click', () => hideTray(true), { signal: controller.signal });
   // Moving the pointer into the top-layer popover may produce a transient
   // pointerout with relatedTarget=null. Only real movement OUTSIDE closes it.
   document.addEventListener('pointermove', event => {

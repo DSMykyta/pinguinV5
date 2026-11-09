@@ -108,10 +108,10 @@
 /* The expanded selected-values surface REPLACES the compact row. */
 .pg-listbox__selection-tray {
   position: absolute; z-index: 59; box-sizing: border-box;
-  display: grid; align-content: start; gap: 8px;
+  display: grid; align-content: start;
   max-block-size: 240px; min-block-size: 56px; overflow: auto;
-  grid-template-columns: minmax(0, 1fr) auto;
-  padding: 12px 12px 14px; margin: 0;
+  /* Matches the 14px x/y inset of compact tags inside the 56px field. */
+  padding: 13px; margin: 0;
   border: 1px solid var(--pg-color-focus);
   border-radius: 10px;
   background: var(--pg-color-surface);
@@ -120,22 +120,14 @@
 }
 .pg-listbox__selection-tray[hidden] { display: none; }
 .pg-listbox__selection-tray:popover-open { inset: auto; margin: 0; }
-.pg-listbox__selection-heading {
-  font-size: 12px; font-weight: 500; color: var(--pg-color-text-secondary);
-  align-self: center;
-}
-.pg-listbox__selection-close {
-  border: 0; padding: 4px 6px; border-radius: var(--pg-radius-sm);
-  background: transparent; color: var(--pg-color-text-secondary);
-  font: inherit; font-size: 12px; cursor: pointer;
-}
-.pg-listbox__selection-close:hover { background: var(--pg-color-hover); }
-.pg-listbox__selection-close:focus-visible {
-  outline: 2px solid var(--pg-color-focus); outline-offset: 1px;
-}
 .pg-listbox__selection-chips {
   display: flex; flex-wrap: wrap; align-content: flex-start;
-  grid-column: 1 / -1; gap: 6px; min-inline-size: 0;
+  gap: 6px; min-inline-size: 0;
+}
+/* Upward growth adds lines ABOVE the compact row, retaining the position
+ * of the first visible chips near the original field. */
+.pg-listbox__selection-tray[data-pg-side='up'] .pg-listbox__selection-chips {
+  flex-wrap: wrap-reverse;
 }
 .pg-listbox__selected-chip { max-inline-size: 100%; }
 .pg-listbox__selected-chip .pg-listbox__chip-text { max-inline-size: 215px; }

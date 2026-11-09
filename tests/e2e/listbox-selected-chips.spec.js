@@ -68,6 +68,7 @@ test('ordinary hovering shows nothing; hovering +N replaces compact chips with o
   await hoverOverflow(page, root);
   await expect(tray).toBeVisible();
   await expect(root.locator('.pg-listbox__selected-chip')).toHaveCount(5);
+  await expect(tray.locator('.pg-listbox__selection-heading, .pg-listbox__selection-close')).toHaveCount(0);
   await expect(root.locator('.pg-listbox__panel')).toBeHidden();
   await expect(root.locator('.pg-listbox__value--interactive')).toHaveCSS('visibility','hidden');
   const geometry=await root.evaluate(el=>{
@@ -120,7 +121,7 @@ test('keyboard focus on +N opens expanded values; Escape closes and returns to t
   await more.focus();
   const tray=root.locator('.pg-listbox__selection-tray');
   await expect(tray).toBeVisible();
-  await expect(tray.getByRole('button',{name:'Згорнути вибрані значення'})).toBeFocused();
+  await expect(tray).toBeFocused();
   await page.keyboard.press('Escape');
   await expect(tray).toBeHidden();
   await expect(root.locator('.pg-listbox__trigger')).toBeFocused();

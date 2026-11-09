@@ -22,7 +22,7 @@ References: [MUI Autocomplete limitTags](https://mui.com/material-ui/api/autocom
 - Hovering `+N` previews the full selection. Clicking or keyboard-focusing `+N` also reveals it. Use `aria-expanded` and `aria-controls` on the actual `+N` button.
 - The expanded tray **covers the original compact chip row**, rather than duplicating the visible chips underneath. It is one expanded visual surface with the same width and border, anchored over the field and growing up or down according to viewport space. The external label stays above.
 - Only the expanded tray's chip buttons are visible while expanded. The compact row is visually hidden. Each selected option retains a genuine `button` labeled "Видалити …" (not a button nested inside the trigger button).
-- Moving outside or scrolling the host dismisses the tray; Escape restores focus to the main trigger. A safe `Згорнути` button receives initial keyboard focus; never auto-focus a destructive `×` when opening.
+- Moving outside or scrolling the host dismisses the tray; Escape restores focus to the main trigger. On keyboard opening, the non-destructive tray group receives initial focus; never auto-focus a destructive `×`. There is no redundant header, selected count or explicit collapse button. The first chip row aligns with the compact field, with new rows extending downwards or upwards depending on available space.
 - Removing selections keeps stable value keys, repeated hidden form values and `onChange`. If the count drops to 3 or fewer, the tray collapses automatically. Selecting options remains a separate action of the trigger/option popup.
 - The main Listbox open state is independent of the selected-values tray. Do not mix the two `aria-expanded` values.
 
