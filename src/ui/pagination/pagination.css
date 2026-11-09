@@ -1,35 +1,66 @@
-/* Legacy-inspired pagination with accessible native controls. */
+/* PINGUIN PAGINATION — faithful legacy composition in an existing footer rail. */
 .pg-pagination {
-  display:flex;align-items:center;justify-content:space-between;gap:10px 16px;
-  flex-wrap:wrap;min-block-size:55px;box-sizing:border-box;
-  padding:8px 16px;border-top:1px solid var(--pg-color-border);
-  background:var(--pg-color-surface);color:var(--pg-color-text-secondary);
-  font-size:12px;
+  display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  align-items:center;column-gap:16px;width:100%;height:100%;
+  min-inline-size:0;box-sizing:border-box;padding:4px 12px;
+  background:transparent;color:var(--pg-color-text-secondary);font-size:12px;
 }
-.pg-pagination__status{font-variant-numeric:tabular-nums;white-space:nowrap;}
-.pg-pagination__pages{display:flex;align-items:center;gap:3px;}
-.pg-pagination__button{
-  min-inline-size:30px;block-size:30px;padding:0 6px;
-  border:0;border-radius:var(--pg-radius-sm);
-  background:transparent;color:inherit;font:inherit;cursor:pointer;
+.pg-pagination__status {
+  grid-column:1;justify-self:start;min-inline-size:0;
+  font-variant-numeric:tabular-nums;white-space:nowrap;
 }
-.pg-pagination__button:hover:not(:disabled){background:var(--pg-color-hover);}
-.pg-pagination__button[aria-current='page']{
-  background:var(--pg-color-selected);color:var(--pg-color-text-primary);font-weight:700;
+.pg-pagination__pages {
+  grid-column:2;display:flex;align-items:center;justify-content:center;
+  gap:4px;min-inline-size:0;padding:3px;
+  border-radius:var(--pg-radius-full);
+  background:var(--pg-color-surface);
+  box-shadow:0 1px 4px var(--pg-color-shadow);
 }
-.pg-pagination__button:disabled{opacity:.38;cursor:not-allowed;}
-.pg-pagination__button:focus-visible,.pg-pagination__page-size:focus-visible{
+.pg-pagination__button {
+  display:inline-grid;place-items:center;flex:0 0 auto;
+  min-inline-size:37px;block-size:37px;padding:0 8px;
+  border:0;border-radius:var(--pg-radius-full);
+  color:var(--pg-color-text-primary);background:transparent;
+  font:inherit;font-size:13px;cursor:pointer;
+  transition:background-color var(--pg-duration-fast) ease;
+}
+.pg-pagination__button:hover:not(:disabled) {background:var(--pg-color-hover);}
+.pg-pagination__button[aria-current='page'] {
+  background:var(--pg-color-accent);color:var(--pg-color-dialog-action-text);
+  font-weight:670;
+}
+.pg-pagination__button:disabled{opacity:.35;cursor:not-allowed;}
+.pg-pagination__button:focus-visible,
+.pg-pagination__page-size:focus-visible {
   outline:2px solid var(--pg-color-focus);outline-offset:2px;
 }
-.pg-pagination__dots{min-inline-size:12px;text-align:center;}
-.pg-pagination__setting{display:flex;align-items:center;gap:7px;white-space:nowrap;}
-.pg-pagination__page-size{
-  min-block-size:32px;padding:4px 8px;
-  border:1px solid var(--pg-color-border);border-radius:var(--pg-radius-sm);
-  background:var(--pg-color-surface);color:var(--pg-color-text-primary);
-  font:inherit;cursor:pointer;
+.pg-pagination__dots{min-inline-size:14px;text-align:center;letter-spacing:1px;}
+.pg-pagination__size-menu {grid-column:3;justify-self:end;}
+.pg-pagination__size-menu > .pg-pagination__page-size {
+  display:grid;place-items:center;
+  inline-size:46px;block-size:46px;min-block-size:46px;padding:0;
+  border:0;border-radius:14px;
+  background:var(--pg-color-accent-soft);color:var(--pg-color-accent);
+  box-shadow:0 2px 7px var(--pg-color-shadow);
+  font-size:13px;font-weight:650;
+  transition:border-radius var(--pg-duration-fast) ease,transform var(--pg-duration-fast) ease;
+}
+.pg-pagination__size-menu > .pg-pagination__page-size:hover {
+  transform:scale(1.02);
+}
+.pg-pagination__size-menu > .pg-pagination__page-size[aria-expanded='true'] {
+  border-radius:var(--pg-radius-full);background:var(--pg-color-accent-soft);
 }
 @media(max-width:640px){
-  .pg-pagination{justify-content:center;gap:8px;padding-inline:9px;}
-  .pg-pagination__status{width:100%;text-align:center;}
+  .pg-pagination {column-gap:4px;padding-inline:5px;}
+  .pg-pagination__status {display:none;}
+  .pg-pagination__pages{gap:0;padding:2px;}
+  .pg-pagination__button{min-inline-size:29px;block-size:34px;padding-inline:5px;}
+  .pg-pagination__dots{min-inline-size:9px;}
+  .pg-pagination__size-menu > .pg-pagination__page-size{
+    inline-size:40px;block-size:40px;min-block-size:40px;border-radius:12px;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .pg-pagination__button,.pg-pagination__size-menu>.pg-pagination__page-size{transition:none;}
 }
