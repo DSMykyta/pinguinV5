@@ -79,6 +79,11 @@ export function mountShell(host) {
   const headerActions = document.createElement('div');
   headerActions.className = 'pg-shell__header-actions';
 
+  // One Shell-owned slot for contextual controls (e.g. table/tile view modes).
+  // Feature code supplies elements; Shell alone owns header placement.
+  const pageActionsHost = document.createElement('div');
+  pageActionsHost.className = 'pg-shell__page-actions';
+
   const contextButton = createIconButton({
     label: 'Відкрити контекстне меню',
     icon: 'sliders',
@@ -110,7 +115,7 @@ export function mountShell(host) {
       updateView();
     },
   });
-  headerActions.append(search.element, contextButton);
+  headerActions.append(pageActionsHost, search.element, contextButton);
   header.append(headingArea, headerActions);
 
   const content = document.createElement('main');
@@ -203,6 +208,12 @@ export function mountShell(host) {
   const pageOutlet = createPageOutlet({
     content, pageName, sidebar, localNavigation,
     onNavigate: path => router.navigate(path),
+    onHeaderActions: element => {
+      if (element != null && !(element instanceof HTMLElement)) {
+        throw new TypeError('Header actions must be an HTMLElement or null');
+      }
+      pageActionsHost.replaceChildren(...(element ? [element] : []));
+    },
     onAsideContext: context => {
       aside.setContext(context);
       asideFab.setContext(context);
@@ -212,6 +223,7 @@ export function mountShell(host) {
       refreshSearch();
     },
     onRouteChange() {
+      pageActionsHost.replaceChildren();
       search.close();
       asideFab.close();
       pageSearchEntries = [];

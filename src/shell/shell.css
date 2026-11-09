@@ -17,6 +17,12 @@
 .pg-shell__heading-area { display: flex; align-items: center; min-width: 0; }
 .pg-shell__page-name { margin: 0; color: var(--pg-color-text-primary); font-size: 23px; line-height: 1.25; font-weight: 590; letter-spacing: -.035em; }
 .pg-shell__header-actions { position: fixed; top: 10px; right: 12px; z-index: 95; display: flex; align-items: center; gap: 6px; }
+.pg-shell__page-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 4px; }
+.pg-shell__page-actions:empty { display: none; }
+/* A contextual control is hidden only while the compact mobile search expands. */
+@media (max-width: 640px) {
+  .pg-shell__header-actions:has(.pg-search:focus-within) .pg-shell__page-actions { display: none; }
+}
 .pg-shell__local-nav { display: flex; flex: 0 0 auto; align-items: center; min-width: 0; min-height: 54px; padding-inline: var(--pg-workspace-chrome-inset); overflow-x: auto; scrollbar-width: none; }
 .pg-shell__local-nav::-webkit-scrollbar { display: none; }
 .pg-shell__local-nav:empty { display: none; }
