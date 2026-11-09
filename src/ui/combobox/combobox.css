@@ -3,9 +3,12 @@
 .pg-combobox__caret {
   inline-size: 9px; block-size: 9px; display: block;
   border-inline-end: 2px solid currentColor; border-block-end: 2px solid currentColor;
-  transform: rotate(45deg) translateY(-2px);
+  transform: rotate(45deg);
+  transform-origin: center;
+  transition: transform var(--pg-duration-normal) var(--pg-ease);
   color: var(--pg-color-text-secondary); pointer-events: none; margin-inline: 5px;
 }
+.pg-combobox[data-pg-open='true'] .pg-combobox__caret { transform: rotate(225deg); }
 .pg-combobox__list {
   position: absolute; z-index: 20; inset: auto 0 auto 0; top: calc(100% - 1px);
   box-sizing: border-box; max-block-size: 260px; min-inline-size: 0; margin: 0;
@@ -28,3 +31,5 @@
 .pg-combobox__support[hidden] { display: none; }
 .pg-combobox__error { color: var(--pg-color-input-error); }
 @media (prefers-reduced-motion: reduce) { .pg-combobox__list { scroll-behavior: auto; } }
+
+@media (prefers-reduced-motion: reduce) { .pg-combobox__caret { transition: none; } }

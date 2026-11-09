@@ -53,7 +53,7 @@ export function createListbox({
   frame.setDisabled(disabled);
 
   const panel = document.createElement('div');
-  panel.className = 'pg-listbox__panel';
+  panel.className = 'pg-listbox__panel pg-scrollbar';
   panel.hidden = true;
   const hasPopover = typeof panel.showPopover === 'function';
   if (hasPopover) panel.setAttribute('popover', 'manual');
@@ -73,7 +73,7 @@ export function createListbox({
   all.type = 'button';
   if (multiple && selectAll) panel.append(all);
   const list = document.createElement('ul');
-  list.className = 'pg-listbox__options';
+  list.className = 'pg-listbox__options pg-scrollbar';
   list.id = uid + '-options';
   list.setAttribute('role', 'listbox');
   list.setAttribute('aria-labelledby', frame.label.id);
@@ -239,7 +239,7 @@ export function createListbox({
   }
   function position() {
     if (!opened || !hasPopover) return;
-    positionPopup({ anchor: trigger, popup: panel, maxHeight: 320 });
+    positionPopup({ anchor: frame.surface, popup: panel, maxHeight: 320 });
   }
   function open() {
     if(opened||destroyed||trigger.disabled)return;

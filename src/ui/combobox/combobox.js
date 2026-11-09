@@ -45,7 +45,7 @@ export function createCombobox({
   if (required) input.setAttribute('aria-required', 'true');
   const list = document.createElement('ul');
   list.id = uid + '-list';
-  list.className = 'pg-combobox__list';
+  list.className = 'pg-combobox__list pg-scrollbar';
   list.setAttribute('role', 'listbox');
   list.setAttribute('aria-label', label + ': варіанти');
   list.hidden = true;
@@ -110,13 +110,14 @@ export function createCombobox({
   }
   function position() {
     if (!hasPopover || !open) return;
-    positionPopup({ anchor: input, popup: list, maxHeight: 260 });
+    positionPopup({ anchor: frame.surface, popup: list, maxHeight: 260 });
   }
   function display(openNow) {
     if (destroyed || input.disabled) return;
     if (open === openNow) return;
     open = openNow;
     input.setAttribute('aria-expanded', String(open));
+    element.dataset.pgOpen = String(open);
     if (open) {
       list.hidden = false;
       if (hasPopover) list.showPopover();

@@ -1,0 +1,30 @@
+/*
+ * Compact legacy-style scrollbars shared by floating UI surfaces.
+ * No browser arrows. The browser still owns wheel/touch/keyboard scrolling.
+ */
+.pg-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--pg-color-scrollbar-thumb) transparent;
+}
+.pg-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.pg-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.pg-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--pg-color-scrollbar-thumb);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: var(--pg-radius-full);
+}
+.pg-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--pg-color-scrollbar-thumb-hover);
+  background-clip: padding-box;
+}
+.pg-scrollbar::-webkit-scrollbar-button,
+.pg-scrollbar::-webkit-scrollbar-button:single-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+.pg-scrollbar::-webkit-scrollbar-corner { background: transparent; }

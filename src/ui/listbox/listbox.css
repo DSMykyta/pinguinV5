@@ -19,8 +19,11 @@
   inline-size:9px; block-size:9px; margin-inline:5px; display:block;
   border-inline-end:2px solid var(--pg-color-text-secondary);
   border-block-end:2px solid var(--pg-color-text-secondary);
-  transform:rotate(45deg) translateY(-2px);
+  transform: rotate(45deg);
+  transform-origin: center;
+  transition: transform var(--pg-duration-normal) var(--pg-ease);
 }
+.pg-listbox[data-pg-open='true'] .pg-listbox__caret { transform: rotate(225deg); }
 .pg-listbox__panel {
   position:absolute; z-index:60; inset:calc(100% + 4px) 0 auto;
   box-sizing:border-box; display:grid; gap:5px; max-block-size:320px;
@@ -61,3 +64,5 @@
 .pg-listbox__support[hidden] {display:none;}
 .pg-listbox__error {color:var(--pg-color-input-error);}
 @media (prefers-reduced-motion:reduce) {.pg-listbox__panel{scroll-behavior:auto;}}
+
+@media (prefers-reduced-motion: reduce) { .pg-listbox__caret { transition: none; } }

@@ -48,7 +48,7 @@ export function createFieldFrame({ label, control, controlId, leading, trailing 
   field.append(caption, surface);
 
   return Object.freeze({
-    field, edit, label: caption, leadingSlot: lead, trailingSlot: trail,
+    field, surface, edit, label: caption, leadingSlot: lead, trailingSlot: trail,
     setLeading(value) { setSlot(lead, value); },
     setTrailing(value) { setSlot(trail, value); },
     setFilled(value) { field.dataset.pgFilled = String(Boolean(value)); },

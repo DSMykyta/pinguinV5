@@ -33,7 +33,7 @@ export function createMenu({label,id,items=[],align='start',disabled=false,onSel
   trigger.setAttribute('aria-expanded','false');
   trigger.setAttribute('aria-controls',uid+'-panel');
   const panel=document.createElement('div');
-  panel.className='pg-menu__panel';
+  panel.className='pg-menu__panel pg-scrollbar';
   panel.hidden=true;
   panel.id=uid+'-panel';
   panel.setAttribute('role','menu');
