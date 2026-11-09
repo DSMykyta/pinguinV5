@@ -68,3 +68,79 @@
 @media (prefers-reduced-motion: reduce) {
   .pg-icon-button--corner > .pg-icon { transition: none; }
 }
+
+/*
+ * Universal mini action: checkbox-sized 20px square within a 28px hit target.
+ * Same morph (square -> circle) as compact checkbox, without impersonating
+ * a checkbox's selection semantics.
+ */
+.pg-mini-button,
+.pg-menu__trigger.pg-mini-button {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 28px;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--pg-color-icon);
+  font-size: inherit;
+  line-height: 1;
+  box-shadow: none;
+  transition: color var(--pg-duration-fast) ease, transform 110ms ease;
+}
+.pg-mini-button::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px solid var(--pg-color-border-strong);
+  border-radius: 5px;
+  background: var(--pg-color-surface);
+  transition: border-radius var(--pg-duration-fast) var(--pg-ease),
+    border-color var(--pg-duration-fast) ease,
+    background-color var(--pg-duration-fast) ease;
+}
+.pg-mini-button > .pg-icon {
+  position: relative;
+  z-index: 1;
+  width: 13px;
+  height: 13px;
+  transition: transform var(--pg-duration-fast) var(--pg-ease);
+}
+.pg-mini-button:hover,
+.pg-mini-button:focus-visible,
+.pg-menu__trigger.pg-mini-button:hover,
+.pg-menu__trigger.pg-mini-button:focus-visible {
+  background: transparent;
+  color: var(--pg-color-text-primary);
+}
+.pg-mini-button:is(:hover, :focus-visible)::before,
+.pg-mini-button[aria-expanded='true']::before {
+  border-radius: 50%;
+  background: var(--pg-color-hover);
+}
+.pg-mini-button[aria-expanded='true'],
+.pg-menu__trigger.pg-mini-button[aria-expanded='true'] {
+  background: transparent;
+  color: var(--pg-color-accent);
+}
+.pg-mini-button[aria-expanded='true']::before {
+  border-color: var(--pg-color-accent);
+  background: var(--pg-color-accent-soft);
+}
+.pg-mini-button:active { transform: scale(.95); }
+.pg-mini-button:focus-visible {
+  outline: 2px solid var(--pg-color-focus);
+  outline-offset: 1px;
+  border-radius: 50%;
+}
+.pg-mini-button:disabled { opacity: .5; cursor: not-allowed; }
+@media (prefers-reduced-motion: reduce) {
+  .pg-mini-button, .pg-mini-button::before,
+  .pg-mini-button > .pg-icon { transition: none; }
+}
