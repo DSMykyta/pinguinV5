@@ -8,7 +8,7 @@ const root = page => page.locator('#pg-tools-panel-data-views .pg-collection-vie
 const table = page => root(page).locator('.pg-collection-view__table');
 const switchTo = async (page, mode) => {
   const label = mode === 'tiles' ? 'Плитки' : 'Таблиця';
-  await page.locator('.pg-view-switch .pg-segment-switch__label[title="' + label + '"]').click();
+  await page.locator('#pg-tools-panel-data-views .pg-view-switch .pg-segment-switch__label[title="' + label + '"]').click();
   await expect(page.locator('#pg-tools-panel-data-views .pg-view-switch').getByRole('radio',{name:label})).toBeChecked();
 };
 test.beforeEach(async ({page})=>{
