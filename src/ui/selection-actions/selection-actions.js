@@ -26,6 +26,7 @@ export function createSelectionActions({ single = [], multiple = [], onAction } 
 
   const controller = new AbortController();
   const groups = new Map();
+  let multipleCount = null;
   for (const [mode, choices] of [['single', single], ['multiple', multiple]]) {
     const group = document.createElement('div');
     group.className = 'pg-selection-actions__group';
@@ -36,6 +37,7 @@ export function createSelectionActions({ single = [], multiple = [], onAction } 
       counter.className = 'pg-selection-actions__count';
       counter.setAttribute('role', 'status');
       counter.setAttribute('aria-live', 'polite');
+      multipleCount = counter;
       group.append(counter);
     }
     for (const choice of choices) {
@@ -62,8 +64,7 @@ export function createSelectionActions({ single = [], multiple = [], onAction } 
     element.dataset.pgMode = mode;
     element.inert = mode === 'none';
     element.setAttribute('aria-hidden', String(mode === 'none'));
-    groups.get('multiple').element.querySelector('.pg-selection-actions__count').textContent =
-      ids.length > 1 ? ids.length + ' вибрано' : '';
+    multipleCount.textContent = ids.length > 1 ? ids.length + ' вибрано' : '';
     for (const [name, group] of groups) group.reveal.setVisible(name === mode);
   }
 
