@@ -17,3 +17,7 @@ Status: contracts before implementation, 2026-11-08.
 - Each instance owns its state and an AbortController.
 - Native form semantics, keyboard, disabled, two instances, small viewport and dark mode verified in E2E.
 - Errors from business saves remain feature responsibility. No global registry and no UI cross-import of sibling choice controls.
+
+## Visual checkbox decision (2026-11-09)
+
+The native checkbox remains the source of truth and keyboard/form control. A visually rendered rounded square morphs into a full circle when checked; the native `indeterminate` state uses a circular minus, as in the pre-existing MiniMax component references. Focus ring, error, disabled and reduced-motion states remain independent. No Brands page or global CSS imports.

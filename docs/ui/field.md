@@ -37,3 +37,9 @@ Only `src/ui/field/field.css` owns common outline, focus, label geometry and tra
 
 ### Test contract
 Compare the *actual bounding boxes* of Input/Select/Combobox/Tag labels before and after focus/value, including adornments, dark theme and mobile width. Focused label center must coincide with field's top border (tolerance <=3 CSS px). No duplicate visible label/placeholder at idle. Test programmatic setValue/setOptions, disabled variants and composability with leading/trailing controls.
+
+## Notched outline and fixed one-line geometry (2026-11-09)
+
+A true decorative `fieldset` + `legend` interrupts the outline physically. The only visible text is the actual associated `label`; the legend text is CSS-generated from `data-pg-label` (hidden from assistive technology). **No label background color, masking patch or translucent rectangle** is used. This works over mixed card/page/gradient surfaces. It follows the [Material UI outlined input notch principle](https://mui.com/material-ui/migration/v5-component-changes/#replace-labelwidth-prop).
+
+`Input`, native `Select`, editable `Combobox` and `Number Field` have a 56px one-line outline. Textarea and Tag Field can grow. The controls are aligned to the top of grid cells rather than stretching to a neighbor's helper text. The notch accounts for optional leading accessories using a local `ResizeObserver`; frame `destroy()` must be called when the owner component is destroyed. Regression tests check the notch and equal heights.
