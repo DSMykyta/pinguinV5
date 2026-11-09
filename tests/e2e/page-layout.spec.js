@@ -42,6 +42,10 @@ test('five global zones reserve a real empty 56px footer rail', async ({ page })
 
   const title = await page.locator('.pg-shell__page-name').boundingBox();
   await page.getByRole('tab',{name:'Макети даних'}).click();
+  // The contextual toolbar now travels down from above the viewport.
+  // Measure its resting position, not an intermediate animation frame.
+  await page.locator('.pg-shell__context-tools').evaluate(element =>
+    Promise.all(element.getAnimations().map(animation => animation.finished.catch(() => {}))));
   const search = await page.locator('.pg-search__field').boundingBox();
   const asideButton = await page.locator('[data-pg-action="aside-toggle"]').boundingBox();
   expect(Math.abs(title.y + title.height / 2 - (search.y + search.height / 2)))
