@@ -67,3 +67,6 @@
 `Таблиці` та `Текст` мають **окремі DOM-панелі та власні елементи createPageView**. Перемикання не змішує стан інструментів; активна панель видима, інша прихована. Toast демонструється тільки у «Таблицях», Dialog/Confirm — тільки у «Тексті». Обидва блоки легко видалити без змін Shell.
 
 Для Dialog: [специфікація](dialog.md), `src/ui/dialog/dialog.js`, `src/ui/dialog/dialog.css`, `tests/e2e/dialog.spec.js`. Тло розмиває native `::backdrop` з `backdrop-filter: blur(8px)`; дані й фокус ізольовані браузерним `showModal()`. Кольори в `src/styles/tokens.css`.
+
+| Pagination | `src/ui/pagination` | [Shared numbered pages, ellipsis and page size](pagination.md) |
+| Segmented Switch | `src/ui/segment-switch` | [Native radio choice with sliding plate](segment-switch.md) |

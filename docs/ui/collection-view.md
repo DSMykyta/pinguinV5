@@ -41,3 +41,29 @@ Sidebar and aside scrollable areas reuse `.pg-scrollbar` (8px thin, arrowless); 
 ## Single universal workspace (2026-11-09)
 
 A special workspace `flush/fill` mode is **forbidden and removed**. Shell always uses one full-height, unpadded content area. Tabs always share the same layout and entry animation. Generic `.pg-page` supplies conventional article padding; collections already fill their parent. No context-specific workspace attributes, separate transition, or alternative Shell handling.
+
+## Data-controls implementation (2026-11-09)
+
+Shared `createCollectionView` now includes:
+
+- Opt-in `selectable`: one compact circular native checkbox per row plus a
+  header checkbox that is checked only when all **visible page** rows are selected,
+  mixed (`indeterminate`) when partially selected, and empty otherwise.
+  Selection uses stable row IDs and survives page changes; features own bulk actions.
+- Optional `rowActions` with the **existing** shared `createMenu`; no second
+  action-menu mechanism. The Tools demo's View/Duplicate/Archive examples operate
+  on local example records only.
+- The shared `createPagination` at the bottom, one state for both table and tiles.
+  Default 25 per page, size selector, numbered pages and accessible navigation.
+- Exposed `setSort`, `setQuery`, `getSelectedIds`, `clearSelection` API;
+  one filtered and sorted dataset, no copied models for the two views.
+- `createViewSwitch` is a thin adapter to the shared legacy-inspired
+  `createSegmentSwitch`, never two custom view buttons.
+- The existing Shell search field accepts a page-scoped `onQuery` handler and
+  is hidden for tabs without searchable content. The existing aside accepts
+  optional page-owned controls; for data tables, it holds the real sort Select,
+  direction segmented control, selection count, and bulk action.
+- There is **one** Shell workspace layout and **one** tab-panel animation.
+  No page-specific `flush` mode, `fill` switch or duplicate header exists.
+
+This remains a **UI alignment preview**, not a production Brands route.
