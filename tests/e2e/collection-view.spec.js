@@ -8,8 +8,8 @@ const root = page => page.locator('#pg-tools-panel-data-views .pg-collection-vie
 const table = page => root(page).locator('.pg-collection-view__table');
 const switchTo = async (page, mode) => {
   const label = mode === 'tiles' ? 'Плитки' : 'Таблиця';
-  await page.locator('#pg-tools-panel-data-views .pg-view-switch .pg-segment-switch__label[title="' + label + '"]').click();
-  await expect(page.locator('#pg-tools-panel-data-views .pg-view-switch').getByRole('radio',{name:label})).toBeChecked();
+  await page.locator('.pg-shell__page-actions .pg-view-switch .pg-segment-switch__label[title="' + label + '"]').click();
+  await expect(page.locator('.pg-shell__page-actions .pg-view-switch').getByRole('radio',{name:label})).toBeChecked();
 };
 test.beforeEach(async ({page})=>{
   await page.goto('/tools');
@@ -45,8 +45,8 @@ test('dense table renders selection, nine fields, row actions and fixed footer p
   expect(Math.abs((pages.x+pages.width/2)-(footer.x+footer.width/2))).toBeLessThan(2);
   await expect(table(page).locator('tbody .pg-collection-view__row-menu')).toHaveCount(25);
   await expect(root(page).locator('.pg-collection-view__tiles')).toBeHidden();
-  await expect(page.locator('#pg-tools-panel-data-views .pg-view-switch')).toHaveAttribute('role','radiogroup');
-  await expect(page.locator('#pg-tools-panel-data-views .pg-view-switch').getByRole('radio',{name:'Таблиця'})).toBeChecked();
+  await expect(page.locator('.pg-shell__page-actions .pg-view-switch')).toHaveAttribute('role','radiogroup');
+  await expect(page.locator('.pg-shell__page-actions .pg-view-switch').getByRole('radio',{name:'Таблиця'})).toBeChecked();
 });
 
 test('native header checkbox uses checked, mixed and empty states across visible page',async({page})=>{
@@ -91,21 +91,21 @@ test('pagination advances from 25 to 7, changes rows-per-page and preserves sele
 
 test('sorted header and aside share one collection sorting state',async({page})=>{
   const heads=table(page).locator('thead th');
-  await expect(heads.nth(2)).toHaveAttribute('aria-sort','ascending');
-  const first=await table(page).locator('tbody tr td:nth-child(3)').allTextContents();
-  await heads.nth(2).getByRole('button').click();
-  await expect(heads.nth(2)).toHaveAttribute('aria-sort','descending');
-  const reverse=await table(page).locator('tbody tr td:nth-child(3)').allTextContents();
+  await expect(heads.nth(1)).toHaveAttribute('aria-sort','ascending');
+  const first=await table(page).locator('tbody tr td:nth-child(2)').allTextContents();
+  await heads.nth(1).getByRole('button').click();
+  await expect(heads.nth(1)).toHaveAttribute('aria-sort','descending');
+  const reverse=await table(page).locator('tbody tr td:nth-child(2)').allTextContents();
   expect(reverse[0]).not.toEqual(first[0]);
   await page.locator('[data-pg-action="aside-toggle"]').click();
   const aside=page.locator('#pg-aside-panel');
   await expect(aside.getByRole('radiogroup',{name:'Напрямок сортування'})).toBeVisible();
   await expect(aside.getByRole('radio',{name:'Я–А'})).toBeChecked();
   await aside.getByRole('combobox',{name:'Сортувати за'}).selectOption('products');
-  await expect(heads.nth(4)).toHaveAttribute('aria-sort','descending');
+  await expect(heads.nth(3)).toHaveAttribute('aria-sort','descending');
   await aside.locator('.pg-segment-switch__label[title="А–Я"]').click();
-  await expect(heads.nth(4)).toHaveAttribute('aria-sort','ascending');
-  const counts=(await table(page).locator('tbody tr td:nth-child(5)').allTextContents())
+  await expect(heads.nth(3)).toHaveAttribute('aria-sort','ascending');
+  const counts=(await table(page).locator('tbody tr td:nth-child(4)').allTextContents())
     .map(s=>Number(s.trim()));
   expect(counts).toEqual([...counts].sort((a,b)=>a-b));
 });
@@ -150,7 +150,7 @@ test('saved view is isolated per feature and survives page reload',async({page})
   await page.reload();
   await page.getByRole('tab',{name:'Макети даних'}).click();
   await expect(root(page)).toHaveAttribute('data-pg-view','tiles');
-  await expect(page.locator('#pg-tools-panel-data-views .pg-view-switch').getByRole('radio',{name:'Плитки'})).toBeChecked();
+  await expect(page.locator('.pg-shell__page-actions .pg-view-switch').getByRole('radio',{name:'Плитки'})).toBeChecked();
 });
 
 test('search belongs only to data tab and filtering updates pagination',async({page})=>{
