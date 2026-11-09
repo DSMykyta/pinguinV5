@@ -146,3 +146,52 @@ test('reduced motion hides footer pagination immediately without removing the ra
   await expect(page.locator('.pg-shell__footer')).toBeEmpty();
   await expect(page.locator('.pg-shell__footer')).toHaveCSS('height', '56px');
 });
+
+
+test('FAB action list is dark, visible and readable in both themes without white action surfaces', async ({ page }) => {
+  const ratio = (first, second) => {
+    const toRgb = str => str.match(/[\d.]+/g).slice(0, 3).map(Number);
+    const luminance = str => toRgb(str).map(c => {
+      const v = c / 255;
+      return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+    }).reduce((sum, c, i) => sum + c * [0.2126, 0.7152, 0.0722][i], 0);
+    const a = luminance(first), b = luminance(second);
+    return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+  };
+
+  await page.goto('/tools');
+  const originalFab = page.locator('[data-pg-action="aside-fab-toggle"]');
+  await originalFab.click();
+  const actions = page.locator('#pg-fab-actions .pg-fab__item');
+  await expect(actions).toHaveCount(2);
+  const checkColors = async () => actions.first().evaluate(node => {
+    const label = node.querySelector('.pg-fab__label');
+    const symbol = node.querySelector('.pg-fab__symbol');
+    const surface = getComputedStyle(label);
+    const icon = getComputedStyle(symbol);
+    return { background: surface.backgroundColor, foreground: surface.color,
+      symbolBackground: icon.backgroundColor, symbolForeground: icon.color,
+      pageBackground: getComputedStyle(document.documentElement).getPropertyValue('--pg-color-page').trim() };
+  });
+  let light = await checkColors();
+  expect(light.symbolBackground).toBe(light.background);
+  expect(ratio(light.foreground, light.background)).toBeGreaterThanOrEqual(4.5);
+  expect(ratio(light.background, 'rgb(255, 255, 255)')).toBeGreaterThanOrEqual(3);
+
+  // Theme preference is global; use the existing sidebar button to change it.
+  await page.evaluate(() => { document.documentElement.dataset.theme = 'dark'; });
+  let dark = await checkColors();
+  expect(dark.symbolBackground).toBe(dark.background);
+  expect(dark.background).not.toBe('rgb(255, 255, 255)');
+  expect(dark.background).not.toBe('rgb(241, 241, 241)');
+  expect(ratio(dark.foreground, dark.background)).toBeGreaterThanOrEqual(4.5);
+  expect(ratio(dark.background, 'rgb(33, 33, 33)')).toBeGreaterThanOrEqual(3);
+
+  // The page-size FAB must use the exact same shared palette.
+  await page.getByRole('tab', { name: 'Макети даних' }).click();
+  await page.locator('[data-pg-action="page-fab-toggle"]').click();
+  const pageAction = page.locator('#pg-page-fab-actions .pg-fab__item').first();
+  const actual = await pageAction.locator('.pg-fab__symbol').evaluate(node => getComputedStyle(node).backgroundColor);
+  expect(actual).toBe(dark.background);
+  await expect(pageAction).toBeVisible();
+});

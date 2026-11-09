@@ -52,6 +52,14 @@
   --pg-color-toast-warning: #f4ca88;
   --pg-color-toast-error: #f6a4a6;
   --pg-color-toast-shadow: rgb(0 0 0 / 0.24);
+  /* Shared FAB pop-out actions: dark buttons on light pages. */
+  --pg-color-fab-action-surface: #303943;
+  --pg-color-fab-action-text: #f3f7fa;
+  --pg-color-fab-action-border: #46555f;
+  --pg-color-fab-action-hover: #44515e;
+  --pg-color-fab-action-selected: #28483f;
+  --pg-color-fab-action-selected-text: #e2f4ec;
+  --pg-color-fab-action-selected-border: #6b9c89;
   --pg-color-dialog-backdrop: rgb(12 14 18 / 0.36);
   --pg-color-dialog-shadow: rgb(0 0 0 / 0.22);
   --pg-color-dialog-action-text: #ffffff;
@@ -123,6 +131,14 @@
   --pg-color-toast-warning: #9a641a;
   --pg-color-toast-error: #b1343b;
   --pg-color-toast-shadow: rgb(0 0 0 / 0.32);
+  /* Slate action surfaces remain distinct from the dark page, never white. */
+  --pg-color-fab-action-surface: #60707b;
+  --pg-color-fab-action-text: #f6fafc;
+  --pg-color-fab-action-border: #8295a1;
+  --pg-color-fab-action-hover: #556572;
+  --pg-color-fab-action-selected: #426258;
+  --pg-color-fab-action-selected-text: #e2f4ec;
+  --pg-color-fab-action-selected-border: #96d2b8;
   --pg-color-dialog-backdrop: rgb(0 0 0 / 0.56);
   --pg-color-dialog-shadow: rgb(0 0 0 / 0.42);
   --pg-color-dialog-action-text: #15281f;
