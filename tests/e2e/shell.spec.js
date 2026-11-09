@@ -120,8 +120,8 @@ test('fourth corner FAB is always visible and aligned with the other shell contr
   await cornerAlignment();
   await fab.click();
   await expect(fab).toHaveAttribute('aria-expanded', 'true');
-  await expect(page.locator('.pg-fab__actions')).toBeVisible();
-  await expect(page.locator('.pg-fab__item')).toHaveCount(2);
+  await expect(page.locator('#pg-fab-actions')).toBeVisible();
+  await expect(page.locator('#pg-fab-actions .pg-fab__item')).toHaveCount(2);
   await page.keyboard.press('Escape');
   await expect(fab).toHaveAttribute('aria-expanded', 'false');
   await expect(fab).toBeFocused();
@@ -132,7 +132,7 @@ test('fourth corner FAB is always visible and aligned with the other shell contr
   await cornerAlignment();
   await page.getByRole('tab', { name: 'Текст' }).click();
   await fab.click();
-  await expect(page.locator('.pg-fab__item').first())
+  await expect(page.locator('#pg-fab-actions .pg-fab__item').first())
     .toContainText('Редактор у legacy');
   await page.locator('.pg-shell__content').click({ position: { x: 20, y: 20 } });
   await expect(fab).toHaveAttribute('aria-expanded', 'false');

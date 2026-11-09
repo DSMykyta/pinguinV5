@@ -1,6 +1,6 @@
 /**
  * PINGUIN NEXT — UNIVERSAL PAGINATION
- * Compact page navigation; page-size choice is delegated to the existing Shell FAB.
+ * Compact page navigation; page-size choice uses an adjacent instance of the shared FAB.
  * Native buttons and version-independent page math, without a second launcher.
  * The caller decides where the element is mounted (e.g. the Shell footer slot).
  */

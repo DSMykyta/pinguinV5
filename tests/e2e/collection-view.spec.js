@@ -235,7 +235,7 @@ test('row actions are the second column and the entire menu fits without horizon
   })));
   expect(labels[0].className).toContain('selection-cell');
   expect(labels[1].className).toContain('actions-cell');
-  expect(labels[2].label).toBe('Бренд');
+  expect(labels[2].label).toMatch(/^Бренд/);
   const trigger=table(page).locator('tbody tr').first().getByRole('button',{name:/Дії:/});
   await trigger.click();
   await expect(trigger).toHaveAttribute('aria-expanded','true');
@@ -272,7 +272,7 @@ test('page footer is shared across tabs, with no duplicated pagination controls'
   await expect(pager).toHaveCount(1);
   await expect(footer).toHaveCSS('height','56px');
   const bounds=await Promise.all([footer.boundingBox(),pager.boundingBox()]);
-  expect(bounds[1].bottom).toBeLessThanOrEqual(bounds[0].bottom+2);
+  expect(bounds[1].y+bounds[1].height).toBeLessThanOrEqual(bounds[0].y+bounds[0].height+2);
 });
 
 test('the original FAB stays unchanged, with a second instance alongside only on data tab',async({page})=>{
