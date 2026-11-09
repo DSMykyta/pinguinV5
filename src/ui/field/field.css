@@ -44,6 +44,12 @@
   box-shadow: none; color: var(--pg-color-text-muted);
 }
 .pg-field[data-pg-disabled='true'] .pg-field__label { color: var(--pg-color-text-muted); }
+.pg-field[data-pg-disabled='true'] .pg-field__surface { cursor: not-allowed; }
+.pg-field[data-pg-disabled='true'] .pg-field__control {
+  pointer-events: none;
+  cursor: not-allowed;
+  user-select: none;
+}
 
 .pg-field__edit {
   display: flex; align-items: center; flex: 1 1 auto;

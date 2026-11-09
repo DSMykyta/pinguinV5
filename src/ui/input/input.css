@@ -8,6 +8,7 @@
 .pg-input__leading-icon > .pg-icon { inline-size: 18px; block-size: 18px; }
 .pg-input--search .pg-input__control { padding-inline-start: 10px; }
 .pg-input__control::-webkit-search-cancel-button { display: none; }
+.pg-input[data-pg-state='disabled'] .pg-input__field { cursor: not-allowed; }
 .pg-input__clear {
   display: grid; place-items: center; inline-size: 34px; block-size: 34px;
   padding: 0; border: 0; border-radius: var(--pg-radius-sm);

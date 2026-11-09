@@ -123,17 +123,23 @@ export function createListbox({
   // Visually one expanding field: selected values are an attached, seamless
   // continuation of its border, placed above/below when the pointer hovers.
   const tray = document.createElement('section');
+  tray.id = uid + '-selection-tray';
   tray.className = 'pg-listbox__selection-tray pg-scrollbar';
   tray.setAttribute('role', 'group');
   tray.setAttribute('aria-label', 'Усі вибрані значення: ' + label);
   tray.hidden = true;
   const trayPopover = typeof tray.showPopover === 'function';
   if (trayPopover) tray.setAttribute('popover', 'manual');
+  const trayClose = document.createElement('button');
+  trayClose.type = 'button';
+  trayClose.className = 'pg-listbox__selection-close';
+  trayClose.textContent = 'Згорнути';
+  trayClose.setAttribute('aria-label', 'Згорнути вибрані значення');
   const trayHeading = document.createElement('span');
   trayHeading.className = 'pg-listbox__selection-heading';
   const trayChips = document.createElement('div');
   trayChips.className = 'pg-listbox__selection-chips';
-  tray.append(trayHeading, trayChips);
+  tray.append(trayHeading, trayClose, trayChips);
   element.append(frame.field,holder,panel,tray,support);
   const controller = new AbortController();
   let items = [];
@@ -197,6 +203,8 @@ export function createListbox({
           more.textContent = '+' + (chosen.length - 3);
           more.disabled = Boolean(disabled);
           more.setAttribute('aria-label', 'Показати всі вибрані значення');
+          more.setAttribute('aria-controls', tray.id);
+          more.setAttribute('aria-expanded', String(trayOpened));
           more.dataset.pgShowSelected = 'true';
           display.append(more);
         }
@@ -212,7 +220,9 @@ export function createListbox({
       holder.append(input);
     });
     frame.setFilled(chosen.length > 0);
-    if (!chosen.length && trayOpened) hideTray();
+    const hasHidden = multiple && chosen.length > 3;
+    element.dataset.pgHasOverflow = String(hasHidden);
+    if (!hasHidden && trayOpened) hideTray();
     else if (trayOpened) positionTray();
   }
   function removeSelected(value, event, fromTray) {
@@ -225,12 +235,13 @@ export function createListbox({
     reflect();
     onChange?.(selection(), event);
     // Keep keyboard focus in the selected-values controls after a chip is removed.
-    if (event.detail === 0 || event.pointerType === undefined && event.type === 'keydown') {
+    if (event.detail === 0 || event.type === 'keydown') {
       const remaining = Array.from(
         (fromTray ? trayChips : display).querySelectorAll('.pg-listbox__chip-remove')
       );
       const target = remaining[Math.min(Math.max(0, oldIndex), remaining.length - 1)];
-      (target || trigger).focus({ preventScroll: true });
+      const next = trayOpened ? target : display.querySelector('.pg-listbox__chip-remove');
+      (next || trigger).focus({ preventScroll: true });
     }
   }
   function onChipClick(event) {
@@ -243,9 +254,7 @@ export function createListbox({
     } else if (button.dataset.pgShowSelected === 'true') {
       event.preventDefault();
       event.stopPropagation();
-      if (opened) close();
-      showTray();
-      trayChips.querySelector('.pg-listbox__chip-remove')?.focus({ preventScroll: true });
+      showTray(true);
     }
   }
   function reflect() {
@@ -347,7 +356,9 @@ export function createListbox({
     if (!trayOpened) return;
     if (trayPopover) {
       const geometry = positionPopup({
-        anchor: frame.surface, popup: tray, maxHeight: 240, gap: -1,
+        anchor: frame.surface, popup: tray, maxHeight: 240,
+        // The expanded surface overlaps the compact row instead of duplicating it.
+        gap: -frame.surface.getBoundingClientRect().height,
       });
       element.dataset.pgTraySide = geometry.direction;
       tray.dataset.pgSide = geometry.direction;
@@ -360,15 +371,17 @@ export function createListbox({
       tray.dataset.pgSide = up ? 'up' : 'down';
     }
   }
-  function showTray() {
+  function showTray(autofocus = false) {
     if (!multiple || disabled || destroyed || opened ||
-        trayOpened || !selected.size) return;
+        trayOpened || selected.size <= 3) return;
     trayOpened = true;
     tray.hidden = false;
     element.dataset.pgTray = 'true';
     frame.setActive(true);
     if (trayPopover) tray.showPopover();
     positionTray();
+    display.querySelector('[data-pg-show-selected]')?.setAttribute('aria-expanded', 'true');
+    if (autofocus) trayChips.querySelector('.pg-listbox__chip-remove')?.focus({ preventScroll: true });
     trayScrollDismiss.arm();
   }
   function hideTray(restore = false) {
@@ -379,6 +392,7 @@ export function createListbox({
     tray.hidden = true;
     delete element.dataset.pgTray;
     delete element.dataset.pgTraySide;
+    display.querySelector('[data-pg-show-selected]')?.setAttribute('aria-expanded', 'false');
     tray.removeAttribute('data-pg-side');
     frame.setActive(opened);
     if (restore) trigger.focus({ preventScroll: true });
@@ -437,13 +451,15 @@ export function createListbox({
   }, { signal: controller.signal });
   const belongsToSelection = target =>
     target instanceof Node && (frame.field.contains(target) || tray.contains(target));
-  // Hover/focus reveals all selected values without opening the options list.
-  frame.field.addEventListener('pointerenter', event => {
-    if (event.pointerType === 'mouse' || event.pointerType === 'pen') showTray();
+  // Only +N reveals hidden values, not hovering the whole input.
+  display.addEventListener('pointerover', event => {
+    const more = event.target.closest('[data-pg-show-selected]');
+    if (more && (event.pointerType === 'mouse' || event.pointerType === 'pen')) showTray();
   }, { signal: controller.signal });
-  frame.field.addEventListener('focusin', () => {
-    if (!opened) showTray();
+  display.addEventListener('focusin', event => {
+    if (event.target.closest('[data-pg-show-selected]')) showTray(true);
   }, { signal: controller.signal });
+  trayClose.addEventListener('click', () => hideTray(true), { signal: controller.signal });
   element.addEventListener('pointerout', event => {
     if (!trayOpened || belongsToSelection(event.relatedTarget)) return;
     hideTray();
