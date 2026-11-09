@@ -2,7 +2,6 @@
  * PINGUIN NEXT — selection-dependent header actions.
  * Owns only view state and interaction; the caller owns the records and effects.
  */
-import { createIconButton } from '../button/button.js';
 import { createRevealPanel } from '../reveal-panel/reveal-panel.js';
 
 export function getSelectionMode(count) {
@@ -10,9 +9,9 @@ export function getSelectionMode(count) {
   return count === 0 ? 'none' : count === 1 ? 'single' : 'multiple';
 }
 
-export function createSelectionActions({ single = [], multiple = [], onAction, onClear } = {}) {
-  if (typeof onAction !== 'function' || typeof onClear !== 'function') {
-    throw new TypeError('Selection actions need onAction and onClear');
+export function createSelectionActions({ single = [], multiple = [], onAction } = {}) {
+  if (typeof onAction !== 'function') {
+    throw new TypeError('Selection actions need onAction');
   }
   if (![single, multiple].every(group => Array.isArray(group) && group.every(
     entry => entry && typeof entry.value === 'string' && typeof entry.label === 'string'
@@ -52,15 +51,7 @@ export function createSelectionActions({ single = [], multiple = [], onAction, o
     groups.set(mode, group);
   }
 
-  const clear = createIconButton({
-    label: 'Зняти виділення',
-    icon: 'x',
-    action: 'clear-selection',
-    onClick: onClear,
-  });
-  clear.classList.add('pg-mini-button', 'pg-selection-actions__clear');
-
-  element.append(counter, groups.get('single'), groups.get('multiple'), clear);
+  element.append(counter, groups.get('single'), groups.get('multiple'));
   // Reuse the same top-reveal animation as the adjacent Shell controls.
   // Positioning is owned by the host; the selection actions take no flex space.
   const reveal = createRevealPanel({ element, direction: 'top' });
@@ -69,7 +60,8 @@ export function createSelectionActions({ single = [], multiple = [], onAction, o
     if (!Array.isArray(ids)) throw new TypeError('Expected selected row IDs');
     const count = ids.length;
     const mode = getSelectionMode(count);
-    counter.textContent = count === 1 ? '1 вибрано' : count + ' вибрано';
+    counter.textContent = count > 1 ? count + ' вибрано' : '';
+    counter.hidden = count <= 1;
     element.dataset.pgMode = mode;
     for (const [name, group] of groups) {
       group.inert = name !== mode;
