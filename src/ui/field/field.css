@@ -1,116 +1,83 @@
 /*
- * PINGUIN NEXT — SHARED OUTLINED FIELD
- * One outline and one label motion for native Input, Select, Combobox,
- * Tag Field and future complex inputs (icons, prefix, suffix, actions).
+ * PINGUIN NEXT — SHARED FIELD
+ * Plain outline and permanent real label above, on all backgrounds.
+ * No floating text, fieldset/legend, notch, or opaque label patches.
  */
 .pg-field {
-  position: relative; display: flex; align-items: stretch;
-  inline-size: 100%; min-inline-size: 0; min-block-size: 44px;
-  border: 0;
+  display: grid; gap: 6px;
+  inline-size: 100%; min-inline-size: 0;
+  align-content: start;
+}
+.pg-field__label {
+  position: static; display: block;
+  min-inline-size: 0; padding-inline: 2px;
+  color: var(--pg-color-text-secondary);
+  font-size: 13px; font-weight: 450; line-height: 1.4;
+  overflow-wrap: anywhere; cursor: text;
+}
+.pg-field__surface {
+  display: flex; align-items: stretch; position: relative;
+  box-sizing: border-box; inline-size: 100%; min-inline-size: 0;
+  block-size: 56px; min-block-size: 56px;
+  border: 1px solid var(--pg-color-border-strong);
   border-radius: 10px; background: var(--pg-color-surface);
   color: var(--pg-color-text-primary);
   transition: border-color var(--pg-duration-fast) ease,
     box-shadow var(--pg-duration-fast) ease;
 }
-.pg-field:hover:not([data-pg-disabled='true']) .pg-field__outline { border-color: var(--pg-color-text-muted); }
-.pg-field:focus-within:not([data-pg-disabled='true']) {
+.pg-field:not([data-pg-disabled='true']):hover .pg-field__surface {
+  border-color: var(--pg-color-text-muted);
+}
+.pg-field:not([data-pg-disabled='true']):focus-within .pg-field__surface {
+  border-color: var(--pg-color-focus);
   box-shadow: 0 0 0 2px var(--pg-color-accent-soft);
 }
-.pg-field:focus-within:not([data-pg-disabled='true']) .pg-field__outline { border-color: var(--pg-color-focus); }
-.pg-field[data-pg-state='error'] .pg-field__outline { border-color: var(--pg-color-input-error); }
-.pg-field[data-pg-state='error'] .pg-field__label { color: var(--pg-color-input-error); }
-.pg-field[data-pg-disabled='true'] {
+.pg-field[data-pg-state='error'] .pg-field__surface {
+  border-color: var(--pg-color-input-error);
+}
+.pg-field[data-pg-state='error'] .pg-field__label {
+  color: var(--pg-color-input-error);
+}
+.pg-field[data-pg-disabled='true'] .pg-field__surface {
   background: var(--pg-color-surface-soft);
+  border-color: var(--pg-color-border);
   box-shadow: none; color: var(--pg-color-text-muted);
 }
 .pg-field[data-pg-disabled='true'] .pg-field__label { color: var(--pg-color-text-muted); }
-/* Decorative fieldset/legend physically breaks the top stroke under the label. */
-.pg-field__outline {
-  position: absolute; inset: 0; box-sizing: border-box;
-  min-inline-size: 0; margin: 0; padding: 0 8px;
-  border: 1px solid var(--pg-color-border-strong);
-  border-radius: inherit; pointer-events: none;
-  transition: border-color var(--pg-duration-fast) ease;
-}
-.pg-field__notch {
-  display: block; float: none; box-sizing: border-box; width: auto;
-  block-size: 11px; margin: 0 0 0 var(--pg-field-leading-size, 0px);
-  max-inline-size: .01px; overflow: hidden; padding: 0; white-space: nowrap;
-  visibility: hidden;
-  transition: max-inline-size var(--pg-duration-fast) var(--pg-ease);
-}
-.pg-field__notch > span {
-  display: inline-block; padding-inline: 6px;
-  font-size: 11.48px; line-height: 11px; font-weight: 450;
-  visibility: hidden;
-}
-.pg-field__notch > span::before { content: attr(data-pg-label); }
-.pg-field--floating:is(:focus-within, [data-pg-filled='true']) .pg-field__notch {
-  max-inline-size: 100%;
-}
+
 .pg-field__edit {
-  position: relative; display: flex; align-items: center;
-  flex: 1 1 auto; min-inline-size: 0; min-block-size: 42px;
+  display: flex; align-items: center; flex: 1 1 auto;
+  min-inline-size: 0; min-block-size: 0;
 }
 .pg-field__control {
   display: block; flex: 1 1 auto;
-  inline-size: 100%; min-inline-size: 0; block-size: 42px;
+  box-sizing: border-box;
+  inline-size: 100%; min-inline-size: 0; block-size: 54px;
   padding-inline: 14px; padding-block: 0;
   border: 0; border-radius: inherit; outline: 0;
   background: transparent; color: inherit; font: inherit;
   font-size: 14px; line-height: 1.45; text-overflow: ellipsis;
 }
 .pg-field__control:focus-visible { outline: 0; }
-.pg-field__control::placeholder { color: var(--pg-color-text-muted); }
+.pg-field__control::placeholder { color: var(--pg-color-text-muted); opacity: 1; }
 .pg-field__control:disabled { cursor: not-allowed; }
 .pg-field__leading, .pg-field__trailing {
-  display: flex; flex: 0 0 auto; gap: 4px; align-items: center;
-  min-inline-size: 0; padding-inline: 6px;
+  display: flex; align-items: center; flex: 0 0 auto;
+  gap: 4px; min-inline-size: 0; padding-inline: 6px;
 }
 .pg-field__leading[hidden], .pg-field__trailing[hidden] { display: none; }
 .pg-field__leading { padding-inline-start: 10px; padding-inline-end: 0; }
 .pg-field__trailing { padding-inline-start: 0; padding-inline-end: 6px; }
-.pg-field__label {
-  position: absolute; z-index: 1;
-  inset-inline-start: 10px; inset-inline-end: auto;
-  max-inline-size: calc(100% - 20px); padding-inline: 4px;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  background: transparent;
-  color: var(--pg-color-text-secondary); font-size: 14px;
-  font-weight: 450; line-height: 18px; cursor: text;
+
+/* Only multiline and token collection surfaces may grow in block size. */
+.pg-textarea .pg-field__surface, .pg-tag-field .pg-field__surface {
+  block-size: auto; min-block-size: 56px;
 }
-.pg-field[data-pg-disabled='true'] .pg-field__outline { border-color: var(--pg-color-border); }
-.pg-field--floating { block-size: 56px; min-block-size: 56px; }
-.pg-field--floating .pg-field__edit { min-block-size: 54px; }
-.pg-field--floating .pg-field__control { block-size: 54px; }
-.pg-field--floating .pg-field__label {
-  top: 50%; transform: translateY(-50%) scale(1);
-  transform-origin: left center;
-  transition: top var(--pg-duration-fast) var(--pg-ease),
-    transform var(--pg-duration-fast) var(--pg-ease),
-    color var(--pg-duration-fast) ease;
-}
-.pg-field--floating:focus-within .pg-field__label,
-.pg-field--floating[data-pg-filled='true'] .pg-field__label {
-  top: 0; transform: translateY(-50%) scale(.82);
-}
-.pg-field--floating .pg-field__control::placeholder { opacity: 0; transition: opacity var(--pg-duration-fast) ease; }
-.pg-field--floating:focus-within .pg-field__control::placeholder { opacity: 1; }
-@media (hover: hover) {
-  .pg-field--floating:not([data-pg-disabled='true']):not([data-pg-filled='true']):hover .pg-field__label {
-    top: 0; transform: translateY(-50%) scale(.82);
-  }
-  .pg-field--floating:not([data-pg-disabled='true']):hover .pg-field__notch { max-inline-size: 100%; }
-  .pg-field--floating:hover .pg-field__control::placeholder { opacity: 1; }
-}
-/* Only multi-line and token collections grow with content. */
-.pg-textarea .pg-field--floating, .pg-tag-field .pg-field--floating { block-size: auto; }
 @media (prefers-reduced-motion: reduce) {
-  .pg-field, .pg-field__outline, .pg-field__notch,
-  .pg-field__label, .pg-field__control::placeholder { transition: none !important; }
+  .pg-field__surface { transition: none !important; }
 }
 
-/* Reusable help text shared by multiline and numeric fields. */
+/* Reusable field help and validation feedback. */
 .pg-field-support { display: grid; gap: 3px; padding-inline: 2px; font-size: 12px; line-height: 1.4; }
 .pg-field-support[hidden], .pg-field-support > [hidden] { display: none; }
 .pg-field-support__description { color: var(--pg-color-text-secondary); }

@@ -15,7 +15,6 @@
   background:var(--pg-color-accent-soft); color:var(--pg-color-accent);
   font-size:12px; font-weight:600;
 }
-.pg-listbox__field[data-pg-filled='false']:not(:focus-within):not(:hover) .pg-listbox__value--placeholder {opacity:0;}
 .pg-listbox__caret {
   inline-size:9px; block-size:9px; margin-inline:5px; display:block;
   border-inline-end:2px solid var(--pg-color-text-secondary);

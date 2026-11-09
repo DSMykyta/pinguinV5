@@ -23,8 +23,7 @@
   flex: 1 1 110px; min-inline-size: 70px; min-block-size: 32px; padding: 3px 6px;
   border: 0; outline: 0; background: transparent; color: var(--pg-color-text-primary); font: inherit;
 }
-.pg-tag-field__input::placeholder { color: var(--pg-color-text-muted); opacity: 0; }
-.pg-tag-field__field:focus-within .pg-tag-field__input::placeholder { opacity: 1; }
+.pg-tag-field__input::placeholder { color: var(--pg-color-text-muted); opacity: 1; }
 .pg-tag-field__input:disabled { opacity: .62; }
 .pg-tag-field__support { font-size: 12px; color: var(--pg-color-text-secondary); }
 .pg-tag-field__support[hidden] { display: none; }
