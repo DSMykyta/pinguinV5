@@ -13,6 +13,7 @@ import './styles/foundation.css';
 import './ui/button/button.css';
 import './ui/data-row/data-row.css';
 import './ui/collection-view/collection-view.css';
+import './ui/selection-actions/selection-actions.css';
 import './ui/view-switch/view-switch.css';
 import './ui/segment-switch/segment-switch.css';
 import './ui/pagination/pagination.css';
