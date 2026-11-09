@@ -53,7 +53,7 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test('Textarea grows then shrinks, shows its counter and keeps top-border label', async ({ page }) => {
+test('Textarea grows then shrinks, shows its counter and keeps an above-field label', async ({ page }) => {
   const field = page.locator('#pg-advanced-test-area .pg-textarea');
   const input = field.getByRole('textbox', { name: 'Примітка' });
   await expect(input).toHaveAttribute('aria-describedby', /-description/);
@@ -66,11 +66,10 @@ test('Textarea grows then shrinks, shows its counter and keeps top-border label'
   await expect(field.locator('.pg-textarea__counter')).toHaveText('7 / 200');
   await expect.poll(() => input.evaluate(node => parseFloat(node.style.height))).toBeLessThan(expanded);
   await input.focus();
-  await expect.poll(async () => {
-    const label = await field.locator('.pg-field__label').boundingBox();
-    const outline = await field.locator('.pg-field').boundingBox();
-    return Math.abs(label.y + label.height / 2 - outline.y);
-  }).toBeLessThan(4);
+  const label = await field.locator('.pg-field__label').boundingBox();
+  const border = await field.locator('.pg-field__surface').boundingBox();
+  expect(label.y + label.height).toBeLessThan(border.y);
+  await expect(field.locator('fieldset, legend')).toHaveCount(0);
 });
 
 test('Number Field preserves numeric semantics and steps without rounding drift', async ({ page }) => {

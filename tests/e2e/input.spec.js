@@ -16,29 +16,28 @@ test.beforeEach(async ({ page }) => {
   await page.getByRole('tab', { name: 'Текст' }).click();
 });
 
-test('floating labels respond to hover, focus, filled value and blur', async ({ page }) => {
+test('labels remain above fields through hover, focus, filling and blur', async ({ page }) => {
   const field = page.locator('.pg-input').filter({ has: page.locator('[name="demo-product-name"]') });
   const label = field.locator('.pg-input__label');
   const control = field.locator('input');
+  const surface = field.locator('.pg-field__surface');
   await expect(control).toHaveAccessibleName('Назва товару');
-  const initial = await label.evaluate(node => getComputedStyle(node).transform);
-
-  await field.locator('.pg-input__field').hover();
-  await expect.poll(() => label.evaluate(node => getComputedStyle(node).transform)).not.toBe(initial);
-  await page.mouse.move(0, 0);
-  await expect.poll(() => label.evaluate(node => getComputedStyle(node).transform)).toBe(initial);
-
+  await expect(label).toBeVisible();
+  await expect(field.locator('fieldset, legend')).toHaveCount(0);
+  const initial = await label.boundingBox();
+  const border = await surface.boundingBox();
+  expect(initial.y + initial.height).toBeLessThan(border.y);
+  await surface.hover();
   await control.focus();
-  await expect.poll(() => label.evaluate(node => getComputedStyle(node).transform)).not.toBe(initial);
   await control.fill('Протеїн');
   await control.blur();
   await expect(field).toHaveAttribute('data-pg-filled', 'true');
-  await expect.poll(() => label.evaluate(node => getComputedStyle(node).transform)).not.toBe(initial);
-
+  await expect(label).toHaveCSS('position', 'static');
+  await expect(label).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  const after = await label.boundingBox();
+  expect(Math.abs(initial.y - after.y)).toBeLessThan(1);
   await control.fill('');
-  await control.blur();
   await expect(field).toHaveAttribute('data-pg-filled', 'false');
-  await expect.poll(() => label.evaluate(node => getComputedStyle(node).transform)).toBe(initial);
 });
 
 test('search has an icon, accessible label, optional visible hint, and working clear', async ({ page }) => {
@@ -88,7 +87,7 @@ test('mobile, dark theme, reduced motion and keyboard navigation are preserved',
   const name = page.locator('input[name="demo-product-name"]');
   await name.focus();
   await expect(name).toBeFocused();
-  await expect(page.locator('.pg-input--floating .pg-input__label').first()).toHaveCSS('transition-duration', '0s');
+  await expect(page.locator('.pg-input .pg-field__surface').first()).toHaveCSS('transition-duration', '0s');
   const field = name.locator('..');
   const rect = await field.boundingBox();
   expect(rect.x).toBeGreaterThanOrEqual(0);

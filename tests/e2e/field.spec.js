@@ -42,23 +42,22 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test('all empty fields start with label inside and focus floats label onto top outline', async ({ page }) => {
+test('Input, Select, Combobox and Tag Field show a permanent label above the border', async ({ page }) => {
   for (const type of ['input', 'select', 'combobox', 'tag-field']) {
-    const field = page.locator('#pg-field-test-area .pg-' + type);
-    const shell = field.locator('.pg-field').first();
-    const label = shell.locator('.pg-field__label');
-    const control = type === 'select' ? field.locator('select')
-      : type === 'combobox' ? field.locator('input[role=combobox]')
-      : field.locator('input:not([type=hidden])');
-    const idle = await label.boundingBox();
-    const outer = await shell.boundingBox();
-    expect(Math.abs(idle.y + idle.height / 2 - (outer.y + outer.height / 2))).toBeLessThan(8);
+    const component = page.locator('#pg-field-test-area .pg-' + type);
+    const label = component.locator('.pg-field__label');
+    const surface = component.locator('.pg-field__surface');
+    const control = type === 'select' ? component.locator('select')
+      : type === 'combobox' ? component.locator('input[role=combobox]')
+      : component.locator('input:not([type=hidden])');
+    const before = await label.boundingBox();
+    const border = await surface.boundingBox();
+    expect(before.y + before.height).toBeLessThan(border.y);
     await control.focus();
-    await expect.poll(async () => {
-      const floated = await label.boundingBox();
-      const outline = await shell.boundingBox();
-      return Math.abs(floated.y + floated.height / 2 - outline.y);
-    }).toBeLessThan(4);
+    await expect(label).toHaveCSS('position', 'static');
+    const after = await label.boundingBox();
+    expect(Math.abs(before.y - after.y)).toBeLessThan(1);
+    await expect(component.locator('fieldset.pg-field__outline, legend.pg-field__notch')).toHaveCount(0);
     await control.blur();
   }
 });
@@ -76,7 +75,7 @@ test('input adornments are independent of text width and focus remains native', 
   await expect(field.getByRole('textbox', { name: 'Назва' })).toHaveValue('Pinguin');
 });
 
-test('select is native, retains values in a form and floats when filled', async ({ page }) => {
+test('select is native, retains values in a form and retains its permanent label', async ({ page }) => {
   const select = page.getByRole('combobox', { name: 'Країна' });
   await select.selectOption('pl');
   await expect(select).toHaveValue('pl');
@@ -105,7 +104,7 @@ test('combobox chooses by ArrowDown and Enter and stores stable value', async ({
   await expect(combo).toHaveValue('Креатин');
 });
 
-test('tag field adds/removes values and floats its label for populated values', async ({ page }) => {
+test('tag field adds/removes values and retains a permanent label', async ({ page }) => {
   const field = page.locator('#pg-field-test-area .pg-tag-field');
   const input = field.locator('input[type=text]');
   await input.fill('Перший');
@@ -123,7 +122,7 @@ test('tag field adds/removes values and floats its label for populated values', 
   await expect(field.getByRole('button', { name: 'Видалити Другий' })).toBeVisible();
 });
 
-test('dark theme, reduced motion and mobile widths retain the same outline', async ({ page }) => {
+test('dark theme, reduced motion and mobile widths retain the plain border', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: 'dark' });
   await page.evaluate(() => document.documentElement.dataset.theme = 'dark');
@@ -132,6 +131,6 @@ test('dark theme, reduced motion and mobile widths retain the same outline', asy
     const rect = await shell.boundingBox();
     expect(rect.x).toBeGreaterThanOrEqual(0);
     expect(rect.x + rect.width).toBeLessThanOrEqual(390);
-    await expect(shell).toHaveCSS('transition-duration', '0s');
+    await expect(shell.locator('.pg-field__surface')).toHaveCSS('transition-duration', '0s');
   }
 });

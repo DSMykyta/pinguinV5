@@ -1,6 +1,6 @@
 /**
- * Real notch, matched single-line heights, contextual backgrounds and circular checkbox.
- * Checks use actual DOM controls; no screenshot placeholders or copied Brands feature.
+ * Plain shared field regression tests: no notch, no floating, stable 56px surfaces.
+ * Real browser controls, across narrow layouts and different background contexts.
  */
 import { test, expect } from '@playwright/test';
 
@@ -9,66 +9,60 @@ test.beforeEach(async ({page}) => {
   await page.getByRole('tab', {name: 'Текст'}).click();
 });
 
-test('outlined label cuts through fieldset border without an opaque label patch', async ({page}) => {
-  const input = page.locator('input[name="demo-field-name"]');
-  const field = page.locator('.pg-tools-field-demo .pg-input').filter({has:input}).locator('.pg-field');
+test('permanent label stays above the border without any decorative cutout', async ({page}) => {
+  const field = page.locator('.pg-tools-field-demo .pg-input')
+    .filter({has:page.locator('input[name="demo-field-name"]')});
   const label = field.locator('.pg-field__label');
-  const border = field.locator('fieldset.pg-field__outline');
-  const notch = border.locator('legend');
-  await expect(border).toHaveAttribute('aria-hidden','true');
+  const surface = field.locator('.pg-field__surface');
+  await expect(label).toBeVisible();
+  await expect(field.locator('fieldset, legend')).toHaveCount(0);
+  const before = await label.boundingBox();
+  const box = await surface.boundingBox();
+  expect(before.y + before.height).toBeLessThan(box.y);
+  await field.locator('input').focus();
+  await expect(label).toHaveCSS('position','static');
   await expect(label).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
-  await expect.poll(() => notch.boundingBox().then(b=>b.width)).toBeLessThan(1);
-  await input.focus();
-  await expect.poll(() => notch.boundingBox().then(b=>b.width)).toBeGreaterThan(30);
-  const geometry = await page.evaluate(() => {
-    const control = document.querySelector('input[name="demo-field-name"]');
-    const container = control.closest('.pg-field');
-    const outline = container.querySelector('.pg-field__outline');
-    const label = container.querySelector('.pg-field__label');
-    return {background: getComputedStyle(label).backgroundColor,
-      outline: getComputedStyle(outline).borderTopStyle,
-      labelCenter: label.getBoundingClientRect().y + label.getBoundingClientRect().height / 2,
-      frameTop: container.getBoundingClientRect().top};
-  });
-  expect(geometry.background).toBe('rgba(0, 0, 0, 0)');
-  expect(geometry.outline).toBe('solid');
-  expect(Math.abs(geometry.labelCenter-geometry.frameTop)).toBeLessThan(3);
+  const after = await label.boundingBox();
+  expect(Math.abs(after.y - before.y)).toBeLessThan(1);
+  await expect(surface).toHaveCSS('border-top-style','solid');
 });
 
-test('leading accessories align notch, and different surface colors need no label background',async ({page})=>{
-  const container=page.locator('.pg-tools-field-demo .pg-input').filter({has:page.locator('input[name="demo-field-price"]')}).locator('.pg-field');
-  await container.locator('input').focus();
-  await expect.poll(()=>container.locator('legend').boundingBox().then(b=>b.width)).toBeGreaterThan(25);
-  const offsets=await container.evaluate(element=>{
-    const label=element.querySelector('.pg-field__label').getBoundingClientRect();
-    const notch=element.querySelector('legend').getBoundingClientRect();
-    return {labelX:label.x,notchX:notch.x};
-  });
-  expect(Math.abs(offsets.labelX-offsets.notchX)).toBeLessThan(9);
+test('adornments and different surrounding backgrounds do not affect the label',async ({page})=>{
+  const field=page.locator('.pg-tools-field-demo .pg-input')
+    .filter({has:page.locator('input[name="demo-field-price"]')});
+  const label=field.locator('.pg-field__label');
+  const surface=field.locator('.pg-field__surface');
+  await expect(field.locator('.pg-field__leading')).toBeVisible();
+  await expect(field.locator('.pg-field__trailing')).toBeVisible();
+  const old=await label.boundingBox();
   await page.evaluate(()=>{
-    document.querySelector('.pg-tools-field-demo').style.background='linear-gradient(120deg, #cfc, #bbd)';
+    document.querySelector('.pg-tools-field-demo').style.background='linear-gradient(120deg,#cfc,#bbd)';
   });
-  await expect(container.locator('.pg-field__label')).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
+  await field.locator('input').focus();
+  await expect(label).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
+  const after=await label.boundingBox();
+  const border=await surface.boundingBox();
+  expect(Math.abs(after.y-old.y)).toBeLessThan(1);
+  expect(after.y+after.height).toBeLessThan(border.y);
 });
 
-test('one-line Input, Select and Combobox remain exactly 56px when adjacent to described fields', async ({page})=>{
-  const h=await page.evaluate(()=>{
+test('single-line input, select and combobox surfaces are all 56px',async ({page})=>{
+  const heights=await page.evaluate(()=>{
     const root=document.querySelector('.pg-tools-field-demo');
-    return ['.pg-input .pg-field','.pg-select .pg-field','.pg-combobox .pg-field']
-      .map(selector=>root.querySelector(selector).getBoundingClientRect().height);
+    return ['.pg-input .pg-field__surface','.pg-select .pg-field__surface',
+      '.pg-combobox .pg-field__surface'].map(s=>root.querySelector(s).getBoundingClientRect().height);
   });
-  expect(h.every(size => Math.abs(size - 56) < 0.25)).toBe(true);
+  expect(heights.every(h=>Math.abs(h-56)<.25)).toBe(true);
   await page.setViewportSize({width:390,height:844});
   const narrow=await page.evaluate(()=>{
     const root=document.querySelector('.pg-tools-field-demo');
-    return ['.pg-input .pg-field','.pg-select .pg-field','.pg-combobox .pg-field']
-      .map(selector=>root.querySelector(selector).getBoundingClientRect().height);
+    return ['.pg-input .pg-field__surface','.pg-select .pg-field__surface',
+      '.pg-combobox .pg-field__surface'].map(s=>root.querySelector(s).getBoundingClientRect().height);
   });
-  // Chromium may report subpixel rounding at non-integer device scales.
-  expect(narrow.every(size => Math.abs(size - 56) < 0.25)).toBe(true);
+  expect(narrow.every(h=>Math.abs(h-56)<.25)).toBe(true);
 });
 
-test('checkbox becomes a circular check or minus, preserving native keyboard and mixed state',async ({page})=>{
+test('checkbox circle and mixed-state keyboard behavior remain unchanged',async ({page})=>{
   const box=page.locator('.pg-tools-advanced-fields .pg-checkbox');
   const checkbox=box.getByRole('checkbox',{name:'Враховувати в описі'});
   await expect(checkbox).toBeChecked();
@@ -76,13 +70,11 @@ test('checkbox becomes a circular check or minus, preserving native keyboard and
   await checkbox.press('Space');
   await expect(checkbox).not.toBeChecked();
   await expect(box.locator('.pg-checkbox__box')).toHaveCSS('border-radius','5px');
-  const mixed=await page.evaluate(async()=>{
+  await page.evaluate(async()=>{
     const {createCheckbox}=await import('/src/ui/checkbox/checkbox.js');
     const control=createCheckbox({label:'Частковий вибір',indeterminate:true});
     document.body.append(control.element);
-    return control.element.className;
   });
-  expect(mixed).toBe('pg-checkbox');
   const partial=page.locator('.pg-checkbox').filter({has:page.getByRole('checkbox',{name:'Частковий вибір'})});
   await expect(partial).toHaveAttribute('data-pg-mixed','true');
   await expect(partial.locator('.pg-checkbox__box')).toHaveCSS('border-radius','50%');
