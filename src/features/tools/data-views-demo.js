@@ -6,6 +6,8 @@
 import { createCollectionView } from '../../ui/collection-view/collection-view.js';
 import { createStoredChoice } from '../../core/preferences.js';
 import { createSelect } from '../../ui/select/select.js';
+import { createInput } from '../../ui/input/input.js';
+import { showDialog } from '../../ui/dialog/dialog.js';
 import { createSegmentSwitch } from '../../ui/segment-switch/segment-switch.js';
 import { DEFAULT_PAGE_SIZES } from '../../ui/pagination/pagination.js';
 
@@ -119,12 +121,47 @@ export function createDataViewsDemo() {
   const details=node('div','aside-detail','Оберіть дію біля запису.');
   details.setAttribute('role','status');
   controls.append(sortBy.element,direction.element,count,archive,details);
+  async function editRecord(row) {
+    // The demo owns its data changes; the shared collection only emits the edit intent.
+    const nameField=createInput({
+      label:'Назва бренду',value:row.name,required:true,
+    });
+    nameField.input.setAttribute('autofocus','');
+    try {
+      await showDialog({
+        title:'Редагування бренду',
+        content:nameField.element,
+        size:'editor',
+        confirmText:'Зберегти',
+        cancelText:'Скасувати',
+        validate:()=>{
+          const name=nameField.getValue().trim();
+          const duplicate=records.some(item=>
+            item.id!==row.id&&item.name.toLocaleLowerCase('uk')===name.toLocaleLowerCase('uk')
+          );
+          nameField.setError(!name?'Вкажіть назву бренду':
+            duplicate?'Бренд із такою назвою вже існує':'');
+          return Boolean(name&&!duplicate);
+        },
+        onConfirm:()=>{
+          const name=nameField.getValue().trim();
+          records=records.map(item=>item.id===row.id?{...item,name}:item);
+          collection.setRows(records);
+          details.textContent='Змінено назву: '+name;
+          return true;
+        },
+      });
+    } finally {
+      nameField.destroy();
+    }
+  }
   const collection=createCollectionView({
     label:'Приклад списку брендів',rows:records,columns:COLUMNS,
     getRowId:row=>row.id,renderTile,modes:['tiles','table'],
     initialMode:preference.getValue(),
     initialSort:{key:'name',direction:'asc'},
     selectable:true,pageSize:25,
+    onEditRow:row=>{ void editRecord(row).catch(error=>console.error('Brand edit failed:',error)); },
     rowActions:[
       {value:'details',label:'Переглянути деталі'},
       {value:'duplicate',label:'Дублювати'},
