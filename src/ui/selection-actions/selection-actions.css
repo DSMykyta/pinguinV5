@@ -8,14 +8,11 @@
   inset-block-start: 0;
   inset-inline-end: calc(100% + var(--pg-space-2));
   z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  width: max-content;
-  max-inline-size: min(570px, calc(100vw - 300px));
+  /* Stable geometry: groups overlap but header controls never change position. */
+  display: block;
+  width: min(430px, calc(100vw - 300px));
   min-width: 0;
   height: 40px;
-  gap: 7px;
   white-space: nowrap;
 }
 .pg-selection-actions__count {
@@ -26,12 +23,16 @@
   color: var(--pg-color-text-secondary);
 }
 .pg-selection-actions__group {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-end: 0;
   display: inline-flex;
   align-items: center;
-  flex: 0 0 auto;
+  justify-content: flex-end;
+  min-height: 40px;
+  width: max-content;
   gap: 5px;
 }
-.pg-selection-actions__group[hidden] { display: none; }
 .pg-selection-actions__action {
   display: inline-flex;
   align-items: center;
@@ -54,10 +55,10 @@
 }
 .pg-selection-actions__clear { flex: 0 0 28px; }
 @media (max-width: 1080px) {
-  .pg-selection-actions { max-inline-size: calc(100vw - 240px); }
+  .pg-selection-actions { width: min(430px, calc(100vw - 240px)); }
 }
 @media (max-width: 640px) {
-  .pg-selection-actions { max-inline-size: calc(100vw - 180px); }
+  .pg-selection-actions { width: calc(100vw - 180px); }
   .pg-selection-actions__count { font-size: 11px; }
   .pg-selection-actions__action { padding-inline: 8px; font-size: 11px; }
 }
