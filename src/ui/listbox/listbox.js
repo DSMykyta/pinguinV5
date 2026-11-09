@@ -189,6 +189,8 @@ export function createListbox({
     if(indices.length===0)list.replaceChildren(...optionsDOM,empty);
     activate(indices.includes(active)?active:(indices[0]??-1));
     reflect();
+    // An open upward popup changes height when filtering: re-anchor immediately.
+    if (opened) position();
   }
   function setValue(next) {
     const values=Array.isArray(next)?next:[next];
