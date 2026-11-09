@@ -12,6 +12,8 @@
 import './styles/foundation.css';
 import './ui/button/button.css';
 import './ui/data-row/data-row.css';
+import './ui/collection-view/collection-view.css';
+import './ui/view-switch/view-switch.css';
 import './ui/page/page.css';
 import './ui/tabs/tabs.css';
 import './ui/tooltip/tooltip.css';

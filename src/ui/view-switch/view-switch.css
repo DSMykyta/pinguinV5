@@ -1,0 +1,26 @@
+/* A small contextual control in the existing Shell header, not another header. */
+.pg-view-switch {
+  display: inline-flex; align-items: center; gap: 2px;
+  padding: 2px; border: 1px solid var(--pg-color-border);
+  border-radius: var(--pg-radius-full);
+  background: var(--pg-color-surface); color: var(--pg-color-icon);
+}
+.pg-view-switch__button {
+  display: inline-grid; place-items: center;
+  inline-size: 34px; block-size: 34px; padding: 0;
+  border: 0; border-radius: var(--pg-radius-full);
+  background: transparent; color: inherit; cursor: pointer;
+  transition: background-color var(--pg-duration-fast) ease,
+    color var(--pg-duration-fast) ease;
+}
+.pg-view-switch__button .pg-icon { width: 17px; height: 17px; }
+.pg-view-switch__button:hover { background: var(--pg-color-hover); }
+.pg-view-switch__button[aria-pressed='true'] {
+  background: var(--pg-color-selected); color: var(--pg-color-text-primary);
+}
+.pg-view-switch__button:focus-visible {
+  outline: 2px solid var(--pg-color-focus); outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pg-view-switch__button { transition: none; }
+}
