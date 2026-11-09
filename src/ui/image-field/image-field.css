@@ -1,0 +1,41 @@
+/* File UI: picker, dropzone and preview. No upload or product feature styling. */
+.pg-image-field {display:grid;gap:6px;min-inline-size:0;align-content:start;}
+.pg-image-field__label {font-size:13px;color:var(--pg-color-text-secondary);}
+.pg-image-field__zone {
+  display:grid;align-items:center;justify-items:center;
+  gap:8px;min-block-size:130px;padding:12px;box-sizing:border-box;
+  border:1px dashed var(--pg-color-border-strong);border-radius:var(--pg-radius-md);
+  background:var(--pg-color-surface);color:var(--pg-color-text-primary);
+}
+.pg-image-field__zone[data-pg-dragging='true'] {
+  border-color:var(--pg-color-focus);box-shadow:0 0 0 2px var(--pg-color-accent-soft);
+}
+.pg-image-field__choose, .pg-image-field__replace, .pg-image-field__remove {
+  padding:7px 12px;min-block-size:36px;border:1px solid var(--pg-color-border-strong);
+  border-radius:var(--pg-radius-sm);
+  background:var(--pg-color-surface);color:var(--pg-color-text-primary);
+  font:inherit;font-size:13px;cursor:pointer;
+}
+.pg-image-field__choose:focus-visible,.pg-image-field__replace:focus-visible,.pg-image-field__remove:focus-visible {
+  outline:2px solid var(--pg-color-focus);outline-offset:2px;
+}
+.pg-image-field__choose[hidden],.pg-image-field__preview[hidden] {display:none;}
+.pg-image-field__preview {
+  display:flex;flex-wrap:wrap;justify-content:center;align-items:center;
+  gap:10px;max-inline-size:100%;
+}
+.pg-image-field__image {
+  display:block;inline-size:90px;block-size:90px;object-fit:contain;
+  border-radius:var(--pg-radius-sm);background:var(--pg-color-surface-soft);
+}
+.pg-image-field__filename {
+  display:block;max-inline-size:180px;min-inline-size:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;
+}
+.pg-image-field__instruction,.pg-image-field__support {
+  font-size:12px;line-height:1.4;color:var(--pg-color-text-secondary);
+}
+.pg-image-field__error {display:block;color:var(--pg-color-input-error);}
+.pg-image-field__error[hidden] {display:none;}
+.pg-image-field[data-pg-state='error'] .pg-image-field__zone {border-color:var(--pg-color-input-error);}
+.pg-image-field[data-pg-disabled='true'] .pg-image-field__zone {opacity:.6;}
