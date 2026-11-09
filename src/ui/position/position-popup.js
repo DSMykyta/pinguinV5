@@ -7,7 +7,7 @@
  */
 export function positionPopup({
   anchor, popup, maxHeight = 320, matchWidth = true,
-  minWidth = 170, maxWidth = 300, align = 'start', gap = 4, edge = 8,
+  minWidth = 170, maxWidth = 300, preferredWidth = null, align = 'start', gap = 4, edge = 8,
 } = {}) {
   if (!(anchor instanceof HTMLElement) || !(popup instanceof HTMLElement)) {
     throw new TypeError('Popup positioning requires anchor and popup elements');
@@ -18,7 +18,7 @@ export function positionPopup({
   const widthLimit = Math.max(0, viewportWidth - 2 * edge);
   const desiredWidth = matchWidth
     ? rect.width
-    : Math.min(maxWidth, Math.max(minWidth, rect.width));
+    : Math.min(maxWidth, Math.max(minWidth, preferredWidth ?? rect.width));
   const width = Math.min(widthLimit, desiredWidth);
   const requestedLeft = align === 'end' ? rect.right - width : rect.left;
   const left = Math.max(edge, Math.min(requestedLeft, viewportWidth - width - edge));
