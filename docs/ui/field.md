@@ -32,3 +32,7 @@ The `frame.field` return value is the full label-and-surface block. `frame.label
 Browser tests verify accessible label names, label geometry above the surface during focus and changes, zero legends/notches, differing parent backgrounds, consistent 56px surfaces, dark/light, reduced-motion, responsive widths, programmatic values, token operations and selection behavior.
 
 Prior floating/notch specifications have been retired. If floating labels are reconsidered later, they require a separate explicit design decision and no partial background hacks.
+
+## Consistent selection field composition (2026-11-09)
+
+The same `createFieldFrame` and `.pg-field__surface` are used by Input, Search, Number Field, Select, Combobox and Listbox. Search inside Listbox is composed from the regular `createInput({ variant: 'search' })`, not an independently styled `input`. A Listbox uses a native button to select values (particularly multiple values), so its accessible semantics differ from an editable text input, **but its outer border, label, height, hover, focus, active, disabled and error styles are identical**. The shared frame provides `setActive(true/false)` to retain the active border while keyboard focus moves into an open popup. Variants `floating` and `standard` remain as compatibility arguments; neither changes the permanent-label geometry.

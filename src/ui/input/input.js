@@ -1,6 +1,6 @@
 /**
  * PINGUIN NEXT — SHARED INPUT
- * Floating label geometry comes from field-frame, not the feature.
+ * All variants use one permanent-label frame; search only adds an icon.
  * Supports DOM adornments on either side of the editable region.
  */
 import { createIcon } from '../icon/icon.js';
@@ -59,21 +59,14 @@ export function createInput({
     clearButton.append(createIcon('x'));
     suffixes.push(clearButton);
   }
+  // All variants share the exact same frame/label layout; search only adds an icon.
   const frame = createFieldFrame({
     label, control: input, controlId: inputId,
-    floating: variant === 'floating',
     leading: addons, trailing: suffixes,
   });
-  const field = frame.field;
-  field.classList.add('pg-input__field');
-  const caption = frame.label;
-  caption.classList.add('pg-input__label');
-
-  if (variant === 'standard') {
-    caption.remove();
-    element.append(caption);
-  }
-  element.append(field);
+  frame.field.classList.add('pg-input__field');
+  frame.label.classList.add('pg-input__label');
+  element.append(frame.field);
 
   const support = document.createElement('div');
   support.className = 'pg-input__support';

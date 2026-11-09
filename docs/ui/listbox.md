@@ -1,3 +1,5 @@
+> **Current implementation:** Listbox uses `createFieldFrame` for its trigger and composes a normal `createInput({ variant: 'search' })` for internal filtering. Its trigger visually stays active while the popup is open. It shares the 56px outer-field geometry and focus styling with Number Field and Input.
+
 > **Current design decision (2026-11-09):** Listbox has a permanent label above its 56px trigger surface; the native-like placeholder stays visible. The earlier floating/notch details below are archival and superseded by [field.md](field.md).
 
 # Listbox — independent single/multiple select with search

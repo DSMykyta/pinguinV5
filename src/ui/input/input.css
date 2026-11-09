@@ -1,10 +1,6 @@
 /* Pinguin Input adds only variant-specific geometry on shared field.css. */
 .pg-input { display: grid; gap: 6px; inline-size: 100%; min-inline-size: 0; }
 .pg-input__label { color: var(--pg-color-text-secondary); }
-.pg-input--standard > .pg-input__label {
-  position: static; padding-inline: 2px; background: none;
-  font-size: 13px; line-height: 1.4; cursor: text; transform: none;
-}
 .pg-input__leading-icon {
   display: grid; place-items: center; flex: 0 0 18px;
   color: var(--pg-color-icon); pointer-events: none;
