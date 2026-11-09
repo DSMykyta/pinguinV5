@@ -19,8 +19,6 @@
 - [Архітектура та неймінг](docs/conventions.md)
 - [Шарми legacy — дослідження, сучасні методи й карта перенесення](docs/legacy-behavior-research.md)
 - [База спільного UI](docs/ui/overview.md)
-- [Rich Text Editor — контракт та модуль](docs/ui/rich-text-editor.md)
-- [Rich Text Editor — дослідження](docs/research/rich-text-editor.md)
 - [Toast — дослідження, контракт і стани](docs/ui/toast.md)
 - [Переходи між блоками — дослідження, контракт і демо](docs/ui/section-navigator.md)
 - [Правила шапок файлів](docs/file-headers.md)
