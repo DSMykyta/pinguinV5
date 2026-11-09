@@ -7,6 +7,8 @@
 import { createViewSwitch } from '../view-switch/view-switch.js';
 import { createCheckbox } from '../checkbox/checkbox.js';
 import { createMenu } from '../menu/menu.js';
+import { createIconButton } from '../button/button.js';
+import { createIcon } from '../icon/icon.js';
 import { createPagination } from '../pagination/pagination.js';
 
 const collator = new Intl.Collator('uk', { numeric:true, sensitivity:'base' });
@@ -39,7 +41,7 @@ export function createCollectionView({
   label,rows=[],columns,getRowId=row=>row.id,renderTile,
   modes=['table'],initialMode='table',initialSort=null,
   selectable=false,rowActions=[],pageSize=25,
-  onModeChange,onSortChange,onSelectionChange,onRowAction,
+  onModeChange,onSortChange,onSelectionChange,onRowAction,onEditRow,
 }={}) {
   if(typeof label!=='string'||!label.trim())throw new TypeError('Collection label is required');
   if(typeof getRowId!=='function')throw new TypeError('getRowId must be a function');
@@ -58,6 +60,8 @@ export function createCollectionView({
   element.className='pg-collection-view';
   element.setAttribute('aria-label',label);
   element.dataset.pgSelectable=String(Boolean(selectable));
+  element.dataset.pgRowActions=String(rowActions.length>0);
+  element.dataset.pgRowEdit=String(typeof onEditRow==='function');
   const tableScroller=document.createElement('div');
   tableScroller.className='pg-collection-view__table-scroll pg-scrollbar';
   tableScroller.tabIndex=0;
@@ -120,15 +124,10 @@ export function createCollectionView({
         onSelectionChange?.(getSelectedIds());
       },
     });
-    th.append(allCheckbox.element);
-    heading.append(th);
-  }
-
-  if(rowActions.length) {
-    const th=document.createElement('th');
-    th.scope='col';
-    th.className='pg-collection-view__actions-cell';
-    th.textContent='Дії';
+    const controls=document.createElement('div');
+    controls.className='pg-collection-view__row-controls';
+    controls.append(allCheckbox.element);
+    th.append(controls);
     heading.append(th);
   }
 
@@ -155,6 +154,14 @@ export function createCollectionView({
       th.append(button);
       headers.set(column.key,{th,button,marker,label:column.label});
     }
+    heading.append(th);
+  }
+
+  if(rowActions.length) {
+    const th=document.createElement('th');
+    th.scope='col';
+    th.className='pg-collection-view__actions-cell';
+    th.textContent='Дії';
     heading.append(th);
   }
 
@@ -226,24 +233,22 @@ export function createCollectionView({
         });
         const cell=document.createElement('td');
         cell.className='pg-collection-view__selection-cell';
-        cell.append(checkbox.element);
+        const controls=document.createElement('div');
+        controls.className='pg-collection-view__row-controls';
+        controls.append(checkbox.element);
+        if(typeof onEditRow==='function') {
+          const edit=createIconButton({
+            label:'Редагувати: '+String(row.name??id),
+            icon:'pencil',action:'row-edit',
+            onClick:()=>onEditRow(row),
+          });
+          edit.classList.add('pg-mini-button');
+          controls.append(edit);
+        }
+        cell.append(controls);
         tr.append(cell);
       }
       let menu=null;
-      if(rowActions.length) {
-        menu=createMenu({
-          label:'Дії: '+String(row.name??id),align:'end',
-          items:rowActions,
-          onSelect:action=>onRowAction?.(action,row),
-        });
-        menu.trigger.textContent='⋯';
-        menu.trigger.setAttribute('aria-label','Дії: '+String(row.name??id));
-        menu.element.classList.add('pg-collection-view__row-menu');
-        const cell=document.createElement('td');
-        cell.className='pg-collection-view__actions-cell';
-        cell.append(menu.element);
-        tr.append(cell);
-      }
       for(const column of columns) {
         const td=document.createElement('td');
         if(column.align==='end')td.dataset.pgAlign='end';
@@ -256,6 +261,22 @@ export function createCollectionView({
         if(!(value instanceof Node)&&value!=null)span.title=String(value);
         td.append(span);
         tr.append(td);
+      }
+      // Action menus are always the final column, after every data field.
+      if(rowActions.length) {
+        menu=createMenu({
+          label:'Дії: '+String(row.name??id),align:'end',
+          items:rowActions,
+          onSelect:action=>onRowAction?.(action,row),
+        });
+        menu.trigger.replaceChildren(createIcon('ellipsis'));
+        menu.trigger.classList.add('pg-mini-button');
+        menu.trigger.setAttribute('aria-label','Дії: '+String(row.name??id));
+        menu.element.classList.add('pg-collection-view__row-menu');
+        const cell=document.createElement('td');
+        cell.className='pg-collection-view__actions-cell';
+        cell.append(menu.element);
+        tr.append(cell);
       }
       rowControls.push({id,checkbox,menu});
       tbody.append(tr);
