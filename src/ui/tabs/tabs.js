@@ -62,7 +62,7 @@ export function createTabs({ idPrefix, label, items, onChange, navHost = null })
     button.addEventListener('click', () => activate(item.id));
 
     const panel = document.createElement('section');
-    panel.className = 'pg-tabs__panel';
+    panel.className = 'pg-tabs__panel pg-scrollbar';
     panel.id = idPrefix + '-panel-' + item.id;
     panel.setAttribute('role', 'tabpanel');
     panel.setAttribute('aria-labelledby', button.id);

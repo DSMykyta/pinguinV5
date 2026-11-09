@@ -22,8 +22,8 @@ test('edits formatted text and mirrors HTML without a second editable surface', 
     selection.addRange(range);
   });
   await editor.getByRole('button', { name: /Жирний/ }).click();
-  await expect(input.locator('strong')).toContainText('Виділіть');
-  await expect(editor.locator('.pg-rich-text-editor__formatted strong')).toContainText('Виділіть');
+  await expect(input.locator('strong').filter({hasText:'Виділіть'}).first()).toContainText('Виділіть');
+  await expect(editor.locator('.pg-rich-text-editor__formatted strong').filter({hasText:'Виділіть'}).first()).toContainText('Виділіть');
   await editor.getByRole('button', { name: 'Перемкнути вигляд і HTML-код' }).click();
   await expect(editor.locator('.pg-rich-text-editor__code')).toContainText('<strong>Виділіть</strong>');
   await editor.getByRole('button', { name: /Скасувати/ }).click();

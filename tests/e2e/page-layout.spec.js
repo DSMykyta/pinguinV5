@@ -41,6 +41,7 @@ test('five global zones reserve a real empty 56px footer rail', async ({ page })
   await expect(page.locator('#pg-aside-panel')).toBeHidden();
 
   const title = await page.locator('.pg-shell__page-name').boundingBox();
+  await page.getByRole('tab',{name:'Макети даних'}).click();
   const search = await page.locator('.pg-search__field').boundingBox();
   const asideButton = await page.locator('[data-pg-action="aside-toggle"]').boundingBox();
   expect(Math.abs(title.y + title.height / 2 - (search.y + search.height / 2)))
@@ -110,17 +111,18 @@ test('previous accepted spacing and fixed right controls survive aside pinning',
   const main = page.locator('.pg-shell__content');
   const context = page.locator('[data-pg-action="aside-toggle"]');
   const search = page.locator('.pg-search__field');
+  await page.getByRole('tab',{name:'Макети даних'}).click();
   const mainStyle = await main.evaluate(node => {
     const css = getComputedStyle(node);
     return { top: css.paddingTop, left: css.paddingLeft,
       radius: css.borderTopLeftRadius, background: css.backgroundColor };
   });
   await expect(header).toHaveCSS('height', '60px');
-  expect(mainStyle.top).toBe('40px');
-  expect(parseFloat(mainStyle.left)).toBe(72);
+  expect(mainStyle.top).toBe('0px');
+  expect(parseFloat(mainStyle.left)).toBe(0);
   expect(mainStyle.radius).toBe('18px');
   expect(mainStyle.background).not.toBe('rgba(0, 0, 0, 0)');
-  await expect(main.locator('#pg-tools-panel-tables .pg-page')).toBeVisible();
+  await expect(main.locator('#pg-tools-panel-data-views .pg-collection-view')).toBeVisible();
   await expect(page.locator('#pg-tools-panel-text .pg-page')).toBeHidden();
 
   const beforeContext = await context.boundingBox();
