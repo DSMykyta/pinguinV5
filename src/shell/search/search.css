@@ -72,3 +72,5 @@
 @media (prefers-reduced-motion: reduce) {
   .pg-search__field { transition: none; }
 }
+
+.pg-search[hidden] { display:none; }

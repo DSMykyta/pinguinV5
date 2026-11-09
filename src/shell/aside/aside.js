@@ -46,6 +46,10 @@ export function createAside({ onPinToggle }) {
   header.append(title, pinButton);
   aside.append(header);
 
+  const controlsHost = document.createElement('div');
+  controlsHost.className = 'pg-aside__controls';
+  controlsHost.hidden = true;
+
   const list = document.createElement('nav');
   list.className = 'pg-aside__list';
   list.setAttribute('aria-label', 'Посилання проєкту');
@@ -56,6 +60,13 @@ export function createAside({ onPinToggle }) {
     title.textContent = heading;
     list.setAttribute('aria-label', 'Посилання: ' + heading);
     list.replaceChildren();
+    const controls = context?.controls ?? null;
+    if (controls !== null && !(controls instanceof HTMLElement)) {
+      throw new TypeError('Aside controls must be an HTMLElement or null');
+    }
+    controlsHost.replaceChildren(...(controls ? [controls] : []));
+    controlsHost.hidden = !controls;
+    list.hidden = Boolean(controls);
     for (const link of links) {
     const item = document.createElement('a');
     item.className = 'pg-aside__item';
@@ -77,7 +88,7 @@ export function createAside({ onPinToggle }) {
 
   setContext(null);
 
-  aside.append(list);
+  aside.append(list, controlsHost);
 
   function setPinned(isPinned, isNarrow) {
     pinButton.hidden = isNarrow;

@@ -208,6 +208,7 @@ export function mountShell(host) {
   const pageOutlet = createPageOutlet({
     content, pageName, sidebar, localNavigation,
     onNavigate: path => router.navigate(path),
+    onSearchContext: context => search.setContext(context),
     onHeaderActions: element => {
       if (element != null && !(element instanceof HTMLElement)) {
         throw new TypeError('Header actions must be an HTMLElement or null');
@@ -224,6 +225,7 @@ export function mountShell(host) {
     },
     onRouteChange() {
       pageActionsHost.replaceChildren();
+      search.setContext(null);
       search.close();
       asideFab.close();
       pageSearchEntries = [];

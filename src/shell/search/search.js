@@ -37,6 +37,23 @@ export function createSearch({ onOpen } = {}) {
   root.append(field, status);
 
   let entries = [];
+  // null = global page navigation search, false = no searchable content,
+  // object = a page-supplied query handler. One input, never a duplicate.
+  let currentContext = null;
+  const defaultPlaceholder = input.placeholder;
+  const defaultLabel = input.getAttribute('aria-label');
+  function setContext(next) {
+    if (next !== null && next !== false &&
+        (typeof next !== 'object' || typeof next.onQuery !== 'function')) {
+      throw new TypeError('Search context must be null, false or onQuery handler');
+    }
+    close();
+    currentContext = next;
+    root.hidden = next === false;
+    input.placeholder = next && next.placeholder ? String(next.placeholder) : defaultPlaceholder;
+    input.setAttribute('aria-label',next && next.label ? String(next.label) : defaultLabel);
+    if (next && next.value) input.value = String(next.value);
+  }
 
   function setEntries(next) {
     entries = Array.isArray(next) ? next.filter(entry =>
@@ -45,6 +62,7 @@ export function createSearch({ onOpen } = {}) {
   }
 
   function open() {
+    if (root.hidden) return;
     input.focus();
   }
 
@@ -55,6 +73,7 @@ export function createSearch({ onOpen } = {}) {
   }
 
   function activateBestMatch() {
+    if (currentContext) return;
     const query = input.value.trim().toLocaleLowerCase('uk');
     if (!query) return;
     const normalized = label => label.toLocaleLowerCase('uk');
@@ -74,16 +93,18 @@ export function createSearch({ onOpen } = {}) {
 
   function onInput() {
     status.textContent = '';
+    if (currentContext) currentContext.onQuery(input.value);
   }
 
   function onInputKey(event) {
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' && !currentContext) {
       event.preventDefault();
       activateBestMatch();
     } else if (event.key === 'Escape') {
       event.preventDefault();
       event.stopImmediatePropagation();
       close();
+      if (currentContext) currentContext.onQuery('');
     }
   }
 
@@ -102,7 +123,7 @@ export function createSearch({ onOpen } = {}) {
   return {
     element: root,
     input,
-    setEntries,
+    setEntries, setContext,
     open,
     close,
     destroy() {
