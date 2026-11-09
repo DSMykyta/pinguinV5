@@ -30,39 +30,29 @@ test('unknown route offers a working return to Tools', async ({ page }) => {
   await expect(page).toHaveURL(/\/tools$/);
 });
 
-test('visible right search finds and activates actual tabs', async ({ page }) => {
+test('search appears only for records that can be searched', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/tools');
-  const search = page.getByRole('searchbox', { name: 'Пошук розділів' });
-  const aside = page.locator('[data-pg-action="aside-toggle"]');
-  await expect(search).toBeVisible();
-  const a = await search.boundingBox();
-  const b = await aside.boundingBox();
-  expect(a.x + a.width).toBeLessThan(b.x);
-  expect(Math.abs(a.y + a.height / 2 - b.y - b.height / 2)).toBeLessThan(3);
-
-  await search.click();
-  await search.fill('Текст');
-  await expect(page.locator('.pg-search__results')).toHaveCount(0);
-  await expect(page.locator('#pg-search-panel')).toHaveCount(0);
-  await search.press('Enter');
-  await expect(page.getByRole('tab', { name: 'Текст' })).toHaveAttribute('aria-selected', 'true');
-  await expect(search).toHaveValue('');
-
+  const search = page.locator('.pg-search');
+  await expect(search).toBeHidden();
   await page.keyboard.press('Control+k');
-  await expect(search).toBeFocused();
-  await search.fill('Таблиці');
-  await search.press('Enter');
-  await expect(page.getByRole('tab', { name: 'Таблиці' })).toHaveAttribute('aria-selected', 'true');
-
+  await expect(page.locator('.pg-search__input')).not.toBeFocused();
+  await page.getByRole('tab', {name:'Макети даних'}).click();
+  const input=page.getByRole('searchbox',{name:'Шукати у таблиці брендів'});
+  await expect(input).toBeVisible();
+  const aside=page.locator('[data-pg-action="aside-toggle"]');
+  const a=await input.boundingBox();
+  const b=await aside.boundingBox();
+  expect(a.x+a.width).toBeLessThan(b.x);
   await page.keyboard.press('Control+k');
-  await search.fill('Невідомий розділ');
-  await search.press('Enter');
-  await expect(page.locator('.pg-search__status')).toHaveText('Нічого не знайдено');
-  await expect(page.locator('.pg-search__results')).toHaveCount(0);
-  await page.keyboard.press('Escape');
-  await expect(search).toHaveValue('');
-  await expect(page.locator('.pg-search__status')).toBeEmpty();
+  await expect(input).toBeFocused();
+  await input.fill('Pinguin');
+  await expect(page.locator('.pg-collection-view__table tbody tr')).toHaveCount(1);
+  await input.press('Escape');
+  await expect(input).toHaveValue('');
+  await expect(page.locator('.pg-collection-view__table tbody tr')).toHaveCount(25);
+  await page.getByRole('tab',{name:'Текст'}).click();
+  await expect(search).toBeHidden();
 });
 
 test('mobile sidebar does not contain local content tabs', async ({ page }) => {
