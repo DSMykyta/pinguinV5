@@ -8,12 +8,13 @@ let nextCheckboxId = 0;
 export function createCheckbox({
   label, id, name, value = 'on', description = '', error = '',
   checked = false, indeterminate = false, required = false,
-  disabled = false, onChange,
+  disabled = false, compact = false, onChange,
 } = {}) {
   if (typeof label !== 'string' || !label.trim()) throw new TypeError('Checkbox label is required');
   const uid = id || 'pg-checkbox-' + (++nextCheckboxId);
   const element = document.createElement('div');
   element.className = 'pg-checkbox';
+  element.dataset.pgCompact = String(Boolean(compact));
   const row = document.createElement('label');
   row.className = 'pg-checkbox__row';
   row.htmlFor = uid;

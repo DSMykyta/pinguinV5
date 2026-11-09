@@ -60,3 +60,15 @@
 @media (prefers-reduced-motion: reduce) {
   .pg-checkbox__box, .pg-checkbox__box::after { transition: none; }
 }
+
+/* Shared compact checkbox option for table/collection selection cells. */
+.pg-checkbox[data-pg-compact='true'] { display: inline-flex; vertical-align: middle; }
+.pg-checkbox[data-pg-compact='true'] .pg-checkbox__row {
+  min-block-size: 28px; padding: 2px; gap: 0;
+  justify-content: center;
+}
+.pg-checkbox[data-pg-compact='true'] .pg-checkbox__copy {
+  position: absolute; inline-size: 1px; block-size: 1px;
+  margin: -1px; padding: 0; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
