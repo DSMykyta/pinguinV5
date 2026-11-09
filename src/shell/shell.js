@@ -160,8 +160,19 @@ export function mountShell(host) {
     },
   });
 
-  // Persistent fourth corner control, independent from the inert/hidden aside panel.
-  const asideFab = createAsideFab();
+  // The original FAB retains its own links, ID, action and corner geometry.
+  // A second *instance of the same component* can be shown by a feature.
+  let pageFab = null;
+  const asideFab = createAsideFab({ onOpen: () => pageFab?.close() });
+  pageFab = createAsideFab({
+    id: 'pg-page-fab-actions',
+    action: 'page-fab-toggle',
+    label: 'вибір кількості рядків',
+    icon: 'table-2',
+    position: 'adjacent',
+    onOpen: () => asideFab.close(),
+  });
+  pageFab.element.hidden = true;
 
   const backdrop = document.createElement('button');
   backdrop.type = 'button';
@@ -180,7 +191,8 @@ export function mountShell(host) {
   footer.dataset.pgHasContent = 'false';
 
   workspace.append(header, localNavigation, content, footer);
-  shell.append(sidebar.element, workspace, aside.element, asideFab.element, backdrop);
+  shell.append(sidebar.element, workspace, aside.element,
+    asideFab.element, pageFab.element, backdrop);
   host.replaceChildren(shell);
 
   function persist() {
@@ -228,6 +240,11 @@ export function mountShell(host) {
       aside.setContext(context);
       asideFab.setContext(context);
     },
+    onPageFabContext: context => {
+      pageFab.close();
+      pageFab.element.hidden = !context;
+      if (context) pageFab.setContext({ fabActions: context });
+    },
     onSearchEntries: entries => {
       pageSearchEntries = entries;
       refreshSearch();
@@ -240,6 +257,8 @@ export function mountShell(host) {
       search.setContext(null);
       search.close();
       asideFab.close();
+      pageFab.close();
+      pageFab.element.hidden = true;
       pageSearchEntries = [];
       refreshSearch();
       mobileNavOpen = false;
@@ -258,6 +277,11 @@ export function mountShell(host) {
 
   function handleKeydown(event) {
     if (event.key !== 'Escape') return;
+    if (pageFab.isOpen()) {
+      pageFab.close();
+      pageFab.button.focus();
+      return;
+    }
     if (asideFab.isOpen()) {
       asideFab.close();
       asideFab.button.focus();
@@ -280,6 +304,7 @@ export function mountShell(host) {
 
   function handlePointerDown(event) {
     if (asideFab.isOpen() && !asideFab.element.contains(event.target)) asideFab.close();
+    if (pageFab.isOpen() && !pageFab.element.contains(event.target)) pageFab.close();
     const isOpen = viewport.matches ? mobileAsideOpen : preferences.asideOpen;
     if (!isOpen || (!viewport.matches && preferences.asidePinned)) return;
     if (aside.element.contains(event.target) || contextButton.contains(event.target)) return;
@@ -291,6 +316,7 @@ export function mountShell(host) {
   function handleMediaChange() {
     search.close();
     asideFab.close();
+    pageFab.close();
     mobileNavOpen = false;
     mobileAsideOpen = false;
     updateView();

@@ -11,7 +11,7 @@
 
 import { createRouteMessage } from './route-message.js';
 
-export function createPageOutlet({ content, pageName, sidebar, localNavigation, onNavigate, onRouteChange, onAsideContext, onSearchEntries, onSearchContext, onHeaderActions, onFooterContent }) {
+export function createPageOutlet({ content, pageName, sidebar, localNavigation, onNavigate, onRouteChange, onAsideContext, onSearchEntries, onSearchContext, onHeaderActions, onFooterContent, onPageFabContext }) {
   let activePageCleanup = null;
   let activePageController = null;
   let pageRevision = 0;
@@ -70,6 +70,9 @@ export function createPageOutlet({ content, pageName, sidebar, localNavigation, 
         },
         setFooterContent: element => {
           if (revision === pageRevision && !controller.signal.aborted) onFooterContent?.(element);
+        },
+        setPageFabContext: context => {
+          if (revision === pageRevision && !controller.signal.aborted) onPageFabContext?.(context);
         },
         setSearchContext: context => {
           if (revision === pageRevision && !controller.signal.aborted) onSearchContext?.(context);

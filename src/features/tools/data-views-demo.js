@@ -164,17 +164,15 @@ export function createDataViewsDemo() {
   return Object.freeze({
     element,headerActions:collection.headerActions,
     footerContent:collection.footerContent,
-    getAsideContext:()=>({
-      title:'Макети даних',controls,
-      fabActions:{
-        items:DEFAULT_PAGE_SIZES.map(value=>({
-          value:String(value),
-          label:value===0?'Усі записи':value+' записів',
-          symbol:value===0?'∞':String(value),
-          selected:()=>collection.getPagination().pageSize===value,
-        })),
-        onSelect:value=>collection.setPageSize(Number(value)),
-      },
+    getAsideContext:()=>({ title:'Макети даних', controls }),
+    getPageFabContext:()=>({
+      items:DEFAULT_PAGE_SIZES.map(value=>({
+        value:String(value),
+        label:value===0?'Усі записи':value+' записів',
+        symbol:value===0?'∞':String(value),
+        selected:()=>collection.getPagination().pageSize===value,
+      })),
+      onSelect:value=>collection.setPageSize(Number(value)),
     }),
     getSearchContext:()=>({
       placeholder:'Пошук у таблиці',label:'Шукати у таблиці брендів',

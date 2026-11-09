@@ -97,8 +97,13 @@
   background: var(--pg-color-hover);
 }
 
+/* Another instance of this exact component may sit beside the fixed corner FAB. */
+.pg-fab[data-pg-fab-position='adjacent'] {
+  right: calc(12px + var(--pg-control-size) + 8px);
+}
+.pg-fab[hidden] { display: none; }
 @media (max-width: 640px) {
-  .pg-fab { right: 12px; bottom: 12px; }
+  .pg-fab { bottom: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

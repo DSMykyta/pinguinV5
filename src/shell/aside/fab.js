@@ -8,41 +8,52 @@ import { createIcon } from '../../ui/icon/icon.js';
 import { createIconButton } from '../../ui/button/button.js';
 import { DEFAULT_LINKS } from './aside.js';
 
-export function createAsideFab() {
+export function createAsideFab({
+  id = 'pg-fab-actions',
+  action = 'aside-fab-toggle',
+  label = 'швидкі дії',
+  icon = 'plus',
+  position = 'corner',
+  onOpen,
+} = {}) {
+  if (!['corner', 'adjacent'].includes(position)) throw new RangeError('Invalid FAB position');
   const element = document.createElement('div');
   element.className = 'pg-fab';
   element.dataset.pgFabState = 'closed';
+  element.dataset.pgFabPosition = position;
 
   const actions = document.createElement('nav');
   actions.className = 'pg-fab__actions';
-  actions.id = 'pg-fab-actions';
-  actions.setAttribute('aria-label', 'Швидкі дії');
+  actions.id = id;
+  actions.setAttribute('aria-label', label.charAt(0).toLocaleUpperCase('uk') + label.slice(1));
 
   let open = false;
 
   function setOpen(value) {
     open = Boolean(value);
+    if (open) onOpen?.();
     element.dataset.pgFabState = open ? 'open' : 'closed';
     actions.inert = !open;
     actions.setAttribute('aria-hidden', String(!open));
     if (open) syncChoices();
     button.setAttribute('aria-expanded', String(open));
-    const label = open ? 'Закрити швидкі дії' : 'Відкрити швидкі дії';
-    button.setAttribute('aria-label', label);
-    button.dataset.pgTooltip = label;
+    const title = (open ? 'Закрити ' : 'Відкрити ') + label;
+    button.setAttribute('aria-label', title);
+    button.dataset.pgTooltip = title;
   }
 
   const button = createIconButton({
-    label: 'Відкрити швидкі дії',
-    icon: 'plus',
-    action: 'aside-fab-toggle',
+    label: 'Відкрити ' + label,
+    icon,
+    action,
     onClick: () => setOpen(!open),
   });
   button.classList.add('pg-fab__trigger', 'pg-icon-button--corner');
   button.setAttribute('aria-controls', actions.id);
   button.setAttribute('aria-haspopup', 'true');
 
-  // One existing FAB supports links or page-provided actions, never two launchers.
+  // Each independent instance can expose links or page-supplied actions.
+  // The Shell owns placement; page content never creates a second FAB implementation.
   let actionContext = null;
 
   function syncChoices() {
