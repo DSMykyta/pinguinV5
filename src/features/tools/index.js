@@ -64,7 +64,7 @@ const TABS = Object.freeze([
   },
 ]);
 
-export function mount(host, { setAsideContext, setSearchEntries, setSearchContext, setHeaderActions, localNavigation }) {
+export function mount(host, { setAsideContext, setSearchEntries, setSearchContext, setHeaderActions, setFooterContent, localNavigation }) {
   // Each tab owns a separate persistent workspace (not shared placeholder DOM).
   const tablePage = createPageView({ title: 'Таблиці' });
   tablePage.body.append(createToastDemo());
@@ -101,6 +101,7 @@ export function mount(host, { setAsideContext, setSearchEntries, setSearchContex
     })),
     onChange(id) {
       setHeaderActions(id === 'data-views' ? dataViewsDemo.headerActions : null);
+      setFooterContent(id === 'data-views' ? dataViewsDemo.footerContent : null);
       setSearchContext(id === 'data-views' ? dataViewsDemo.getSearchContext() : false);
       if (id === 'data-views') {
         setAsideContext(dataViewsDemo.getAsideContext());
@@ -131,6 +132,7 @@ export function mount(host, { setAsideContext, setSearchEntries, setSearchContex
 
   return () => {
     setHeaderActions(null);
+    setFooterContent(null);
     setSearchContext(null);
     dataViewsDemo.destroy();
     richTextEditorDemo.destroy();

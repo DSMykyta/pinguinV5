@@ -115,4 +115,4 @@
   position:sticky;left:48px;z-index:1;min-width:168px;max-width:245px;
 }
 .pg-collection-view[data-pg-selectable='true'] .pg-collection-view__table thead th:nth-child(2){z-index:3;}
-.pg-collection-view .pg-pagination {flex:0 0 auto;}
+/* Pagination is one movable element; no layout-specific duplication. */

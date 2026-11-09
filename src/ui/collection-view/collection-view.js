@@ -158,6 +158,7 @@ export function createCollectionView({
   table.append(caption,thead,tbody);
   tableScroller.append(table);
   element.append(tableScroller,tiles,empty,pageControl.element);
+  // The caller may mount this same pagination element in the shared footer slot.
 
   function sortedRows() {
     const match=query.trim().toLocaleLowerCase('uk');
@@ -312,7 +313,7 @@ export function createCollectionView({
   setRows(rows);
   setMode(currentMode);
   return Object.freeze({
-    element,headerActions:switcher?.element??null,
+    element,headerActions:switcher?.element??null,footerContent:pageControl.element,
     getMode:()=>currentMode,setMode,
     getRows:sortedRows,getVisibleRows,getSort:()=>sort?{...sort}:null,
     setSort,getQuery:()=>query,setQuery,getSelectedIds,clearSelection() {

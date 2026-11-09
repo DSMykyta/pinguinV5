@@ -173,10 +173,11 @@ export function mountShell(host) {
     mobileNavButton.focus();
   });
 
-  // Dedicated empty 56px footer rail, aligned to the compact sidebar width.
+  // Persistent 56px footer rail; the active page may supply contextual content.
   const footer = document.createElement('footer');
   footer.className = 'pg-shell__footer';
   footer.setAttribute('aria-hidden', 'true');
+  footer.dataset.pgHasContent = 'false';
 
   workspace.append(header, localNavigation, content, footer);
   shell.append(sidebar.element, workspace, aside.element, asideFab.element, backdrop);
@@ -209,6 +210,14 @@ export function mountShell(host) {
     content, pageName, sidebar, localNavigation,
     onNavigate: path => router.navigate(path),
     onSearchContext: context => search.setContext(context),
+    onFooterContent: element => {
+      if (element !== null && !(element instanceof HTMLElement)) {
+        throw new TypeError('Footer content must be an HTMLElement or null');
+      }
+      footer.replaceChildren(...(element ? [element] : []));
+      footer.dataset.pgHasContent = String(Boolean(element));
+      footer.setAttribute('aria-hidden', String(!element));
+    },
     onHeaderActions: element => {
       if (element != null && !(element instanceof HTMLElement)) {
         throw new TypeError('Header actions must be an HTMLElement or null');
@@ -224,6 +233,9 @@ export function mountShell(host) {
       refreshSearch();
     },
     onRouteChange() {
+      footer.replaceChildren();
+      footer.dataset.pgHasContent = 'false';
+      footer.setAttribute('aria-hidden', 'true');
       pageActionsHost.replaceChildren();
       search.setContext(null);
       search.close();
