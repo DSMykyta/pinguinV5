@@ -36,7 +36,13 @@ test('table is the workspace, no special fill mode or duplicate page headings',a
 test('dense table renders selection, nine fields, row actions and fixed footer pagination',async({page})=>{
   await expect(table(page).locator('thead th')).toHaveCount(11);
   await expect(table(page).locator('tbody tr')).toHaveCount(25);
-  await expect(page.locator('.pg-pagination__status')).toHaveText('1–25 із 32');
+  await expect(page.locator('.pg-shell__footer .pg-pagination__status')).toHaveText('Показано 25 з 32');
+  await expect(page.locator('.pg-collection-view .pg-pagination')).toHaveCount(0);
+  await expect(page.locator('.pg-shell__footer')).toHaveAttribute('data-pg-has-content','true');
+  await expect(page.locator('.pg-shell__footer')).toHaveCSS('border-top-style','solid');
+  const footer=await page.locator('.pg-shell__footer').boundingBox();
+  const pages=await page.locator('.pg-shell__footer .pg-pagination__pages').boundingBox();
+  expect(Math.abs((pages.x+pages.width/2)-(footer.x+footer.width/2))).toBeLessThan(2);
   await expect(table(page).locator('tbody .pg-collection-view__row-menu')).toHaveCount(25);
   await expect(root(page).locator('.pg-collection-view__tiles')).toBeHidden();
   await expect(page.locator('.pg-view-switch')).toHaveAttribute('role','radiogroup');
@@ -51,6 +57,9 @@ test('native header checkbox uses checked, mixed and empty states across visible
   await expect(all).not.toBeChecked();
   await expect(table(page).locator('thead .pg-checkbox')).toHaveAttribute('data-pg-mixed','true');
   await table(page).locator('thead .pg-checkbox__row').click();
+  await expect(all).not.toBeChecked();
+  await expect(table(page).locator('tbody tr[data-pg-selected="true"]')).toHaveCount(0);
+  await table(page).locator('thead .pg-checkbox__row').click();
   await expect(all).toBeChecked();
   await expect(table(page).locator('tbody tr[data-pg-selected="true"]')).toHaveCount(25);
   await table(page).locator('thead .pg-checkbox__row').click();
@@ -64,32 +73,34 @@ test('pagination advances from 25 to 7, changes rows-per-page and preserves sele
   await table(page).locator('tbody tr').first().locator('.pg-checkbox__row').click();
   await page.getByRole('button',{name:'Наступна сторінка'}).click();
   await expect(table(page).locator('tbody tr')).toHaveCount(7);
-  await expect(page.locator('.pg-pagination__status')).toHaveText('26–32 із 32');
+  await expect(page.locator('.pg-shell__footer .pg-pagination__status')).toHaveText('Показано 7 з 32');
   await expect(page.getByRole('button',{name:'Сторінка 2'})).toHaveAttribute('aria-current','page');
   await page.getByRole('button',{name:'Попередня сторінка'}).click();
   await expect(table(page).locator('tbody tr').first().getByRole('checkbox')).toBeChecked();
-  await page.getByRole('combobox',{name:'Рядків на сторінці'}).selectOption('50');
+  await page.getByRole('button',{name:'Рядків на сторінці: 25'}).click();
+  await expect(page.getByRole('menuitemradio',{name:'25'})).toHaveAttribute('aria-checked','true');
+  await page.getByRole('menuitemradio',{name:'50'}).click();
   await expect(table(page).locator('tbody tr')).toHaveCount(32);
-  await expect(page.locator('.pg-pagination__status')).toHaveText('1–32 із 32');
+  await expect(page.locator('.pg-pagination__status')).toHaveText('Показано 32 з 32');
 });
 
 test('sorted header and aside share one collection sorting state',async({page})=>{
   const heads=table(page).locator('thead th');
-  await expect(heads.nth(1)).toHaveAttribute('aria-sort','ascending');
-  const first=await table(page).locator('tbody tr td:nth-child(2)').allTextContents();
-  await heads.nth(1).getByRole('button').click();
-  await expect(heads.nth(1)).toHaveAttribute('aria-sort','descending');
-  const reverse=await table(page).locator('tbody tr td:nth-child(2)').allTextContents();
+  await expect(heads.nth(2)).toHaveAttribute('aria-sort','ascending');
+  const first=await table(page).locator('tbody tr td:nth-child(3)').allTextContents();
+  await heads.nth(2).getByRole('button').click();
+  await expect(heads.nth(2)).toHaveAttribute('aria-sort','descending');
+  const reverse=await table(page).locator('tbody tr td:nth-child(3)').allTextContents();
   expect(reverse[0]).not.toEqual(first[0]);
   await page.locator('[data-pg-action="aside-toggle"]').click();
   const aside=page.locator('#pg-aside-panel');
   await expect(aside.getByRole('radiogroup',{name:'Напрямок сортування'})).toBeVisible();
   await expect(aside.getByRole('radio',{name:'Я–А'})).toBeChecked();
   await aside.getByRole('combobox',{name:'Сортувати за'}).selectOption('products');
-  await expect(heads.nth(3)).toHaveAttribute('aria-sort','descending');
+  await expect(heads.nth(4)).toHaveAttribute('aria-sort','descending');
   await aside.locator('.pg-segment-switch__label[title="А–Я"]').click();
-  await expect(heads.nth(3)).toHaveAttribute('aria-sort','ascending');
-  const counts=(await table(page).locator('tbody tr td:nth-child(4)').allTextContents())
+  await expect(heads.nth(4)).toHaveAttribute('aria-sort','ascending');
+  const counts=(await table(page).locator('tbody tr td:nth-child(5)').allTextContents())
     .map(s=>Number(s.trim()));
   expect(counts).toEqual([...counts].sort((a,b)=>a-b));
 });
@@ -211,4 +222,50 @@ test('dark mode and reduced motion keep native segmented switch accessible',asyn
   await expect(plate).toHaveCSS('transition-duration','0s');
   await switchTo(page,'tiles');
   await expect(root(page).locator('.pg-collection-view__tiles')).toBeVisible();
+});
+
+test('row actions are the second column and the entire menu fits without horizontal scrolling',async({page})=>{
+  const labels=await table(page).locator('thead th').evaluateAll(nodes=>nodes.slice(0,3).map(node=>({
+    label:node.textContent.trim(),className:node.className,
+  })));
+  expect(labels[0].className).toContain('selection-cell');
+  expect(labels[1].className).toContain('actions-cell');
+  expect(labels[2].label).toBe('Бренд');
+  const trigger=table(page).locator('tbody tr').first().getByRole('button',{name:/Дії:/});
+  await trigger.click();
+  await expect(trigger).toHaveAttribute('aria-expanded','true');
+  await expect(trigger).toHaveCSS('background-color', /.+/);
+  const menu=page.getByRole('menu',{name:/Дії:/});
+  const last=menu.getByRole('menuitem',{name:'Архівувати або відновити'});
+  await expect(last).toBeVisible();
+  const dims=await menu.evaluate(el=>{
+    const last=el.querySelector('[data-pg-value="archive"]');
+    const a=el.getBoundingClientRect(),b=last.getBoundingClientRect();
+    return {width:a.width,scrollWidth:el.scrollWidth,lastRight:b.right,menuRight:a.right,
+      itemScrollWidth:last.scrollWidth,itemWidth:last.clientWidth};
+  });
+  expect(dims.width).toBeGreaterThan(185);
+  expect(dims.scrollWidth).toBeLessThanOrEqual(dims.width+1);
+  expect(dims.itemScrollWidth).toBeLessThanOrEqual(dims.itemWidth+1);
+  await last.hover();
+  const hover=await last.evaluate(el=>getComputedStyle(el).backgroundColor);
+  const idle=await menu.locator('[data-pg-value="duplicate"]').evaluate(el=>getComputedStyle(el).backgroundColor);
+  expect(hover).not.toBe(idle);
+  await page.keyboard.press('Escape');
+  await expect(trigger).toHaveAttribute('aria-expanded','false');
+});
+
+test('page footer is shared across tabs, with no duplicated pagination controls',async({page})=>{
+  const footer=page.locator('.pg-shell__footer');
+  const pager=footer.locator('.pg-pagination');
+  await expect(pager).toHaveCount(1);
+  await page.getByRole('tab',{name:'Текст'}).click();
+  await expect(footer).toHaveAttribute('data-pg-has-content','false');
+  await expect(footer).toBeEmpty();
+  await page.getByRole('tab',{name:'Макети даних'}).click();
+  await expect(footer).toHaveAttribute('data-pg-has-content','true');
+  await expect(pager).toHaveCount(1);
+  await expect(footer).toHaveCSS('height','56px');
+  const bounds=await Promise.all([footer.boundingBox(),pager.boundingBox()]);
+  expect(bounds[1].bottom).toBeLessThanOrEqual(bounds[0].bottom+2);
 });
