@@ -1,33 +1,22 @@
-/* Shared selection action strip: stays in the existing Shell header actions slot. */
+/*
+ * Selection controls use the existing RevealPanel entrance/exit only.
+ * Absolute placement to the LEFT of the view switch reserves no flex width:
+ * the switch, search and aside trigger never move on selection changes.
+ */
 .pg-selection-actions {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-end: calc(100% + var(--pg-space-2));
+  z-index: 1;
   display: inline-flex;
   align-items: center;
-  flex: 0 1 auto;
+  justify-content: flex-end;
+  width: max-content;
+  max-inline-size: min(570px, calc(100vw - 300px));
   min-width: 0;
-  max-width: 0;
   height: 40px;
   gap: 7px;
-  overflow: hidden;
   white-space: nowrap;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-5px);
-  transition:
-    max-width var(--pg-duration-layout) var(--pg-ease-layout),
-    opacity var(--pg-duration-normal) ease,
-    transform var(--pg-duration-normal) var(--pg-ease-layout),
-    visibility 0s linear var(--pg-duration-layout);
-}
-.pg-selection-actions:not([data-pg-mode='none']) {
-  max-width: min(600px, 55vw);
-  opacity: 1;
-  visibility: visible;
-  transform: none;
-  transition:
-    max-width var(--pg-duration-layout) var(--pg-ease-layout),
-    opacity var(--pg-duration-normal) ease,
-    transform var(--pg-duration-normal) var(--pg-ease-layout),
-    visibility 0s;
 }
 .pg-selection-actions__count {
   flex: 0 0 auto;
@@ -41,29 +30,8 @@
   align-items: center;
   flex: 0 0 auto;
   gap: 5px;
-  max-width: 0;
-  overflow: hidden;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(4px);
-  transition:
-    max-width var(--pg-duration-layout) var(--pg-ease-layout),
-    opacity var(--pg-duration-fast) ease,
-    transform var(--pg-duration-normal) var(--pg-ease-layout),
-    visibility 0s linear var(--pg-duration-layout);
 }
-.pg-selection-actions[data-pg-mode='single'] [data-pg-group='single'],
-.pg-selection-actions[data-pg-mode='multiple'] [data-pg-group='multiple'] {
-  max-width: 480px;
-  opacity: 1;
-  visibility: visible;
-  transform: none;
-  transition:
-    max-width var(--pg-duration-layout) var(--pg-ease-layout),
-    opacity var(--pg-duration-normal) ease,
-    transform var(--pg-duration-normal) var(--pg-ease-layout),
-    visibility 0s;
-}
+.pg-selection-actions__group[hidden] { display: none; }
 .pg-selection-actions__action {
   display: inline-flex;
   align-items: center;
@@ -79,8 +47,6 @@
   font-size: 12px;
   line-height: 1.2;
   cursor: pointer;
-  transition: background-color var(--pg-duration-fast) ease,
-    border-color var(--pg-duration-fast) ease;
 }
 .pg-selection-actions__action:is(:hover, :focus-visible) {
   background: var(--pg-color-hover);
@@ -88,13 +54,10 @@
 }
 .pg-selection-actions__clear { flex: 0 0 28px; }
 @media (max-width: 1080px) {
-  .pg-selection-actions:not([data-pg-mode='none']) { max-width: min(600px, 57vw); }
+  .pg-selection-actions { max-inline-size: calc(100vw - 240px); }
 }
 @media (max-width: 640px) {
+  .pg-selection-actions { max-inline-size: calc(100vw - 180px); }
   .pg-selection-actions__count { font-size: 11px; }
   .pg-selection-actions__action { padding-inline: 8px; font-size: 11px; }
-  .pg-selection-actions:not([data-pg-mode='none']) { max-width: 58vw; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .pg-selection-actions, .pg-selection-actions__group, .pg-selection-actions__action { transition: none; }
 }
