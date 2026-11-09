@@ -70,7 +70,9 @@ test('input adornments are independent of text width and focus remains native', 
   const label = field.locator('.pg-field__label');
   const rect = await prefix.boundingBox();
   const labelRect = await label.boundingBox();
-  expect(labelRect.x).toBeGreaterThan(rect.x + rect.width - 3);
+  // The permanent label is ABOVE the whole field, not offset by its prefix.
+  expect(labelRect.y + labelRect.height).toBeLessThan(rect.y);
+  expect(rect.x).toBeGreaterThanOrEqual(labelRect.x);
   await field.getByRole('textbox', { name: 'Назва' }).fill('Pinguin');
   await expect(field.locator('.pg-field')).toHaveAttribute('data-pg-filled', 'true');
   await field.getByRole('button', { name: 'Допомога' }).click();
