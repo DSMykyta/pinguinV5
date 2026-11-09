@@ -40,6 +40,17 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
+async function hoverOverflow(page, root) {
+  // Showing the expanded surface deliberately covers +N. Playwright's
+  // locator.hover() waits for the button to stay visible and retries forever.
+  // A real mouse move initiates the UI transition without that false condition.
+  const more = root.getByRole('button', { name: 'Показати всі вибрані значення' });
+  const rect = await more.boundingBox();
+  expect(rect).not.toBeNull();
+  await page.mouse.move(rect.x + rect.width / 2, rect.y + rect.height / 2);
+  await expect(root.locator('.pg-listbox__selection-tray')).toBeVisible();
+}
+
 test('ordinary hovering shows nothing; hovering +N replaces compact chips with one expanded field', async ({page}) => {
   const root=page.locator('#selection-test-normal');
   const more=root.getByRole('button',{name:'Показати всі вибрані значення'});
@@ -50,7 +61,7 @@ test('ordinary hovering shows nothing; hovering +N replaces compact chips with o
   await root.locator('.pg-listbox__chip-text').first().hover();
   await expect(tray).toBeHidden();
 
-  await more.hover();
+  await hoverOverflow(page, root);
   await expect(tray).toBeVisible();
   await expect(root.locator('.pg-listbox__selected-chip')).toHaveCount(5);
   await expect(root.locator('.pg-listbox__panel')).toBeHidden();
@@ -72,7 +83,7 @@ test('ordinary hovering shows nothing; hovering +N replaces compact chips with o
 
 test('× removes one value in expanded view without opening options',async({page})=>{
   const root=page.locator('#selection-test-normal');
-  await root.getByRole('button',{name:'Показати всі вибрані значення'}).hover();
+  await hoverOverflow(page, root);
   const tray=root.locator('.pg-listbox__selection-tray');
   await expect(tray).toBeVisible();
   await tray.getByRole('button',{name:'Видалити Amazon'}).click();
@@ -113,7 +124,7 @@ test('keyboard focus on +N opens expanded values; Escape closes and returns to t
 
 test('expanded surface grows upward near viewport bottom without duplicating selected chips',async({page})=>{
   const root=page.locator('#selection-test-near-bottom');
-  await root.getByRole('button',{name:'Показати всі вибрані значення'}).hover();
+  await hoverOverflow(page, root);
   const tray=root.locator('.pg-listbox__selection-tray');
   await expect(tray).toBeVisible();
   const geometry=await root.evaluate(el=>{
@@ -131,7 +142,7 @@ test('expanded surface grows upward near viewport bottom without duplicating sel
 
 test('removing hidden tags until only three remain closes expanded view automatically',async({page})=>{
   const root=page.locator('#selection-test-normal');
-  await root.getByRole('button',{name:'Показати всі вибрані значення'}).hover();
+  await hoverOverflow(page, root);
   const tray=root.locator('.pg-listbox__selection-tray');
   await expect(tray).toBeVisible();
   await tray.getByRole('button',{name:'Видалити Etsy'}).click();

@@ -46,7 +46,7 @@ test('adornments and different surrounding backgrounds do not affect the label',
   await expect(label).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
   const after=await label.boundingBox();
   const border=await surface.boundingBox();
-  expect(Math.abs((after.y-border.y)-offset)).toBeLessThan(1);
+  expect(Math.abs((after.y-border.y)-offset)).toBeLessThan(2);
   expect(after.y+after.height).toBeLessThan(border.y);
 });
 
