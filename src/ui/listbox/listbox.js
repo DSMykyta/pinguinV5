@@ -53,6 +53,16 @@ export function createListbox({
   frame.label.id = uid + '-label';
   trigger.setAttribute('aria-labelledby', frame.label.id + ' ' + display.id);
   frame.setDisabled(disabled);
+  // Removable chips must be sibling buttons, NEVER nested in the trigger button.
+  const selectionText = document.createElement('span');
+  selectionText.id = uid + '-selection-text';
+  selectionText.className = 'pg-listbox__sr';
+  if (multiple) {
+    frame.edit.append(display);
+    display.classList.add('pg-listbox__value--interactive');
+    trigger.setAttribute('aria-labelledby', frame.label.id + ' ' + selectionText.id);
+    frame.field.append(selectionText);
+  }
 
   const panel = document.createElement('div');
   panel.className = 'pg-listbox__panel pg-scrollbar';
@@ -108,52 +118,123 @@ export function createListbox({
   problem.setAttribute('role','status');
   problem.hidden = true;
   support.append(hint,problem);
-  element.append(frame.field,holder,panel,support);
+
+  // Visually one expanding field: selected values are an attached, seamless
+  // continuation of its border, placed above/below when the pointer hovers.
+  const tray = document.createElement('section');
+  tray.className = 'pg-listbox__selection-tray pg-scrollbar';
+  tray.setAttribute('role', 'group');
+  tray.setAttribute('aria-label', 'Усі вибрані значення: ' + label);
+  tray.hidden = true;
+  const trayPopover = typeof tray.showPopover === 'function';
+  if (trayPopover) tray.setAttribute('popover', 'manual');
+  const trayHeading = document.createElement('span');
+  trayHeading.className = 'pg-listbox__selection-heading';
+  const trayChips = document.createElement('div');
+  trayChips.className = 'pg-listbox__selection-chips';
+  tray.append(trayHeading, trayChips);
+  element.append(frame.field,holder,panel,tray,support);
   const controller = new AbortController();
   let items = [];
   let optionsDOM = [];
   let selected = new Set();
   let active = -1;
   let opened = false;
+  let trayOpened = false;
   let destroyed = false;
 
   function visibleIndices() {
     return items.map((item,i) => !item.disabled && !optionsDOM[i].hidden ? i : -1).filter(i=>i>=0);
   }
   function selection() { return items.filter(item=>selected.has(item.value)).map(item=>item.value); }
+  function makeChip(item, inTray = false) {
+    const chip = document.createElement('span');
+    chip.className = inTray ? 'pg-listbox__selected-chip' : 'pg-listbox__chip';
+    const text = document.createElement('span');
+    text.className = 'pg-listbox__chip-text';
+    text.textContent = item.label;
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'pg-listbox__chip-remove';
+    remove.dataset.pgRemove = item.value;
+    remove.textContent = '×';
+    remove.setAttribute('aria-label', 'Видалити ' + item.label);
+    remove.disabled = Boolean(disabled);
+    chip.append(text, remove);
+    return chip;
+  }
   function updateValue() {
     display.replaceChildren();
     holder.replaceChildren();
-    const chosen = items.filter(item=>selected.has(item.value));
+    trayChips.replaceChildren();
+    const chosen = items.filter(item => selected.has(item.value));
+    selectionText.textContent = chosen.length
+      ? chosen.map(item => item.label).join(', ') : String(placeholder);
+    trayHeading.textContent = 'Вибрані (' + chosen.length + ')';
     if (!chosen.length) {
       display.classList.add('pg-listbox__value--placeholder');
       display.textContent = String(placeholder);
     } else {
       display.classList.remove('pg-listbox__value--placeholder');
       if (multiple) {
-        chosen.slice(0,3).forEach(item=>{
-          const chip=document.createElement('span');
-          chip.className='pg-listbox__chip';
-          chip.textContent=item.label;
-          display.append(chip);
-        });
-        if (chosen.length>3) {
-          const extra=document.createElement('span');
-          extra.className='pg-listbox__chip';
-          extra.textContent='+'+(chosen.length-3);
-          display.append(extra);
+        chosen.slice(0, 3).forEach(item => display.append(makeChip(item)));
+        if (chosen.length > 3) {
+          const more = document.createElement('button');
+          more.type = 'button';
+          more.className = 'pg-listbox__chip pg-listbox__more';
+          more.textContent = '+' + (chosen.length - 3);
+          more.disabled = Boolean(disabled);
+          more.setAttribute('aria-label', 'Показати всі вибрані значення');
+          more.dataset.pgShowSelected = 'true';
+          display.append(more);
         }
-      } else display.textContent=chosen[0].label;
+        chosen.forEach(item => trayChips.append(makeChip(item, true)));
+      } else display.textContent = chosen[0].label;
     }
-    if (name!==undefined) selection().forEach(val=>{
-      const input=document.createElement('input');
-      input.type='hidden';
-      input.name=String(name);
-      input.value=val;
-      input.disabled=Boolean(disabled);
+    if (name !== undefined) selection().forEach(val => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = String(name);
+      input.value = val;
+      input.disabled = Boolean(disabled);
       holder.append(input);
     });
-    frame.setFilled(chosen.length>0);
+    frame.setFilled(chosen.length > 0);
+    if (!chosen.length && trayOpened) hideTray();
+    else if (trayOpened) positionTray();
+  }
+  function removeSelected(value, event, fromTray) {
+    if (disabled || !selected.has(value)) return;
+    const buttons = Array.from(
+      (fromTray ? trayChips : display).querySelectorAll('.pg-listbox__chip-remove')
+    );
+    const oldIndex = buttons.findIndex(button => button.dataset.pgRemove === value);
+    selected.delete(value);
+    reflect();
+    onChange?.(selection(), event);
+    // Keep keyboard focus in the selected-values controls after a chip is removed.
+    if (event.detail === 0 || event.pointerType === undefined && event.type === 'keydown') {
+      const remaining = Array.from(
+        (fromTray ? trayChips : display).querySelectorAll('.pg-listbox__chip-remove')
+      );
+      const target = remaining[Math.min(Math.max(0, oldIndex), remaining.length - 1)];
+      (target || trigger).focus({ preventScroll: true });
+    }
+  }
+  function onChipClick(event) {
+    const button = event.target.closest('button');
+    if (!button) return;
+    if (button.dataset.pgRemove !== undefined) {
+      event.preventDefault();
+      event.stopPropagation();
+      removeSelected(button.dataset.pgRemove, event, tray.contains(button));
+    } else if (button.dataset.pgShowSelected === 'true') {
+      event.preventDefault();
+      event.stopPropagation();
+      if (opened) close();
+      showTray();
+      trayChips.querySelector('.pg-listbox__chip-remove')?.focus({ preventScroll: true });
+    }
   }
   function reflect() {
     optionsDOM.forEach((node,i)=>node.setAttribute('aria-selected',String(selected.has(items[i].value))));
@@ -250,8 +331,49 @@ export function createListbox({
     if (!opened || !hasPopover) return;
     positionPopup({ anchor: frame.surface, popup: panel, maxHeight: 320 });
   }
+  function positionTray() {
+    if (!trayOpened) return;
+    if (trayPopover) {
+      const geometry = positionPopup({
+        anchor: frame.surface, popup: tray, maxHeight: 240, gap: -1,
+      });
+      element.dataset.pgTraySide = geometry.direction;
+      tray.dataset.pgSide = geometry.direction;
+    } else {
+      const rect = frame.surface.getBoundingClientRect();
+      const above = rect.top;
+      const below = innerHeight - rect.bottom;
+      const up = below < 190 && above > below;
+      element.dataset.pgTraySide = up ? 'up' : 'down';
+      tray.dataset.pgSide = up ? 'up' : 'down';
+    }
+  }
+  function showTray() {
+    if (!multiple || disabled || destroyed || opened ||
+        trayOpened || !selected.size) return;
+    trayOpened = true;
+    tray.hidden = false;
+    element.dataset.pgTray = 'true';
+    frame.setActive(true);
+    if (trayPopover) tray.showPopover();
+    positionTray();
+    trayScrollDismiss.arm();
+  }
+  function hideTray(restore = false) {
+    if (!trayOpened) return;
+    trayOpened = false;
+    trayScrollDismiss.disarm();
+    if (trayPopover && tray.matches(':popover-open')) tray.hidePopover();
+    tray.hidden = true;
+    delete element.dataset.pgTray;
+    delete element.dataset.pgTraySide;
+    tray.removeAttribute('data-pg-side');
+    frame.setActive(opened);
+    if (restore) trigger.focus({ preventScroll: true });
+  }
   function open() {
     if(opened||destroyed||trigger.disabled)return;
+    hideTray();
     opened=true;
     panel.hidden=false;
     trigger.setAttribute('aria-expanded','true');
@@ -274,7 +396,7 @@ export function createListbox({
     element.dataset.pgOpen='false';
     frame.setActive(false);
     activate(-1);
-    if(restore)trigger.focus();
+    if(restore)trigger.focus({ preventScroll: true });
   }
   function move(direction) {
     const indices=visibleIndices();
@@ -292,6 +414,33 @@ export function createListbox({
     else if((key==='Enter'||key===' ')&&active>=0) {event.preventDefault();choose(active,event);}
   }
   trigger.addEventListener('click',()=>opened?close(true):open(),{signal:controller.signal});
+  display.addEventListener('click', onChipClick, { signal: controller.signal });
+  tray.addEventListener('click', onChipClick, { signal: controller.signal });
+  tray.addEventListener('keydown', event => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      event.stopPropagation();
+      hideTray(true);
+    }
+  }, { signal: controller.signal });
+  const belongsToSelection = target =>
+    target instanceof Node && (frame.field.contains(target) || tray.contains(target));
+  // Hover/focus reveals all selected values without opening the options list.
+  frame.field.addEventListener('pointerenter', event => {
+    if (event.pointerType === 'mouse' || event.pointerType === 'pen') showTray();
+  }, { signal: controller.signal });
+  frame.field.addEventListener('focusin', () => {
+    if (!opened) showTray();
+  }, { signal: controller.signal });
+  element.addEventListener('pointerout', event => {
+    if (!trayOpened || belongsToSelection(event.relatedTarget)) return;
+    hideTray();
+  }, { signal: controller.signal });
+  element.addEventListener('focusout', event => {
+    if (!trayOpened || belongsToSelection(event.relatedTarget)) return;
+    hideTray();
+  }, { signal: controller.signal });
+
   trigger.addEventListener('keydown',event=>{
     if(!opened && ['ArrowDown','Enter',' '].includes(event.key)) {
       event.preventDefault();open();
@@ -327,13 +476,22 @@ export function createListbox({
   },{signal:controller.signal});
   document.addEventListener('focusin',event=>{
     if(opened&&!element.contains(event.target))close();
+    if(trayOpened&&!belongsToSelection(event.target))hideTray();
   },{signal:controller.signal});
   document.addEventListener('pointerdown',event=>{
     if(opened&&!element.contains(event.target))close();
+    if(trayOpened&&!belongsToSelection(event.target))hideTray();
   },{signal:controller.signal});
-  window.addEventListener('resize',position,{signal:controller.signal});
+  window.addEventListener('resize', () => {
+    position();
+    positionTray();
+  }, { signal: controller.signal });
   const scrollDismiss = dismissOnOutsideScroll({
     popup: panel, isOpen: () => opened, dismiss: () => close(),
+    signal: controller.signal,
+  });
+  const trayScrollDismiss = dismissOnOutsideScroll({
+    popup: tray, isOpen: () => trayOpened, dismiss: () => hideTray(),
     signal: controller.signal,
   });
   setOptions(options);
@@ -343,7 +501,7 @@ export function createListbox({
     element, trigger, getValue:selection,setValue,setOptions,setError,open,close,
     focus(){trigger.focus();},
     destroy(){
-      destroyed=true;close();controller.abort();searchField?.destroy();frame.destroy();element.remove();
+      destroyed=true;close();hideTray();controller.abort();searchField?.destroy();frame.destroy();element.remove();
     },
   });
 }
