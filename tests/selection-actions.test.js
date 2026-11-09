@@ -1,8 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { getSelectionMode, createSelectionActions } from '../src/ui/selection-actions/selection-actions.js';
 
-test('selection state changes only at 0, 1 and 2+ rows', () => {
+test('selection uses none, single and multiple states', () => {
   assert.equal(getSelectionMode(0), 'none');
   assert.equal(getSelectionMode(1), 'single');
   assert.equal(getSelectionMode(2), 'multiple');
@@ -11,7 +12,7 @@ test('selection state changes only at 0, 1 and 2+ rows', () => {
   assert.throws(() => getSelectionMode(1.5), RangeError);
 });
 
-test('header actions reuse shared reveal, swap groups and stay outside flex flow', () => {
+test('both mode groups reuse RevealPanel, never show a cross or count for one', () => {
   const previousDocument = globalThis.document;
   const previousHTMLElement = globalThis.HTMLElement;
   let doc;
@@ -52,53 +53,53 @@ test('header actions reuse shared reveal, swap groups and stay outside flex flow
   globalThis.document = doc;
   globalThis.HTMLElement = FakeElement;
   try {
-    const actions = [];
-    let cleared = 0;
+    const performed = [];
     const ui = createSelectionActions({
       single: [{ value: 'duplicate', label: 'Дублювати' }],
       multiple: [
         { value: 'archive', label: 'Архівувати' },
         { value: 'restore', label: 'Відновити' },
       ],
-      onAction: value => actions.push(value),
-      onClear: () => { cleared++; },
+      onAction: value => performed.push(value),
     });
-    const [counter, single, multiple, dismiss] = ui.element.children;
+    const [single, multiple] = ui.element.children;
+    assert.equal(ui.element.children.length, 2); // no dismiss button
+    assert.equal(single.children.length, 1); // no selection count
+    assert.equal(multiple.children.length, 3); // count plus two actions
+    assert.equal(single.dataset.pgRevealDirection, 'top');
+    assert.equal(multiple.dataset.pgRevealDirection, 'top');
 
-    assert.equal(ui.element.dataset.pgMode, 'none');
-    assert.equal(ui.element.dataset.pgRevealDirection, 'top');
-    assert.equal(ui.element.dataset.pgState, 'hidden');
-    assert.equal(ui.element.hidden, true);
-    assert.equal(ui.element.inert, true);
-    assert.equal(single.hidden, true);
-    assert.equal(multiple.hidden, true);
+    const expectState = (mode, singleVisible, multipleVisible) => {
+      assert.equal(ui.element.dataset.pgMode, mode);
+      assert.equal(single.hidden, !singleVisible);
+      assert.equal(multiple.hidden, !multipleVisible);
+      assert.equal(single.inert, !singleVisible);
+      assert.equal(multiple.inert, !multipleVisible);
+      assert.equal(ui.element.inert, mode === 'none');
+    };
+
+    expectState('none', false, false);
+    ui.setSelection(['a']);
+    expectState('single', true, false);
+    assert.equal(single.dataset.pgState, 'visible');
+    assert.equal(single.children[0].textContent, 'Дублювати');
+    single.children[0].click();
+
+    ui.setSelection(['a','b']);
+    expectState('multiple', false, true);
+    assert.equal(multiple.dataset.pgState, 'visible');
+    assert.equal(multiple.children[0].textContent, '2 вибрано');
+    multiple.children[1].click();
+    multiple.children[2].click();
 
     ui.setSelection(['a']);
-    assert.equal(ui.element.dataset.pgMode, 'single');
-    assert.equal(ui.element.dataset.pgState, 'visible');
-    assert.equal(ui.element.hidden, false);
-    assert.equal(counter.textContent, '1 вибрано');
-    assert.equal(single.hidden, false);
-    assert.equal(multiple.hidden, true);
-    single.children[0].click();
-    assert.deepEqual(actions, ['duplicate']);
+    expectState('single', true, false);
+    assert.equal(single.dataset.pgState, 'visible');
+    assert.equal(multiple.dataset.pgState, 'hidden');
 
-    ui.setSelection(['a', 'b']);
-    assert.equal(ui.element.dataset.pgMode, 'multiple');
-    assert.equal(counter.textContent, '2 вибрано');
-    assert.equal(ui.element.dataset.pgState, 'visible');
-    assert.equal(single.hidden, true);
-    assert.equal(multiple.hidden, false);
-    multiple.children[0].click();
-    multiple.children[1].click();
-    assert.deepEqual(actions, ['duplicate', 'archive', 'restore']);
-
-    dismiss.click();
-    assert.equal(cleared, 1);
     ui.setSelection([]);
-    assert.equal(ui.element.dataset.pgState, 'hidden');
-    assert.equal(ui.element.hidden, true);
-    assert.equal(ui.element.inert, true);
+    expectState('none', false, false);
+    assert.deepEqual(performed, ['duplicate','archive','restore']);
     ui.destroy();
     assert.equal(ui.element.removed, true);
   } finally {
@@ -107,4 +108,20 @@ test('header actions reuse shared reveal, swap groups and stay outside flex flow
     if (previousHTMLElement === undefined) delete globalThis.HTMLElement;
     else globalThis.HTMLElement = previousHTMLElement;
   }
+});
+
+test('animated groups occupy one anchored region and do not move header controls', () => {
+  const css = readFileSync(new URL('../src/ui/selection-actions/selection-actions.css', import.meta.url), 'utf8');
+  const hostCss = readFileSync(new URL('../src/features/tools/data-views-demo.css', import.meta.url), 'utf8');
+  const group = css.match(/\.pg-selection-actions__group\s*\{([^}]+)\}/)?.[1] ?? '';
+  const root = css.match(/\.pg-selection-actions\s*\{([^}]+)\}/)?.[1] ?? '';
+  assert.match(root, /position:\s*absolute/);
+  assert.match(root, /inset-inline-end:\s*calc\(100%/);
+  assert.match(group, /position:\s*absolute/);
+  assert.match(group, /inset:\s*0;/);
+  assert.match(group, /width:\s*100%;/);
+  assert.match(group, /justify-content:\s*flex-end;/);
+  assert.doesNotMatch(group, /width:\s*max-content/);
+  assert.doesNotMatch(css, /transition\s*:\s*max-width|transform:\s*translateY/);
+  assert.match(hostCss, /\.pg-tools-data-views__header-actions\s*\{[^}]*position:\s*relative/);
 });
