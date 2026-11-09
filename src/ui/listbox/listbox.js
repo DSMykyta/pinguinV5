@@ -158,7 +158,18 @@ export function createListbox({
     remove.type = 'button';
     remove.className = 'pg-listbox__chip-remove';
     remove.dataset.pgRemove = item.value;
-    remove.textContent = '×';
+    // A drawn cross has a geometric center; the text glyph × sits low in some fonts.
+    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    icon.setAttribute('viewBox', '0 0 16 16');
+    icon.setAttribute('aria-hidden', 'true');
+    const strokes = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    strokes.setAttribute('d', 'M4 4l8 8M12 4l-8 8');
+    strokes.setAttribute('fill', 'none');
+    strokes.setAttribute('stroke', 'currentColor');
+    strokes.setAttribute('stroke-width', '1.7');
+    strokes.setAttribute('stroke-linecap', 'round');
+    icon.append(strokes);
+    remove.append(icon);
     remove.setAttribute('aria-label', 'Видалити ' + item.label);
     remove.disabled = Boolean(disabled);
     chip.append(text, remove);

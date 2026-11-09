@@ -82,8 +82,13 @@
   display: grid; place-items: center; flex: 0 0 20px;
   inline-size: 20px; block-size: 22px; min-inline-size: 20px;
   padding: 0; border: 0; border-radius: 50%;
-  background: transparent; color: currentColor;
-  font: inherit; font-size: 17px; font-weight: 500; cursor: pointer;
+  background: transparent; color: currentColor; cursor: pointer;
+}
+.pg-listbox__chip-remove svg {
+  display: block; inline-size: 12px; block-size: 12px;
+  flex: none; pointer-events: none;
+  /* Optical center aligns the cross with the visible text, not its baseline. */
+  transform: translateY(-1px);
 }
 .pg-listbox__chip-remove:hover { background: var(--pg-color-selected); }
 .pg-listbox__chip-remove:focus-visible, .pg-listbox__more:focus-visible {
