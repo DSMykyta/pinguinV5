@@ -313,7 +313,7 @@ test('page scroll drives circular progress without a nested scroll card', async 
   const meter = root.locator('.pg-section-navigator__handle:visible .pg-section-navigator__ring-fill');
   const getMeter = async () => Number(await meter.evaluate(node => node.style.strokeDashoffset));
   expect(await getMeter()).toBe(100);
-  await scroller.evaluate(node => { node.scrollTop = node.scrollHeight / 2; });
+  await scroller.evaluate(node => { node.scrollTop = (node.scrollHeight - node.clientHeight) / 2; });
   await expect.poll(getMeter).toBeLessThan(100);
   await expect.poll(getMeter).toBeGreaterThan(0);
   await scroller.evaluate(node => { node.scrollTop = node.scrollHeight; });
