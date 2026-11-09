@@ -89,3 +89,60 @@ test('reduced motion removes travel and toolbar is immediately hidden', async ({
   await page.getByRole('tab', { name: 'Текст' }).click();
   await expect(tools).toBeHidden();
 });
+
+
+test('pagination comes up from below and exits below using the same reveal controller', async ({ page }) => {
+  await page.goto('/tools');
+  const footer = page.locator('.pg-shell__footer');
+  await expect(footer).toBeEmpty();
+  await expect(footer).toHaveCSS('height', '56px');
+
+  await page.getByRole('tab', { name: 'Макети даних' }).click();
+  const panel = footer.locator('.pg-reveal-panel.pg-shell__footer-panel');
+  const pagination = panel.locator('.pg-pagination');
+  await expect(panel).toHaveAttribute('data-pg-reveal-direction', 'bottom');
+  await expect(panel).toHaveAttribute('data-pg-state', 'visible');
+  await expect(pagination).toHaveCount(1);
+  await expect(pagination.locator('.pg-pagination__status')).toHaveText('Показано 25 з 32');
+  await expect(footer).toHaveCSS('height', '56px');
+
+  await page.getByRole('tab', { name: 'Текст' }).click();
+  await expect(footer).toHaveAttribute('data-pg-has-content', 'false');
+  await expect(panel).toHaveAttribute('data-pg-state', 'leaving');
+  await expect(panel).toHaveAttribute('aria-hidden', 'true');
+  await expect(pagination).toHaveCount(1);
+  await expect(panel).toBeHidden();
+  await expect(footer).toBeEmpty();
+  await expect(footer).toHaveCSS('height', '56px');
+});
+
+test('footer exit reverses without cloning pagination, losing state or duplicating FAB', async ({ page }) => {
+  await page.goto('/tools');
+  await page.getByRole('tab', { name: 'Макети даних' }).click();
+  const footer = page.locator('.pg-shell__footer');
+  const panel = footer.locator('.pg-shell__footer-panel');
+  const pager = panel.locator('.pg-pagination');
+  await expect(pager).toHaveCount(1);
+  await page.getByRole('button', { name: 'Наступна сторінка' }).click();
+  await expect(pager.locator('.pg-pagination__status')).toHaveText('Показано 7 з 32');
+  await page.getByRole('tab', { name: 'Переходи' }).click();
+  await expect(panel).toHaveAttribute('data-pg-state', 'leaving');
+  await page.getByRole('tab', { name: 'Макети даних' }).click();
+  await expect(panel).toHaveAttribute('data-pg-state', 'visible');
+  await expect(pager).toHaveCount(1);
+  await expect(pager.locator('.pg-pagination__status')).toHaveText('Показано 7 з 32');
+  await expect(footer.locator('[data-pg-action="page-fab-toggle"]')).toHaveCount(1);
+  await page.waitForTimeout(450);
+  await expect(panel).toBeVisible();
+});
+
+test('reduced motion hides footer pagination immediately without removing the rail', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/tools');
+  await page.getByRole('tab', { name: 'Макети даних' }).click();
+  const panel = page.locator('.pg-shell__footer-panel');
+  await expect(panel).toHaveCSS('transition-duration', '0s');
+  await page.getByRole('tab', { name: 'Текст' }).click();
+  await expect(page.locator('.pg-shell__footer')).toBeEmpty();
+  await expect(page.locator('.pg-shell__footer')).toHaveCSS('height', '56px');
+});

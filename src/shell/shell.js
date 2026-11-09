@@ -227,6 +227,45 @@ export function mountShell(host) {
   footer.setAttribute('aria-hidden', 'true');
   footer.dataset.pgHasContent = 'false';
 
+  // Keep the 56px footer rail permanent; only its content enters/exits.
+  // The same universal reveal controller used by the top toolbar moves
+  // pagination from below and allows an interrupted exit to reverse.
+  const footerPanel = document.createElement('div');
+  footerPanel.className = 'pg-shell__footer-panel';
+  const footerReveal = createRevealPanel({
+    element: footerPanel, direction: 'bottom', focusTarget: asideFab.button,
+  });
+  let currentFooterContent = null;
+  function setFooterContent(element) {
+    if (element !== null && !(element instanceof HTMLElement)) {
+      throw new TypeError('Footer content must be an HTMLElement or null');
+    }
+    const show = element !== null;
+    footer.dataset.pgHasContent = String(show);
+    footer.setAttribute('aria-hidden', String(!show));
+    if (show) {
+      delete footer.dataset.pgRevealExiting;
+      // Reuse the existing Pagination and the already shared FAB instance.
+      if (element !== currentFooterContent || !footerPanel.contains(element)) {
+        element.append(pageFab.element);
+        footerPanel.replaceChildren(element);
+        currentFooterContent = element;
+      }
+      if (!footerPanel.isConnected) footer.append(footerPanel);
+      footerReveal.setVisible(true);
+    } else {
+      if (footerPanel.isConnected) footer.dataset.pgRevealExiting = 'true';
+      footerReveal.setVisible(false, { onHidden() {
+        if (footer.dataset.pgHasContent === 'true') return;
+        delete footer.dataset.pgRevealExiting;
+        currentFooterContent = null;
+        footerPanel.replaceChildren();
+        footerPanel.remove();
+        pageFab.element.hidden = true;
+      } });
+    }
+  }
+
   workspace.append(header, localNavigation, content, footer);
   shell.append(sidebar.element, workspace, aside.element,
     asideFab.element, backdrop);
@@ -262,19 +301,7 @@ export function mountShell(host) {
       desiredSearchContext = context;
       scheduleContextTools();
     },
-    onFooterContent: element => {
-      if (element !== null && !(element instanceof HTMLElement)) {
-        throw new TypeError('Footer content must be an HTMLElement or null');
-      }
-      if (element) {
-        // The page-size FAB belongs to the pagination control in the footer,
-        // not beside the persistent aside FAB in the right-hand rail.
-        element.append(pageFab.element);
-      }
-      footer.replaceChildren(...(element ? [element] : []));
-      footer.dataset.pgHasContent = String(Boolean(element));
-      footer.setAttribute('aria-hidden', String(!element));
-    },
+    onFooterContent: setFooterContent,
     onHeaderActions: element => {
       if (element != null && !(element instanceof HTMLElement)) {
         throw new TypeError('Header actions must be an HTMLElement or null');
@@ -288,17 +315,21 @@ export function mountShell(host) {
     },
     onPageFabContext: context => {
       pageFab.close();
-      pageFab.element.hidden = !context;
-      if (context) pageFab.setContext({ fabActions: context });
+      // While the footer travels down, retain the FAB inside its existing
+      // pagination. It is inert with the parent and is hidden after exit.
+      if (context) {
+        pageFab.element.hidden = false;
+        pageFab.setContext({ fabActions: context });
+      } else if (!footerPanel.isConnected) {
+        pageFab.element.hidden = true;
+      }
     },
     onSearchEntries: entries => {
       pageSearchEntries = entries;
       refreshSearch();
     },
     onRouteChange() {
-      footer.replaceChildren();
-      footer.dataset.pgHasContent = 'false';
-      footer.setAttribute('aria-hidden', 'true');
+      setFooterContent(null);
       desiredHeaderActions = null;
       desiredSearchContext = null;
       scheduleContextTools();
@@ -394,6 +425,7 @@ export function mountShell(host) {
   return function unmountShell() {
     isDisposed = true;
     contextReveal.destroy();
+    footerReveal.destroy();
     pageOutlet.dispose();
     search.destroy();
     router.stop();
