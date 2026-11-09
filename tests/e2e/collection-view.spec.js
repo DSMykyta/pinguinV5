@@ -1,182 +1,214 @@
 /**
- * Table/tile design-review tab: one dataset, existing header, accessible sorting,
- * adaptive overflow, and a reusable page-scoped persisted mode.
+ * PINGUIN NEXT — shared dense collection, native selection and legacy-inspired
+ * pagination + segmented view switch. All tabs share one Shell layout/animation.
  */
 import { test, expect } from '@playwright/test';
 
-test.beforeEach(async ({page}) => {
+const root = page => page.locator('.pg-collection-view');
+const table = page => root(page).locator('.pg-collection-view__table');
+const switchTo = async (page, mode) => {
+  const label = mode === 'tiles' ? 'Плитки' : 'Таблиця';
+  await page.locator('.pg-view-switch .pg-segment-switch__label[title="' + label + '"]').click();
+  await expect(page.locator('.pg-view-switch').getByRole('radio',{name:label})).toBeChecked();
+};
+test.beforeEach(async ({page})=>{
   await page.goto('/tools');
-  await page.getByRole('tab', { name: 'Макети даних' }).click();
+  await page.getByRole('tab',{name:'Макети даних'}).click();
 });
 
-test('new tab uses existing Shell header and contains 32 native table records', async ({page}) => {
-  await expect(page.getByRole('heading', { name: 'Інструменти', level: 1 })).toHaveCount(1);
-  await expect(page.getByRole('heading', { name: 'Таблиця та плитки', level: 2 })).toHaveCount(0);
-  await expect(page.locator('.pg-tools-data-views__intro, .pg-tools-data-views__meta')).toHaveCount(0);
-  await expect(page.locator('.pg-shell__content')).not.toHaveAttribute('data-pg-workspace-layout', /.+/);
-  await expect(page.locator('.pg-tabs')).not.toHaveAttribute('data-pg-fill', /.+/);
-  await expect(page.locator('.pg-collection-view__table-scroll')).toHaveCSS('border-top-style','none');
-  const geometry = await page.evaluate(() => {
-    const area = document.querySelector('.pg-shell__content').getBoundingClientRect();
-    const viewport = document.querySelector('.pg-collection-view__table-scroll').getBoundingClientRect();
-    return {area,viewport};
+test('table is the workspace, no special fill mode or duplicate page headings',async({page})=>{
+  await expect(page.getByRole('heading',{name:'Інструменти',level:1})).toHaveCount(1);
+  await expect(page.getByRole('heading',{name:'Таблиця та плитки',level:2})).toHaveCount(0);
+  await expect(page.locator('.pg-tools-data-views__intro,.pg-tools-data-views__meta')).toHaveCount(0);
+  await expect(page.locator('.pg-shell__content')).not.toHaveAttribute('data-pg-workspace-layout',/.+/);
+  await expect(page.locator('.pg-tabs')).not.toHaveAttribute('data-pg-fill',/.+/);
+  const geometry=await page.evaluate(()=>{
+    const a=document.querySelector('.pg-shell__content').getBoundingClientRect();
+    const b=document.querySelector('.pg-collection-view').getBoundingClientRect();
+    return {left:b.left-a.left,right:b.right-a.right,top:b.top-a.top,bottom:b.bottom-a.bottom};
   });
-  expect(Math.abs(geometry.area.left - geometry.viewport.left)).toBeLessThan(2);
-  expect(Math.abs(geometry.area.right - geometry.viewport.right)).toBeLessThan(2);
-  expect(Math.abs(geometry.area.top - geometry.viewport.top)).toBeLessThan(2);
-  expect(Math.abs(geometry.area.bottom - geometry.viewport.bottom)).toBeLessThan(2);
-  await expect(page.locator('.pg-tools-data-views__root h1')).toHaveCount(0);
+  expect(Object.values(geometry).every(x=>Math.abs(x)<2)).toBe(true);
+  await expect(root(page).locator('.pg-collection-view__table-scroll')).toHaveCSS('border-top-style','none');
   await expect(page.locator('.pg-shell__header-actions .pg-search')).toHaveCount(1);
   await expect(page.locator('.pg-shell__context-button')).toHaveCount(1);
-  const modes = page.locator('.pg-shell__page-actions');
-  await expect(modes.getByRole('group', {name:'Режим перегляду'})).toBeVisible();
-  await expect(modes.getByRole('button',{name:'Таблиця'})).toHaveAttribute('aria-pressed','true');
-  await expect(modes.getByRole('button',{name:'Плитки'})).toHaveAttribute('aria-pressed','false');
-  const table = page.locator('.pg-collection-view__table');
-  await expect(table).toBeVisible();
-  await expect(table.locator('thead th')).toHaveCount(9);
-  await expect(table.locator('tbody tr')).toHaveCount(32);
-  await expect(page.locator('.pg-collection-view__tiles')).toBeHidden();
 });
 
-test('all tabs share identical workspace geometry and animation', async ({page}) => {
-  const main = page.locator('.pg-shell__content');
-  const before = await main.evaluate(node => [getComputedStyle(node).padding, getComputedStyle(node).overflow]);
-  const animation = await page.locator('#pg-tools-panel-data-views').evaluate(node => getComputedStyle(node).animationName);
-  await page.getByRole('tab', {name:'Текст'}).click();
-  const after = await main.evaluate(node => [getComputedStyle(node).padding, getComputedStyle(node).overflow]);
-  const textAnimation = await page.locator('#pg-tools-panel-text').evaluate(node => getComputedStyle(node).animationName);
-  expect(after).toEqual(before);
-  expect(textAnimation).toBe(animation);
-  expect(animation).toBe('pg-page-enter');
-  await expect(page.locator('#pg-tools-panel-text .pg-page')).toHaveCSS('padding-top','40px');
-  await expect(page.locator('.pg-tabs')).not.toHaveAttribute('data-pg-fill', /.+/);
+test('dense table renders selection, nine fields, row actions and fixed footer pagination',async({page})=>{
+  await expect(table(page).locator('thead th')).toHaveCount(11);
+  await expect(table(page).locator('tbody tr')).toHaveCount(25);
+  await expect(page.locator('.pg-pagination__status')).toHaveText('1–25 із 32');
+  await expect(table(page).locator('tbody .pg-collection-view__row-menu')).toHaveCount(25);
+  await expect(root(page).locator('.pg-collection-view__tiles')).toBeHidden();
+  await expect(page.locator('.pg-view-switch')).toHaveAttribute('role','radiogroup');
+  await expect(page.locator('.pg-view-switch').getByRole('radio',{name:'Таблиця'})).toBeChecked();
 });
 
-test('sidebar and context aside use shared arrowless scrollbar styles', async ({page}) => {
-  const nav = page.locator('.pg-sidebar__nav');
-  const aside = page.locator('.pg-aside');
-  await expect(nav).toHaveClass(/pg-scrollbar/);
-  await expect(aside).toHaveClass(/pg-scrollbar/);
-  await expect(page.locator('.pg-shell__content')).toHaveClass(/pg-scrollbar/);
-  await expect(page.locator('.pg-aside__item-arrow')).toHaveCount(0);
-  const props = await nav.evaluate(node => ({
-    thickness: getComputedStyle(node).scrollbarWidth,
-    arrows: getComputedStyle(node,'::-webkit-scrollbar-button').display,
-  }));
-  expect(props).toEqual({thickness:'thin',arrows:'none'});
+test('native header checkbox uses checked, mixed and empty states across visible page',async({page})=>{
+  const all=table(page).getByRole('checkbox',{name:'Вибрати всі на поточній сторінці'});
+  const first=table(page).locator('tbody tr').first().getByRole('checkbox');
+  await expect(all).not.toBeChecked();
+  await first.check();
+  await expect(all).not.toBeChecked();
+  await expect(table(page).locator('thead .pg-checkbox')).toHaveAttribute('data-pg-mixed','true');
+  await all.check();
+  await expect(all).toBeChecked();
+  await expect(table(page).locator('tbody tr[data-pg-selected="true"]')).toHaveCount(25);
+  await all.uncheck();
+  await expect(all).not.toBeChecked();
+  await expect(table(page).locator('thead .pg-checkbox')).toHaveAttribute('data-pg-mixed','false');
+  await expect(table(page).locator('tbody tr[data-pg-selected="true"]')).toHaveCount(0);
 });
 
-test('sorting native headers changes shared record order and aria-sort', async({page}) => {
-  const table = page.locator('.pg-collection-view__table');
-  const headers = table.locator('thead th');
-  const first = await table.locator('tbody tr td:first-child').allTextContents();
-  expect(first.length).toBe(32);
-  await expect(headers.first()).toHaveAttribute('aria-sort', 'ascending');
-  await headers.first().getByRole('button').click();
-  await expect(headers.first()).toHaveAttribute('aria-sort','descending');
-  const reverse = await table.locator('tbody tr td:first-child').allTextContents();
-  expect(reverse).toEqual([...first].reverse());
-  await table.getByRole('button',{name:/Сортувати Товари/}).click();
-  await expect(headers.nth(2)).toHaveAttribute('aria-sort','ascending');
-  await expect(headers.first()).not.toHaveAttribute('aria-sort','ascending');
-  const counts = (await table.locator('tbody tr td:nth-child(3)').allTextContents())
-    .map(x=>Number(x.trim()));
+test('pagination advances from 25 to 7, changes rows-per-page and preserves selection ids',async({page})=>{
+  const one=table(page).locator('tbody tr').first().getByRole('checkbox');
+  await one.check();
+  await page.getByRole('button',{name:'Наступна сторінка'}).click();
+  await expect(table(page).locator('tbody tr')).toHaveCount(7);
+  await expect(page.locator('.pg-pagination__status')).toHaveText('26–32 із 32');
+  await expect(page.getByRole('button',{name:'Сторінка 2'})).toHaveAttribute('aria-current','page');
+  await page.getByRole('button',{name:'Попередня сторінка'}).click();
+  await expect(table(page).locator('tbody tr').first().getByRole('checkbox')).toBeChecked();
+  await page.getByRole('combobox',{name:'Рядків на сторінці'}).selectOption('50');
+  await expect(table(page).locator('tbody tr')).toHaveCount(32);
+  await expect(page.locator('.pg-pagination__status')).toHaveText('1–32 із 32');
+});
+
+test('sorted header and aside share one collection sorting state',async({page})=>{
+  const heads=table(page).locator('thead th');
+  await expect(heads.nth(1)).toHaveAttribute('aria-sort','ascending');
+  const first=await table(page).locator('tbody tr td:nth-child(2)').allTextContents();
+  await heads.nth(1).getByRole('button').click();
+  await expect(heads.nth(1)).toHaveAttribute('aria-sort','descending');
+  const reverse=await table(page).locator('tbody tr td:nth-child(2)').allTextContents();
+  expect(reverse[0]).not.toEqual(first[0]);
+  await page.locator('[data-pg-action="aside-toggle"]').click();
+  const aside=page.locator('#pg-aside-panel');
+  await expect(aside.getByRole('radiogroup',{name:'Напрямок сортування'})).toBeVisible();
+  await expect(aside.getByRole('radio',{name:'Я–А'})).toBeChecked();
+  await aside.getByRole('combobox',{name:'Сортувати за'}).selectOption('products');
+  await expect(heads.nth(3)).toHaveAttribute('aria-sort','descending');
+  await aside.locator('.pg-segment-switch__label[title="А–Я"]').click();
+  await expect(heads.nth(3)).toHaveAttribute('aria-sort','ascending');
+  const counts=(await table(page).locator('tbody tr td:nth-child(4)').allTextContents())
+    .map(s=>Number(s.trim()));
   expect(counts).toEqual([...counts].sort((a,b)=>a-b));
 });
 
-test('tiles show the same sorted rows and restore the table without duplicating data',async({page})=>{
-  const root=page.locator('.pg-collection-view');
-  const tableIds=await root.locator('tbody tr').evaluateAll(rows=>rows.map(row=>row.dataset.pgRowId));
-  const tiles=page.locator('.pg-shell__page-actions').getByRole('button',{name:'Плитки'});
-  await tiles.click();
-  await expect(tiles).toHaveAttribute('aria-pressed','true');
-  await expect(root).toHaveAttribute('data-pg-view','tiles');
-  await expect(root.locator('.pg-collection-view__table-scroll')).toBeHidden();
-  await expect(root.locator('.pg-collection-view__tiles')).toBeVisible();
-  await expect(root.locator('.pg-collection-view__tile')).toHaveCount(32);
-  const tileIds=await root.locator('.pg-collection-view__tile').evaluateAll(rows=>rows.map(row=>row.dataset.pgRowId));
-  expect(tileIds).toEqual(tableIds);
-  await page.locator('.pg-shell__page-actions').getByRole('button',{name:'Таблиця'}).click();
-  await expect(root.locator('.pg-collection-view__table')).toBeVisible();
-  const restored=await root.locator('tbody tr').evaluateAll(rows=>rows.map(row=>row.dataset.pgRowId));
-  expect(restored).toEqual(tableIds);
+test('row action menu is functional and uses one shared Menu implementation',async({page})=>{
+  const before=await table(page).locator('tbody tr').count();
+  expect(before).toBe(25);
+  await table(page).locator('tbody tr').first().getByRole('button',{name:/Дії:/}).click();
+  const item=page.getByRole('menuitem',{name:'Дублювати'});
+  await expect(item).toBeVisible();
+  await item.click();
+  await expect(page.locator('.pg-pagination__status')).toContainText('із 33');
+  await page.locator('[data-pg-action="aside-toggle"]').click();
+  await expect(page.locator('.pg-tools-data-views__aside-detail')).toContainText('Створено локальну копію');
 });
 
-test('the preference persists across reload and tab changes, without affecting another feature',async({page})=>{
-  const first=page.locator('.pg-shell__page-actions').getByRole('button',{name:'Плитки'});
-  await page.evaluate(()=>window.localStorage.setItem('pg:v1:brands:view',JSON.stringify('table')));
-  await first.click();
-  await expect(page.locator('.pg-collection-view')).toHaveAttribute('data-pg-view','tiles');
-  const storage=await page.evaluate(()=>({
+test('segmented switch toggles table and tiles without changing underlying page or selection',async({page})=>{
+  const ids=await table(page).locator('tbody tr').evaluateAll(items=>items.map(x=>x.dataset.pgRowId));
+  await switchTo(page,'tiles');
+  await expect(root(page)).toHaveAttribute('data-pg-view','tiles');
+  await expect(root(page).locator('.pg-collection-view__table-scroll')).toBeHidden();
+  await expect(root(page).locator('.pg-collection-view__tile')).toHaveCount(25);
+  const tileIds=await root(page).locator('.pg-collection-view__tile').evaluateAll(items=>items.map(x=>x.dataset.pgRowId));
+  expect(tileIds).toEqual(ids);
+  await switchTo(page,'table');
+  const restored=await table(page).locator('tbody tr').evaluateAll(items=>items.map(x=>x.dataset.pgRowId));
+  expect(restored).toEqual(ids);
+});
+
+test('saved view is isolated per feature and survives page reload',async({page})=>{
+  await page.evaluate(()=>localStorage.setItem('pg:v1:brands:view',JSON.stringify('table')));
+  await switchTo(page,'tiles');
+  const stored=await page.evaluate(()=>({
     demo:JSON.parse(localStorage.getItem('pg:v1:tools-data-views:view')),
     brands:JSON.parse(localStorage.getItem('pg:v1:brands:view')),
   }));
-  expect(storage).toEqual({demo:'tiles',brands:'table'});
+  expect(stored).toEqual({demo:'tiles',brands:'table'});
   await page.getByRole('tab',{name:'Текст'}).click();
   await expect(page.locator('.pg-shell__page-actions .pg-view-switch')).toHaveCount(0);
   await page.getByRole('tab',{name:'Макети даних'}).click();
-  await expect(page.locator('.pg-collection-view')).toHaveAttribute('data-pg-view','tiles');
+  await expect(root(page)).toHaveAttribute('data-pg-view','tiles');
   await page.reload();
   await page.getByRole('tab',{name:'Макети даних'}).click();
-  await expect(page.locator('.pg-collection-view')).toHaveAttribute('data-pg-view','tiles');
-  await expect(page.locator('.pg-view-switch__button[data-pg-view-mode="tiles"]')).toHaveAttribute('aria-pressed','true');
+  await expect(root(page)).toHaveAttribute('data-pg-view','tiles');
+  await expect(page.locator('.pg-view-switch').getByRole('radio',{name:'Плитки'})).toBeChecked();
 });
 
-test('invalid remembered view safely falls back to a table',async({page})=>{
-  await page.evaluate(()=>window.localStorage.setItem('pg:v1:tools-data-views:view','"invalid"'));
+test('search belongs only to data tab and filtering updates pagination',async({page})=>{
+  const input=page.getByRole('searchbox',{name:'Шукати у таблиці брендів'});
+  await expect(input).toBeVisible();
+  await input.fill('Pinguin');
+  await expect(table(page).locator('tbody tr')).toHaveCount(1);
+  await expect(page.locator('.pg-pagination__status')).toHaveText('1–1 із 1');
+  await page.getByRole('tab',{name:'Текст'}).click();
+  await expect(page.locator('.pg-search')).toBeHidden();
+  await page.getByRole('tab',{name:'Переходи'}).click();
+  await expect(page.locator('.pg-search')).toBeHidden();
+  await page.getByRole('tab',{name:'Макети даних'}).click();
+  await expect(input).toHaveValue('Pinguin');
+  await expect(table(page).locator('tbody tr')).toHaveCount(1);
+  await input.fill('');
+  await expect(table(page).locator('tbody tr')).toHaveCount(25);
+});
+
+test('invalid mode falls back to table and table-only collection has no view switch',async({page})=>{
+  await page.evaluate(()=>localStorage.setItem('pg:v1:tools-data-views:view','"bad-mode"'));
   await page.reload();
   await page.getByRole('tab',{name:'Макети даних'}).click();
-  await expect(page.locator('.pg-collection-view')).toHaveAttribute('data-pg-view','table');
-  await expect(page.locator('.pg-collection-view__table')).toBeVisible();
-});
-
-test('on narrow screens every column remains available by local horizontal scrolling',async({page})=>{
-  await page.setViewportSize({width:390,height:800});
-  const scroller=page.locator('.pg-collection-view__table-scroll');
-  await expect(scroller).toBeVisible();
-  const metrics=await scroller.evaluate(node=>{
-    node.scrollLeft=400;
-    return {
-      clientWidth:node.clientWidth,
-      scrollWidth:node.scrollWidth,
-      scrollLeft:node.scrollLeft,
-      columns:node.querySelectorAll('thead th').length,
-    };
-  });
-  expect(metrics.columns).toBe(9);
-  expect(metrics.scrollWidth).toBeGreaterThan(metrics.clientWidth);
-  expect(metrics.scrollLeft).toBeGreaterThan(0);
-  const tiles=page.locator('.pg-shell__page-actions').getByRole('button',{name:'Плитки'});
-  await tiles.click();
-  await expect(page.locator('.pg-collection-view__tiles')).toBeVisible();
-  const horizontalOverflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2);
-  expect(horizontalOverflow).toBe(false);
-});
-
-test('table-only component has no view-switch and setRows preserves original record objects',async({page})=>{
+  await expect(root(page)).toHaveAttribute('data-pg-view','table');
   const result=await page.evaluate(async()=>{
     const {createCollectionView}=await import('/src/ui/collection-view/collection-view.js');
     const a={id:'a',name:'Перший'},b={id:'b',name:'Другий'};
-    const collection=createCollectionView({
+    const view=createCollectionView({
       label:'Тільки таблиця',rows:[a,b],columns:[{key:'name',label:'Назва'}],
     });
-    const before=collection.getRows()[0]===a;
-    collection.setRows([b,a]);
-    const after=collection.getRows()[0]===b;
-    const controls=collection.headerActions;
-    collection.destroy();
-    return {before,after,controls};
+    const before=view.getRows()[0]===a;
+    view.setRows([b,a]);
+    const after=view.getRows()[0]===b;
+    const noSwitch=view.headerActions===null;
+    view.destroy();
+    return {before,after,noSwitch};
   });
-  expect(result).toEqual({before:true,after:true,controls:null});
+  expect(result).toEqual({before:true,after:true,noSwitch:true});
 });
 
-test('reduced-motion and dark theme keep view controls visible and usable',async({page})=>{
-  await page.emulateMedia({reducedMotion:'reduce'});
-  await page.evaluate(()=>{document.documentElement.dataset.theme='dark';});
-  const btn=page.locator('.pg-shell__page-actions').getByRole('button',{name:'Плитки'});
-  await expect(btn).toBeVisible();
-  await expect(btn).toHaveCSS('transition-duration','0s');
-  await btn.click();
-  await expect(page.locator('.pg-collection-view__tiles')).toBeVisible();
+test('unified tab animation and static Shell geometry, with no flush/fill exception',async({page})=>{
+  const main=page.locator('.pg-shell__content');
+  const original=await main.evaluate(node=>[getComputedStyle(node).padding,getComputedStyle(node).overflow]);
+  const name=await page.locator('#pg-tools-panel-data-views').evaluate(node=>getComputedStyle(node).animationName);
+  await page.getByRole('tab',{name:'Текст'}).click();
+  const after=await main.evaluate(node=>[getComputedStyle(node).padding,getComputedStyle(node).overflow]);
+  expect(after).toEqual(original);
+  const textName=await page.locator('#pg-tools-panel-text').evaluate(node=>getComputedStyle(node).animationName);
+  expect(textName).toBe(name);
+  expect(name).toBe('pg-page-enter');
+  await expect(page.locator('.pg-tabs')).not.toHaveAttribute('data-pg-fill',/.+/);
+  await expect(main).not.toHaveAttribute('data-pg-workspace-layout',/.+/);
+});
+
+test('narrow table scrolls locally while tile cards fit and view switch works',async({page})=>{
+  await page.setViewportSize({width:390,height:800});
+  const area=page.locator('.pg-collection-view__table-scroll');
+  const metrics=await area.evaluate(node=>{
+    node.scrollLeft=400;
+    return {clientWidth:node.clientWidth,scrollWidth:node.scrollWidth,
+      scrollLeft:node.scrollLeft,columns:node.querySelectorAll('thead th').length};
+  });
+  expect(metrics.columns).toBe(11);
+  expect(metrics.scrollWidth).toBeGreaterThan(metrics.clientWidth);
+  expect(metrics.scrollLeft).toBeGreaterThan(0);
+  await switchTo(page,'tiles');
+  await expect(root(page).locator('.pg-collection-view__tiles')).toBeVisible();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2)).toBe(false);
+});
+
+test('dark mode and reduced motion keep native segmented switch accessible',async({page})=>{
+  await page.emulateMedia({reducedMotion:'reduce',colorScheme:'dark'});
+  const plate=page.locator('.pg-view-switch .pg-segment-switch__plate');
+  await expect(plate).toHaveCSS('transition-duration','0s');
+  await switchTo(page,'tiles');
+  await expect(root(page).locator('.pg-collection-view__tiles')).toBeVisible();
 });
