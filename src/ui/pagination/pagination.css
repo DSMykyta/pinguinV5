@@ -3,7 +3,7 @@
 .pg-pagination {
   display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
   align-items:center;column-gap:16px;width:100%;height:100%;
-  min-inline-size:0;box-sizing:border-box;padding:4px 16px;
+  min-inline-size:0;box-sizing:border-box;padding:4px var(--pg-space-3);
   background:transparent;color:var(--pg-color-text-secondary);font-size:12px;
 }
 .pg-pagination__status {
@@ -47,7 +47,7 @@
 }
 .pg-pagination__dots{min-inline-size:13px;text-align:center;letter-spacing:1px;}
 @media(max-width:640px){
-  .pg-pagination {column-gap:4px;padding-inline:8px;}
+  .pg-pagination {column-gap:4px;}
   .pg-pagination__status {display:none;}
   .pg-pagination__pages{gap:0;padding:2px;}
   .pg-pagination__button{min-inline-size:29px;block-size:32px;padding-inline:5px;}
