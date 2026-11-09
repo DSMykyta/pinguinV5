@@ -24,13 +24,6 @@ function appendContent(target,value) {
 function validateColumns(columns) {
   if(!Array.isArray(columns)||!columns.length)throw new TypeError('Collection needs columns');
   const keys=new Set();
-  if(rowActions.length) {
-    const th=document.createElement('th');
-    th.scope='col';
-    th.className='pg-collection-view__actions-cell';
-    th.textContent='Дії';
-    heading.append(th);
-  }
   for(const column of columns) {
     if(!column||typeof column.key!=='string'||!column.key||
       typeof column.label!=='string'||!column.label.trim()||keys.has(column.key)||
@@ -128,6 +121,14 @@ export function createCollectionView({
       },
     });
     th.append(allCheckbox.element);
+    heading.append(th);
+  }
+
+  if(rowActions.length) {
+    const th=document.createElement('th');
+    th.scope='col';
+    th.className='pg-collection-view__actions-cell';
+    th.textContent='Дії';
     heading.append(th);
   }
 
