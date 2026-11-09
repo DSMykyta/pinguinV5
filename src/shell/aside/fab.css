@@ -18,7 +18,11 @@
   z-index: 1;
 }
 
-/* Identical trigger motion for icon and number; only the content differs. */
+/*
+ * Keep the previously approved corner FAB motion for both instances.
+ * Both icons and numeric values share ONE face and the original transforms:
+ * -12deg on hover and 45deg on open; never invent a different scale motion.
+ */
 .pg-fab__face {
   display: inline-grid;
   place-items: center;
@@ -29,13 +33,11 @@
 }
 .pg-fab__face > .pg-icon { display: block; }
 .pg-fab__trigger:not([aria-expanded='true']):hover > .pg-fab__face {
-  transform: translateY(-1px) scale(1.08);
+  transform: translateY(-1px) rotate(-12deg);
 }
-.pg-fab__trigger[aria-expanded='true'] > .pg-fab__face {
-  transform: translateY(-1px) scale(1.12);
-}
+.pg-fab__trigger[aria-expanded='true'] > .pg-fab__face,
 .pg-fab__trigger[aria-expanded='true']:hover > .pg-fab__face {
-  transform: translateY(-2px) scale(1.15);
+  transform: rotate(45deg);
 }
 
 .pg-fab__actions {

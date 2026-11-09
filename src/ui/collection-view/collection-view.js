@@ -259,6 +259,7 @@ export function createCollectionView({
       let menu=null;
       for(const column of columns) {
         const td=document.createElement('td');
+        td.dataset.pgColumn=column.key;
         if(column.align==='end')td.dataset.pgAlign='end';
         if(column.primary)td.dataset.pgPrimary='true';
         if(column.muted)td.dataset.pgMuted='true';
@@ -366,15 +367,18 @@ export function createCollectionView({
   }
   function setQuery(next) {
     query=String(next??'');
+    const onFirstPage=pageControl.getState().page===1;
+    // setPage() already invokes renderData() when the page actually changes.
     pageControl.setPage(1);
-    renderData();
+    if(onFirstPage)renderData();
   }
   function setSort(key,direction='asc') {
     if(!columns.some(col=>col.key===key&&col.sortable!==false)||
       !['asc','desc'].includes(direction))throw new RangeError('Invalid collection sort');
     sort={key,direction};
+    const onFirstPage=pageControl.getState().page===1;
     pageControl.setPage(1);
-    renderData();
+    if(onFirstPage)renderData();
     onSortChange?.({...sort});
   }
   function setMode(next) {

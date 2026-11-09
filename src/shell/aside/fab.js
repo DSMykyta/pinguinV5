@@ -68,14 +68,11 @@ export function createAsideFab({
   valueIndicator.className = 'pg-fab__trigger-value';
   valueIndicator.setAttribute('aria-hidden', 'true');
   let lastValue = null;
-  let valueAnimation = null;
 
   function setTriggerValue(value) {
     const next = value === null ? null : String(value);
     if (position !== 'footer') return;
     if (next === null) {
-      valueAnimation?.cancel();
-      valueAnimation = null;
       lastValue = null;
       face.replaceChildren(createIcon(icon));
       button.classList.remove('pg-fab__trigger--value');
@@ -88,14 +85,6 @@ export function createAsideFab({
     if (next === lastValue) return;
     lastValue = next;
     valueIndicator.textContent = next;
-    valueAnimation?.cancel();
-    if (valueIndicator.isConnected && typeof valueIndicator.animate === 'function' &&
-        !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      valueAnimation = valueIndicator.animate([
-        { opacity: .25, transform: 'translateY(6px) scale(.87)' },
-        { opacity: 1, transform: 'translateY(0) scale(1)' },
-      ], { duration: 260, easing: 'cubic-bezier(.22,1,.36,1)' });
-    }
   }
 
   function syncChoices() {

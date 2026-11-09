@@ -102,3 +102,32 @@ test('tile checkbox, action menu, and clicking tile body stay independent', asyn
   await page.getByRole('button', { name: 'Скасувати' }).click();
   await expect(media(page)).toHaveAttribute('data-pg-selected-count', '1');
 });
+
+
+test('table columns remain pixel-stable when sorting or paging the media library', async ({ page }) => {
+  await page.goto('/tools');
+  await page.getByRole('tab', { name: 'Медіатека' }).click();
+  await page.locator('.pg-view-switch [title="Таблиця"]').click();
+  const view = page.locator('#pg-tools-panel-media-library .pg-collection-view');
+  const table = view.locator('table');
+  await expect(table).toHaveCSS('table-layout','fixed');
+  const edges = () => table.locator('thead th').evaluateAll(nodes =>
+    nodes.map(node => ({ x: Math.round(node.getBoundingClientRect().x),
+      width: Math.round(node.getBoundingClientRect().width) })));
+  const initial = await edges();
+  await table.locator('thead th[data-pg-column="name"] button').click();
+  await expect.poll(edges).toEqual(initial);
+  await page.getByRole('button', { name: 'Наступна сторінка' }).click();
+  await expect.poll(edges).toEqual(initial);
+});
+
+test('tiles share the restrained tilt and disable it in reduced-motion', async ({ page }) => {
+  await page.goto('/tools');
+  await page.getByRole('tab',{name:'Медіатека'}).click();
+  const tile=page.locator('#pg-tools-panel-media-library .pg-collection-view__tile').first();
+  await tile.hover();
+  await expect(tile).not.toHaveCSS('transform', 'none');
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await expect(tile).toHaveCSS('transition-duration','0s');
+  await expect(tile).toHaveCSS('transform','none');
+});

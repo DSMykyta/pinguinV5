@@ -14,7 +14,8 @@
 .pg-collection-view__table {
   width: 100%; min-width: 1050px;
   border-collapse: separate; border-spacing: 0;
-  table-layout: auto;
+  /* Stable column widths across pages and sort directions; no content-driven jumps. */
+  table-layout: fixed;
   color: var(--pg-color-text-primary);
   font-size: 13px; line-height: 1.4;
 }
@@ -72,6 +73,12 @@
 }
 .pg-collection-view__tile {
   position:relative;min-inline-size:0;
+  transform-origin:center;
+  transition:transform var(--pg-duration-layout) cubic-bezier(.34,1.56,.64,1);
+}
+.pg-collection-view__tile:is(:hover, :focus-within) {
+  /* The existing subtle corner-control tilt, shared by all tile collections. */
+  transform:translateY(-1px) rotate(-.75deg);
 }
 .pg-collection-view__tile[data-pg-selected='true'] {
   border-radius:var(--pg-radius-md);
@@ -106,7 +113,8 @@
 .pg-collection-view__tile-check .pg-checkbox__row {min-block-size:28px;}
 .pg-collection-view__tile-menu {margin-inline-start:auto;}
 @media (prefers-reduced-motion:reduce) {
-  .pg-collection-view__tile-open {scroll-behavior:auto;}
+  .pg-collection-view__tile { transition:none; }
+  .pg-collection-view__tile:is(:hover, :focus-within) { transform:none; }
 }
 .pg-collection-view__empty {
   padding: 48px 20px; margin: 0;
@@ -154,8 +162,9 @@
   position: sticky;
   left: 88px;
   z-index: 1;
-  min-width: 168px;
-  max-width: 245px;
+  /* This may be an image preview, not always the name column. */
+  min-width: 0;
+  max-width: none;
 }
 .pg-collection-view[data-pg-selectable='true'] .pg-collection-view__table thead th:nth-child(2) {
   z-index: 3;

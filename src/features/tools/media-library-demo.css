@@ -47,8 +47,9 @@
   border-radius:var(--pg-radius-sm);
 }
 .pg-media-library__root .pg-collection-view__table [data-pg-column='preview'] {
-  min-inline-size:112px;
   inline-size:112px;
+  min-inline-size:112px;
+  max-inline-size:112px;
 }
 .pg-media-library__root .pg-collection-view__table tbody td:has(.pg-media-library__table-thumb) {
   padding-block:6px;

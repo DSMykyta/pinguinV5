@@ -203,40 +203,46 @@ test('FAB action list is dark, visible and readable in both themes without white
 });
 
 
-test('both FAB instances share the exact same hover and open movement for icon and number', async ({ page }) => {
+test('both FABs preserve the approved corner tilt and quarter-turn instead of scale', async ({ page }) => {
   await page.goto('/tools');
   await page.getByRole('tab', { name: 'Макети даних' }).click();
-  const global = page.locator('[data-pg-action="aside-fab-toggle"]');
-  const pagination = page.locator('[data-pg-action="page-fab-toggle"]');
-  await expect(global.locator('.pg-fab__face')).toHaveCount(1);
-  await expect(pagination.locator('.pg-fab__face')).toHaveCount(1);
-  await expect(global.locator('.pg-fab__face > .pg-icon')).toHaveCount(1);
-  await expect(pagination.locator('.pg-fab__face > .pg-fab__trigger-value')).toHaveText('25');
-
-  const properties = element => element.evaluate(node => {
-    const face = node.querySelector('.pg-fab__face');
-    const style = getComputedStyle(face);
-    return { transform: style.transform, timing: style.transitionTimingFunction,
-      duration: style.transitionDuration, property: style.transitionProperty };
+  const controls = [
+    page.locator('[data-pg-action="aside-fab-toggle"]'),
+    page.locator('[data-pg-action="page-fab-toggle"]'),
+  ];
+  const faceStyle = control => control.locator('.pg-fab__face').evaluate(node => {
+    const style = getComputedStyle(node);
+    return { transform: style.transform, duration: style.transitionDuration,
+      timing: style.transitionTimingFunction };
   });
-  const settle = element => element.locator('.pg-fab__face').evaluate(node =>
-    Promise.all(node.getAnimations().map(anim => anim.finished.catch(() => {}))));
-  // Compare equivalent states sequentially: only one pointer hover can exist.
-  expect(await properties(global)).toEqual(await properties(pagination));
-  await global.hover();
-  await settle(global);
-  const hovered = await properties(global);
-  expect(hovered.transform).not.toBe('none');
-  await pagination.hover();
-  await settle(pagination);
-  expect(await properties(pagination)).toEqual(hovered);
-
-  await global.click();
-  await settle(global);
-  const opened = await properties(global);
-  await pagination.click();
-  await settle(pagination);
-  expect(await properties(pagination)).toEqual(opened);
+  const settle = control => control.locator('.pg-fab__face').evaluate(node =>
+    Promise.all(node.getAnimations().map(a => a.finished.catch(() => {}))));
+  const hoverTransforms = [];
+  const openTransforms = [];
+  for (const control of controls) {
+    await expect(control.locator('.pg-fab__face')).toHaveCount(1);
+    await control.hover();
+    await settle(control);
+    hoverTransforms.push(await faceStyle(control));
+    await control.click();
+    await settle(control);
+    openTransforms.push(await faceStyle(control));
+  }
+  expect(hoverTransforms[0]).toEqual(hoverTransforms[1]);
+  expect(openTransforms[0]).toEqual(openTransforms[1]);
+  // Matrix translations vary by font rounding: compare rotation and unit scale only.
+  for (const state of hoverTransforms) {
+    const [a,b] = state.transform.match(/-?[\d.]+/g).slice(0,4).map(Number);
+    expect(a).toBeCloseTo(Math.cos(Math.PI/15), 3);
+    expect(b).toBeCloseTo(-Math.sin(Math.PI/15), 3);
+    expect(a*a+b*b).toBeCloseTo(1, 3);
+  }
+  for (const state of openTransforms) {
+    const [a,b] = state.transform.match(/-?[\d.]+/g).slice(0,4).map(Number);
+    expect(a).toBeCloseTo(Math.SQRT1_2, 3);
+    expect(b).toBeCloseTo(Math.SQRT1_2, 3);
+    expect(a*a+b*b).toBeCloseTo(1, 3);
+  }
 });
 
 test('selected pagination FAB action still gets the same hover response as global FAB links', async ({ page }) => {
