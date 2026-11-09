@@ -1,11 +1,9 @@
 /**
  * PINGUIN NEXT — UNIVERSAL PAGINATION
- * Legacy design: centered pill navigation and page-size speed dial.
- * Native buttons, shared Menu and version-independent page math.
+ * Compact page navigation; page-size choice is delegated to the existing Shell FAB.
+ * Native buttons and version-independent page math, without a second launcher.
  * The caller decides where the element is mounted (e.g. the Shell footer slot).
  */
-import { createMenu } from '../menu/menu.js';
-
 export const DEFAULT_PAGE_SIZES=Object.freeze([10,25,50,100,0]);
 
 export function getPageNumbers(total,page,maxVisible=7) {
@@ -35,18 +33,7 @@ export function createPagination({
   const nav=document.createElement('div');
   nav.className='pg-pagination__pages';
   nav.setAttribute('aria-label','Сторінки');
-  const dial=createMenu({
-    label:'Кількість записів на сторінці',
-    align:'end',presentation:'dial',
-    items:sizes.map(n=>({
-      value:String(n),label:n===0?'Всі':String(n),
-      type:'radio',checked:n===pageSize,
-    })),
-    onSelect:value=>setPageSize(Number(value)),
-  });
-  dial.element.classList.add('pg-pagination__size-menu');
-  dial.trigger.classList.add('pg-pagination__page-size');
-  element.append(status,nav,dial.element);
+  element.append(status,nav);
 
   const controller=new AbortController();
   let count=total,current=page,limit=pageSize;
@@ -88,11 +75,6 @@ export function createPagination({
       } else addButton(String(n),'Сторінка '+n,n);
     }
     addButton('›','Наступна сторінка',current+1,current===state.totalPages);
-    const label=limit===0?'Всі':String(limit);
-    dial.trigger.textContent=label;
-    dial.trigger.setAttribute('aria-label','Рядків на сторінці: '+label);
-    dial.trigger.title='Рядків на сторінці';
-    dial.setSelected(String(limit));
   }
 
   function setPage(next){
@@ -121,6 +103,6 @@ export function createPagination({
   render();
   return Object.freeze({
     element,getState,setPage,setPageSize,setTotal,
-    destroy(){controller.abort();dial.destroy();element.remove();},
+    destroy(){controller.abort();element.remove();},
   });
 }
