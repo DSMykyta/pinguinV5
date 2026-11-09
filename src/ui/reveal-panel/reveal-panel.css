@@ -1,0 +1,32 @@
+/*
+ * PINGUIN NEXT — REVEAL PANEL
+ * Purpose: top/bottom reversible motion for arbitrary contextual UI, not Toast stacks.
+ * Only transforms/opacity animate. No fixed dimensions, colors or decorative surfaces.
+ */
+.pg-reveal-panel {
+  --pg-reveal-panel-offset: 14px;
+  opacity: 0;
+  transform: translate3d(0, calc(-100% - var(--pg-reveal-panel-offset)), 0);
+  transform-origin: center top;
+  pointer-events: none;
+  transition:
+    transform var(--pg-duration-layout) var(--pg-ease-layout),
+    opacity var(--pg-duration-normal) ease;
+}
+.pg-reveal-panel[data-pg-reveal-direction='bottom'] {
+  transform: translate3d(0, calc(100% + var(--pg-reveal-panel-offset)), 0);
+  transform-origin: center bottom;
+}
+.pg-reveal-panel[data-pg-state='visible'] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  pointer-events: auto;
+}
+.pg-reveal-panel[hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .pg-reveal-panel,
+  .pg-reveal-panel[data-pg-state='visible'] {
+    transition: none;
+    transform: none;
+  }
+}

@@ -20,6 +20,7 @@ import { createSidebar } from './sidebar/sidebar.js';
 import { createAside } from './aside/aside.js';
 import { createAsideFab } from './aside/fab.js';
 import { createSearch } from './search/search.js';
+import { createRevealPanel } from '../ui/reveal-panel/reveal-panel.js';
 
 const NARROW_QUERY = '(max-width: 1080px)';
 
@@ -115,8 +116,43 @@ export function mountShell(host) {
       updateView();
     },
   });
-  headerActions.append(pageActionsHost, search.element, contextButton);
+  // One optional, Shell-owned toolbar. All page-specific controls move together.
+  // The persistent context button stays in place when this panel leaves upward.
+  const contextTools = document.createElement('div');
+  contextTools.className = 'pg-shell__context-tools';
+  contextTools.append(pageActionsHost, search.element);
+  const contextReveal = createRevealPanel({
+    element: contextTools, direction: 'top', focusTarget: contextButton,
+  });
+  headerActions.append(contextTools, contextButton);
   header.append(headingArea, headerActions);
+
+  // Page callbacks arrive separately, so reconcile them in one microtask.
+  // Keep outgoing DOM until its exit finishes; rapid tab changes cancel stale exits.
+  let desiredHeaderActions = null;
+  let desiredSearchContext = false;
+  let headerUpdateScheduled = false;
+  let isDisposed = false;
+  function scheduleContextTools() {
+    if (headerUpdateScheduled || isDisposed) return;
+    headerUpdateScheduled = true;
+    queueMicrotask(() => {
+      headerUpdateScheduled = false;
+      if (isDisposed) return;
+      const shouldShow = desiredHeaderActions !== null || desiredSearchContext !== false;
+      if (shouldShow) {
+        pageActionsHost.replaceChildren(...(desiredHeaderActions ? [desiredHeaderActions] : []));
+        search.setContext(desiredSearchContext);
+        contextReveal.setVisible(true);
+      } else {
+        contextReveal.setVisible(false, { onHidden() {
+          if (isDisposed || desiredHeaderActions !== null || desiredSearchContext !== false) return;
+          pageActionsHost.replaceChildren();
+          search.setContext(false);
+        } });
+      }
+    });
+  }
 
   const content = document.createElement('main');
   content.className = 'pg-shell__content pg-scrollbar';
@@ -222,7 +258,10 @@ export function mountShell(host) {
   const pageOutlet = createPageOutlet({
     content, pageName, sidebar, localNavigation,
     onNavigate: path => router.navigate(path),
-    onSearchContext: context => search.setContext(context),
+    onSearchContext: context => {
+      desiredSearchContext = context;
+      scheduleContextTools();
+    },
     onFooterContent: element => {
       if (element !== null && !(element instanceof HTMLElement)) {
         throw new TypeError('Footer content must be an HTMLElement or null');
@@ -240,7 +279,8 @@ export function mountShell(host) {
       if (element != null && !(element instanceof HTMLElement)) {
         throw new TypeError('Header actions must be an HTMLElement or null');
       }
-      pageActionsHost.replaceChildren(...(element ? [element] : []));
+      desiredHeaderActions = element;
+      scheduleContextTools();
     },
     onAsideContext: context => {
       aside.setContext(context);
@@ -259,8 +299,9 @@ export function mountShell(host) {
       footer.replaceChildren();
       footer.dataset.pgHasContent = 'false';
       footer.setAttribute('aria-hidden', 'true');
-      pageActionsHost.replaceChildren();
-      search.setContext(null);
+      desiredHeaderActions = null;
+      desiredSearchContext = null;
+      scheduleContextTools();
       search.close();
       asideFab.close();
       pageFab.close();
@@ -351,6 +392,8 @@ export function mountShell(host) {
   router.start();
 
   return function unmountShell() {
+    isDisposed = true;
+    contextReveal.destroy();
     pageOutlet.dispose();
     search.destroy();
     router.stop();

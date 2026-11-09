@@ -20,6 +20,7 @@ import './ui/page/page.css';
 import './ui/tabs/tabs.css';
 import './ui/tooltip/tooltip.css';
 import './ui/toast/toast.css';
+import './ui/reveal-panel/reveal-panel.css';
 import './ui/dialog/dialog.css';
 import './ui/field/field.css';
 import './ui/scrollbar/scrollbar.css';

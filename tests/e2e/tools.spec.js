@@ -88,3 +88,20 @@ test('pinned aside preserves content geometry and independent tabs', async ({ pa
   await page.keyboard.press('Escape');
   await expect(aside).toBeVisible();
 });
+
+
+test('Shell reveal stays independent of the chosen tab and its permanent context button', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/tools');
+  const reveal = page.locator('.pg-reveal-panel.pg-shell__context-tools');
+  const contextButton = page.locator('.pg-shell__context-button');
+  const before = await contextButton.boundingBox();
+  await page.getByRole('tab', { name: 'Макети даних' }).click();
+  await expect(reveal).toBeVisible();
+  await expect(reveal.locator('.pg-view-switch')).toHaveCount(1);
+  const after = await contextButton.boundingBox();
+  expect(Math.abs(before.x - after.x)).toBeLessThan(2);
+  await page.getByRole('tab', { name: 'Переходи' }).click();
+  await expect(reveal).toBeHidden();
+  await expect(contextButton).toBeVisible();
+});
