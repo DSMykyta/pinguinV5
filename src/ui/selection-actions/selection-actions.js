@@ -24,19 +24,20 @@ export function createSelectionActions({ single = [], multiple = [], onAction } 
   element.setAttribute('role', 'group');
   element.setAttribute('aria-label', 'Дії з вибраними записами');
 
-  const counter = document.createElement('span');
-  counter.className = 'pg-selection-actions__count';
-  counter.setAttribute('role', 'status');
-  counter.setAttribute('aria-live', 'polite');
-
   const controller = new AbortController();
   const groups = new Map();
   for (const [mode, choices] of [['single', single], ['multiple', multiple]]) {
     const group = document.createElement('div');
     group.className = 'pg-selection-actions__group';
     group.dataset.pgGroup = mode;
-    group.inert = true;
-    group.hidden = true;
+    // The count belongs to the multi-selection group; it is never rendered for one.
+    if (mode === 'multiple') {
+      const counter = document.createElement('span');
+      counter.className = 'pg-selection-actions__count';
+      counter.setAttribute('role', 'status');
+      counter.setAttribute('aria-live', 'polite');
+      group.append(counter);
+    }
     for (const choice of choices) {
       const button = document.createElement('button');
       button.type = 'button';
@@ -48,32 +49,32 @@ export function createSelectionActions({ single = [], multiple = [], onAction } 
       });
       group.append(button);
     }
-    groups.set(mode, group);
+    // Each group reuses the same Shell RevealPanel animation. Switching
+    // 1 ↔ 2+ animates both groups rather than instantly toggling hidden.
+    const reveal = createRevealPanel({ element: group, direction: 'top' });
+    groups.set(mode, { element: group, reveal });
+    element.append(group);
   }
-
-  element.append(counter, groups.get('single'), groups.get('multiple'));
-  // Reuse the same top-reveal animation as the adjacent Shell controls.
-  // Positioning is owned by the host; the selection actions take no flex space.
-  const reveal = createRevealPanel({ element, direction: 'top' });
 
   function setSelection(ids) {
     if (!Array.isArray(ids)) throw new TypeError('Expected selected row IDs');
-    const count = ids.length;
-    const mode = getSelectionMode(count);
-    counter.textContent = count > 1 ? count + ' вибрано' : '';
-    counter.hidden = count <= 1;
+    const mode = getSelectionMode(ids.length);
     element.dataset.pgMode = mode;
-    for (const [name, group] of groups) {
-      group.inert = name !== mode;
-      group.hidden = name !== mode;
-    }
-    reveal.setVisible(mode !== 'none');
+    element.inert = mode === 'none';
+    element.setAttribute('aria-hidden', String(mode === 'none'));
+    groups.get('multiple').element.querySelector('.pg-selection-actions__count').textContent =
+      ids.length > 1 ? ids.length + ' вибрано' : '';
+    for (const [name, group] of groups) group.reveal.setVisible(name === mode);
   }
 
   setSelection([]);
   return Object.freeze({
     element,
     setSelection,
-    destroy() { reveal.destroy(); controller.abort(); element.remove(); },
+    destroy() {
+      for (const group of groups.values()) group.reveal.destroy();
+      controller.abort();
+      element.remove();
+    },
   });
 }
