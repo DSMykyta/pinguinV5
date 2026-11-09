@@ -36,6 +36,8 @@
 | Tabs | `src/ui/tabs` | Є |
 | Page view | `src/ui/page` | Є |
 | Data row | `src/ui/data-row` | Є |
+| Collection View | `src/ui/collection-view` | [Dense table and optional tiles](collection-view.md) |
+| View Switch | `src/ui/view-switch` | Contextual header mode control; [collection contract](collection-view.md) |
 | Toast | `src/ui/toast` | [Специфікація](toast.md), перший новий компонент |
 | Dialog / Confirm | `src/ui/dialog` | [Специфікація](dialog.md): native modal + blur |
 | Input / Search field | `src/ui/input` | [Дослідження, контракт та реалізація](input.md): floating, standard, search; supports flexible adornments |

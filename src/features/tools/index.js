@@ -19,6 +19,7 @@ import { createAdvancedFieldDemo } from './advanced-field-demo.js';
 import { createListboxDemo } from './listbox-demo.js';
 import { createMenuDemo } from './menu-demo.js';
 import { createImageFieldDemo } from './image-field-demo.js';
+import { createDataViewsDemo } from './data-views-demo.js';
 import { createSectionNavigatorDemo } from './section-navigator-demo.js';
 import './toast-demo.css';
 import './dialog-demo.css';
@@ -28,6 +29,7 @@ import './advanced-field-demo.css';
 import './listbox-demo.css';
 import './menu-demo.css';
 import './image-field-demo.css';
+import './data-views-demo.css';
 
 const TABS = Object.freeze([
   {
@@ -36,6 +38,13 @@ const TABS = Object.freeze([
     icon: 'table-2',
     sourceUrl: 'https://github.com/DSMykyta/pinguinV5/tree/legacy/js/generators/generator-table',
     sourceLabel: 'Генератор у legacy',
+  },
+  {
+    id: 'data-views',
+    label: 'Макети даних',
+    icon: 'layout-grid',
+    sourceUrl: 'https://github.com/DSMykyta/pinguinV5/blob/work/docs/ui/collection-view.md',
+    sourceLabel: 'Специфікація таблиць і плиток',
   },
   {
     id: 'text',
@@ -53,10 +62,13 @@ const TABS = Object.freeze([
   },
 ]);
 
-export function mount(host, { setAsideContext, setSearchEntries, localNavigation }) {
+export function mount(host, { setAsideContext, setSearchEntries, setHeaderActions, localNavigation }) {
   // Each tab owns a separate persistent workspace (not shared placeholder DOM).
   const tablePage = createPageView({ title: 'Таблиці' });
   tablePage.body.append(createToastDemo());
+  const designPage = createPageView({ title: 'Таблиця та плитки' });
+  const dataViewsDemo = createDataViewsDemo();
+  designPage.body.append(dataViewsDemo.element);
   const textPage = createPageView({ title: 'Текст' });
   const fieldDemo = createFieldDemo();
   const advancedDemo = createAdvancedFieldDemo();
@@ -69,6 +81,7 @@ export function mount(host, { setAsideContext, setSearchEntries, localNavigation
   navigationPage.body.append(navigationDemo.element);
   const pageByTab = new Map([
     ['tables', tablePage],
+    ['data-views', designPage],
     ['text', textPage],
     ['navigation', navigationPage],
   ]);
@@ -84,6 +97,7 @@ export function mount(host, { setAsideContext, setSearchEntries, localNavigation
       content: pageByTab.get(item.id).element,
     })),
     onChange(id) {
+      setHeaderActions(id === 'data-views' ? dataViewsDemo.headerActions : null);
       const item = TABS.find(tab => tab.id === id);
       setAsideContext({
         title: item.label,
@@ -108,6 +122,8 @@ export function mount(host, { setAsideContext, setSearchEntries, localNavigation
   host.replaceChildren(tabs.element);
 
   return () => {
+    setHeaderActions(null);
+    dataViewsDemo.destroy();
     navigationDemo.destroy();
     fieldDemo.destroy();
     advancedDemo.destroy();

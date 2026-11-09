@@ -1,0 +1,75 @@
+/* Demo-only content for agreeing table and tile appearance, not Shell chrome. */
+.pg-tools-data-views__root { width: 100%; min-width: 0; }
+.pg-tools-data-views__intro {
+  margin: 0 0 var(--pg-space-2);
+  max-inline-size: 850px;
+  color: var(--pg-color-text-secondary); font-size: 13px; line-height: 1.55;
+}
+.pg-tools-data-views__meta {
+  margin: 0 0 var(--pg-space-5);
+  color: var(--pg-color-text-muted);
+  font-size: 12px; line-height: 1.5;
+}
+.pg-tools-data-views__status {
+  display: inline-flex; align-items: center;
+  min-block-size: 23px; padding: 2px 8px;
+  border-radius: var(--pg-radius-full);
+  background: var(--pg-color-selected);
+  color: var(--pg-color-text-secondary);
+  font-size: 11px; font-weight: 560; white-space: nowrap;
+}
+.pg-tools-data-views__status[data-pg-status='active'] {
+  background: var(--pg-color-accent-soft); color: var(--pg-color-accent);
+}
+.pg-tools-data-views__card {
+  display: flex; flex-direction: column; min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--pg-color-border);
+  border-radius: var(--pg-radius-md);
+  background: var(--pg-color-surface);
+  transition: border-color var(--pg-duration-fast) ease,
+    box-shadow var(--pg-duration-fast) ease;
+}
+.pg-tools-data-views__card:hover {
+  border-color: var(--pg-color-border-strong);
+  box-shadow: 0 6px 22px var(--pg-color-shadow);
+}
+.pg-tools-data-views__tile-preview {
+  display: grid; place-items: center;
+  aspect-ratio: 1.35; min-inline-size: 0;
+  background: var(--pg-color-selected);
+  border-bottom: 1px solid var(--pg-color-border);
+}
+.pg-tools-data-views__monogram {
+  display: grid; place-items: center;
+  inline-size: 62px; block-size: 62px;
+  border-radius: var(--pg-radius-md);
+  background: var(--pg-color-surface);
+  color: var(--pg-color-icon);
+  font-size: 21px; font-weight: 580; letter-spacing: -.04em;
+  box-shadow: 0 2px 9px var(--pg-color-shadow);
+}
+.pg-tools-data-views__tile-content {
+  display: flex; flex-direction: column; gap: 7px;
+  padding: 12px; min-width: 0;
+}
+.pg-tools-data-views__tile-head { display: flex; align-items: start; flex-wrap: wrap; gap: 6px; }
+.pg-tools-data-views__tile-name {
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis;
+  color: var(--pg-color-text-primary);
+  font-size: 13px; font-weight: 600; line-height: 1.45;
+}
+.pg-tools-data-views__tile-category {
+  margin: 0; color: var(--pg-color-text-secondary);
+  font-size: 12px; line-height: 1.4;
+}
+.pg-tools-data-views__tile-facts {
+  display: flex; justify-content: space-between; flex-wrap: wrap;
+  gap: 7px; margin-block-start: 4px;
+  color: var(--pg-color-text-muted);
+  font-size: 11px; font-variant-numeric: tabular-nums;
+}
+.pg-tools-data-views__tile-fact { white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) {
+  .pg-tools-data-views__card { transition: none; }
+}
