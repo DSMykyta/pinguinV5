@@ -1,0 +1,134 @@
+/**
+ * PINGUIN NEXT — INDEPENDENT ACTION MENU
+ * Native button + ARIA menu keyboard model. No feature state/global registry.
+ */
+let sequence = 0;
+const allowed = new Set(['action','navigation','check']);
+
+export function createMenu({label,id,items=[],align='start',disabled=false,onSelect}={}) {
+  if(typeof label!=='string'||!label.trim())throw new TypeError('Menu label is required');
+  if(!['start','end'].includes(align))throw new TypeError('Invalid menu alignment');
+  if(!Array.isArray(items)||!items.length)throw new TypeError('Menu needs items');
+  const entries=items.map((item,i)=>{
+    if(!item||typeof item.label!=='string'||!item.label.trim())throw new TypeError('Menu item needs label');
+    const type=item.type||'action';
+    if(!allowed.has(type))throw new TypeError('Invalid menu item type');
+    return {label:item.label,value:String(item.value??i),type,disabled:Boolean(item.disabled),
+      danger:Boolean(item.danger),checked:Boolean(item.checked)};
+  });
+  const uid=id||'pg-menu-'+(++sequence);
+  const element=document.createElement('div');
+  element.className='pg-menu';
+  element.dataset.pgAlign=align;
+  const trigger=document.createElement('button');
+  trigger.className='pg-menu__trigger';
+  trigger.type='button';
+  trigger.disabled=Boolean(disabled);
+  trigger.textContent=label;
+  trigger.id=uid+'-trigger';
+  trigger.setAttribute('aria-haspopup','menu');
+  trigger.setAttribute('aria-expanded','false');
+  trigger.setAttribute('aria-controls',uid+'-panel');
+  const panel=document.createElement('div');
+  panel.className='pg-menu__panel';
+  panel.hidden=true;
+  panel.id=uid+'-panel';
+  panel.setAttribute('role','menu');
+  panel.setAttribute('aria-label',label);
+  const supportsPopover=typeof panel.showPopover==='function';
+  if(supportsPopover)panel.setAttribute('popover','manual');
+  const controller=new AbortController();
+  const buttons=[];
+  let openState=false,disposed=false;
+  entries.forEach((item,i)=>{
+    const action=document.createElement('button');
+    action.type='button';
+    action.className='pg-menu__item';
+    action.textContent=item.label;
+    action.dataset.pgValue=item.value;
+    action.disabled=item.disabled;
+    action.setAttribute('role',item.type==='check'?'menuitemcheckbox':'menuitem');
+    if(item.type==='check')action.setAttribute('aria-checked',String(item.checked));
+    if(item.danger)action.dataset.pgDanger='true';
+    action.tabIndex=-1;
+    action.addEventListener('click',event=>{
+      if(item.disabled)return;
+      if(item.type==='check') {
+        item.checked=!item.checked;
+        action.setAttribute('aria-checked',String(item.checked));
+      }
+      onSelect?.(item.value,{...item},event);
+      close(true);
+    },{signal:controller.signal});
+    buttons.push(action);
+    panel.append(action);
+  });
+  element.append(trigger,panel);
+  function enabledButtons(){return buttons.filter(button=>!button.disabled);}
+  function position(){
+    if(!openState||!supportsPopover)return;
+    const rect=trigger.getBoundingClientRect();
+    const width=Math.min(300,Math.max(170,rect.width));
+    const left=align==='end'?rect.right-width:rect.left;
+    const height=Math.min(panel.scrollHeight,320);
+    const down=innerHeight-rect.bottom;
+    const above=rect.top;
+    const upward=height>down&&above>down;
+    panel.style.position='fixed';
+    panel.style.width=Math.min(width,innerWidth-16)+'px';
+    panel.style.maxHeight=Math.max(90,Math.min(320,(upward?above:down)-12))+'px';
+    panel.style.left=Math.max(8,Math.min(left,innerWidth-width-8))+'px';
+    panel.style.top=(upward?Math.max(8,rect.top-Math.min(height,above-12)-4):rect.bottom+4)+'px';
+  }
+  function focusItem(index){
+    const enabled=enabledButtons();
+    if(!enabled.length)return;
+    enabled[(index+enabled.length)%enabled.length].focus();
+  }
+  function open(){
+    if(openState||disposed||trigger.disabled)return;
+    openState=true;
+    panel.hidden=false;
+    trigger.setAttribute('aria-expanded','true');
+    element.dataset.pgOpen='true';
+    if(supportsPopover)panel.showPopover();
+    position();
+    focusItem(0);
+  }
+  function close(restore=false){
+    if(!openState)return;
+    openState=false;
+    if(supportsPopover&&panel.matches(':popover-open'))panel.hidePopover();
+    panel.hidden=true;
+    trigger.setAttribute('aria-expanded','false');
+    element.dataset.pgOpen='false';
+    if(restore)trigger.focus();
+  }
+  trigger.addEventListener('click',()=>openState?close(true):open(),{signal:controller.signal});
+  trigger.addEventListener('keydown',event=>{
+    if(!openState && ['ArrowDown','ArrowUp','Enter',' '].includes(event.key)){
+      event.preventDefault();open();
+      if(event.key==='ArrowUp')focusItem(enabledButtons().length-1);
+    }
+  },{signal:controller.signal});
+  panel.addEventListener('keydown',event=>{
+    const key=event.key;
+    const enabled=enabledButtons();
+    const i=enabled.indexOf(document.activeElement);
+    if(key==='Escape'){event.preventDefault();close(true);}
+    else if(key==='ArrowDown'||key==='ArrowUp'){
+      event.preventDefault();focusItem(i+(key==='ArrowDown'?1:-1));
+    } else if(key==='Home'||key==='End'){
+      event.preventDefault();focusItem(key==='Home'?0:enabled.length-1);
+    } else if(key==='Tab')close();
+  },{signal:controller.signal});
+  document.addEventListener('pointerdown',event=>{
+    if(openState&&!element.contains(event.target))close();
+  },{signal:controller.signal});
+  window.addEventListener('resize',position,{signal:controller.signal});
+  window.addEventListener('scroll',position,{signal:controller.signal,capture:true,passive:true});
+  return Object.freeze({
+    element,trigger,open,close,
+    destroy(){disposed=true;close();controller.abort();element.remove();},
+  });
+}
