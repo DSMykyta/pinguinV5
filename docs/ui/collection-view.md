@@ -88,7 +88,7 @@ The global fourth-corner FAB stays in place and keeps its original actions. A se
 
 ## Contextual selection actions in the existing header (2026-11-09)
 
-The existing Shell header-actions slot hosts the current view switch **followed by** the shared `createSelectionActions` strip. Selection data stays in `createCollectionView`; the action strip only responds to `onSelectionChange(ids)`, and each feature supplies its own action policies and handlers. Do not place these actions in aside, the pagination footer, or a new floating FAB.
+The existing Shell header-actions slot hosts the view switch in normal flow, while the shared `createSelectionActions` strip is absolutely anchored **to its left**. Selection data stays in `createCollectionView`; the action strip only responds to `onSelectionChange(ids)`, and each feature supplies its own action policies and handlers. Do not place these actions in aside, the pagination footer, or a new floating FAB.
 
 For the Tools → Макети даних preview only:
 
@@ -97,7 +97,11 @@ For the Tools → Макети даних preview only:
 - Two or more selected: hide duplication; show count and **Архівувати**, **Відновити**, **Видалити**. The latter requires confirmation through existing Dialog. The close icon clears selection.
 - All operations update local preview records only; they never call a production API.
 - Actions are reusable controls with role/accessibility names. Old aside sort controls remain; the duplicated aside archive/count controls have been removed.
-- Both the one-to-many transition and hiding on deselection have a CSS animation with reduced-motion support. Buttons and groups are retained in the DOM; no rebuild is needed when selection changes.
+- The existing shared `createRevealPanel({ direction: 'top' })` owns the entrance/exit; selection-actions CSS adds no bespoke entrance animation or width transition. The actions are out of the flex flow, so selecting/deselecting never moves the view switch, search, or aside toggle. The one/multiple groups toggle content in place without moving those anchors.
 - Selection survives ordinary sort/page navigation. When selected records disappear from `setRows`, `onSelectionChange` updates the header strip.
 
 Unit checks: `tests/selection-actions.test.js`. The demo's scenarios are one item → duplicate; two items → archive/restore/delete with confirmation; clear → hidden.
+
+### Invariant: stable header control positions
+
+The selection action strip must remain outside the measured header flex flow. Do not animate width/max-width or place it between the fixed view switch and search. Reuse the universal `ui/reveal-panel` motion; content ownership belongs to `ui/selection-actions`, layout anchoring to the feature's existing header-actions host. Any new page using selection actions must keep its persistent header controls stationary.
