@@ -1,3 +1,5 @@
+> **Current design decision (2026-11-09):** Select and Combobox have static labels above their plain 56px surface. The earlier floating/notch details below are archival and superseded by [field.md](field.md).
+
 # Selection fields — design contract (2026-11-08)
 
 Status: specification before implementation. Scope: `src/ui/select`, `src/ui/combobox`; never import a feature from shared UI.

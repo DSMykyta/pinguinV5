@@ -1,3 +1,5 @@
+> **Current design decision (2026-11-09):** Textarea has a permanent label above the border with no notch. The earlier floating/notch details below are archival and superseded by [field.md](field.md).
+
 # Textarea — independent multiline outlined field
 
 Status: design contract before implementation, 2026-11-08.

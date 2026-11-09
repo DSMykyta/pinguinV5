@@ -1,3 +1,5 @@
+> **Current design decision (2026-11-09):** Visible labels are always static above the border (including former floating, standard and search variants). The earlier floating/notch details below are archival and superseded by [field.md](field.md).
+
 # Pinguin Next — Input / Search field
 
 **Статус:** універсальний компонент для гілки `work`; реалізуємо окремо від Shell. Див. [базу UI](overview.md) та [канонічні конвенції](../conventions.md).

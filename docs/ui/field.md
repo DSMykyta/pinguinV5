@@ -1,45 +1,34 @@
-# Shared outlined field — architecture and visual behavior
+# Shared Field — permanent labels above controls
 
-Approved 2026-11-08. Implements the user's specified label on the upper stroke of the outline.
+Approved on 2026-11-09. Supersedes the floating-label and notched-outline experiments.
 
-## Rationale and external references
+## Visual and architectural contract
 
-- Material Design outlined text input and outlined select use the same floating-label/notch pattern:
-  https://github.com/material-components/material-web/blob/main/docs/components/select.md
-  https://github.com/material-components/material-components-web/blob/master/packages/mdc-textfield/README.md
-- Adobe Spectrum requires a real associated label; never rely on placeholder alone:
-  https://opensource.adobe.com/spectrum-web-components/components/field-label/
-- The prefix/suffix must not break label alignment. Keep an edit-area wrapper between flexible leading/trailing slots; preserve the outline across the entire control.
+- Every editable field has a real, permanently visible label **above the border**, not inside or overlapping it. The label does not move, shrink or change position on hover, focus, blur or nonempty value.
+- No decorative `fieldset` / `legend`, no mask/background patch, no opacity trick hiding a label. Simple `border: 1px solid ...` on `.pg-field__surface`.
+- Shared `src/ui/field/field.js` generates the label, an editing surface, and optional independent leading/trailing DOM slots. It is used by Input, Select, Combobox, Tag Field, Number Field, Textarea and Listbox.
+- The native input/select/textarea or accessible trigger retains a proper associated label, focus, keyboard operation, disabled and error states.
+- Single-line surface height is 56px. Multiline and token collection surfaces may grow. Width is responsive to their parent; a grid neighbor's helper text must not stretch a control.
+- Error uses the same red border and error-colored label; focus uses the same focus token. State belongs to the component, not the form page.
+- Search Input also exposes its real label above the surface; placeholders and adornments do not replace labels.
+- No global layout manager, feature imports or observers needed for a permanent label.
 
-## One outline — many controls
+## DOM
 
-`createFieldFrame({label,control,controlId,leading?,trailing?,floating?})` produces a reusable:
 ```text
-.pg-field.pg-field--floating
-  .pg-field__leading (optional independent DOM slot)
-  .pg-field__edit
-    input | select | textarea | other control
-    label[for=controlId].pg-field__label
-  .pg-field__trailing (optional independent DOM slot)
+.pg-field
+  label.pg-field__label[for=controlId]
+  .pg-field__surface
+    .pg-field__leading (optional DOM slot)
+    .pg-field__edit
+      input | select | textarea | button | token collection
+    .pg-field__trailing (optional DOM slot)
 ```
 
-Only `src/ui/field/field.css` owns common outline, focus, label geometry and transition. Per-component CSS owns only unique details, such as tag chips, select caret and combobox listbox.
-`setFilled(boolean)` updates `data-pg-filled`, and all owners synchronize on input/change/selection and programmatic setters.
+The `frame.field` return value is the full label-and-surface block. `frame.label`, `frame.edit`, `leadingSlot`, `trailingSlot`, and setters remain available to owners. The legacy `floating` Input variant remains accepted for API compatibility but now renders the same static label.
 
-### Geometry
-- Floating field outline: 56 CSS px minimum height, 10px radius, 14px inner inline text padding.
-- Idle empty: label visually inside; active or filled: small label is centered exactly over the top border with an opaque surface background to produce a legible notch.
-- No label truncation when the field is narrow: ellipsis allowed in resting state; tooltip/full text may be supplied separately if needed.
-- Affixes are DOM slots and may be icons, text, units or buttons; label follows the available editable area, not the outer field's fixed left edge.
-- Invalid/disabled/read-only and hover states use the same tokens regardless of input type.
-- Search input is an explicit exception: an accessible visually hidden label with search icon, not floating.
-- Standard input is an explicit exception: an above-field permanent label when complex forms require it.
+## Verification
 
-### Test contract
-Compare the *actual bounding boxes* of Input/Select/Combobox/Tag labels before and after focus/value, including adornments, dark theme and mobile width. Focused label center must coincide with field's top border (tolerance <=3 CSS px). No duplicate visible label/placeholder at idle. Test programmatic setValue/setOptions, disabled variants and composability with leading/trailing controls.
+Browser tests verify accessible label names, label geometry above the surface during focus and changes, zero legends/notches, differing parent backgrounds, consistent 56px surfaces, dark/light, reduced-motion, responsive widths, programmatic values, token operations and selection behavior.
 
-## Notched outline and fixed one-line geometry (2026-11-09)
-
-A true decorative `fieldset` + `legend` interrupts the outline physically. The only visible text is the actual associated `label`; the legend text is CSS-generated from `data-pg-label` (hidden from assistive technology). **No label background color, masking patch or translucent rectangle** is used. This works over mixed card/page/gradient surfaces. It follows the [Material UI outlined input notch principle](https://mui.com/material-ui/migration/v5-component-changes/#replace-labelwidth-prop).
-
-`Input`, native `Select`, editable `Combobox` and `Number Field` have a 56px one-line outline. Textarea and Tag Field can grow. The controls are aligned to the top of grid cells rather than stretching to a neighbor's helper text. The notch accounts for optional leading accessories using a local `ResizeObserver`; frame `destroy()` must be called when the owner component is destroyed. Regression tests check the notch and equal heights.
+Prior floating/notch specifications have been retired. If floating labels are reconsidered later, they require a separate explicit design decision and no partial background hacks.

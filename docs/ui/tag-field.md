@@ -1,3 +1,5 @@
+> **Current design decision (2026-11-09):** Tag Field has a permanent label above the plain outline; the token collection can expand. The earlier floating/notch details below are archival and superseded by [field.md](field.md).
+
 # Tag Field — design contract (2026-11-08)
 
 Status: specification before implementation; general UI, unrelated to Brands business logic.

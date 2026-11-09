@@ -39,7 +39,7 @@
 | Toast | `src/ui/toast` | [Специфікація](toast.md), перший новий компонент |
 | Dialog / Confirm | `src/ui/dialog` | [Специфікація](dialog.md): native modal + blur |
 | Input / Search field | `src/ui/input` | [Дослідження, контракт та реалізація](input.md): floating, standard, search; supports flexible adornments |
-| Shared Field | `src/ui/field` | [One outline, border-notch label, leading/trailing slots](field.md) |
+| Shared Field | `src/ui/field` | [One plain outline, static label above, leading/trailing slots](field.md) |
 | Native Select | `src/ui/select` | Native browser choice with shared floating label; [contract](selection-fields.md) |
 | Combobox | `src/ui/combobox` | Editable selection, async search and keyboard listbox; [contract](selection-fields.md) |
 | Listbox | `src/ui/listbox` | [Single/multiple listbox with chips, search and select-all](listbox.md) |

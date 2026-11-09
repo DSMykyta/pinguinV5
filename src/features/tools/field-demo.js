@@ -16,7 +16,7 @@ export function createFieldDemo() {
   title.textContent = 'Спільні поля';
   const hint = document.createElement('p');
   hint.className = 'pg-tools-field-demo__hint';
-  hint.textContent = 'Одна рамка для тексту, вибору і тегів. Підпис підіймається на її верхню лінію при фокусі або заповненні.';
+  hint.textContent = 'Спільні рамки й постійні підписи над полями для введення тексту, вибору та тегів.';
   const grid = document.createElement('div');
   grid.className = 'pg-tools-field-demo__grid';
 

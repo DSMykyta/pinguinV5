@@ -1,3 +1,5 @@
+> **Current design decision (2026-11-09):** Number Field has a permanent label above its 56px native numeric surface. The earlier floating/notch details below are archival and superseded by [field.md](field.md).
+
 # Number Field — quantities and increments, not identifiers
 
 Status: design contract before implementation, 2026-11-08.

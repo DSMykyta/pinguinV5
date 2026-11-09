@@ -23,7 +23,7 @@ export function createInputDemo() {
 
   const introduction = document.createElement('p');
   introduction.className = 'pg-tools-input-demo__hint';
-  introduction.textContent = 'Наведіть курсор або виберіть поле: підпис плавно переміститься на верхню лінію рамки. Введене значення залишає його там.';
+  introduction.textContent = 'Підписи постійно розташовані над полями. Рамка не має вирізів або підкладок і не змінює висоту при фокусі.';
 
   const grid = document.createElement('div');
   grid.className = 'pg-tools-input-demo__grid';

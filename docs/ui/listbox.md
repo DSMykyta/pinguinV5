@@ -1,3 +1,5 @@
+> **Current design decision (2026-11-09):** Listbox has a permanent label above its 56px trigger surface; the native-like placeholder stays visible. The earlier floating/notch details below are archival and superseded by [field.md](field.md).
+
 # Listbox — independent single/multiple select with search
 Design contract · 2026-11-09. Reference only: the uploaded MiniMax bundle's `src/ui/listbox` and its screenshots; rejected Brands feature is excluded.
 
