@@ -100,8 +100,9 @@ export function createImageField({
     if(objectUrl)URL.revokeObjectURL(objectUrl);
     objectUrl=null;
   }
-  function commit(next,event,notify=true){
+  function commit(next,event,notify=true,ownedUrl=null){
     release();
+    objectUrl=ownedUrl;
     current=next?{...next}:null;
     refresh();
     setError('');
@@ -118,8 +119,7 @@ export function createImageField({
     const issue=validateFile(file);
     if(issue){setError(issue);return false;}
     const url=URL.createObjectURL(file);
-    commit({name:file.name,url,file},event);
-    objectUrl=url; // component owns this URL until replacement, removal or destroy
+    commit({name:file.name,url,file},event,true,url); // owned even if callback throws
     return true;
   }
   function setValue(next){

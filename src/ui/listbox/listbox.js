@@ -184,7 +184,7 @@ export function createListbox({
     const q=normalized(query);
     optionsDOM.forEach((node,i)=>{node.hidden=!!q && !normalized(items[i].label).includes(q);});
     const indices=visibleIndices();
-    empty.hidden=indices.length>0;
+    empty.hidden=optionsDOM.some(node=>!node.hidden);
     if(indices.length===0)list.replaceChildren(...optionsDOM,empty);
     activate(indices.includes(active)?active:(indices[0]??-1));
     reflect();
@@ -255,6 +255,7 @@ export function createListbox({
     trigger.setAttribute('aria-expanded','true');
     element.dataset.pgOpen='true';
     if(hasPopover)panel.showPopover();
+    search.value='';
     filter('');
     position();
     (searchable?search:list).focus();
@@ -314,6 +315,12 @@ export function createListbox({
     const already=eligible.length>0&&eligible.every(i=>selected.has(items[i].value));
     eligible.forEach(i=>already?selected.delete(items[i].value):selected.add(items[i].value));
     reflect();onChange?.(selection(),event);
+  },{signal:controller.signal});
+  panel.addEventListener('keydown',event=>{
+    if(event.target===all&&event.key==='Escape'){event.preventDefault();close(true);}
+  },{signal:controller.signal});
+  document.addEventListener('focusin',event=>{
+    if(opened&&!element.contains(event.target))close();
   },{signal:controller.signal});
   document.addEventListener('pointerdown',event=>{
     if(opened&&!element.contains(event.target))close();
