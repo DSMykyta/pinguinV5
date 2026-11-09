@@ -77,9 +77,14 @@ test('pagination advances from 25 to 7, changes rows-per-page and preserves sele
   await expect(page.getByRole('button',{name:'Сторінка 2'})).toHaveAttribute('aria-current','page');
   await page.getByRole('button',{name:'Попередня сторінка'}).click();
   await expect(table(page).locator('tbody tr').first().getByRole('checkbox')).toBeChecked();
-  await page.getByRole('button',{name:'Рядків на сторінці: 25'}).click();
-  await expect(page.getByRole('menuitemradio',{name:'25'})).toHaveAttribute('aria-checked','true');
-  await page.getByRole('menuitemradio',{name:'50'}).click();
+  const originalFab=page.locator('[data-pg-action="aside-fab-toggle"]');
+  const sizeFab=page.locator('[data-pg-action="page-fab-toggle"]');
+  await expect(originalFab).toBeVisible();
+  await expect(sizeFab).toBeVisible();
+  await sizeFab.click();
+  await expect(page.locator('#pg-page-fab-actions [data-pg-fab-value="25"]'))
+    .toHaveAttribute('aria-pressed','true');
+  await page.locator('#pg-page-fab-actions [data-pg-fab-value="50"]').click();
   await expect(table(page).locator('tbody tr')).toHaveCount(32);
   await expect(page.locator('.pg-pagination__status')).toHaveText('Показано 32 з 32');
 });
@@ -112,7 +117,7 @@ test('row action menu is functional and uses one shared Menu implementation',asy
   const item=page.getByRole('menuitem',{name:'Дублювати'});
   await expect(item).toBeVisible();
   await item.click();
-  await expect(page.locator('.pg-pagination__status')).toContainText('із 33');
+  await expect(page.locator('.pg-pagination__status')).toHaveText('Показано 25 з 33');
   await page.locator('[data-pg-action="aside-toggle"]').click();
   await expect(page.locator('.pg-tools-data-views__aside-detail')).toContainText('Створено локальну копію');
 });
@@ -153,7 +158,7 @@ test('search belongs only to data tab and filtering updates pagination',async({p
   await expect(input).toBeVisible();
   await input.fill('Pinguin');
   await expect(table(page).locator('tbody tr')).toHaveCount(1);
-  await expect(page.locator('.pg-pagination__status')).toHaveText('1–1 із 1');
+  await expect(page.locator('.pg-pagination__status')).toHaveText('Показано 1 з 1');
   await page.getByRole('tab',{name:'Текст'}).click();
   await expect(page.locator('.pg-search')).toBeHidden();
   await page.getByRole('tab',{name:'Переходи'}).click();
@@ -268,4 +273,36 @@ test('page footer is shared across tabs, with no duplicated pagination controls'
   await expect(footer).toHaveCSS('height','56px');
   const bounds=await Promise.all([footer.boundingBox(),pager.boundingBox()]);
   expect(bounds[1].bottom).toBeLessThanOrEqual(bounds[0].bottom+2);
+});
+
+test('the original FAB stays unchanged, with a second instance alongside only on data tab',async({page})=>{
+  const primary=page.locator('[data-pg-action="aside-fab-toggle"]');
+  const secondary=page.locator('[data-pg-action="page-fab-toggle"]');
+  await expect(primary).toBeVisible();
+  await expect(secondary).toBeVisible();
+  await expect(page.locator('.pg-fab')).toHaveCount(2);
+  const [a,b]=await Promise.all([primary.boundingBox(),secondary.boundingBox()]);
+  expect(Math.abs(a.y-b.y)).toBeLessThan(2);
+  expect(Math.abs(b.x+b.width+8-a.x)).toBeLessThan(2);
+  const ids=await page.locator('.pg-fab__actions').evaluateAll(els=>els.map(el=>el.id));
+  expect(new Set(ids).size).toBe(2);
+  await primary.click();
+  await expect(page.locator('#pg-fab-actions .pg-fab__item')).toHaveCount(2);
+  await expect(page.locator('#pg-fab-actions')).toContainText('Код проєкту');
+  await expect(secondary).toHaveAttribute('aria-expanded','false');
+  await secondary.click();
+  await expect(primary).toHaveAttribute('aria-expanded','false');
+  await expect(secondary).toHaveAttribute('aria-expanded','true');
+  await expect(page.locator('#pg-page-fab-actions .pg-fab__item')).toHaveCount(5);
+  await page.keyboard.press('Escape');
+  await expect(secondary).toHaveAttribute('aria-expanded','false');
+  await expect(secondary).toBeFocused();
+  await page.getByRole('tab',{name:'Текст'}).click();
+  await expect(secondary).toBeHidden();
+  await expect(primary).toBeVisible();
+  await primary.click();
+  await expect(page.locator('#pg-fab-actions')).toContainText('Редактор у legacy');
+  await page.getByRole('tab',{name:'Макети даних'}).click();
+  await expect(secondary).toBeVisible();
+  await expect(page.locator('#pg-fab-actions')).toContainText('Код проєкту');
 });

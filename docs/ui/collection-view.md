@@ -74,3 +74,7 @@ This remains a **UI alignment preview**, not a production Brands route.
 - The order of table cells is **selection checkbox, action menu, data columns**. A table without selection still places actions before the data. No sticky actions column at the far right.
 - Action Menu uses the existing `createMenu` and shared popup positioning. The panel measures text and fits the longest label without horizontal scrolling, and both hovered/focused items and the open trigger have visible state.
 - Pagination is rendered in the existing Shell footer via one optional `setFooterContent` callback. It uses the same `createPagination` instance for table and tiles, not a clone and not a separate work-area mode. The shared footer remains empty on unrelated tabs.
+
+## Shared FAB composition correction
+
+The global fourth-corner FAB stays in place and keeps its original actions. A second FAB instance from the **same existing factory** sits immediately to its left only for data collections, configured by `setPageFabContext`. Page-size selection is not embedded in the pagination and does not replace the original corner button. No duplicate FAB/dial implementation exists.
