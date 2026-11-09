@@ -18,6 +18,9 @@ import {
   normalizePreferences,
   loadPreferences,
   savePreferences,
+  loadStoredValue,
+  saveStoredValue,
+  createStoredChoice,
 } from './preferences.js';
 
 function createStorage() {
@@ -81,4 +84,41 @@ test('pinned context is persisted, restored and cannot remain logically closed',
   assert.deepEqual(normalizePreferences({ asidePinned: 'yes', asideOpen: true }), {
     theme: 'system', sidebarCollapsed: false, asideOpen: true, asidePinned: false,
   });
+});
+
+test('shared preference IO tolerates invalid JSON and unavailable storage', () => {
+  const storage = createStorage();
+  storage.setItem('pg:v1:brands:view', '{invalid-json');
+  assert.equal(loadStoredValue(storage, 'pg:v1:brands:view', 'table'), 'table');
+  assert.equal(loadStoredValue(null, 'pg:v1:brands:view', 'table'), 'table');
+  assert.equal(saveStoredValue(storage, 'pg:v1:brands:view', 'tiles'), true);
+  assert.equal(loadStoredValue(storage, 'pg:v1:brands:view', 'table'), 'tiles');
+  const blocked = {getItem(){throw Error('blocked');},setItem(){throw Error('blocked');}};
+  assert.equal(loadStoredValue(blocked,'pg:v1:brands:view','table'),'table');
+  assert.equal(saveStoredValue(blocked,'pg:v1:brands:view','tiles'),false);
+});
+
+test('stored choices persist across instances, validate allowed values, and isolate features', () => {
+  const storage = createStorage();
+  const props = {storage,choices:['table','tiles'],defaultValue:'table'};
+  const brands = createStoredChoice({...props,key:'pg:v1:brands:view'});
+  const products = createStoredChoice({...props,key:'pg:v1:products:view'});
+  assert.equal(brands.getValue(),'table');
+  assert.equal(brands.setValue('tiles'),true);
+  assert.equal(brands.getValue(),'tiles');
+  assert.equal(products.getValue(),'table');
+  assert.equal(createStoredChoice({...props,key:'pg:v1:brands:view'}).getValue(),'tiles');
+  assert.throws(()=>brands.setValue('random'),RangeError);
+  assert.throws(()=>createStoredChoice({...props,key:'unversioned'}),TypeError);
+  storage.setItem('pg:v1:products:view',JSON.stringify('broken'));
+  assert.equal(createStoredChoice({...props,key:'pg:v1:products:view'}).getValue(),'table');
+});
+
+test('choice continues within session when persistence is blocked', () => {
+  const storage = {getItem(){throw Error('blocked');},setItem(){throw Error('blocked');}};
+  const choice = createStoredChoice({
+    storage,key:'pg:v1:tools-data-views:view',choices:['table','tiles'],defaultValue:'table',
+  });
+  assert.equal(choice.setValue('tiles'),false);
+  assert.equal(choice.getValue(),'tiles');
 });
