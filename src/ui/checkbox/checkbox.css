@@ -1,18 +1,62 @@
-/* Native checkbox with a full-height touch-friendly label. */
-.pg-checkbox { display: grid; min-inline-size: 0; gap: 2px; }
+/*
+ * Rounded square at rest; green circle with check or minus on selection.
+ * Native input supplies keyboard and accessible semantics.
+ */
+.pg-checkbox { display: grid; min-inline-size: 0; gap: 3px; }
 .pg-checkbox__row {
   display: flex; align-items: center; gap: 10px; min-block-size: 44px;
   padding: 4px 2px; color: var(--pg-color-text-primary);
   font-size: 14px; cursor: pointer;
 }
 .pg-checkbox__control {
-  flex: 0 0 19px; inline-size: 19px; block-size: 19px; margin: 0;
-  accent-color: var(--pg-color-accent); cursor: inherit;
+  position: absolute; inline-size: 1px; block-size: 1px; padding: 0;
+  margin: -1px; overflow: hidden; clip-path: inset(50%);
+  white-space: nowrap;
 }
-.pg-checkbox__control:focus-visible { outline: 2px solid var(--pg-color-focus); outline-offset: 3px; }
-.pg-checkbox__description {
-  margin: 0 0 0 31px; font-size: 12px; line-height: 1.45;
-  color: var(--pg-color-text-secondary);
+.pg-checkbox__box {
+  display: grid; place-items: center; flex: 0 0 20px;
+  inline-size: 20px; block-size: 20px; box-sizing: border-box;
+  border: 1px solid var(--pg-color-border-strong);
+  border-radius: 5px; background: var(--pg-color-surface);
+  transition: border-radius var(--pg-duration-fast) var(--pg-ease),
+    border-color var(--pg-duration-fast) ease,
+    background-color var(--pg-duration-fast) ease;
 }
-.pg-checkbox[data-pg-state='disabled'] { opacity: .6; }
+.pg-checkbox__box::after {
+  content: ''; display: block; inline-size: 5px; block-size: 9px;
+  border: solid var(--pg-color-dialog-action-text); border-width: 0 2px 2px 0;
+  transform: translateY(-1px) rotate(45deg) scale(.6); opacity: 0;
+  transition: transform var(--pg-duration-fast) var(--pg-ease),
+    opacity var(--pg-duration-fast) ease;
+}
+.pg-checkbox[data-pg-checked='true'] .pg-checkbox__box,
+.pg-checkbox[data-pg-mixed='true'] .pg-checkbox__box {
+  background: var(--pg-color-accent); border-color: var(--pg-color-accent);
+  border-radius: 50%;
+}
+.pg-checkbox[data-pg-checked='true'] .pg-checkbox__box::after {
+  opacity: 1; transform: translateY(-1px) rotate(45deg) scale(1);
+}
+.pg-checkbox[data-pg-mixed='true'] .pg-checkbox__box::after {
+  inline-size: 10px; block-size: 2px; border: 0;
+  border-radius: 2px; background: var(--pg-color-dialog-action-text);
+  transform: none; opacity: 1;
+}
+.pg-checkbox__control:focus-visible + .pg-checkbox__box {
+  outline: 2px solid var(--pg-color-focus); outline-offset: 3px;
+}
+@media (hover: hover) {
+  .pg-checkbox:not([data-pg-state='disabled']) .pg-checkbox__row:hover .pg-checkbox__box { border-radius: 50%; }
+}
+.pg-checkbox__copy { display: grid; gap: 2px; flex: 1; min-inline-size: 0; }
+.pg-checkbox__label { font-size: 14px; line-height: 1.45; }
+.pg-checkbox__description { font-size: 12px; line-height: 1.4; color: var(--pg-color-text-secondary); }
+.pg-checkbox__error { padding-inline-start: 32px; font-size: 12px; color: var(--pg-color-input-error); }
+.pg-checkbox__error[hidden] { display: none; }
+.pg-checkbox[data-pg-state='error'] .pg-checkbox__box { border-color: var(--pg-color-input-error); }
 .pg-checkbox[data-pg-state='disabled'] .pg-checkbox__row { cursor: not-allowed; }
+.pg-checkbox[data-pg-state='disabled'] .pg-checkbox__box { opacity: .6; }
+.pg-checkbox[data-pg-state='disabled'] .pg-checkbox__copy { opacity: .6; }
+@media (prefers-reduced-motion: reduce) {
+  .pg-checkbox__box, .pg-checkbox__box::after { transition: none; }
+}
