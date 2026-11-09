@@ -83,3 +83,36 @@
 @media (prefers-reduced-motion: reduce) {
   .pg-collection-view__table-scroll { scroll-behavior: auto; }
 }
+
+/* Row selection reuses the shared circular checkbox in compact mode. */
+.pg-collection-view__selection-cell {
+  inline-size: 48px;min-inline-size:48px;max-inline-size:48px;
+  padding-inline:8px !important;text-align:center !important;
+}
+.pg-collection-view__actions-cell {
+  position: sticky; right:0;z-index:1;
+  inline-size:52px;min-inline-size:52px;max-inline-size:52px;
+  padding-inline:8px !important;text-align:center;
+}
+.pg-collection-view__table thead .pg-collection-view__actions-cell{z-index:3;}
+.pg-collection-view__row-menu { display:inline-flex; }
+.pg-collection-view__row-menu > button {
+  inline-size:34px;min-inline-size:34px;block-size:32px;
+  padding:0;border:0;border-radius:var(--pg-radius-sm);
+  background:transparent;font-size:22px;letter-spacing:1px;line-height:1;
+}
+.pg-collection-view__row-menu > button:hover {background:var(--pg-color-hover);}
+.pg-collection-view__table tbody tr[data-pg-selected='true'] td {
+  background:var(--pg-color-selected);
+}
+/* The first *data* column stays visible behind the selection checkbox. */
+.pg-collection-view[data-pg-selectable='true'] .pg-collection-view__table th:first-child,
+.pg-collection-view[data-pg-selectable='true'] .pg-collection-view__table td:first-child {
+  min-width:48px;max-width:48px;
+}
+.pg-collection-view[data-pg-selectable='true'] .pg-collection-view__table th:nth-child(2),
+.pg-collection-view[data-pg-selectable='true'] .pg-collection-view__table td:nth-child(2) {
+  position:sticky;left:48px;z-index:1;min-width:168px;max-width:245px;
+}
+.pg-collection-view[data-pg-selectable='true'] .pg-collection-view__table thead th:nth-child(2){z-index:3;}
+.pg-collection-view .pg-pagination {flex:0 0 auto;}
