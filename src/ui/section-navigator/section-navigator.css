@@ -98,7 +98,29 @@
   transform: rotate(-90deg);
   transform-origin: 50% 50%;
 }
-.pg-section-navigator__caption { min-inline-size: 0; overflow-wrap: anywhere; font-weight: 500; }
+.pg-section-navigator__caption {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+  text-align: right;
+  font-weight: 500;
+}
+.pg-section-navigator__arrow {
+  display: block;
+  transition: transform 300ms cubic-bezier(.22, 1, .36, 1);
+}
+.pg-section-navigator__handle[data-pg-direction='previous'] .pg-section-navigator__arrow {
+  transform: rotate(180deg);
+}
+.pg-section-navigator__ring-fill {
+  transition: stroke-dashoffset 220ms cubic-bezier(.22, 1, .36, 1);
+}
+.pg-section-navigator__handle[data-pg-state='pulling'] .pg-section-navigator__ring-fill,
+.pg-section-navigator__handle[data-pg-state='armed'] .pg-section-navigator__ring-fill {
+  transition: none;
+}
+.pg-section-navigator__handle[data-pg-state='committing'] .pg-section-navigator__ring-fill {
+  transition-duration: 150ms;
+}
 .pg-section-navigator__status {
   position: absolute;
   inline-size: 1px;
@@ -116,5 +138,5 @@
   overscroll-behavior-y: auto;
 }
 @media (prefers-reduced-motion: reduce) {
-  .pg-section-navigator__ring-fill, .pg-section-navigator__handle { transition: none; }
+  .pg-section-navigator__ring-fill, .pg-section-navigator__handle, .pg-section-navigator__arrow { transition: none; }
 }

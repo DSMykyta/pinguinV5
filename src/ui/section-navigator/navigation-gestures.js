@@ -11,7 +11,7 @@ const WHEEL_IDLE = 200;
 const WHEEL_COOLDOWN = 600;
 const IGNORED_TARGETS = 'input, textarea, select, button, a, [contenteditable]:not([contenteditable="false"]), [role="slider"], [data-pg-navigation-ignore]';
 
-export function mountNavigationGestures({ viewport, handles, wheel = true, canGo, isEnabled, onProgress, onNavigate }) {
+export function mountNavigationGestures({ viewport, handles, wheel = true, canGo, isEnabled, onProgress, onNavigate, getHandleDirection }) {
   const view = viewport.ownerDocument.defaultView;
   const controller = new view.AbortController();
   let wheelSession = null;
@@ -144,8 +144,10 @@ export function mountNavigationGestures({ viewport, handles, wheel = true, canGo
       reset();
       suppressClick = null;
       // Handles are an explicit alternative and may be used before the scroll edge.
+      const activeDirection = getHandleDirection?.() ?? direction;
+      if (!canGo(activeDirection)) return;
       pointer = { id: event.pointerId, x: event.clientX, y: event.clientY,
-        direction, handle, distance: 0, moved: false };
+        direction: activeDirection, handle, distance: 0, moved: false };
       handle.setPointerCapture(event.pointerId);
     });
     listen(handle, 'pointermove', event => {
@@ -156,18 +158,18 @@ export function mountNavigationGestures({ viewport, handles, wheel = true, canGo
       pointer.moved ||= Math.abs(dy) >= 6;
       if (!pointer.moved) return;
       event.preventDefault();
-      pointer.distance = Math.max(0, direction === 'next' ? -dy : dy);
-      onProgress(direction, getPullProgress(pointer.distance), 'pointer');
+      pointer.distance = Math.max(0, pointer.direction === 'next' ? -dy : dy);
+      onProgress(pointer.direction, getPullProgress(pointer.distance), 'pointer');
     });
     listen(handle, 'pointerup', event => {
       if (!pointer || event.pointerId !== pointer.id) return;
       const held = pointer;
-      const shouldNavigate = held.distance >= 88 && isEnabled() && canGo(direction);
+      const shouldNavigate = held.distance >= 88 && isEnabled() && canGo(held.direction);
       pointer = null;
       if (held.moved) suppressClick = { handle, until: view.performance.now() + 500 };
       if (handle.hasPointerCapture(held.id)) handle.releasePointerCapture(held.id);
       onProgress(null, 0, null);
-      if (shouldNavigate) onNavigate(direction, 'pointer');
+      if (shouldNavigate) onNavigate(held.direction, 'pointer');
     });
     listen(handle, 'pointercancel', () => reset());
     listen(handle, 'lostpointercapture', event => {
@@ -180,7 +182,8 @@ export function mountNavigationGestures({ viewport, handles, wheel = true, canGo
         suppressClick = null;
         return;
       }
-      if (!handle.disabled && isEnabled()) onNavigate(direction, 'button');
+      const activeDirection = getHandleDirection?.() ?? direction;
+      if (!handle.disabled && isEnabled() && canGo(activeDirection)) onNavigate(activeDirection, 'button');
     });
   }
 

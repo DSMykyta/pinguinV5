@@ -74,13 +74,14 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
   status.setAttribute('role', 'status');
   status.setAttribute('aria-atomic', 'true');
 
-  function createHandle(direction) {
+  function createHandle() {
     const button = createNode('button', 'handle');
     button.type = 'button';
-    button.dataset.pgDirection = direction;
     button.setAttribute('aria-controls', viewport.id);
-    const symbol = createNode('span', 'symbol', direction === 'next' ? '↓' : '↑');
+    const caption = createNode('span', 'caption');
+    const symbol = createNode('span', 'symbol');
     symbol.setAttribute('aria-hidden', 'true');
+    const arrow = createNode('span', 'arrow', '↓');
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.classList.add('pg-section-navigator__ring');
     svg.setAttribute('viewBox', '0 0 44 44');
@@ -97,13 +98,12 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
       }
       svg.append(circle);
     }
-    symbol.append(svg);
-    const caption = createNode('span', 'caption');
-    button.append(symbol, caption);
+    symbol.append(arrow, svg);
+    button.append(caption, symbol);
     rail.append(button);
     return { button, caption, ring: svg.lastElementChild };
   }
-  const controls = { previous: createHandle('previous'), next: createHandle('next') };
+  const control = createHandle();
   element.append(header, rail, viewport, status);
 
   function adjacent(direction) {
@@ -111,50 +111,68 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
   }
 
   function showDirection(direction) {
-    if (!adjacent(direction)) direction = adjacent(direction === 'next' ? 'previous' : 'next')
-      ? (direction === 'next' ? 'previous' : 'next') : direction;
-    visibleDirection = direction;
-    for (const [side, control] of Object.entries(controls)) {
-      control.button.hidden = !adjacent(side) || side !== visibleDirection;
+    const fallback = direction === 'next' ? 'previous' : 'next';
+    const selected = adjacent(direction) ? direction : adjacent(fallback) ? fallback : null;
+    if (!selected) {
+      control.button.hidden = true;
+      return;
     }
+    control.button.hidden = false;
+    const target = adjacent(selected);
+    const changed = control.caption.textContent !== target.label;
+    control.caption.textContent = target.label;
+    control.button.setAttribute('aria-label', 'Перейти до розділу «' + target.label + '»');
+    control.button.dataset.pgDirection = selected;
+    if (visibleDirection !== selected && changed &&
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      control.caption.animate([
+        { opacity: 0.45, transform: 'translateY(4px)' },
+        { opacity: 1, transform: 'translateY(0)' },
+      ], { duration: 190, easing: 'ease-out' });
+    }
+    visibleDirection = selected;
   }
 
   function renderControls() {
     title.textContent = sections[currentIndex].label;
     counter.textContent = (currentIndex + 1) + ' / ' + sections.length;
-    for (const [direction, { button, caption }] of Object.entries(controls)) {
-      const destination = adjacent(direction);
-      button.disabled = busy || !destination;
-      if (destination) {
-        button.setAttribute('aria-label', 'Перейти до розділу «' + destination.label + '»');
-        caption.textContent = destination.label;
-      } else {
-        button.removeAttribute('aria-label');
-        caption.textContent = '';
-      }
-      button.dataset.pgState = 'ready';
-    }
+    control.button.disabled = busy;
+    control.button.dataset.pgState = busy ? 'committing' : 'ready';
     showDirection(visibleDirection);
     element.setAttribute('aria-busy', String(busy));
     element.dataset.pgState = busy ? 'busy' : 'ready';
   }
 
-  function syncProgress() {
-    if (destroyed) return;
-    const max = Math.max(0, scrollContainer.scrollHeight - scrollContainer.clientHeight);
-    const progress = max <= 1 ? 0 : Math.min(1, Math.max(0, scrollContainer.scrollTop / max));
-    element.style.setProperty('--pg-section-scroll-progress', progress.toFixed(5));
-    for (const { ring } of Object.values(controls)) {
-      ring.style.strokeDashoffset = String((100 * (1 - progress)).toFixed(3));
-    }
+  // A pure pull indicator. Ordinary page scroll does not fill the circle.
+  function renderProgress(direction, progress) {
+    if (destroyed || busy) return;
+    if (direction && adjacent(direction)) showDirection(direction);
+    const value = direction ? Math.min(1, Math.max(0, progress)) : 0;
+    control.button.dataset.pgState = value >= 1 ? 'armed' : value > 0 ? 'pulling' : 'ready';
+    control.ring.style.strokeDashoffset = String((100 * (1 - value)).toFixed(3));
   }
 
-  function renderProgress(direction, progress) {
-    if (destroyed) return;
-    if (direction && adjacent(direction)) showDirection(direction);
-    for (const [side, { button }] of Object.entries(controls)) {
-      const amount = direction === side ? progress : 0;
-      button.dataset.pgState = amount >= 1 ? 'armed' : amount > 0 ? 'pulling' : 'ready';
+  let activeAnimation = null;
+  async function animatePanel(panel, phase, movement) {
+    const reduce = panel.ownerDocument.defaultView.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || typeof panel.animate !== 'function') return;
+    const exit = phase === 'exit';
+    const from = exit
+      ? { opacity: 1, transform: 'translate3d(0, 0, 0)' }
+      : { opacity: 0, transform: 'translate3d(0, ' + (movement * 26) + 'px, 0)' };
+    const to = exit
+      ? { opacity: 0, transform: 'translate3d(0, ' + (-movement * 20) + 'px, 0)' }
+      : { opacity: 1, transform: 'translate3d(0, 0, 0)' };
+    const animation = panel.animate([from, to], {
+      duration: exit ? 170 : 270,
+      easing: 'cubic-bezier(.22, 1, .36, 1)',
+      fill: 'both',
+    });
+    activeAnimation = animation;
+    try { await animation.finished; } catch { /* Destroy cancels animation. */ }
+    if (activeAnimation === animation) {
+      animation.cancel();
+      activeAnimation = null;
     }
   }
 
@@ -168,7 +186,7 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
     if (destroyed || busy || !ids.has(id) || sections[currentIndex].id === id) return false;
     const request = Object.freeze({ fromId: sections[currentIndex].id, toId: id, source });
     busy = true;
-    gestures.reset({ cooldown: true });
+    gestures?.reset({ cooldown: true });
     status.textContent = '';
     renderControls();
     try {
@@ -180,16 +198,25 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
       }
       const outgoing = panels.get(request.fromId);
       const shouldFocus = focus || outgoing.contains(document.activeElement);
+      const movement = sections.findIndex(item => item.id === id) > currentIndex ? 1 : -1;
       positions.set(request.fromId, scrollContainer.scrollTop);
+      control.ring.style.strokeDashoffset = '0';
+      element.dataset.pgTransition = movement > 0 ? 'forward' : 'backward';
+      await animatePanel(outgoing, 'exit', movement);
+      if (destroyed) return false;
       outgoing.hidden = true;
       currentIndex = sections.findIndex(item => item.id === id);
-      panels.get(id).hidden = false;
+      const incoming = panels.get(id);
+      incoming.hidden = false;
       ignoreScrollDirectionOnce = true;
       scrollContainer.scrollTop = positions.get(id) ?? 0;
       lastScrollTop = scrollContainer.scrollTop;
       visibleDirection = adjacent('next') ? 'next' : 'previous';
-      syncProgress();
       renderControls();
+      await animatePanel(incoming, 'enter', movement);
+      if (destroyed) return false;
+      control.ring.style.strokeDashoffset = '100';
+      delete element.dataset.pgTransition;
       status.textContent = 'Блок ' + (currentIndex + 1) + ' з ' + sections.length + ': ' + sections[currentIndex].label;
       if (shouldFocus) title.focus({ preventScroll: true });
       try { onChange?.(request); } catch (error) { reportError(error); }
@@ -212,34 +239,28 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
     element.dataset.pgScrollContainer = container === viewport ? 'local' : 'external';
     const onScroll = () => {
       const current = container.scrollTop;
-      if (!ignoreScrollDirectionOnce && Math.abs(current - lastScrollTop) > 1) {
+      if (!busy && !ignoreScrollDirectionOnce && Math.abs(current - lastScrollTop) > 1) {
         showDirection(current > lastScrollTop ? 'next' : 'previous');
       }
       ignoreScrollDirectionOnce = false;
       lastScrollTop = current;
-      syncProgress();
     };
     const onWheel = event => {
-      if (Math.abs(event.deltaY) > Math.abs(event.deltaX) && !event.ctrlKey && !event.metaKey) {
+      if (!busy && Math.abs(event.deltaY) > Math.abs(event.deltaX) &&
+        !event.ctrlKey && !event.metaKey) {
         showDirection(event.deltaY > 0 ? 'next' : 'previous');
       }
     };
     container.addEventListener('scroll', onScroll, { passive: true });
     container.addEventListener('wheel', onWheel, { passive: true });
-    const view = container.ownerDocument.defaultView;
-    view.addEventListener('resize', syncProgress, { passive: true });
-    const observer = typeof view.ResizeObserver === 'function' ? new view.ResizeObserver(syncProgress) : null;
-    observer?.observe(container);
-    observer?.observe(viewport);
     stopScroll = () => {
       container.removeEventListener('scroll', onScroll);
       container.removeEventListener('wheel', onWheel);
-      view.removeEventListener('resize', syncProgress);
-      observer?.disconnect();
     };
     gestures = mountNavigationGestures({
       viewport: container,
-      handles: { previous: controls.previous.button, next: controls.next.button },
+      handles: { next: control.button },
+      getHandleDirection: () => visibleDirection,
       wheel,
       canGo: direction => Boolean(adjacent(direction)),
       isEnabled: () => !destroyed && !busy && element.isConnected && container.getClientRects().length > 0,
@@ -250,11 +271,11 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
       },
     });
     lastScrollTop = container.scrollTop;
-    syncProgress();
+    renderProgress(null, 0);
   }
   bindScroll(viewport);
   renderControls();
-  syncProgress();
+  renderProgress(null, 0);
 
   return Object.freeze({
     element,
@@ -270,6 +291,8 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
       if (destroyed) return;
       destroyed = true;
       gestures?.destroy();
+      activeAnimation?.cancel();
+      activeAnimation = null;
       stopScroll();
       element.remove();
     },
