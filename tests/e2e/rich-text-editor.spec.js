@@ -167,3 +167,61 @@ test('rich HTML paste uses allowlist without executing content', async ({ page }
   await htmlMode.click();
   await expect(code).toHaveValue(/<strong>Вставлено<\/strong>/);
 });
+
+
+test('HTML source pasted as plain text becomes formatted WYSIWYG', async ({ page }) => {
+  const { visual, htmlMode, code } = getEditor(page);
+  const html = '<p><strong>Sport Magnesium</strong> — опис</p>\n<h3>Особливості</h3>\n<ul><li>Магній</li><li>Цинк</li></ul>';
+  await visual.evaluate((element, plain) => {
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    const selection = document.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+    const clipboardData = new DataTransfer();
+    clipboardData.setData('text/plain', plain);
+    element.dispatchEvent(new ClipboardEvent('paste', { clipboardData, bubbles: true, cancelable: true }));
+  }, html);
+  await expect(visual.locator('strong')).toContainText('Sport Magnesium');
+  await expect(visual.locator('h3')).toHaveText('Особливості');
+  await expect(visual.locator('li')).toHaveCount(2);
+  await expect(visual).not.toContainText('<p>');
+  await htmlMode.click();
+  await expect(code).toHaveValue(/<strong>Sport Magnesium<\/strong>/);
+});
+
+test('code wrapper rich clipboard renders HTML and unsafe markup is removed', async ({ page }) => {
+  const { visual } = getEditor(page);
+  await visual.evaluate(element => {
+    const selection = document.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    const clipboardData = new DataTransfer();
+    clipboardData.setData('text/plain', '<p><strong>Вставлено</strong><img src=x onerror="alert(1)"><script>alert(2)</script></p>');
+    clipboardData.setData('text/html', '<pre><code>&lt;p&gt;&lt;strong&gt;Вставлено&lt;/strong&gt;&lt;img src=x onerror="alert(1)"&gt;&lt;script&gt;alert(2)&lt;/script&gt;&lt;/p&gt;</code></pre>');
+    element.dispatchEvent(new ClipboardEvent('paste', { clipboardData, bubbles: true, cancelable: true }));
+  });
+  await expect(visual.locator('strong')).toContainText('Вставлено');
+  await expect(visual.locator('img,script')).toHaveCount(0);
+  await expect(visual).not.toContainText('alert(2)');
+  await visual.press('ControlOrMeta+z');
+  await expect(visual).not.toContainText('Вставлено');
+});
+
+test('plain text with incomplete HTML stays literal in visual mode', async ({ page }) => {
+  const { visual } = getEditor(page);
+  await visual.evaluate(element => {
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    range.collapse(false);
+    const selection = document.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+    const clipboardData = new DataTransfer();
+    clipboardData.setData('text/plain', 'Ціна < 10; незакритий <strong> тег');
+    element.dispatchEvent(new ClipboardEvent('paste', { clipboardData, bubbles: true, cancelable: true }));
+  });
+  await expect(visual).toContainText('незакритий <strong> тег');
+});

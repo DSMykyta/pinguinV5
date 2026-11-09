@@ -12,6 +12,7 @@ import { executeRichTextCommand, getEditorSelection } from './commands.js';
 import { mountEditorToolbar } from './toolbar.js';
 import { mountEditorModeSwitch } from './mode.js';
 import { mountEditorStats } from './stats.js';
+import { mountEditorPaste } from './paste.js';
 
 let nextId = 0;
 
@@ -188,43 +189,11 @@ export function createRichTextEditor({
     controls.execute(action);
   }, { signal: aborter.signal });
 
-  function insertFragment(fragment) {
-    const selection = input.ownerDocument.getSelection();
-    const range = getEditorSelection(input);
-    if (!range) { input.append(fragment); return; }
-    range.deleteContents();
-    const last = fragment.lastChild;
-    range.insertNode(fragment);
-    if (last) {
-      range.setStartAfter(last);
-      range.collapse(true);
-      selection.removeAllRanges();
-      selection.addRange(range);
-    }
-  }
-  input.addEventListener('paste', event => {
-    if (!isEditable) return;
-    event.preventDefault();
-    const html = event.clipboardData?.getData('text/html');
-    const plain = event.clipboardData?.getData('text/plain');
-    if (html) insertFragment(parseSafeHtml(html));
-    else if (plain) {
-      const fragment = document.createDocumentFragment();
-      plain.replace(/\r\n?/g, '\n').split('\n').forEach((part, index) => {
-        if (index) fragment.append(document.createElement('br'));
-        fragment.append(document.createTextNode(part));
-      });
-      insertFragment(fragment);
-    }
-    handleInput();
-  }, { signal: aborter.signal });
-  input.addEventListener('drop', event => event.preventDefault(), { signal: aborter.signal });
-
   // Source editing is native plaintext: keep in-progress HTML and caret untouched.
   // Commit and sanitize only when returning to the rendered editor or exporting.
   source.addEventListener('input', () => { if (!destroyed) emit(); }, { signal: aborter.signal });
 
-  const views = [];
+  const views = [mountEditorPaste({ input, isEditable: () => isEditable, onInput: handleInput })];
   if (toolbar) views.push(mountEditorToolbar({ host: toolsHost, controls, root: input }));
   if (code) views.push(mountEditorModeSwitch({ host: modeHost, controls, editorId: input.id, sourceId: source.id }));
   if (stats) views.push(mountEditorStats({ host: statusHost, controls }));
