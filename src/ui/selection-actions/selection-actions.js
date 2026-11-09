@@ -3,6 +3,7 @@
  * Owns only view state and interaction; the caller owns the records and effects.
  */
 import { createIconButton } from '../button/button.js';
+import { createRevealPanel } from '../reveal-panel/reveal-panel.js';
 
 export function getSelectionMode(count) {
   if (!Number.isInteger(count) || count < 0) throw new RangeError('Invalid selection count');
@@ -36,6 +37,7 @@ export function createSelectionActions({ single = [], multiple = [], onAction, o
     group.className = 'pg-selection-actions__group';
     group.dataset.pgGroup = mode;
     group.inert = true;
+    group.hidden = true;
     for (const choice of choices) {
       const button = document.createElement('button');
       button.type = 'button';
@@ -59,6 +61,9 @@ export function createSelectionActions({ single = [], multiple = [], onAction, o
   clear.classList.add('pg-mini-button', 'pg-selection-actions__clear');
 
   element.append(counter, groups.get('single'), groups.get('multiple'), clear);
+  // Reuse the same top-reveal animation as the adjacent Shell controls.
+  // Positioning is owned by the host; the selection actions take no flex space.
+  const reveal = createRevealPanel({ element, direction: 'top' });
 
   function setSelection(ids) {
     if (!Array.isArray(ids)) throw new TypeError('Expected selected row IDs');
@@ -66,14 +71,17 @@ export function createSelectionActions({ single = [], multiple = [], onAction, o
     const mode = getSelectionMode(count);
     counter.textContent = count === 1 ? '1 вибрано' : count + ' вибрано';
     element.dataset.pgMode = mode;
-    element.inert = mode === 'none';
-    for (const [name, group] of groups) group.inert = name !== mode;
+    for (const [name, group] of groups) {
+      group.inert = name !== mode;
+      group.hidden = name !== mode;
+    }
+    reveal.setVisible(mode !== 'none');
   }
 
   setSelection([]);
   return Object.freeze({
     element,
     setSelection,
-    destroy() { controller.abort(); element.remove(); },
+    destroy() { reveal.destroy(); controller.abort(); element.remove(); },
   });
 }
