@@ -32,7 +32,7 @@ test('selected value and popup search reuse the same frame, 56px geometry and la
   const frame=choice.locator(':scope > .pg-field');
   await expect(frame.locator('.pg-field__label')).toHaveText('Маркетплейси');
   await expect(frame.locator('.pg-field__surface')).toHaveCSS('height','56px');
-  await choice.locator('.pg-listbox__trigger').click();
+  await choice.locator('.pg-listbox__trigger').press('ArrowDown');
   await expect(choice).toHaveAttribute('data-pg-open','true');
   await expect(frame).toHaveAttribute('data-pg-active','true');
   const inner=choice.locator('.pg-listbox__search-field');
@@ -54,7 +54,7 @@ test('selected value and popup search reuse the same frame, 56px geometry and la
 test('Listbox outer border remains active while focus is in search, then resets on close',async({page})=>{
   const choice=page.locator('#shared-input-test .pg-listbox');
   const frame=choice.locator(':scope > .pg-field');
-  await choice.locator('.pg-listbox__trigger').click();
+  await choice.locator('.pg-listbox__trigger').press('ArrowDown');
   await expect(choice).toHaveAttribute('data-pg-open','true');
   await expect(frame).toHaveAttribute('data-pg-active','true');
   const search=choice.getByRole('combobox',{name:'Пошук у списку Маркетплейси'});

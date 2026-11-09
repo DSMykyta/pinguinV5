@@ -1,6 +1,6 @@
 /**
- * Multi-select chips and their seamless selected-values extension.
- * The selection tray is part of the same Listbox component, not a second editor.
+ * Multi-select overflow: +N controls one expanded field, not duplicate chips.
+ * The tests use the actual Listbox and disabled native Input components.
  */
 import { test, expect } from '@playwright/test';
 
@@ -17,117 +17,150 @@ test.beforeEach(async ({ page }) => {
       { value: 'meta', label: 'Meta', disabled: true },
     ];
     window.pgSelectedChanges = [];
-    const upper = createListbox({
-      label: 'Маркетплейси', name: 'marketplaces',
-      multiple: true, searchable: true, options,
-      value: ['prom', 'rozetka', 'promua', 'amazon', 'etsy'],
-      onChange: values => window.pgSelectedChanges.push(values),
-    });
-    const lower = createListbox({
-      label: 'Вибрані внизу', multiple: true,
-      options, value: ['prom', 'rozetka', 'promua', 'amazon', 'etsy'],
-    });
-    for (const [name, instance, bottom] of [
-      ['normal', upper, false], ['near-bottom', lower, true],
-    ]) {
-      const node = document.createElement('div');
-      node.id = 'selection-test-' + name;
-      node.style.cssText =
-        'position:fixed;left:' + (bottom ? '450px' : '30px') +
-        ';width:330px;z-index:60;' +
-        (bottom ? 'bottom:20px' : 'top:80px');
-      node.append(instance.element);
-      document.body.append(node);
+    const many = ['prom', 'rozetka', 'promua', 'amazon', 'etsy'];
+    const configurations = [
+      ['normal', many, false],
+      ['near-bottom', many, true],
+      ['few', ['prom', 'rozetka', 'promua'], false],
+    ];
+    for (const [name, value, bottom] of configurations) {
+      const control = createListbox({
+        label: 'Маркетплейси ' + name, name: 'marketplaces', multiple: true,
+        searchable: true, options, value,
+        onChange: values => window.pgSelectedChanges.push(values),
+      });
+      const host = document.createElement('div');
+      host.id = 'selection-test-' + name;
+      host.style.cssText = 'position:fixed;left:' +
+        (name === 'normal' ? '30px' : name === 'near-bottom' ? '450px' : '810px') +
+        ';width:330px;z-index:60;' + (bottom ? 'bottom:20px' : 'top:80px');
+      host.append(control.element);
+      document.body.append(host);
     }
   });
 });
 
-test('hover joins a chip tray to the SAME outlined field, showing every selected item', async ({ page }) => {
-  const root = page.locator('#selection-test-normal');
+test('ordinary hovering shows nothing; hovering +N replaces compact chips with one expanded field', async ({page}) => {
+  const root=page.locator('#selection-test-normal');
+  const more=root.getByRole('button',{name:'Показати всі вибрані значення'});
+  const tray=root.locator('.pg-listbox__selection-tray');
   await expect(root.locator('.pg-listbox__chip')).toHaveCount(4);
-  await expect(root.getByRole('button', { name: 'Показати всі вибрані значення' })).toBeVisible();
-  await root.locator('.pg-field__surface').hover();
-  const tray = root.locator('.pg-listbox__selection-tray');
+  await root.locator('.pg-field__label').first().hover();
+  await expect(tray).toBeHidden();
+  await root.locator('.pg-listbox__chip-text').first().hover();
+  await expect(tray).toBeHidden();
+
+  await more.hover();
   await expect(tray).toBeVisible();
   await expect(root.locator('.pg-listbox__selected-chip')).toHaveCount(5);
   await expect(root.locator('.pg-listbox__panel')).toBeHidden();
-  const geometry = await root.evaluate(element => {
-    const frame = element.querySelector('.pg-field__surface').getBoundingClientRect();
-    const extended = element.querySelector('.pg-listbox__selection-tray').getBoundingClientRect();
-    return {
-      gap: extended.top - frame.bottom,
-      left: extended.left - frame.left,
-      width: extended.width - frame.width,
-      side: element.querySelector('.pg-listbox').dataset.pgTraySide,
-      radius: getComputedStyle(element.querySelector('.pg-field__surface')).borderBottomLeftRadius,
-    };
+  await expect(root.locator('.pg-listbox__value--interactive')).toHaveCSS('visibility','hidden');
+  const geometry=await root.evaluate(el=>{
+    const surface=el.querySelector(':scope > .pg-listbox > .pg-field > .pg-field__surface').getBoundingClientRect();
+    const expanded=el.querySelector('.pg-listbox__selection-tray').getBoundingClientRect();
+    return {side:el.querySelector('.pg-listbox').dataset.pgTraySide,
+      top:expanded.top-surface.top,width:expanded.width-surface.width,
+      x:expanded.left-surface.left,bottom:expanded.bottom-surface.bottom,
+      surfaceHeight:surface.height,expandedHeight:expanded.height};
   });
   expect(geometry.side).toBe('down');
-  expect(Math.abs(geometry.gap)).toBeLessThan(2.5);
-  expect(Math.abs(geometry.left)).toBeLessThan(1.5);
-  expect(Math.abs(geometry.width)).toBeLessThan(1.5);
-  expect(geometry.radius).toBe('0px');
+  expect(Math.abs(geometry.top)).toBeLessThan(2);
+  expect(Math.abs(geometry.width)).toBeLessThan(2);
+  expect(Math.abs(geometry.x)).toBeLessThan(2);
+  expect(geometry.expandedHeight).toBeGreaterThan(geometry.surfaceHeight);
 });
 
-test('chip X removes a single value without opening the options list', async ({ page }) => {
-  const root = page.locator('#selection-test-normal');
-  await root.locator('.pg-field__surface').hover();
-  const tray = root.locator('.pg-listbox__selection-tray');
+test('× removes one value in expanded view without opening options',async({page})=>{
+  const root=page.locator('#selection-test-normal');
+  await root.getByRole('button',{name:'Показати всі вибрані значення'}).hover();
+  const tray=root.locator('.pg-listbox__selection-tray');
   await expect(tray).toBeVisible();
-  await tray.getByRole('button', { name: 'Видалити Amazon' }).click();
+  await tray.getByRole('button',{name:'Видалити Amazon'}).click();
   await expect(tray).toBeVisible();
-  await expect(root.locator('.pg-listbox__selected-chip')).toHaveCount(4);
+  await expect(tray.locator('.pg-listbox__selected-chip')).toHaveCount(4);
   await expect(root.locator('.pg-listbox__panel')).toBeHidden();
-  const result = await page.evaluate(() => ({
-    changes: window.pgSelectedChanges,
-    fields: Array.from(document.querySelectorAll('#selection-test-normal input[name="marketplaces"]'))
-      .map(input => input.value),
+  const selected=await page.evaluate(()=>({
+    changes:window.pgSelectedChanges,
+    form:Array.from(document.querySelectorAll('#selection-test-normal input[name=marketplaces]'))
+      .map(i=>i.value),
   }));
-  expect(result.changes).toEqual([['prom', 'rozetka', 'promua', 'etsy']]);
-  expect(result.fields).toEqual(['prom', 'rozetka', 'promua', 'etsy']);
+  expect(selected.changes).toEqual([['prom','rozetka','promua','etsy']]);
+  expect(selected.form).toEqual(['prom','rozetka','promua','etsy']);
 });
 
-test('summary X is a real keyboard-focusable button, not a nested button', async ({ page }) => {
-  const root = page.locator('#selection-test-normal');
-  const button = root.locator('.pg-listbox__value--interactive')
-    .getByRole('button', { name: 'Видалити Пром.ua' });
-  const invalidNesting = await root.evaluate(element =>
-    element.querySelectorAll('button button').length);
-  expect(invalidNesting).toBe(0);
-  await button.focus();
-  await button.press('Enter');
-  await expect(root.locator('input[name="marketplaces"]')).toHaveCount(4);
-  await expect(root.locator('.pg-listbox__panel')).toBeHidden();
-  await expect(root.locator('.pg-listbox__selection-tray')).toBeVisible();
+test('when all selected values fit, there is no +N or expansion on hover or focus',async({page})=>{
+  const root=page.locator('#selection-test-few');
+  const tray=root.locator('.pg-listbox__selection-tray');
+  await expect(root.locator('.pg-listbox__chip')).toHaveCount(3);
+  await expect(root.locator('[data-pg-show-selected]')).toHaveCount(0);
+  await root.locator(':scope > .pg-listbox > .pg-field > .pg-field__surface').hover();
+  await root.locator('.pg-listbox__trigger').focus();
+  await expect(tray).toBeHidden();
+  await expect(root.locator('.pg-listbox')).toHaveAttribute('data-pg-has-overflow','false');
 });
 
-test('extension opens immediately ABOVE when the field sits near the viewport bottom', async ({ page }) => {
-  const root = page.locator('#selection-test-near-bottom');
-  await root.locator('.pg-field__surface').hover();
-  const tray = root.locator('.pg-listbox__selection-tray');
+test('keyboard focus on +N opens expanded values; Escape closes and returns to trigger',async({page})=>{
+  const root=page.locator('#selection-test-normal');
+  const more=root.getByRole('button',{name:'Показати всі вибрані значення'});
+  await more.focus();
+  const tray=root.locator('.pg-listbox__selection-tray');
   await expect(tray).toBeVisible();
-  const geometry = await root.evaluate(element => {
-    const frame = element.querySelector('.pg-field__surface').getBoundingClientRect();
-    const extended = element.querySelector('.pg-listbox__selection-tray').getBoundingClientRect();
-    return {
-      side: element.querySelector('.pg-listbox').dataset.pgTraySide,
-      gap: frame.top - extended.bottom,
-      widthDiff: frame.width - extended.width,
-      radius: getComputedStyle(element.querySelector('.pg-field__surface')).borderTopLeftRadius,
-    };
+  await expect(tray.getByRole('button',{name:'Видалити Пром.ua'})).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(tray).toBeHidden();
+  await expect(root.locator('.pg-listbox__trigger')).toBeFocused();
+});
+
+test('expanded surface grows upward near viewport bottom without duplicating selected chips',async({page})=>{
+  const root=page.locator('#selection-test-near-bottom');
+  await root.getByRole('button',{name:'Показати всі вибрані значення'}).hover();
+  const tray=root.locator('.pg-listbox__selection-tray');
+  await expect(tray).toBeVisible();
+  const geometry=await root.evaluate(el=>{
+    const surface=el.querySelector(':scope > .pg-listbox > .pg-field > .pg-field__surface').getBoundingClientRect();
+    const extended=el.querySelector('.pg-listbox__selection-tray').getBoundingClientRect();
+    return {side:el.querySelector('.pg-listbox').dataset.pgTraySide,
+      gap:extended.bottom-surface.bottom,width:extended.width-surface.width,
+      compact:getComputedStyle(el.querySelector('.pg-listbox__value--interactive')).visibility};
   });
   expect(geometry.side).toBe('up');
-  expect(Math.abs(geometry.gap)).toBeLessThan(2.5);
-  expect(Math.abs(geometry.widthDiff)).toBeLessThan(1.5);
-  expect(geometry.radius).toBe('0px');
+  expect(Math.abs(geometry.gap)).toBeLessThan(2);
+  expect(Math.abs(geometry.width)).toBeLessThan(2);
+  expect(geometry.compact).toBe('hidden');
 });
 
-test('clicking the main trigger switches from the expanded chips to the options list', async ({ page }) => {
-  const root = page.locator('#selection-test-normal');
-  await root.locator('.pg-field__surface').hover();
-  await expect(root.locator('.pg-listbox__selection-tray')).toBeVisible();
-  await root.locator('.pg-listbox__trigger').click({ position: { x: 305, y: 28 } });
-  await expect(root.locator('.pg-listbox__selection-tray')).toBeHidden();
+test('removing hidden tags until only three remain closes expanded view automatically',async({page})=>{
+  const root=page.locator('#selection-test-normal');
+  await root.getByRole('button',{name:'Показати всі вибрані значення'}).hover();
+  const tray=root.locator('.pg-listbox__selection-tray');
+  await expect(tray).toBeVisible();
+  await tray.getByRole('button',{name:'Видалити Etsy'}).click();
+  await tray.getByRole('button',{name:'Видалити Amazon'}).click();
+  await expect(tray).toBeHidden();
+  await expect(root.getByRole('button',{name:'Показати всі вибрані значення'})).toHaveCount(0);
+  await expect(root.locator('.pg-listbox__chip')).toHaveCount(3);
+});
+
+test('main trigger opens option selection independently of +N',async({page})=>{
+  const root=page.locator('#selection-test-normal');
+  await root.locator('.pg-listbox__trigger').press('ArrowDown');
   await expect(root.locator('.pg-listbox__panel')).toBeVisible();
-  await expect(root.locator('.pg-listbox__trigger')).toHaveAttribute('aria-expanded', 'true');
+  await expect(root.locator('.pg-listbox__selection-tray')).toBeHidden();
+  await expect(root.locator('.pg-listbox__trigger')).toHaveAttribute('aria-expanded','true');
+});
+
+test('disabled Input ignores pointer and programmatic focus and renders no text cursor',async({page})=>{
+  const control=page.locator('input[name="demo-disabled"]');
+  await expect(control).toBeDisabled();
+  const values=await control.evaluate(input=>{
+    input.focus();
+    const surface=input.closest('.pg-field').querySelector('.pg-field__surface');
+    return {active:document.activeElement===input,
+      pointer:getComputedStyle(input).pointerEvents,
+      cursor:getComputedStyle(surface).cursor,
+      disabled:input.disabled};
+  });
+  expect(values).toEqual({active:false,pointer:'none',cursor:'not-allowed',disabled:true});
+  const disabled=page.locator('.pg-input').filter({has:control});
+  await expect(disabled.locator('.pg-field')).toHaveAttribute('data-pg-disabled','true');
 });

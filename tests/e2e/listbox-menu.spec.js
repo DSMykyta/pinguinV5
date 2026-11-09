@@ -30,7 +30,7 @@ test('multi Listbox preserves chips and selects only filtered enabled options', 
   const widget=page.locator('.pg-tools-listbox-demo .pg-listbox').nth(1);
   const trigger=widget.locator('.pg-listbox__trigger');
   await expect(widget.locator('.pg-listbox__chip')).toHaveCount(2);
-  await trigger.click();
+  await trigger.press('ArrowDown');
   const search=widget.getByRole('combobox',{name:'Пошук у списку Маркетплейси'});
   await search.fill('Prom.ua');
   const choices=widget.locator('.pg-listbox__option:not([hidden])');
