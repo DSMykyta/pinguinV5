@@ -160,8 +160,8 @@ export function mountShell(host) {
     },
   });
 
-  // The original FAB retains its own links, ID, action and corner geometry.
-  // A second *instance of the same component* can be shown by a feature.
+  // Preserve the original aside FAB. The optional page-size instance uses
+  // the same component but is mounted inside the page footer.
   let pageFab = null;
   const asideFab = createAsideFab({ onOpen: () => pageFab?.close() });
   pageFab = createAsideFab({
@@ -169,7 +169,8 @@ export function mountShell(host) {
     action: 'page-fab-toggle',
     label: 'вибір кількості рядків',
     icon: 'table-2',
-    position: 'adjacent',
+    position: 'footer',
+    showLabels: false,
     onOpen: () => asideFab.close(),
   });
   pageFab.element.hidden = true;
@@ -192,7 +193,7 @@ export function mountShell(host) {
 
   workspace.append(header, localNavigation, content, footer);
   shell.append(sidebar.element, workspace, aside.element,
-    asideFab.element, pageFab.element, backdrop);
+    asideFab.element, backdrop);
   host.replaceChildren(shell);
 
   function persist() {
@@ -226,7 +227,7 @@ export function mountShell(host) {
       if (element !== null && !(element instanceof HTMLElement)) {
         throw new TypeError('Footer content must be an HTMLElement or null');
       }
-      footer.replaceChildren(...(element ? [element] : []));
+      footer.replaceChildren(...(element ? [element, pageFab.element] : []));
       footer.dataset.pgHasContent = String(Boolean(element));
       footer.setAttribute('aria-hidden', String(!element));
     },
