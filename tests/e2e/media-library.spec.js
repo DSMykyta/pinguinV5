@@ -28,7 +28,8 @@ test('same media artwork is visible in tiles AND in the table preview column', a
   const pictures = media(page).locator('.pg-collection-view__table tbody img.pg-media-library__table-thumb');
   await expect(pictures).toHaveCount(10);
   await expect(pictures.first()).toHaveAttribute('src', expectedSource);
-  await expect.poll(() => pictures.first().evaluate(img => img.naturalWidth)).toBe(640);
+  // An SVG viewBox declares an aspect ratio; intrinsic pixel width is browser-defined.
+  await expect.poll(() => pictures.first().evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true);
   const box = await pictures.first().boundingBox();
   expect(box.width).toBe(72);
   expect(box.height).toBe(45);
