@@ -64,8 +64,13 @@ test('ordinary hovering shows nothing; hovering +N replaces compact chips with o
   await expect(tray).toBeHidden();
   await movePointerTo(page, root.locator('.pg-listbox__chip-text').first());
   await expect(tray).toBeHidden();
+  const firstCompact = await root.locator('.pg-listbox__value--interactive .pg-listbox__chip').first().boundingBox();
 
   await hoverOverflow(page, root);
+  const firstExpanded = await tray.locator('.pg-listbox__selected-chip').first().boundingBox();
+  // No header row: the first chip stays in its exact compact location.
+  expect(Math.abs(firstExpanded.x - firstCompact.x)).toBeLessThan(3);
+  expect(Math.abs(firstExpanded.y - firstCompact.y)).toBeLessThan(3);
   await expect(tray).toBeVisible();
   await expect(root.locator('.pg-listbox__selected-chip')).toHaveCount(5);
   await expect(tray.locator('.pg-listbox__selection-heading, .pg-listbox__selection-close')).toHaveCount(0);
@@ -127,11 +132,15 @@ test('keyboard focus on +N opens expanded values; Escape closes and returns to t
   await expect(root.locator('.pg-listbox__trigger')).toBeFocused();
 });
 
-test('expanded surface grows upward near viewport bottom without duplicating selected chips',async({page})=>{
+test('expanded surface grows upward near viewport bottom without moving original chips',async({page})=>{
   const root=page.locator('#selection-test-near-bottom');
+  const compact = await root.locator('.pg-listbox__value--interactive .pg-listbox__chip').first().boundingBox();
   await hoverOverflow(page, root);
   const tray=root.locator('.pg-listbox__selection-tray');
   await expect(tray).toBeVisible();
+  const expanded = await tray.locator('.pg-listbox__selected-chip').first().boundingBox();
+  expect(Math.abs(expanded.x - compact.x)).toBeLessThan(3);
+  expect(Math.abs(expanded.y - compact.y)).toBeLessThan(3);
   const geometry=await root.evaluate(el=>{
     const surface=el.querySelector(':scope > .pg-listbox > .pg-field > .pg-field__surface').getBoundingClientRect();
     const extended=el.querySelector('.pg-listbox__selection-tray').getBoundingClientRect();
