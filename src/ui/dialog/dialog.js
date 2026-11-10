@@ -268,9 +268,11 @@ export function mountDialogs() {
     closeNow(item);
   }
 
-  async function handleConfirm(item) {
+  // Both workspace save buttons share exactly one validation/persistence path.
+  // Only the main checkmark closes the dialog after successful persistence.
+  async function handleConfirm(item, closeOnSuccess = true) {
     if (destroyed || active !== item || item.closing || item.busy) return;
-    setBusy(item, true, item.confirmButton);
+    setBusy(item, true, closeOnSuccess ? item.confirmButton : item.saveButton);
     report(item, '');
     try {
       if (item.options.validate && await item.options.validate() !== true) {
@@ -285,7 +287,8 @@ export function mountDialogs() {
       }
       if (destroyed || active !== item) return;
       setBusy(item, false);
-      closeNow(item, 'confirm');
+      if (closeOnSuccess) closeNow(item, 'confirm');
+      else report(item, 'Зміни збережено.');
     } catch (error) {
       console.error('Dialog confirmation failed:', error);
       if (!destroyed && active === item) report(item, 'Помилка збереження. Спробуйте ще раз.', 'alert');
@@ -350,7 +353,7 @@ export function mountDialogs() {
           title, body, status, sections: item.options.sections,
         });
         const refreshButton = createIconButton({
-          label: 'Оновити', icon: 'refresh', variant: 'corner',
+          label: 'Оновити', icon: 'refresh', variant: 'mini',
           action: 'dialog-refresh', onClick: () => { void handleRefresh(item); },
         });
         refreshButton.disabled = !item.options.onRefresh;
@@ -363,17 +366,23 @@ export function mountDialogs() {
         deleteButton.disabled = !item.options.onDelete;
         item.deleteButton = deleteButton;
         const saveButton = createIconButton({
-          label: 'Зберегти', icon: 'save', variant: 'corner',
-          action: 'dialog-confirm',
-          onClick: () => { void handleConfirm(item); },
+          label: 'Зберегти', icon: 'save', variant: 'mini',
+          action: 'dialog-save',
+          onClick: () => { void handleConfirm(item, false); },
         });
-        item.confirmButton = saveButton;
+        item.saveButton = saveButton;
+        const saveCloseButton = createIconButton({
+          label: 'Зберегти і закрити', icon: 'check', variant: 'corner',
+          action: 'dialog-confirm',
+          onClick: () => { void handleConfirm(item, true); },
+        });
+        item.confirmButton = saveCloseButton;
         closeButton.classList.add('pg-icon-button--corner');
-        workspace.topLeft.append(refreshButton);
-        workspace.topRight.append(closeButton);
+        workspace.topRight.append(closeButton, refreshButton);
         workspace.bottomLeft.append(deleteButton);
-        workspace.bottomRight.append(saveButton);
-        item.actionButtons = [refreshButton, closeButton, deleteButton, saveButton];
+        workspace.bottomRight.append(saveButton, saveCloseButton);
+        item.actionButtons = [workspace.navToggle, closeButton, refreshButton,
+          deleteButton, saveButton, saveCloseButton];
         panel.classList.add('pg-dialog__panel--workspace');
         panel.append(workspace.element);
         item.workspace = workspace;
