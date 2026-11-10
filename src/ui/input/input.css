@@ -34,3 +34,60 @@
 .pg-input__error { color: var(--pg-color-input-error); }
 .pg-input[data-pg-state='error'] > .pg-input__label { color: var(--pg-color-input-error); }
 .pg-input[data-pg-state='disabled'] > .pg-input__label { color: var(--pg-color-text-muted); }
+
+/* Opt-in text overlay: no changes to the shared frame geometry. */
+.pg-input__rotating-host { position: relative; }
+.pg-input__rotating-native-host {
+  display: inline-grid;
+  position: relative;
+  max-inline-size: 100%;
+  vertical-align: middle;
+}
+.pg-input__rotating-native-host > input {
+  grid-area: 1 / 1;
+  min-inline-size: 0;
+}
+.pg-input__rotating-placeholder {
+  position: absolute;
+  inset-block: 0;
+  inset-inline: 14px;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  color: var(--pg-color-text-muted);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.45;
+  white-space: nowrap;
+}
+.pg-input__rotating-native-host > .pg-input__rotating-placeholder { inset-inline: 4px; }
+.pg-input__rotating-placeholder[hidden],
+.pg-input__rotating-host:focus-within > .pg-input__rotating-placeholder,
+.pg-input__rotating-host > input:not(:placeholder-shown) + .pg-input__rotating-placeholder { display: none; }
+.pg-input__rotating-word {
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transform: translateY(-50%);
+}
+.pg-input__rotating-word[data-pg-state='entering'] {
+  animation: pg-input-placeholder-enter 420ms cubic-bezier(.22, 1, .36, 1) both;
+}
+.pg-input__rotating-word[data-pg-state='leaving'] {
+  animation: pg-input-placeholder-leave 420ms cubic-bezier(.22, 1, .36, 1) both;
+}
+@keyframes pg-input-placeholder-enter {
+  from { opacity: 0; transform: translateY(-180%); }
+  to { opacity: 1; transform: translateY(-50%); }
+}
+@keyframes pg-input-placeholder-leave {
+  from { opacity: 1; transform: translateY(-50%); }
+  to { opacity: 0; transform: translateY(80%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pg-input__rotating-word[data-pg-state='entering'],
+  .pg-input__rotating-word[data-pg-state='leaving'] { animation: none; }
+}
