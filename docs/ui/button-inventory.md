@@ -67,3 +67,8 @@
 2. Змінювати тільки **один** `src/ui/button/button.css`, а не створювати окремий CSS-файл на кнопку. Для кожного нового типу обов'язкова власна шапка **ТИП / ПРИЗНАЧЕННЯ / НАВІЩО / ДЕ / ГЕОМЕТРІЯ / СТАНИ / МЕЖА**.
 3. Оновити схвалений реєстр `scripts/check-conventions.mjs` після огляду. Перевіряти клавіатуру, focus-visible, disabled, pressed, loading, темну тему, reduced motion і mobilе hit target. Автоматична перевірка підтверджує структуру, а не якість рішення.
 4. Не перетворювати `pg-tabs`, `pg-select`, `pg-listbox`, `pg-checkbox`, `pg-segment-switch` чи комплексний `createAsideFab` на нові типи стандартної кнопки без обґрунтування.
+
+
+## Семантичний колір (2026-11-10)
+
+Після аудиту введено `tone`/`appearance`, а не нові сімейства кнопок. Будь-яка наявна звичайна, compact, pill чи mini action може використовувати [спільний контракт кольорів](semantic-colors.md); `setButtonColor()` лише задає атрибути. Menu `danger` відповідає `danger/ghost`, підтвердження видалення — `danger/solid`, bulk delete — `danger/soft`. Style owner незмінний: `button.css`.
