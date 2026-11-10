@@ -26,3 +26,13 @@ Playwright: однакова геометрія 32×32px mini і компакт�
 **Рішення:** `pin` — `createIconButton({ variant: 'mini' })`, із уже затвердженим `pg-mini-button` та глобальним станом `aria-pressed`. Ніякого нового `pg-pin-button`. `pg-aside__pin` не має окремих стилів і не потрібен навіть як DOM-hook: існує `[data-pg-action="aside-pin"]`. `pg-menu__trigger` може лишатися структурним DOM-класом для логіки й тестів, але його вигляд задає `pg-button` + `pg-button--outline` або `pg-mini-button`. Спільні основні стани (idle / hover / pressed / expanded / focus-visible / disabled / reduced motion) належать виключно `src/ui/button/button.css`.
 
 **Запобіжник:** перед будь-яким новим `button` перевіряти [реєстр кнопок](button-inventory.md), застосовувати наявний клас вигляду та фабрику. `src/features`, `src/shell` і CSS інших UI-компонентів можуть лише позиціонувати/обмежувати вміст наявного контролу; розміри, рамка, радіус, кольори та стани **не дублюються**. Виняток — справжня складова поведінка, як FAB з власним pop-out меню або native label/radio, яка задокументована в реєстрі.
+
+## Універсальні button-класи після аудиту 2026-11-10
+
+`createIconButton({ label, icon, action?, onClick?, variant? })` використовує `variant = 'default' | 'mini' | 'corner'`. Mini — спільна кругла кнопка 32×32 px, **включно з кнопкою pin в Aside**, а `aria-pressed` утримує позначений стан. Для `Menu` лишено структурний клас `pg-menu__trigger`, але вигляд дає `pg-button pg-button--outline`; контекстне `⋯` додає `pg-mini-button`, яке пріоритетніше за outline. `pg-aside__pin` та його CSS прибрано.
+
+`src/ui/button/button.css` містить один набір модифікаторів текстової кнопки: `pg-button--outline`, `--secondary`, `--primary`, `--destructive`, `--compact`, `--pill`, `--page`, `--step`, `--tool`, `--list-item`, `--chip-remove`, `--chip-more`, `--plain`, `--quiet`, `--square`. **Це не окремі компоненти чи фабрики**: тільки варіанти вже наявного style owner. Класи на кшталт `pg-dialog__button`, `pg-pagination__button`, `pg-toast__action` залишаються для структури та поведінки.
+
+Кольори для Toast із темною інверсною поверхнею передаються через змінні `--pg-button-quiet-ink` і `--pg-button-quiet-hover`, а не копіювання окремого CSS. Редактор перемикає «Редактор/HTML» через `createSegmentSwitch` (native radio), не через додаткові style buttons. Геометрія FAB, Tabs і нативних Field контролів залишається власністю відповідних **спільних механізмів**, а не нових одноразових кнопок.
+
+Контроль: у `scripts/check-conventions.mjs` право на класи `pg-button`, `pg-mini-button` та `pg-icon-button` закріплене за `src/ui/button/button.css`; новий `pg-aside__pin` CSS заборонено. Повні ролі та межі описані в [інвентарі](button-inventory.md).

@@ -41,6 +41,8 @@ const cssOwnerByPrefix = new Map([
   ['pg-route-message', 'src/shell/route-message.css'],
   ['pg-data-row', 'src/ui/data-row/data-row.css'],
   ['pg-icon-button', 'src/ui/button/button.css'],
+  ['pg-mini-button', 'src/ui/button/button.css'],
+  ['pg-button', 'src/ui/button/button.css'],
   ['pg-toast', 'src/ui/toast/toast.css'],
   ['pg-dialog', 'src/ui/dialog/dialog.css'],
   ['pg-input', 'src/ui/input/input.css'],
@@ -97,6 +99,9 @@ async function checkCss(path, label) {
   stylesChecked += 1;
   const raw = await readFile(path, 'utf8');
   const css = raw.replace(/\/\*[\s\S]*?\*\//g, '');
+  if (/\.pg-aside__pin\b/.test(css)) {
+    errors.push(label + ': deprecated aside pin skin is forbidden; use shared .pg-mini-button');
+  }
 
   for (const [prefix, owner] of cssOwnerByPrefix) {
     if (label !== owner && new RegExp('\\.' + prefix + '(?:__|--|\\b)').test(css)) {

@@ -115,6 +115,9 @@
   border-color: var(--pg-color-border-strong);
   border-radius: var(--pg-radius-md);
 }
+.pg-button--outline.pg-button--compact:not(.pg-mini-button) {
+  border-radius: var(--pg-radius-sm);
+}
 .pg-button--outline:not(.pg-mini-button):hover:not(:disabled) {
   background: var(--pg-color-hover);
 }
@@ -287,7 +290,7 @@
 .pg-button--chip-remove:focus-visible { outline-offset: 1px; }
 .pg-button--chip-remove:disabled { opacity: .45; }
 
-.pg-button--chip-more {
+.pg-button.pg-button--chip-more {
   min-block-size: 28px;
   padding: 4px 8px;
   border: 0;

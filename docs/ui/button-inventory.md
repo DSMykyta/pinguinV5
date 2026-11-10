@@ -33,7 +33,7 @@
 
 ## Чіткі межі
 
-1. **Візуальні сімейства, доступні для перевикористання:** icon (40), mini (32 круглий), corner, text (primary/secondary/outline/destructive/quiet), pill, page, step, tool. Варіанти залишаються у **`src/ui/button/button.css`**; новий skin можливий тільки за реальної відмінності загального сценарію, не за назвою feature.
+1. **Візуальні сімейства, доступні для перевикористання:** icon (40), mini (32 круглий), corner, text (primary/secondary/outline/destructive/quiet), compact, pill, page, step, tool, list-item, chip-remove/chip-more, plain та square. Варіанти залишаються у **`src/ui/button/button.css`**; новий skin можливий тільки за реальної відмінності загального сценарію, не за назвою feature.
 2. Ролі `pg-menu__trigger`, `pg-dialog__button`, `pg-pagination__button`, `pg-rich-text-editor__action` — не оформлення. Їх залишати для DOM, клавіатури, anchor/focus та локального компонування, **без повторення загального CSS**.
 3. **Справжні відмінності компонентів:** FAB — складена кнопка з відкриванням; Listbox — native-like поле та невеликі дії chip; Tabs/Segment — навігаційні та radio патерни. Тут допустима тільки поведінка й специфічна геометрія композиції, не копія базових hover/focus/disabled.
 4. Під час рев'ю шукати дублікати `border`, `border-radius`, `background`, `color`, `:hover`, `:focus-visible`, `:disabled` у CSS компонентів для звичайного button. Виправляти у спільному `button.css` або через наявний модифікатор, **не додавати ще один**.
