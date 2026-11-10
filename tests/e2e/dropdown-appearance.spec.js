@@ -72,7 +72,7 @@ test('Listbox dropdown spans the full outlined field and arrow rotates on open/c
 
 test('Combobox dropdown matches the whole field including its chevron', async ({ page }) => {
   const root = page.locator('#visual-test-combobox');
-  const arrow = '#visual-test-combobox .pg-combobox__caret';
+  const arrow = '#visual-test-combobox .pg-field__caret';
   const input = root.getByRole('combobox', { name: 'Товар у каталозі' });
   await expect.poll(() => angle(page, arrow)).toBe(45);
   await input.focus();
@@ -102,7 +102,7 @@ test('reduced motion disables the rotating arrow transition', async ({ page }) =
   await page.emulateMedia({ reducedMotion: 'reduce' });
   for (const [root, selector] of [
     ['listbox', '.pg-field__caret'],
-    ['combobox', '.pg-combobox__caret'],
+    ['combobox', '.pg-field__caret'],
   ]) {
     const duration = await page.locator('#visual-test-' + root + ' ' + selector)
       .evaluate(el => getComputedStyle(el).transitionDuration);
