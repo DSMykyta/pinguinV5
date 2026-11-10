@@ -58,7 +58,10 @@ test('four shared corner buttons remain anchored while sidebar collapses', async
   await expect(layout).toHaveAttribute('data-pg-nav', 'collapsed');
   await expect(modal.locator('.pg-section-navigator')).toHaveCount(1);
   const corners = await modal.evaluate(root => {
-    const box = action => root.querySelector('[data-pg-action="' + action + '"]').getBoundingClientRect();
+    const box = action => {
+      const rect = root.querySelector('[data-pg-action="' + action + '"]').getBoundingClientRect();
+      return { top: rect.top, left: rect.left, width: rect.width, height: rect.height };
+    };
     return {
       refresh: box('dialog-refresh'), close: box('dialog-dismiss'),
       remove: box('dialog-delete'), save: box('dialog-confirm'),
