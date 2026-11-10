@@ -2,7 +2,7 @@
  * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
  * ║ PINGUIN NEXT — SELECT                                                                               ║
  * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Native select: the outline and floating notch come from shared field.css.              ║
+ * ║ ПРИЗНАЧЕННЯ: Native select: label, outline and decorative caret use shared Field.                   ║
  * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
  * ║ ПУБЛІЧНИЙ API: .pg-select, .pg-select__control, .pg-select__field,               ║
  * ║ .pg-select__support                                                                                 ║
