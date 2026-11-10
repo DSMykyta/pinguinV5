@@ -38,10 +38,15 @@
   border-color: var(--pg-color-focus);
   box-shadow: 0 0 0 2px var(--pg-color-accent-soft);
 }
-.pg-field[data-pg-state='error'] .pg-field__surface {
+/* Invalid is one shared Field state, not a Select/Listbox-specific skin.
+ * Retain the error border on hover/focus and color the field value/placeholder.
+ */
+.pg-field[data-pg-state='error']:not([data-pg-disabled='true']) .pg-field__surface {
   border-color: var(--pg-color-input-error);
 }
-.pg-field[data-pg-state='error'] .pg-field__label {
+.pg-field[data-pg-state='error']:not([data-pg-disabled='true']) .pg-field__label,
+.pg-field[data-pg-state='error']:not([data-pg-disabled='true']) .pg-field__control,
+.pg-field[data-pg-state='error']:not([data-pg-disabled='true']) .pg-field__control::placeholder {
   color: var(--pg-color-input-error);
 }
 .pg-field[data-pg-disabled='true'] .pg-field__surface {
