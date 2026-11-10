@@ -42,7 +42,7 @@
 | View Switch | `src/ui/view-switch` | Contextual header mode control; [collection contract](collection-view.md) |
 | Toast | `src/ui/toast` | [Специфікація](toast.md), перший новий компонент |
 | Dialog / Confirm | `src/ui/dialog` | [Специфікація](dialog.md): native modal + blur |
-| Input / Search field | `src/ui/input` | [Дослідження, контракт та реалізація](input.md): floating, standard, search; supports flexible adornments |
+| Input / Search field | `src/ui/input` | [Спільний Input](input.md) + [opt-in Rotating Placeholder](rotating-placeholder.md); static label above, native autocomplete, flexible adornments |
 | Shared Field | `src/ui/field` | [One plain outline, static label above, leading/trailing slots](field.md) |
 | Native Select | `src/ui/select` | Native browser choice with shared static label above the field; [contract](selection-fields.md) |
 | Combobox | `src/ui/combobox` | Editable selection, async search and keyboard listbox; [contract](selection-fields.md) |
