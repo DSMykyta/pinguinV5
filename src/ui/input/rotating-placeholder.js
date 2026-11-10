@@ -4,7 +4,8 @@
  * ╠════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Опційна HTML-атрибутна підказка у звичайному native input.            ║
  * ║ ЗАЛЕЖНОСТІ: ./placeholder-history.js, native DOM/CSS анімація.                   ║
- * ║ ПУБЛІЧНИЙ API: mountRotatingPlaceholder(), mountRotatingPlaceholders().            ║
+ * ║ ПУБЛІЧНИЙ API: mountRotatingPlaceholder(), mountRotatingPlaceholders(),            ║
+ * ║                refreshRotatingPlaceholder().                                        ║
  * ║ ПРИНЦИП: Лише opt-in; жодного дублювання Input, зміни його value чи autocomplete.  ║
  * ╚════════════════════════════════════════════════════════════════════════════════════╝
  */
@@ -34,7 +35,7 @@ export function mountRotatingPlaceholder(input, options = {}) {
   if (!(input instanceof HTMLInputElement)) {
     throw new TypeError('Rotating placeholder requires a native input');
   }
-  if (mountedInputs.has(input)) return mountedInputs.get(input);
+  if (mountedInputs.has(input)) return mountedInputs.get(input).destroy;
   if (!SUPPORTED_TYPES.has(input.type) || (options.phrases === undefined && !input.hasAttribute('data-pg-rotating-placeholder'))) {
     return () => {};
   }
@@ -169,10 +170,14 @@ export function mountRotatingPlaceholder(input, options = {}) {
     mountedInputs.delete(input);
   }
 
-  mountedInputs.set(input, destroy);
+  mountedInputs.set(input, { destroy, refresh: updateVisibility });
   refreshWords();
   updateVisibility();
   return destroy;
+}
+
+export function refreshRotatingPlaceholder(input) {
+  mountedInputs.get(input)?.refresh();
 }
 
 // One mount per application root; dynamically inserted HTML with data-pg-* is supported.
