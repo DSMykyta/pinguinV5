@@ -71,11 +71,12 @@
   clip-path:inset(50%);white-space:nowrap;
 }
 .pg-section-navigator[data-pg-scroll-container='external'] {
-  /* Short sections end where their content ends; no empty 1fr spacer. */
-  grid-template-rows:auto auto auto auto;
-  align-content:start;
+  /* A short section fills the available workspace, placing its next button
+   * on the bottom edge. A long section can grow and use the existing parent
+   * scrollport; sticky rails remain in that same scroll flow. */
+  grid-template-rows:auto auto minmax(min-content,1fr) auto;
   block-size:auto;
-  min-block-size:0;
+  min-block-size:100%;
 }
 .pg-section-navigator[data-pg-scroll-container='external'] .pg-section-navigator__viewport {
   overflow:visible;overscroll-behavior-y:auto;
