@@ -57,7 +57,7 @@ export function createMenu({label,id,items=[],align='start',disabled=false,onSel
   entries.forEach((item,i)=>{
     const action=document.createElement('button');
     action.type='button';
-    action.className='pg-menu__item';
+    action.className='pg-menu__item pg-button pg-button--list-item';
     action.textContent=item.label;
     action.dataset.pgValue=item.value;
     action.disabled=item.disabled;

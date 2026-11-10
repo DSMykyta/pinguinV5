@@ -40,11 +40,7 @@
 /* Search reuses createInput + the shared field frame, not a second border system. */
 .pg-listbox__search-field { inline-size: 100%; min-inline-size: 0; }
 .pg-listbox__search-field .pg-field { gap: 4px; }
-.pg-listbox__select-all {
-  min-block-size:34px; padding:4px 10px; border:0; border-radius:var(--pg-radius-sm);
-  background:var(--pg-color-selected); color:var(--pg-color-text-primary);
-  font:inherit; font-size:13px; text-align:start; cursor:pointer;
-}
+.pg-listbox__select-all { text-align: start; }
 .pg-listbox__options {
   min-inline-size:0; margin:0; padding:0; list-style:none;
   overflow:auto; outline:0;
@@ -89,26 +85,11 @@
   display: inline-block; max-inline-size: 112px; min-inline-size: 0;
   overflow: hidden; text-overflow: ellipsis;
 }
-.pg-listbox__chip-remove {
-  display: grid; place-items: center; flex: 0 0 20px;
-  inline-size: 20px; block-size: 22px; min-inline-size: 20px;
-  padding: 0; border: 0; border-radius: 50%;
-  background: transparent; color: currentColor; cursor: pointer;
-}
 .pg-listbox__chip-remove svg {
   display: block; inline-size: 12px; block-size: 12px;
   flex: none; pointer-events: none;
   /* Optical center aligns the cross with the visible text, not its baseline. */
   transform: translateY(-1px);
-}
-.pg-listbox__chip-remove:hover { background: var(--pg-color-selected); }
-.pg-listbox__chip-remove:focus-visible, .pg-listbox__more:focus-visible {
-  outline: 2px solid var(--pg-color-focus); outline-offset: 1px;
-}
-.pg-listbox__chip-remove:disabled { opacity: .45; cursor: not-allowed; }
-.pg-listbox__more {
-  appearance: none; border: 0; min-block-size: 28px;
-  padding: 4px 8px; font: inherit; font-size: 12px; cursor: pointer;
 }
 .pg-listbox__sr {
   position: absolute; inline-size: 1px; block-size: 1px;

@@ -237,6 +237,114 @@
 }
 .pg-button--tool:disabled { opacity: .4; }
 
+
+/* Shared light-on-surface menu rows; this family also suits action lists. */
+.pg-button--list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-block-size: 38px;
+  inline-size: 100%;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: var(--pg-radius-sm);
+  background: transparent;
+  color: var(--pg-color-text-primary);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  text-align: start;
+}
+.pg-button--list-item:is(:hover, :focus, :focus-visible):not(:disabled) {
+  background: var(--pg-color-accent-soft);
+  color: var(--pg-color-accent);
+  outline: 0;
+}
+.pg-button--list-item:disabled { opacity: .45; }
+.pg-button--list-item[data-pg-danger='true'] { color: var(--pg-color-input-error); }
+.pg-button--list-item[data-pg-danger='true']:is(:hover, :focus):not(:disabled) {
+  color: var(--pg-color-input-error);
+}
+
+/* Compact actions inside selection chips keep their native button semantics. */
+.pg-button--chip-remove {
+  display: grid;
+  place-items: center;
+  flex: 0 0 20px;
+  inline-size: 20px;
+  min-inline-size: 20px;
+  block-size: 22px;
+  min-block-size: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--pg-radius-full);
+  background: transparent;
+  color: currentColor;
+  font: inherit;
+}
+.pg-button--chip-remove:hover:not(:disabled) { background: var(--pg-color-selected); }
+.pg-button--chip-remove:focus-visible { outline-offset: 1px; }
+.pg-button--chip-remove:disabled { opacity: .45; }
+
+.pg-button--chip-more {
+  min-block-size: 28px;
+  padding: 4px 8px;
+  border: 0;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+}
+.pg-button--chip-more:focus-visible { outline-offset: 1px; }
+
+/* Borderless text button, reusable in sortable table headings. */
+.pg-button--plain {
+  justify-content: flex-start;
+  min-block-size: 0;
+  padding: 8px 0;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  text-align: inherit;
+}
+.pg-button--plain:hover:not(:disabled) {
+  background: transparent;
+  color: var(--pg-color-text-primary);
+}
+.pg-button--plain:focus-visible { outline-offset: 3px; }
+
+/* Quiet actions may inherit inverse-surface colors from their host (Toast). */
+.pg-button--quiet {
+  flex: 0 0 auto;
+  min-block-size: 32px;
+  padding: 5px 3px;
+  border: 0;
+  border-radius: var(--pg-radius-sm);
+  background: transparent;
+  color: var(--pg-button-quiet-ink, var(--pg-color-text-primary));
+  font-size: 13px;
+  font-weight: 620;
+  white-space: normal;
+}
+.pg-button--quiet:is(:hover, :focus-visible):not(:disabled) {
+  background: var(--pg-button-quiet-hover, var(--pg-color-hover));
+  color: var(--pg-button-quiet-ink, var(--pg-color-text-primary));
+}
+.pg-button--square {
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+  inline-size: 32px;
+  block-size: 32px;
+  min-block-size: 32px;
+  padding: 0;
+}
+.pg-button--square > .pg-icon { inline-size: 16px; block-size: 16px; }
+
 /*
  * Shared mini button: legacy .btn-icon look on the existing IconButton/Menu.
  * A 32px circular action target sits beside a 32px compact checkbox target.

@@ -215,7 +215,7 @@ export function mountToasts() {
     if (item.action) {
       const button = doc.createElement('button');
       button.type = 'button';
-      button.className = 'pg-toast__action';
+      button.className = 'pg-toast__action pg-button pg-button--quiet';
       button.dataset.pgAction = 'toast-action';
       button.textContent = item.action.label;
       button.addEventListener('click', () => {
@@ -236,7 +236,7 @@ export function mountToasts() {
 
     const close = doc.createElement('button');
     close.type = 'button';
-    close.className = 'pg-toast__close';
+    close.className = 'pg-toast__close pg-button pg-button--quiet pg-button--square';
     close.dataset.pgAction = 'toast-dismiss';
     close.setAttribute('aria-label', 'Закрити повідомлення');
     close.append(createIcon('x'));

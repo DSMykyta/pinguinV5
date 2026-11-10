@@ -67,15 +67,13 @@
 .pg-collection-view__table [data-pg-primary='true'] { font-weight: 600; color: var(--pg-color-text-primary); }
 .pg-collection-view__table [data-pg-muted='true'] { color: var(--pg-color-text-secondary); }
 .pg-collection-view__sort {
-  display: inline-flex; align-items: center; justify-content: flex-start;
-  gap: 7px; width: 100%; padding: 8px 0;
-  border: 0; background: none; color: inherit;
-  font: inherit; font-size: inherit; font-weight: inherit;
-  text-align: inherit; cursor: pointer; white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  white-space: nowrap;
 }
 .pg-collection-view__table [data-pg-align='end'] .pg-collection-view__sort { justify-content: flex-end; }
-.pg-collection-view__sort:hover { color: var(--pg-color-text-primary); }
-.pg-collection-view__sort:focus-visible { outline: 2px solid var(--pg-color-focus); outline-offset: 3px; border-radius: 3px; }
 .pg-collection-view__sort-mark { font-size: 12px; color: var(--pg-color-text-muted); }
 .pg-collection-view__tiles {
   flex: 1 1 auto; min-block-size: 0; overflow: auto;

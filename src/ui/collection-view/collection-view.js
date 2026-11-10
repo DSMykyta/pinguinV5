@@ -148,7 +148,7 @@ export function createCollectionView({
     else {
       const button=document.createElement('button');
       button.type='button';
-      button.className='pg-collection-view__sort';
+      button.className='pg-collection-view__sort pg-button pg-button--plain';
       const name=document.createElement('span');
       name.textContent=column.label;
       const marker=document.createElement('span');

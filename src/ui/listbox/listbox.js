@@ -97,7 +97,7 @@ export function createListbox({
     panel.append(searchField.element);
   }
   const all = document.createElement('button');
-  all.className = 'pg-listbox__select-all';
+  all.className = 'pg-listbox__select-all pg-button pg-button--secondary pg-button--compact';
   all.type = 'button';
   if (multiple && selectAll) panel.append(all);
   const list = document.createElement('ul');
@@ -166,7 +166,7 @@ export function createListbox({
     text.textContent = item.label;
     const remove = document.createElement('button');
     remove.type = 'button';
-    remove.className = 'pg-listbox__chip-remove';
+    remove.className = 'pg-listbox__chip-remove pg-button pg-button--chip-remove';
     remove.dataset.pgRemove = item.value;
     // A drawn cross has a geometric center; the text glyph × sits low in some fonts.
     const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -202,7 +202,7 @@ export function createListbox({
         if (chosen.length > 3) {
           const more = document.createElement('button');
           more.type = 'button';
-          more.className = 'pg-listbox__chip pg-listbox__more';
+          more.className = 'pg-listbox__chip pg-listbox__more pg-button pg-button--chip-more';
           more.textContent = '+' + (chosen.length - 3);
           more.disabled = Boolean(disabled);
           more.setAttribute('aria-label', 'Показати всі вибрані значення');
