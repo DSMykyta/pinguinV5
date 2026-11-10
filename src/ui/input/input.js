@@ -23,7 +23,7 @@ export function createInput({
   value = '', placeholder = '', description = '', error = '',
   required = false, disabled = false, readOnly = false,
   autocomplete, inputMode, clearable, leading, trailing, onInput, onChange,
-  rotatingPlaceholder, placeholderHistoryKey, placeholderInterval,
+  rotatingPlaceholder, placeholderHistoryKey, placeholderInterval, placeholderSave = 'change',
 } = {}) {
   if (typeof label !== 'string' || !label.trim()) throw new TypeError('Input label must be a non-empty string');
   if (!VARIANTS.has(variant)) throw new TypeError('Unknown input variant: ' + variant);
@@ -49,9 +49,13 @@ export function createInput({
     throw new TypeError('rotatingPlaceholder must be boolean (no manual phrase list)');
   }
   if (rotatingPlaceholder) {
+    if (!['change', 'submit'].includes(placeholderSave)) {
+      throw new TypeError('placeholderSave must be change or submit');
+    }
     input.setAttribute('data-pg-rotating-placeholder', '');
     if (placeholderHistoryKey) input.setAttribute('data-pg-placeholder-history', placeholderHistoryKey);
     if (placeholderInterval !== undefined) input.setAttribute('data-pg-placeholder-interval', String(placeholderInterval));
+    if (placeholderSave === 'submit') input.setAttribute('data-pg-placeholder-save', 'submit');
   }
 
   const addons = [];
