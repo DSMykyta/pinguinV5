@@ -26,6 +26,8 @@
 .pg-collection-view__table {
   width: 100%; min-width: 1050px;
   border-collapse: separate; border-spacing: 0;
+  border-radius: var(--pg-radius-lg);
+  /* Radius is rendered by edge cells; no overflow clip on the native table. */
   /* Stable column widths across pages and sort directions; no content-driven jumps. */
   table-layout: fixed;
   color: var(--pg-color-text-primary);
