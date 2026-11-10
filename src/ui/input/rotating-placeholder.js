@@ -80,7 +80,14 @@ export function mountRotatingPlaceholder(input, options = {}) {
       return;
     }
     const previous = overlay.lastElementChild;
-    if (previous?.textContent === phrase) return;
+    if (previous?.textContent === phrase) {
+      // An interrupted animation must never leave the outgoing word visible.
+      if (overlay.childElementCount > 1 || previous.hasAttribute('data-pg-state')) {
+        overlay.replaceChildren(previous);
+        previous.removeAttribute('data-pg-state');
+      }
+      return;
+    }
     const current = document.createElement('span');
     current.className = 'pg-input__rotating-word';
     current.textContent = phrase;
