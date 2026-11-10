@@ -272,3 +272,27 @@ test('moving an input between module owners re-scopes rather than mixing histori
     'pg:v1:input-placeholder-history:' + encodeURIComponent('module-b:feature')));
   expect(stored).toBeNull();
 });
+
+test('a field with history creates its overlay only when it enters the viewport', async ({ page }) => {
+  await page.evaluate(() => {
+    localStorage.setItem('pg:v1:input-placeholder-history:offscreen-field',
+      JSON.stringify(['Existing value']));
+    const grid = document.querySelector('.pg-tools-input-demo__grid');
+    const filler = document.createElement('div');
+    for (let i = 0; i < 180; i++) {
+      const line = document.createElement('p');
+      line.textContent = 'Spacer';
+      filler.append(line);
+    }
+    grid.append(filler);
+    grid.insertAdjacentHTML('beforeend',
+      '<div><label for="offscreen-field">Невидиме поле</label>' +
+      '<input id="offscreen-field" name="offscreen-field" data-pg-rotating-placeholder></div>');
+  });
+  const input = page.locator('#offscreen-field');
+  const host = page.locator('.pg-input__rotating-native-host').filter({ has: input });
+  await expect(host).toHaveCount(0);
+  await input.scrollIntoViewIfNeeded();
+  await expect(host).toHaveCount(1);
+  await expect(host.locator('.pg-input__rotating-placeholder')).toContainText('Existing value');
+});
