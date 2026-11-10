@@ -14,9 +14,15 @@ import { showDialog } from '../dialog/dialog.js';
 export function showFormDialog({
   title, content, validate, save, isDirty = () => false, closeGuard,
   leftAction, confirmText = 'Зберегти', cancelText = 'Скасувати',
-  confirmTone, confirmAppearance,
+  confirmTone, confirmAppearance, layout = 'editor', sections = [], onRefresh, onDelete,
 } = {}) {
   if (!(content instanceof HTMLElement)) throw new TypeError('Form dialog needs DOM content');
+  if (!['editor', 'workspace'].includes(layout)) throw new TypeError('Unknown form dialog layout');
+  for (const [name, callback] of Object.entries({ onRefresh, onDelete })) {
+    if (callback !== undefined && typeof callback !== 'function') {
+      throw new TypeError('Form dialog ' + name + ' must be a function');
+    }
+  }
   for (const [name, callback] of Object.entries({ validate, save, isDirty })) {
     if (typeof callback !== 'function') throw new TypeError('Form dialog ' + name + ' must be a function');
   }
@@ -24,8 +30,8 @@ export function showFormDialog({
     throw new TypeError('Form dialog closeGuard must be a function');
   }
   return showDialog({
-    title, content, size: 'editor', confirmText, cancelText, leftAction,
-    confirmTone, confirmAppearance,
+    title, content, size: layout, sections, onRefresh, onDelete, isDirty,
+    confirmText, cancelText, leftAction, confirmTone, confirmAppearance,
     validate, onConfirm: save,
     closeGuard: async context => {
       if (isDirty()) return false;
