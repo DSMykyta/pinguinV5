@@ -199,11 +199,6 @@ export function createDataViewsDemo() {
           );
           nameField.setError(!name?'Вкажіть назву бренду':
             duplicate?'Бренд із такою назвою вже існує':'');
-          if(!name||duplicate) {
-            const generalButton=content.closest('.pg-workspace-layout')
-              ?.querySelector('.pg-workspace-layout__nav-item');
-            generalButton?.click();
-          }
           return Boolean(name&&!duplicate);
         },
         save:()=>{
