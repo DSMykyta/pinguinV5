@@ -76,10 +76,13 @@ export function createListbox({
   panel.hidden = true;
   const hasPopover = typeof panel.showPopover === 'function';
   if (hasPopover) panel.setAttribute('popover', 'manual');
-  // Compose the existing Input instead of inventing another styled input.
-  // Only Listbox owns searching/filtering; the Input owns border, focus and label.
+  // The existing Input and Button share one compact popup toolbar.
+  // An embedded search keeps its accessible label without taking a second row.
+  const toolbar = document.createElement('div');
+  toolbar.className = 'pg-listbox__toolbar';
   const searchField = searchable ? createInput({
-    label: 'Пошук', id: uid + '-search', variant: 'search',
+    label: 'Пошук у списку ' + label, id: uid + '-search', variant: 'search',
+    labelPresentation: 'sr-only',
     placeholder: 'Пошук…', autocomplete: 'off', clearable: false,
     onInput: query => filter(query),
   }) : null;
@@ -92,12 +95,13 @@ export function createListbox({
     search.setAttribute('aria-autocomplete', 'list');
     search.setAttribute('aria-controls', uid + '-options');
     search.setAttribute('aria-expanded', 'true');
-    panel.append(searchField.element);
+    toolbar.append(searchField.element);
   }
   const all = document.createElement('button');
   all.className = 'pg-listbox__select-all pg-button pg-button--secondary pg-button--compact';
   all.type = 'button';
-  if (multiple && selectAll) panel.append(all);
+  if (multiple && selectAll) toolbar.append(all);
+  if (toolbar.childElementCount) panel.append(toolbar);
   const list = document.createElement('ul');
   list.className = 'pg-listbox__options pg-scrollbar';
   list.id = uid + '-options';
@@ -255,10 +259,13 @@ export function createListbox({
   function reflect() {
     optionsDOM.forEach((node,i)=>node.setAttribute('aria-selected',String(selected.has(items[i].value))));
     if (multiple && selectAll) {
-      const shown=visibleIndices();
-      const fully=shown.length>0 && shown.every(i=>selected.has(items[i].value));
-      all.textContent=fully?'Зняти всі':'Вибрати всі';
-      all.disabled=shown.length===0;
+      const shown = visibleIndices();
+      const chosen = shown.filter(i => selected.has(items[i].value)).length;
+      const filtered = Boolean(normalized(search.value));
+      all.textContent = filtered
+        ? (chosen ? 'Зняти знайдені' : 'Вибрати знайдені')
+        : !chosen ? 'Вибрати всі' : chosen === shown.length ? 'Зняти всі' : 'Зняти вибір';
+      all.disabled = shown.length === 0;
     }
     updateValue();
   }
@@ -502,9 +509,11 @@ export function createListbox({
     }
   },{signal:controller.signal});
   all.addEventListener('click',event=>{
-    const eligible=visibleIndices();
-    const already=eligible.length>0&&eligible.every(i=>selected.has(items[i].value));
-    eligible.forEach(i=>already?selected.delete(items[i].value):selected.add(items[i].value));
+    const eligible = visibleIndices();
+    // Mixed selection removes the selected visible values rather than selecting the rest.
+    const hasSelected = eligible.some(i => selected.has(items[i].value));
+    eligible.forEach(i => hasSelected
+      ? selected.delete(items[i].value) : selected.add(items[i].value));
     reflect();
     reconcileSelectionError(true);
     onChange?.(selection(),event);
