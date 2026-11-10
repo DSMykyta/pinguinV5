@@ -175,6 +175,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .pg-field__caret { transition: none; }
+  .pg-field__popup { scroll-behavior: auto; }
 }
 
 /* Only multiline and token collection surfaces may grow in block size. */
