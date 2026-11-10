@@ -3,7 +3,7 @@
  * ║ PINGUIN NEXT — LISTBOX (SINGLE OR MULTIPLE)                                                         ║
  * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Separate from native Select and editable Combobox; no feature ownership.               ║
- * ║ ЗАЛЕЖНОСТІ: ../field/field.js, ../input/input.js, ../position/position-popup.js,                    ║
+ * ║ ЗАЛЕЖНОСТІ: ../field/field.js, ../input/input.js, ../checkbox/checkbox.js, ../position/position-popup.js,                    ║
  * ║ ../position/dismiss-on-scroll.js, ../position/ensure-option-visible.js, ../icon/icon.js                              ║
  * ║ ПУБЛІЧНИЙ API: createListbox()                                                                      ║
  * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
@@ -13,6 +13,7 @@
 import { createIcon } from '../icon/icon.js';
 import { createFieldFrame } from '../field/field.js';
 import { createInput } from '../input/input.js';
+import { createCheckbox } from '../checkbox/checkbox.js';
 import { positionPopup } from '../position/position-popup.js';
 import { dismissOnOutsideScroll } from '../position/dismiss-on-scroll.js';
 import { ensureOptionVisible } from '../position/ensure-option-visible.js';
@@ -76,7 +77,7 @@ export function createListbox({
   panel.hidden = true;
   const hasPopover = typeof panel.showPopover === 'function';
   if (hasPopover) panel.setAttribute('popover', 'manual');
-  // The existing Input and Button share one compact popup toolbar.
+  // The existing Input and Checkbox share one compact popup toolbar.
   // An embedded search keeps its accessible label without taking a second row.
   const toolbar = document.createElement('div');
   toolbar.className = 'pg-listbox__toolbar';
@@ -97,10 +98,24 @@ export function createListbox({
     search.setAttribute('aria-expanded', 'true');
     toolbar.append(searchField.element);
   }
-  const all = document.createElement('button');
-  all.className = 'pg-listbox__select-all pg-button pg-button--secondary pg-button--compact';
-  all.type = 'button';
-  if (multiple && selectAll) toolbar.append(all);
+  const all = multiple && selectAll ? createCheckbox({
+    label: 'Вибрати всі', id: uid + '-select-all', showLabel: false,
+    disabled, onChange: (_, event) => {
+      const eligible = visibleIndices();
+      // Mixed state intentionally clears visible selections (Pinguin selection rule).
+      const hasSelected = eligible.some(i => selected.has(items[i].value));
+      eligible.forEach(i => hasSelected
+        ? selected.delete(items[i].value) : selected.add(items[i].value));
+      reflect();
+      reconcileSelectionError(true);
+      onChange?.(selection(), event);
+    },
+  }) : null;
+  if (all) {
+    all.element.classList.add('pg-listbox__select-all');
+    all.element.setAttribute('data-pg-tooltip-always', '');
+    toolbar.append(all.element);
+  }
   if (toolbar.childElementCount) panel.append(toolbar);
   const list = document.createElement('ul');
   list.className = 'pg-listbox__options pg-scrollbar';
@@ -258,14 +273,18 @@ export function createListbox({
   }
   function reflect() {
     optionsDOM.forEach((node,i)=>node.setAttribute('aria-selected',String(selected.has(items[i].value))));
-    if (multiple && selectAll) {
+    if (all) {
       const shown = visibleIndices();
       const chosen = shown.filter(i => selected.has(items[i].value)).length;
       const filtered = Boolean(normalized(search.value));
-      all.textContent = filtered
+      const actionLabel = filtered
         ? (chosen ? 'Зняти знайдені' : 'Вибрати знайдені')
         : !chosen ? 'Вибрати всі' : chosen === shown.length ? 'Зняти всі' : 'Зняти вибір';
-      all.disabled = shown.length === 0;
+      all.setChecked(shown.length > 0 && chosen === shown.length);
+      all.setIndeterminate(chosen > 0 && chosen < shown.length);
+      all.setDisabled(disabled || shown.length === 0);
+      all.setLabel(actionLabel);
+      all.element.dataset.pgTooltip = actionLabel;
     }
     updateValue();
   }
@@ -508,18 +527,9 @@ export function createListbox({
       if(i>=0&&!items[i].disabled)activate(i);
     }
   },{signal:controller.signal});
-  all.addEventListener('click',event=>{
-    const eligible = visibleIndices();
-    // Mixed selection removes the selected visible values rather than selecting the rest.
-    const hasSelected = eligible.some(i => selected.has(items[i].value));
-    eligible.forEach(i => hasSelected
-      ? selected.delete(items[i].value) : selected.add(items[i].value));
-    reflect();
-    reconcileSelectionError(true);
-    onChange?.(selection(),event);
-  },{signal:controller.signal});
+
   panel.addEventListener('keydown',event=>{
-    if(event.target===all&&event.key==='Escape'){event.preventDefault();close(true);}
+    if(event.target===all?.input&&event.key==='Escape'){event.preventDefault();close(true);}
   },{signal:controller.signal});
   document.addEventListener('focusin',event=>{
     if(opened&&!element.contains(event.target))close();
@@ -548,7 +558,7 @@ export function createListbox({
     element, trigger, getValue:selection,setValue,setOptions,setError,open,close,
     focus(){trigger.focus();},
     destroy(){
-      destroyed=true;close();hideTray();controller.abort();searchField?.destroy();frame.destroy();element.remove();
+      destroyed=true;close();hideTray();controller.abort();searchField?.destroy();all?.destroy();frame.destroy();element.remove();
     },
   });
 }
