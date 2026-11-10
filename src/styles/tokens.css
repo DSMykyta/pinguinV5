@@ -88,6 +88,8 @@
   --pg-sidebar-compact-width: 56px;
   --pg-aside-width: 302px;
   --pg-control-size: 40px;
+  /* One shared Field height: compact desktop, full-sized touch hit area. */
+  --pg-field-control-size: var(--pg-control-size);
   --pg-compact-control-size: 32px;
   --pg-checkbox-box-size: 24px;
   --pg-header-height: 60px;
@@ -96,6 +98,10 @@
   --pg-ease: cubic-bezier(.2, .7, .2, 1);
   --pg-duration-layout: 340ms;
   --pg-ease-layout: cubic-bezier(.22, 1, .36, 1);
+}
+
+@media (pointer: coarse) {
+  :root { --pg-field-control-size: 44px; }
 }
 
 :root[data-theme='dark'] {
