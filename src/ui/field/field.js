@@ -3,11 +3,13 @@
  * ║ PINGUIN NEXT — SHARED FIELD FRAME                                                                   ║
  * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Permanent label above a plain border; independent leading/trailing slots.              ║
- * ║ ЗАЛЕЖНОСТІ: Стандартні API платформи; зовнішніх імпортів немає.                                     ║
+ * ║ ЗАЛЕЖНОСТІ: ../icon/icon.js і стандартні DOM API.                                     ║
  * ║ ПУБЛІЧНИЙ API: createFieldFrame()                                                                   ║
  * ║ ПРИНЦИП: No notch, floating animation, background masking, or DOM observers.                        ║
  * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
+import { createIcon } from '../icon/icon.js';
 
 function slotNodes(value) {
   if (value == null) return [];
@@ -48,7 +50,7 @@ export function createFieldFrame({ label, control, controlId, leading, trailing 
     // The literal 'caret' is a shared decorative dropdown accessory.
     // Unlike an interactive trailing button it must never capture clicks.
     const decorative = slot === trail && value === 'caret';
-    const contents = decorative ? [document.createElement('span')] : slotNodes(value);
+    const contents = decorative ? [createIcon('expand-more')] : slotNodes(value);
     if (decorative) {
       contents[0].className = 'pg-field__caret';
       contents[0].setAttribute('aria-hidden', 'true');

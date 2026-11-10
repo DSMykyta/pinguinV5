@@ -101,19 +101,16 @@
 }
 .pg-field__caret {
   display: block;
-  inline-size: 9px;
-  block-size: 9px;
-  margin-block-start: -4px;
-  border-inline-end: 2px solid currentColor;
-  border-block-end: 2px solid currentColor;
+  inline-size: 20px;
+  block-size: 20px;
   color: var(--pg-color-text-secondary);
-  transform: rotate(45deg);
+  transform: rotate(0deg);
   transform-origin: center;
   transition: transform var(--pg-duration-normal) var(--pg-ease);
   pointer-events: none;
 }
 .pg-field[data-pg-active='true'] .pg-field__caret {
-  transform: rotate(225deg);
+  transform: rotate(180deg);
 }
 .pg-field[data-pg-state='error'] .pg-field__caret {
   color: var(--pg-color-input-error);

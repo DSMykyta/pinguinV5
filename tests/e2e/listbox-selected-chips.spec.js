@@ -196,3 +196,24 @@ test('disabled Input ignores pointer and programmatic focus and renders no text 
   const disabled=page.locator('.pg-input').filter({has:control});
   await expect(disabled.locator('.pg-field')).toHaveAttribute('data-pg-disabled','true');
 });
+
+test('every selected chip remove action uses the shared Material Symbols Rounded icon', async ({ page }) => {
+  const root = page.locator('#selection-test-few');
+  const removeButtons = root.locator('.pg-listbox__chip-remove');
+  await expect(removeButtons).toHaveCount(3);
+  for (const button of await removeButtons.all()) {
+    await expect(button.locator('svg.pg-icon')).toHaveCount(1);
+    await expect(button.locator('svg.pg-icon')).toHaveAttribute('viewBox', '0 -960 960 960');
+    await expect(button.locator('svg.pg-icon')).toHaveAttribute('aria-hidden', 'true');
+    expect((await button.textContent()).trim()).toBe('');
+  }
+  const trigger = root.locator('.pg-listbox__trigger');
+  await trigger.click();
+  const selectedChecks = root.locator('.pg-listbox__option[aria-selected="true"] .pg-listbox__option-check');
+  await expect(selectedChecks).toHaveCount(3);
+  for (const icon of await selectedChecks.all()) {
+    await expect(icon).toHaveCSS('visibility', 'visible');
+    await expect(icon).toHaveAttribute('viewBox', '0 -960 960 960');
+  }
+  await page.keyboard.press('Escape');
+});

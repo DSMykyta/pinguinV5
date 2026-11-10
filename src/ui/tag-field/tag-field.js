@@ -3,12 +3,13 @@
  * ║ PINGUIN NEXT — TAG FIELD                                                                            ║
  * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Owns a collection of short text values, independently of feature data.                 ║
- * ║ ЗАЛЕЖНОСТІ: ../field/field.js                                                                       ║
+ * ║ ЗАЛЕЖНОСТІ: ../field/field.js, ../icon/icon.js                                                                       ║
  * ║ ПУБЛІЧНИЙ API: createTagField()                                                                     ║
  * ║ ПРИНЦИП: Public API: createTagField(options).                                                       ║
  * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
+import { createIcon } from '../icon/icon.js';
 import { createFieldFrame } from '../field/field.js';
 let nextTagFieldId = 0;
 const normalize = value => String(value ?? '').trim().replace(/\s+/gu, ' ');
@@ -113,10 +114,10 @@ export function createTagField({
       text.textContent = value;
       const button = document.createElement('button');
       button.type = 'button';
-      button.className = 'pg-tag-field__remove pg-button pg-button--quiet pg-button--square';
+      button.className = 'pg-tag-field__remove pg-button pg-button--chip-remove';
       button.setAttribute('aria-label', 'Видалити ' + value);
       button.disabled = Boolean(disabled);
-      button.textContent = '×';
+      button.append(createIcon('x'));
       button.addEventListener('click', () => remove(index), { signal: controller.signal });
       button.addEventListener('keydown', event => {
         if (event.key === 'ArrowLeft') {

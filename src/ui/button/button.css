@@ -473,6 +473,7 @@
 .pg-button--chip-remove:hover:not(:disabled) { background: var(--pg-color-selected); }
 .pg-button--chip-remove:focus-visible { outline-offset: 1px; }
 .pg-button--chip-remove:disabled { opacity: .45; }
+.pg-button--chip-remove > .pg-icon { inline-size: 16px; block-size: 16px; }
 
 /*
  * ╔═══════════════════════════════════════════════════════════════════════════════════════════════════════╗

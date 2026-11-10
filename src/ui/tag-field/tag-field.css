@@ -16,7 +16,6 @@
   block-size: auto; min-block-size: calc(var(--pg-field-control-size) - 2px); padding: 3px 8px;
 }
 .pg-tag-field__tokens { display: contents; }
-.pg-tag-field { --pg-button-quiet-ink: var(--pg-color-text-secondary); }
 .pg-tag-field__tag {
   display: inline-flex; align-items: center; gap: 4px; max-inline-size: 100%;
   min-block-size: 30px; padding-inline-start: 9px; border-radius: var(--pg-radius-sm);

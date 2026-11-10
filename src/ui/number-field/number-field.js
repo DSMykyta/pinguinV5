@@ -3,12 +3,13 @@
  * ║ PINGUIN NEXT — NUMBER FIELD                                                                         ║
  * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Native numeric spinbutton with optional accessible step controls.                      ║
- * ║ ЗАЛЕЖНОСТІ: ../field/field.js, ../field/support.js                                                  ║
+ * ║ ЗАЛЕЖНОСТІ: ../field/field.js, ../field/support.js, ../icon/icon.js                                                  ║
  * ║ ПУБЛІЧНИЙ API: createNumberField()                                                                  ║
  * ║ ПРИНЦИП: No custom number parser, value coercion or duplicate keyboard handler.                     ║
  * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
+import { createIcon } from '../icon/icon.js';
 import { createFieldFrame } from '../field/field.js';
 import { createFieldSupport } from '../field/support.js';
 
@@ -63,8 +64,8 @@ export function createNumberField({
     increment = document.createElement('button');
     decrement.type = increment.type = 'button';
     decrement.className = increment.className = 'pg-number-field__step pg-button pg-button--step';
-    decrement.textContent = '−';
-    increment.textContent = '+';
+    decrement.append(createIcon('minus'));
+    increment.append(createIcon('plus'));
     decrement.setAttribute('aria-label', 'Зменшити ' + label);
     increment.setAttribute('aria-label', 'Збільшити ' + label);
     steps.append(decrement, increment);

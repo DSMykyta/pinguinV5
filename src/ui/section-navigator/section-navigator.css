@@ -51,9 +51,9 @@
 .pg-section-navigator__handle[data-pg-state='armed'] {color:var(--pg-color-accent);}
 .pg-section-navigator__symbol {
   position:relative;display:grid;place-items:center;flex:0 0 32px;
-  inline-size:32px;block-size:32px;border-radius:var(--pg-radius-full);font-size:15px;line-height:1;
+  inline-size:32px;block-size:32px;border-radius:var(--pg-radius-full);
 }
-.pg-section-navigator__arrow {display:block;}
+.pg-section-navigator__arrow {display:block;inline-size:18px;block-size:18px;}
 .pg-section-navigator__ring {
   position:absolute;inset:0;inline-size:32px;block-size:32px;overflow:visible;fill:none;pointer-events:none;
 }

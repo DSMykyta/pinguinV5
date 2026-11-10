@@ -416,7 +416,11 @@ export function createCollectionView({
       if(state)entry.th.setAttribute('aria-sort',state);
       else entry.th.removeAttribute('aria-sort');
       entry.button.setAttribute('aria-label','Сортувати '+entry.label+' '+(state==='ascending'?'за спаданням':'за зростанням'));
-      entry.marker.textContent=state==='ascending'?'↑':state==='descending'?'↓':'↕';
+      const iconName=state==='ascending'?'arrow-up':state==='descending'?'arrow-down':'swap-vert';
+      if(entry.marker.dataset.pgIcon!==iconName) {
+        entry.marker.replaceChildren(createIcon(iconName));
+        entry.marker.dataset.pgIcon=iconName;
+      }
     }
     syncSelection();
     restoreRowFocus(previousFocus);

@@ -4,12 +4,13 @@
  * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Separate from native Select and editable Combobox; no feature ownership.               ║
  * ║ ЗАЛЕЖНОСТІ: ../field/field.js, ../input/input.js, ../position/position-popup.js,                    ║
- * ║ ../position/dismiss-on-scroll.js, ../position/ensure-option-visible.js                              ║
+ * ║ ../position/dismiss-on-scroll.js, ../position/ensure-option-visible.js, ../icon/icon.js                              ║
  * ║ ПУБЛІЧНИЙ API: createListbox()                                                                      ║
  * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
  * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
+import { createIcon } from '../icon/icon.js';
 import { createFieldFrame } from '../field/field.js';
 import { createInput } from '../input/input.js';
 import { positionPopup } from '../position/position-popup.js';
@@ -165,18 +166,7 @@ export function createListbox({
     remove.type = 'button';
     remove.className = 'pg-listbox__chip-remove pg-button pg-button--chip-remove';
     remove.dataset.pgRemove = item.value;
-    // A drawn cross has a geometric center; the text glyph × sits low in some fonts.
-    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    icon.setAttribute('viewBox', '0 0 16 16');
-    icon.setAttribute('aria-hidden', 'true');
-    const strokes = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    strokes.setAttribute('d', 'M4 4l8 8M12 4l-8 8');
-    strokes.setAttribute('fill', 'none');
-    strokes.setAttribute('stroke', 'currentColor');
-    strokes.setAttribute('stroke-width', '1.7');
-    strokes.setAttribute('stroke-linecap', 'round');
-    icon.append(strokes);
-    remove.append(icon);
+    remove.append(createIcon('x'));
     remove.setAttribute('aria-label', 'Видалити ' + item.label);
     remove.disabled = Boolean(disabled);
     chip.append(text, remove);
@@ -329,6 +319,9 @@ export function createListbox({
       node.setAttribute('aria-selected','false');
       if(item.disabled)node.setAttribute('aria-disabled','true');
       node.textContent=item.label;
+      const check = createIcon('check');
+      check.classList.add('pg-listbox__option-check');
+      node.append(check);
       optionsDOM.push(node);
       list.append(node);
     });

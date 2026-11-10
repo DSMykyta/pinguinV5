@@ -25,7 +25,7 @@ async function caretPoint(field) {
       x, y, hitsControl: document.elementFromPoint(x, y) === control,
       trailingEvents: getComputedStyle(trailing).pointerEvents,
       caretEvents: getComputedStyle(arrow).pointerEvents,
-      caretWidth: arrow.offsetWidth, // Layout width, not 45° transformed bounding box.
+      caretWidth: arrow.getBoundingClientRect().width, // Rounded Material icon is not CSS border geometry.
       trailingWidth: trailing.getBoundingClientRect().width,
       surfaceHeight: root.querySelector('.pg-field__surface').getBoundingClientRect().height,
     };
@@ -38,7 +38,7 @@ async function clickCaret(page, field) {
   expect(hit.trailingEvents).toBe('none');
   expect(hit.caretEvents).toBe('none');
   expect(hit.trailingWidth).toBe(44);
-  expect(hit.caretWidth).toBe(9);
+  expect(hit.caretWidth).toBe(20);
   expect(Math.abs(hit.surfaceHeight - 40)).toBeLessThan(.5);
   await page.mouse.click(hit.x, hit.y);
 }
@@ -65,7 +65,8 @@ test('every demo value selector uses the same Field caret in both viewports and 
       expect(hit.caretEvents).toBe('none');
       expect(hit.trailingWidth).toBe(44);
       expect(Math.abs(hit.surfaceHeight - 40)).toBeLessThan(.5);
-      await expect(field.locator('.pg-field__caret')).toHaveCSS('border-right-width', '2px');
+      await expect(field.locator('.pg-field__caret')).toHaveClass(/pg-icon/);
+      await expect(field.locator('.pg-field__caret')).toHaveAttribute('viewBox', '0 -960 960 960');
       await expect(field.locator('.pg-field__caret')).toHaveCSS('transition-property', 'transform');
     }
   }

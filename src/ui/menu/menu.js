@@ -3,13 +3,14 @@
  * ║ PINGUIN NEXT — MENU                                                                                 ║
  * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Реалізація menu із самостійним контрактом.                                             ║
- * ║ ЗАЛЕЖНОСТІ: ../position/position-popup.js, ../position/dismiss-on-scroll.js                         ║
+ * ║ ЗАЛЕЖНОСТІ: ../icon/icon.js, ../position/position-popup.js, ../position/dismiss-on-scroll.js                         ║
  * ║ ПУБЛІЧНИЙ API: createMenu()                                                                         ║
  * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
  * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
 import { setButtonColor } from '../button/button.js';
+import { createIcon } from '../icon/icon.js';
 import { positionPopup } from '../position/position-popup.js';
 import { dismissOnOutsideScroll } from '../position/dismiss-on-scroll.js';
 
@@ -67,7 +68,10 @@ export function createMenu({label,id,items=[],align='start',disabled=false,onSel
     action.dataset.pgValue=item.value;
     action.disabled=item.disabled;
     action.setAttribute('role',item.type==='check'?'menuitemcheckbox':'menuitem');
-    if(item.type==='check')action.setAttribute('aria-checked',String(item.checked));
+    if(item.type==='check') {
+      action.setAttribute('aria-checked',String(item.checked));
+      action.append(createIcon('check'));
+    }
     if(item.danger)action.dataset.pgDanger='true';
     if(item.tone != null || item.appearance != null) {
       setButtonColor(action, { tone:item.tone, appearance:item.appearance ?? 'ghost' });

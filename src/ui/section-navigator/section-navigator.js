@@ -3,7 +3,7 @@
  * ║ PINGUIN NEXT — SECTION NAVIGATOR                                                                    ║
  * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: ПРИЗНАЧЕННЯ: Перемикає незалежні DOM-секції через локальну навігацію.                  ║
- * ║ ЗАЛЕЖНОСТІ: ./navigation-gestures.js                                                                ║
+ * ║ ЗАЛЕЖНОСТІ: ./navigation-gestures.js, ../icon/icon.js                                                                ║
  * ║ ПУБЛІЧНИЙ API: createSectionNavigator()                                                             ║
  * ║ ПРИНЦИП: ЗАЛЕЖНОСТІ: Власний navigation-gestures, native DOM. ПУБЛІЧНИЙ API:                        ║
  * ║ createSectionNavigator(options). ПРИНЦИП: Вміст, збереження та бізнес-перевірки належать власнику   ║
@@ -11,6 +11,7 @@
  * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
+import { createIcon } from '../icon/icon.js';
 import { mountNavigationGestures } from './navigation-gestures.js';
 
 let nextNavigatorId = 0;
@@ -87,7 +88,8 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
     const caption = createNode('span', 'caption');
     const symbol = createNode('span', 'symbol');
     symbol.setAttribute('aria-hidden', 'true');
-    const arrow = createNode('span', 'arrow', direction === 'next' ? '↓' : '↑');
+    const arrow = createIcon(direction === 'next' ? 'arrow-down' : 'arrow-up');
+    arrow.classList.add('pg-section-navigator__arrow');
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.classList.add('pg-section-navigator__ring');
     svg.setAttribute('viewBox', '0 0 32 32');

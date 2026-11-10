@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "check:naming": "node scripts/check-conventions.mjs",
     "check:headers": "node scripts/check-file-headers.mjs",
-    "check": "npm run check:naming && npm run check:headers && npm test && npm run build",
+    "check:icons": "node scripts/check-icons.mjs",
+    "check": "npm run check:naming && npm run check:headers && npm run check:icons && npm test && npm run build",
     "test": "node --test",
     "test:e2e": "playwright test"
   },
