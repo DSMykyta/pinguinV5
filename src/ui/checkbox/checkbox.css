@@ -17,9 +17,15 @@
 .pg-checkbox { display: inline-flex; flex-direction: column; align-items: flex-start; min-inline-size: 0; gap: 3px; }
 .pg-checkbox__row {
   display: inline-flex; align-items: center; gap: 10px;
-  box-sizing: border-box; min-block-size: var(--pg-compact-control-size);
-  padding: 4px; color: var(--pg-color-text-primary);
+  min-block-size: var(--pg-compact-control-size);
+  color: var(--pg-color-text-primary);
   font-size: 14px; cursor: pointer;
+}
+.pg-checkbox__hit {
+  display: grid; place-items: center; position: relative;
+  box-sizing: border-box; flex: 0 0 var(--pg-compact-control-size);
+  inline-size: var(--pg-compact-control-size);
+  block-size: var(--pg-compact-control-size);
 }
 .pg-checkbox__control {
   position: absolute; inline-size: 1px; block-size: 1px; padding: 0;
@@ -64,7 +70,7 @@
 .pg-checkbox__copy { display: grid; gap: 2px; flex: 1; min-inline-size: 0; }
 .pg-checkbox__label { font-size: 14px; line-height: 1.45; }
 .pg-checkbox__description { font-size: 12px; line-height: 1.4; color: var(--pg-color-text-secondary); }
-.pg-checkbox__error { padding-inline-start: 32px; font-size: 12px; color: var(--pg-color-input-error); }
+.pg-checkbox__error { padding-inline-start: calc(var(--pg-compact-control-size) + 10px); font-size: 12px; color: var(--pg-color-input-error); }
 .pg-checkbox__error[hidden] { display: none; }
 .pg-checkbox[data-pg-state='error'] .pg-checkbox__box { border-color: var(--pg-color-input-error); }
 .pg-checkbox[data-pg-state='disabled'] .pg-checkbox__row { cursor: not-allowed; }
