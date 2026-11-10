@@ -144,6 +144,13 @@
     color var(--pg-duration-fast) ease,
     filter var(--pg-duration-fast) ease;
 }
+/* The same 8px flex gap works with icon before or after visible text. */
+.pg-button > .pg-icon {
+  inline-size: 18px;
+  block-size: 18px;
+  flex: 0 0 auto;
+}
+
 .pg-button:focus-visible {
   outline: 2px solid var(--pg-color-focus);
   outline-offset: 2px;
@@ -771,3 +778,80 @@
   color: var(--pg-button-tone-on-solid);
   filter: none;
 }
+
+/*
+ * ╔═══════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — LOADING STATE / BORDER ORBIT                                                          ║
+ * ╠═══════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ СТАН: [data-pg-loading='true'] на pg-button або pg-icon-button, включно з mini / corner / FAB.       ║
+ * ║ ПРИЗНАЧЕННЯ: Показати невизначене очікування сегментом, що рухається тільки по межі кнопки.          ║
+ * ║ НАВІЩО: Залишити текст, іконку, розмір та focus незмінними; не дублювати нові види кнопок.            ║
+ * ║ ДЕ: Будь-яка асинхронна дія; власник викликає setButtonLoading() або withButtonLoading().            ║
+ * ║ ГЕОМЕТРІЯ: Псевдоелемент з тим самим border-radius, inset -1px, ring thickness 2px.                 ║
+ * ║ СТАНИ: aria-busy, aria-disabled та click guard задає button.js; reduced motion: статичний сегмент.  ║
+ * ║ МЕЖА: Не анімувати сам button чи .pg-icon; кутові FAB зберігають свою анімацію.                       ║
+ * ╚═══════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
+@property --pg-button-loading-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes pg-button-loading-orbit {
+  to { --pg-button-loading-angle: 360deg; }
+}
+
+:is(.pg-button, .pg-icon-button)[data-pg-loading='true'] {
+  position: relative;
+  cursor: progress;
+  --pg-button-loading-stroke: var(--pg-color-accent);
+}
+
+/* Filled buttons require a stroke contrasting with their own saturated fill. */
+:is(.pg-button--primary, .pg-button--destructive)[data-pg-loading='true'],
+:is(.pg-button, .pg-icon-button)[data-pg-appearance='solid'][data-pg-loading='true'] {
+  --pg-button-loading-stroke: currentColor;
+}
+
+@supports ((mask-composite: exclude) or (-webkit-mask-composite: xor)) {
+  :is(.pg-button, .pg-icon-button)[data-pg-loading='true']::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    z-index: 1;
+    padding: 2px;
+    border-radius: inherit;
+    pointer-events: none;
+    background: conic-gradient(
+      from var(--pg-button-loading-angle),
+      transparent 0deg 245deg,
+      var(--pg-button-loading-stroke) 305deg 340deg,
+      transparent 360deg
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    animation: pg-button-loading-orbit 1100ms linear infinite;
+  }
+}
+
+/* Safe fallback for browsers without composite masks. */
+@supports not ((mask-composite: exclude) or (-webkit-mask-composite: xor)) {
+  :is(.pg-button, .pg-icon-button)[data-pg-loading='true'] {
+    outline: 2px solid var(--pg-button-loading-stroke);
+    outline-offset: 1px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.pg-button, .pg-icon-button)[data-pg-loading='true']::after {
+    animation: none;
+    --pg-button-loading-angle: 300deg;
+  }
+}
+
