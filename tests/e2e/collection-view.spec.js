@@ -40,6 +40,47 @@ test('table is the workspace, no special fill mode or duplicate page headings',a
   await expect(page.locator('.pg-shell__context-button')).toHaveCount(1);
 });
 
+test('table rounds only its header and last row; the shared workspace stays square',async({page})=>{
+  const main=page.locator('.pg-shell__content');
+  const scroller=root(page).locator('.pg-collection-view__table-scroll');
+  const firstHeader=table(page).locator('thead th').first();
+  const lastHeader=table(page).locator('thead th').last();
+  const firstBottom=table(page).locator('tbody tr:last-child td').first();
+  const lastBottom=table(page).locator('tbody tr:last-child td').last();
+
+  await expect(main).toHaveCSS('border-radius','0px');
+  await expect(scroller).toHaveCSS('border-radius','0px');
+  await expect(firstHeader).toHaveCSS('border-start-start-radius','16px');
+  await expect(lastHeader).toHaveCSS('border-start-end-radius','16px');
+  await expect(firstBottom).toHaveCSS('border-end-start-radius','16px');
+  await expect(lastBottom).toHaveCSS('border-end-end-radius','16px');
+  await expect(lastBottom).toHaveClass(/pg-collection-view__actions-cell/);
+
+  // Both directions still scroll locally; right and left pinned columns
+  // retain their native sticky positions rather than a rounded clipping card.
+  await page.setViewportSize({width:600,height:720});
+  const scrolled=await scroller.evaluate(el=>{
+    el.scrollTo({top:el.scrollHeight,left:el.scrollWidth,behavior:'instant'});
+    return {top:el.scrollTop,left:el.scrollLeft};
+  });
+  expect(scrolled.top).toBeGreaterThan(0);
+  expect(scrolled.left).toBeGreaterThan(0);
+  await expect(lastBottom).toHaveCSS('border-end-end-radius','16px');
+  await expect(lastHeader).toHaveCSS('position','sticky');
+
+  // One row after filtering is also the last row. Switching to tiles and
+  // an article tab cannot alter Shell geometry or its shared scrollbar.
+  await page.getByRole('searchbox',{name:'Шукати у таблиці брендів'}).fill('Pinguin');
+  await expect(table(page).locator('tbody tr')).toHaveCount(1);
+  await expect(table(page).locator('tbody tr:last-child td').last())
+    .toHaveCSS('border-end-end-radius','16px');
+  await switchTo(page,'tiles');
+  await expect(main).toHaveCSS('border-radius','0px');
+  await switchTo(page,'table');
+  await page.getByRole('tab',{name:'Текст'}).click();
+  await expect(main).toHaveCSS('border-radius','0px');
+});
+
 test('dense table renders selection, nine fields, row actions and fixed footer pagination',async({page})=>{
   await expect(table(page).locator('thead th')).toHaveCount(11);
   await expect(table(page).locator('tbody tr')).toHaveCount(25);
