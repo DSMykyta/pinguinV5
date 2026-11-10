@@ -34,6 +34,12 @@ export function createInputDemo() {
       label: 'Електронна пошта', name: 'demo-email', type: 'email',
       placeholder: 'name@example.com', autocomplete: 'email',
     }),
+    createInput({
+      label: 'Ознака товару — змінні підказки', name: 'demo-rotating-feature',
+      autocomplete: 'on',
+      rotatingPlaceholder: ['Sugar Free', 'Time Release', 'Vegan Formula'],
+      placeholderHistoryKey: 'demo-product-feature', placeholderInterval: 1200,
+    }),
     createInput({ label: 'Бренд', name: 'demo-brand', value: 'Pinguin' }),
     createInput({
       label: 'Артикул', name: 'demo-article', value: 'ABC-123',
