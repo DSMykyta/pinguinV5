@@ -44,12 +44,11 @@ export function createInput({
   input.readOnly = Boolean(readOnly);
   if (autocomplete !== undefined) input.autocomplete = autocomplete;
   if (inputMode !== undefined) input.inputMode = inputMode;
-  if (rotatingPlaceholder !== undefined) {
-    if (!Array.isArray(rotatingPlaceholder) && typeof rotatingPlaceholder !== 'string') {
-      throw new TypeError('rotatingPlaceholder must be an array or a pipe-separated string');
-    }
-    input.setAttribute('data-pg-rotating-placeholder', Array.isArray(rotatingPlaceholder)
-      ? rotatingPlaceholder.join(' | ') : rotatingPlaceholder);
+  if (rotatingPlaceholder !== undefined && typeof rotatingPlaceholder !== 'boolean') {
+    throw new TypeError('rotatingPlaceholder must be boolean (no manual phrase list)');
+  }
+  if (rotatingPlaceholder) {
+    input.setAttribute('data-pg-rotating-placeholder', '');
     if (placeholderHistoryKey) input.setAttribute('data-pg-placeholder-history', placeholderHistoryKey);
     if (placeholderInterval !== undefined) input.setAttribute('data-pg-placeholder-interval', String(placeholderInterval));
   }
@@ -84,9 +83,9 @@ export function createInput({
   frame.field.classList.add('pg-input__field');
   frame.label.classList.add('pg-input__label');
   element.append(frame.field);
-  const disposeRotating = rotatingPlaceholder !== undefined
+  const disposeRotating = rotatingPlaceholder
     ? mountRotatingPlaceholder(input, {
-      phrases: rotatingPlaceholder, historyKey: placeholderHistoryKey, interval: placeholderInterval,
+      historyKey: placeholderHistoryKey, interval: placeholderInterval,
     }) : null;
 
   const support = document.createElement('div');
