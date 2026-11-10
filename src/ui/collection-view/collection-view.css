@@ -88,6 +88,7 @@
 }
 .pg-collection-view__primary-line > .pg-collection-view__cell-content {
   flex: 0 1 auto; min-inline-size: 0; white-space: nowrap;
+  user-select: text;
 }
 .pg-collection-view__edit { flex: 0 0 var(--pg-compact-control-size); }
 .pg-collection-view__table [data-pg-primary='true'] { font-weight: 600; color: var(--pg-color-text-primary); }
