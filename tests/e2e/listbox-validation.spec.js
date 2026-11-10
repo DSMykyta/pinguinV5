@@ -88,9 +88,14 @@ test('required multi Listbox revalidates last removal, select all, and programma
   await expect(problem).toBeVisible();
   await expect(trigger).toHaveAttribute('aria-invalid', 'true');
 
-  await field.getByRole('button', { name: 'Вибрати всі' }).click();
+  const selectAll = field.locator('.pg-listbox__select-all');
+  const checkbox = selectAll.locator('input[type=checkbox]');
+  await expect(checkbox).toHaveAccessibleName('Вибрати всі');
+  await selectAll.locator('.pg-checkbox__row').click();
+  await expect(checkbox).toBeChecked();
   await expect(problem).toBeHidden();
-  await field.getByRole('button', { name: 'Зняти всі' }).click();
+  await selectAll.locator('.pg-checkbox__row').click();
+  await expect(checkbox).not.toBeChecked();
   await expect(problem).toBeVisible();
 
   await page.evaluate(() => window.pgRequiredMultiRegression.setValue(['rozetka']));
