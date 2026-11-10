@@ -17,6 +17,7 @@
 ## Документація
 
 - [Архітектура та неймінг](docs/conventions.md)
+- [Правила реалізації, інтеграції та реєстр помилок](docs/implementation-rules.md)
 - [Шарми legacy — дослідження, сучасні методи й карта перенесення](docs/legacy-behavior-research.md)
 - [База спільного UI](docs/ui/overview.md)
 - [Текстовий редактор: API й готові можливості](docs/ui/rich-text-editor.md)
