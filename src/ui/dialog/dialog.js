@@ -84,6 +84,8 @@ export function mountDialogs() {
       item.timerId = null;
     }
     if (item.element?.open) item.element.close();
+    item.workspace?.destroy();
+    item.workspace = null;
     item.element?.remove();
     doc.dispatchEvent(new Event('pg:modal-change'));
     if (item.focusOrigin?.isConnected) item.focusOrigin.focus({ preventScroll: true });
@@ -504,6 +506,8 @@ export function mountDialogs() {
         }
       });
     } catch (error) {
+      item.workspace?.destroy();
+      item.workspace = null;
       item.element?.remove();
       active = null;
       item.reject(error);
@@ -530,6 +534,8 @@ export function mountDialogs() {
     if (active) {
       if (active.timerId !== null) view.clearTimeout(active.timerId);
       if (active.element?.open) active.element.close();
+      active.workspace?.destroy();
+      active.workspace = null;
       active.element?.remove();
       doc.dispatchEvent(new Event('pg:modal-change'));
       active.resolve('cancel');
