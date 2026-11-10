@@ -127,3 +127,73 @@
 /* Full-height editor keeps header/footer fixed; only its body scrolls. */
 .pg-dialog--editor .pg-dialog__panel { block-size: 100%; max-block-size: 100%; }
 .pg-dialog--editor .pg-dialog__header, .pg-dialog--editor .pg-dialog__footer { flex: 0 0 auto; }
+
+
+/* Workspace is a separate large-screen layout, not another modal manager.
+ * Small Dialog and the original editor size retain their existing geometry. */
+.pg-dialog--workspace {
+  width: min(1440px, calc(100dvw - 32px));
+  max-width: calc(100dvw - 32px);
+  height: calc(100dvh - 32px);
+  max-height: calc(100dvh - 32px);
+}
+.pg-dialog--workspace .pg-dialog__panel--workspace {
+  display: block;
+  block-size: 100%;
+  max-block-size: 100%;
+  position: relative;
+}
+.pg-dialog--workspace .pg-dialog__title {
+  font-size: 19px;
+  font-weight: 620;
+}
+.pg-dialog--workspace .pg-dialog__status {
+  flex: 1 1 auto;
+  font-size: 12px;
+}
+.pg-dialog__decision {
+  position: absolute;
+  z-index: 6;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  padding: 24px;
+  background: var(--pg-color-dialog-backdrop);
+}
+.pg-dialog__decision[hidden] { display: none; }
+.pg-dialog__decision-message {
+  box-sizing: border-box;
+  width: min(420px, 100%);
+  margin: 0;
+  padding: 22px 24px;
+  border: 1px solid var(--pg-color-border);
+  border-radius: 14px;
+  background: var(--pg-color-surface);
+  color: var(--pg-color-text-primary);
+  font-size: 15px;
+  line-height: 1.5;
+  box-shadow: 0 10px 30px var(--pg-color-shadow);
+}
+.pg-dialog__decision-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  width: min(420px, 100%);
+}
+.pg-dialog__decision-actions .pg-button {
+  box-shadow: 0 4px 14px var(--pg-color-shadow);
+}
+@media (max-width: 700px) {
+  .pg-dialog--workspace {
+    width: 100dvw;
+    max-width: 100dvw;
+    height: 100dvh;
+    max-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+  }
+}
