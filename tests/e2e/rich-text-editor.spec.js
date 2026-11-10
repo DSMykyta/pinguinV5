@@ -22,8 +22,8 @@ function getEditor(page) {
     root,
     visual: root.getByRole('textbox', { name: 'Редактор тексту' }),
     code: root.getByRole('textbox', { name: 'HTML-код тексту' }),
-    editorMode: root.getByRole('radio', { name: 'Редактор', exact: true }),
-    htmlMode: root.getByRole('radio', { name: 'HTML', exact: true }),
+    editorMode: root.locator('.pg-rich-text-editor__mode-switch .pg-segment-switch__label[title="Редактор"]'),
+    htmlMode: root.locator('.pg-rich-text-editor__mode-switch .pg-segment-switch__label[title="HTML"]'),
   };
 }
 
@@ -32,7 +32,7 @@ test('one working surface switches from WYSIWYG to editable HTML and back', asyn
   await expect(visual).toBeVisible();
   await expect(code).toBeHidden();
   await expect(root.locator('.pg-rich-text-editor__mirror')).toHaveCount(0);
-  await expect(editorMode).toBeChecked();
+  await expect(root.getByRole('radio',{name:'Редактор',exact:true})).toBeChecked();
   await htmlMode.click();
   await expect(visual).toBeHidden();
   await expect(code).toBeVisible();
