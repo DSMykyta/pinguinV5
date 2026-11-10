@@ -43,7 +43,10 @@ a { color: inherit; text-decoration: none; }
   outline-offset: 3px;
 }
 
-::selection { background: var(--pg-color-accent-soft); }
+::selection {
+  background: var(--pg-color-selection-bg);
+  color: var(--pg-color-selection-text);
+}
 
 body[data-pg-overlay='open'] { overflow: hidden; }
 
