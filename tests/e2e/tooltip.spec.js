@@ -168,3 +168,37 @@ test('local tooltip lifecycle cancels pending work, remounts and disposes indepe
   await page.evaluate(() => window.pgTooltipLifecycle[1].dispose());
   await expect(second.getByRole('tooltip')).toHaveCount(0);
 });
+
+test('native title is not a forced tooltip: visible text stays quiet, truncated text gets hint', async ({ page }) => {
+  await page.goto('/tools');
+  await page.getByRole('tab', { name: 'Макети даних' }).click();
+  const brand = page.locator('#pg-tools-panel-data-views .pg-collection-view__table')
+    .locator('tbody tr [data-pg-column="name"] .pg-collection-view__cell-content').first();
+  const measurements = await brand.evaluate(node => ({
+    visible: node.clientWidth,
+    text: node.scrollWidth,
+  }));
+  expect(measurements.text).toBeLessThanOrEqual(measurements.visible + 1);
+  await brand.hover();
+  await page.waitForTimeout(650);
+  await expect(page.getByRole('tooltip')).toHaveCount(0);
+
+  await page.evaluate(() => {
+    const el = document.createElement('div');
+    el.id = 'long-title-case';
+    el.title = 'Довга назва документа для перевірки підказок';
+    el.textContent = el.title;
+    el.style.cssText = 'position:fixed;z-index:200;left:200px;top:140px;width:85px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+    document.body.append(el);
+  });
+  const cropped = page.locator('#long-title-case');
+  await cropped.hover();
+  await expect(page.getByRole('tooltip')).toHaveText('Довга назва документа для перевірки підказок');
+  await expect(cropped).not.toHaveAttribute('title');
+
+  await page.mouse.move(5, 5);
+  await cropped.evaluate(node => node.style.width = '600px');
+  await cropped.hover();
+  await page.waitForTimeout(650);
+  await expect(page.getByRole('tooltip')).toHaveCount(0);
+});
