@@ -42,3 +42,8 @@ Playwright: однакова геометрія 32×32px mini і спільно�
 **Помилка:** координати двох FAB порівнювалися лише за bounding box, без перевірки фактичного hit target і обрізання батьківським `overflow: hidden`. Нижній FAB належить до footer, а глобальний — до правого rail. При 8px gap елемент нижнього FAB частково виходить за межі workspace; зміщення самого елемента без дозволу overflow обрізає його.
 
 **Правило:** одна фабрика `createAsideFab`, один `src/shell/aside/fab.css` керує розташуванням інстансів. Footer не створює власного кнопкового стилю. Workspace дозволяє overflow, але `Main`, table scroll та інші власники scroll залишаються ізольованими. На ширині до 1080px rail зникає, тому footer FAB резервує місце для global FAB. E2E перевіряє реальний край hit target, відсутність обрізання, 8px gap та доступність дій у відкритому меню. **Проблему не можна «виправляти» підганянням тільки числових порівнянь тестів.**
+
+
+## Семантичне перефарбування (2026-11-10)
+
+Новий [колірний контракт](semantic-colors.md) встановлює `tone` незалежно від геометрії (`variant`, compact, mini, pill) і `appearance` (`soft`, `solid`, `outline`, `ghost`). Публічний API: `setButtonColor(element, { tone, appearance })`, `createIconButton({ ..., tone?, appearance? })`; ті самі `data-pg-tone` / `data-pg-appearance` для текстових кнопок Menu, Selection Actions і Dialog. Одне джерело числових кольорів — `src/styles/tokens.css`, єдиний style owner — `src/ui/button/button.css`. Старий `--pg-color-accent` залишається для нефарбованих елементів, геометрія й анімації незмінні. 
