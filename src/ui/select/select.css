@@ -11,7 +11,18 @@
  */
 
 .pg-select { display: grid; gap: 6px; min-inline-size: 0; }
-.pg-select__control { appearance: none; cursor: pointer; }
+.pg-select__control {
+  appearance: none;
+  cursor: pointer;
+  /* Select fills the row; the decorative chevron must not take a separate hit area. */
+  padding-inline-end: 44px;
+}
+.pg-select__field .pg-field__trailing {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  pointer-events: none;
+}
 .pg-select__control:disabled { cursor: not-allowed; }
 .pg-select__control option, .pg-select__control optgroup { color: var(--pg-color-text-primary); background: var(--pg-color-surface); }
 .pg-select__caret {
