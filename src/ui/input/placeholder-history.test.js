@@ -13,6 +13,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   getInputPlaceholderHistory, saveInputPlaceholderHistory, clearInputPlaceholderHistory,
+  removeInputPlaceholderHistoryValue, subscribeInputPlaceholderHistory,
 } from './placeholder-history.js';
 
 function memoryStorage() {
@@ -68,4 +69,37 @@ test('unavailable or corrupted storage is non-fatal', () => {
   assert.doesNotThrow(() => clearInputPlaceholderHistory('feature', broken));
   const invalid = { getItem: () => '{invalid', setItem() {} };
   assert.deepEqual(getInputPlaceholderHistory('feature', invalid), []);
+});
+
+test('subscribe/remove/clear refresh readers and subscriptions clean up', () => {
+  const storage = memoryStorage();
+  const updates = [];
+  const stop = subscribeInputPlaceholderHistory(key => updates.push(key));
+  saveInputPlaceholderHistory('product-feature', 'Sugar Free', storage);
+  saveInputPlaceholderHistory('product-feature', 'Time Release', storage);
+  assert.deepEqual(removeInputPlaceholderHistoryValue('product-feature', 'sugar free', storage), ['Time Release']);
+  assert.deepEqual(getInputPlaceholderHistory('product-feature', storage), ['Time Release']);
+  clearInputPlaceholderHistory('product-feature', storage);
+  assert.deepEqual(updates, Array(4).fill('product-feature'));
+  stop();
+  saveInputPlaceholderHistory('product-feature', 'Vegan', storage);
+  assert.equal(updates.length, 4);
+});
+
+test('Unicode and indexed form names remain valid isolated keys', () => {
+  const storage = memoryStorage();
+  saveInputPlaceholderHistory('товар[0][особливість]', 'Без цукру', storage);
+  saveInputPlaceholderHistory('products[][feature]', 'Time Release', storage);
+  assert.deepEqual(getInputPlaceholderHistory('товар[0][особливість]', storage), ['Без цукру']);
+  assert.deepEqual(getInputPlaceholderHistory('products[][feature]', storage), ['Time Release']);
+  assert.deepEqual(getInputPlaceholderHistory('products[][another]', storage), []);
+});
+
+test('only bounded, valid storage records are exposed', () => {
+  const storage = memoryStorage();
+  storage.setItem('pg:v1:input-placeholder-history:feature',
+    JSON.stringify(['Sugar Free', 'sugar free', 12, '', '\n', 'x'.repeat(101), 'Vegan']));
+  assert.deepEqual(getInputPlaceholderHistory('feature', storage), ['Sugar Free', 'Vegan']);
+  assert.deepEqual(saveInputPlaceholderHistory('feature', 'Time Release', storage),
+    ['Time Release', 'Sugar Free', 'Vegan']);
 });
