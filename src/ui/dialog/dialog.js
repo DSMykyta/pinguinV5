@@ -9,7 +9,7 @@
  * ╚════════════════════════════════════════════════════════════════════════════════════╝
  */
 
-import { createIconButton } from '../button/button.js';
+import { createIconButton, setButtonColor } from '../button/button.js';
 
 const EXIT_DURATION = 190;
 let manager = null;
@@ -47,10 +47,20 @@ function validate(options) {
        typeof leftAction.onClick !== 'function')) {
     throw new TypeError('leftAction needs label and onClick');
   }
+  const destructive = Boolean(options.destructive);
+  const confirmTone = options.confirmTone ?? (destructive ? 'danger' : null);
+  const confirmAppearance = options.confirmAppearance ?? 'solid';
+  if (destructive && (confirmTone !== 'danger' || confirmAppearance !== 'solid')) {
+    throw new TypeError('Destructive confirmation must use danger/solid');
+  }
+  if (!destructive && confirmTone == null && options.confirmAppearance != null) {
+    throw new TypeError('Dialog confirmation appearance requires confirmTone');
+  }
   return {
     title: options.title, message, content, confirmText, cancelText, size, leftAction,
+    confirmTone, confirmAppearance,
     validate: options.validate, onConfirm: options.onConfirm, closeGuard: options.closeGuard,
-    destructive: Boolean(options.destructive),
+    destructive,
     closeOnBackdrop: options.closeOnBackdrop !== false,
   };
 }
@@ -211,6 +221,7 @@ export function mountDialogs() {
         destructiveButton.type = 'button';
         destructiveButton.className = 'pg-dialog__button pg-dialog__button--destructive pg-button pg-button--destructive';
         destructiveButton.textContent = item.options.leftAction.label;
+        setButtonColor(destructiveButton, { tone: 'danger', appearance: 'solid' });
         destructiveButton.addEventListener('click', async () => {
           if (item.busy || item.closing) return;
           setBusy(item, true);
@@ -235,6 +246,7 @@ export function mountDialogs() {
       discardButton.type = 'button';
       discardButton.className = 'pg-dialog__button pg-dialog__button--destructive pg-button pg-button--destructive';
       discardButton.textContent = 'Відкинути зміни';
+      setButtonColor(discardButton, { tone: 'danger', appearance: 'solid' });
       discardButton.hidden = true;
       discardButton.addEventListener('click', () => closeNow(item, 'cancel'));
       item.discardButton = discardButton;
@@ -259,6 +271,11 @@ export function mountDialogs() {
         : 'pg-dialog__button pg-dialog__button--primary pg-button pg-button--primary';
       confirmButton.dataset.pgAction = 'dialog-confirm';
       confirmButton.textContent = item.options.confirmText;
+      if (item.options.confirmTone != null) {
+        setButtonColor(confirmButton, {
+          tone: item.options.confirmTone, appearance: item.options.confirmAppearance,
+        });
+      }
       confirmButton.addEventListener('click', () => { void handleConfirm(item); });
       actionButtons.push(confirmButton);
       right.append(confirmButton);
