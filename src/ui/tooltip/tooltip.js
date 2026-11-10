@@ -11,7 +11,7 @@
 
 /**
  * Inspired by legacy/js/components/feedback/tooltip.js:
- * 500 ms hover delay, follows the cursor, stays inside the viewport,
+ * Fast hover delay, follows the cursor, stays inside the viewport,
  * gentle scale/opacity entrance, and works with dynamically created controls.
  * Keyboard focus gets the same tooltip beside its element.
  */
@@ -30,11 +30,16 @@ export function initTooltips({ doc = document, view = window } = {}) {
   let pointerX = 0;
   let pointerY = 0;
   let frame = null;
+  let moveFrame = null;
   let previousDescription = null;
 
   function resolveTarget(node) {
     const element = node?.closest?.(SELECTOR);
     if (!element || element.closest('[inert]') || !element.isConnected) return null;
+    // Native modal puts the rest of the document into an inert state. Never
+    // resurrect tooltips from the page underneath an active modal.
+    const modal = doc.querySelector('dialog:modal');
+    if (modal && !modal.contains(element)) return null;
 
     // Legacy compatibility: convert title once, before the native browser hint appears.
     if (element.hasAttribute('title')) {
@@ -76,6 +81,11 @@ export function initTooltips({ doc = document, view = window } = {}) {
       view.cancelAnimationFrame(frame);
       frame = null;
     }
+    if (moveFrame !== null) {
+      view.cancelAnimationFrame(moveFrame);
+      moveFrame = null;
+    }
+    if (tooltip?.matches(':popover-open')) tooltip.hidePopover();
     tooltip?.remove();
     tooltip = null;
     if (target && previousDescription !== null) {
@@ -116,7 +126,7 @@ export function initTooltips({ doc = document, view = window } = {}) {
 
   function show() {
     timer = null;
-    if (!target?.isConnected || !shouldShow(target)) {
+    if (!target?.isConnected || !shouldShow(target) || !resolveTarget(target)) {
       hide();
       return;
     }
@@ -131,7 +141,15 @@ export function initTooltips({ doc = document, view = window } = {}) {
     tooltip.className = 'pg-tooltip';
     tooltip.setAttribute('role', 'tooltip');
     tooltip.textContent = label;
-    doc.body.append(tooltip);
+    const modal = doc.querySelector('dialog:modal');
+    // z-index cannot beat the native dialog top layer. A non-interactive
+    // manual Popover, parented inside the modal, joins that same top layer.
+    const owner = modal ?? doc.body;
+    owner.append(tooltip);
+    if (modal && typeof tooltip.showPopover === 'function') {
+      tooltip.setAttribute('popover', 'manual');
+      tooltip.showPopover();
+    }
 
     previousDescription = target.getAttribute('aria-describedby') ?? '';
     target.setAttribute('aria-describedby', [
@@ -153,7 +171,7 @@ export function initTooltips({ doc = document, view = window } = {}) {
     hide();
     target = element;
     mode = nextMode;
-    timer = view.setTimeout(show, nextMode === 'focus' ? 250 : 500);
+    timer = view.setTimeout(show, nextMode === 'focus' ? 70 : 140);
   }
 
   function onMouseOver(event) {
@@ -172,7 +190,12 @@ export function initTooltips({ doc = document, view = window } = {}) {
   function onMouseMove(event) {
     pointerX = event.clientX;
     pointerY = event.clientY;
-    if (tooltip && mode === 'pointer') position();
+    if (tooltip && mode === 'pointer' && moveFrame === null) {
+      moveFrame = view.requestAnimationFrame(() => {
+        moveFrame = null;
+        position();
+      });
+    }
   }
 
   function onKeyDown(event) {
@@ -214,6 +237,9 @@ export function initTooltips({ doc = document, view = window } = {}) {
   doc.addEventListener('pointerdown', onPointerDown, { signal });
   doc.addEventListener('click', onClick, { signal });
   doc.addEventListener('visibilitychange', onVisibilityChange, { signal });
+  // Dialog announces top-layer changes, so pending hints and background
+  // hints vanish immediately rather than waiting for another mouse event.
+  doc.addEventListener('pg:modal-change', hide, { signal });
   view.addEventListener('scroll', hide, { capture: true, signal });
   view.addEventListener('resize', hide, { signal });
 
