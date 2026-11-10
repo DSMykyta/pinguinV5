@@ -211,7 +211,10 @@ test('every selected chip remove action uses the shared Material Symbols Rounded
     expect((await button.textContent()).trim()).toBe('');
   }
   const trigger = root.locator('.pg-listbox__trigger');
-  await trigger.click();
+  // Selected chips overlap the trigger center. Use its native keyboard API.
+  await trigger.focus();
+  await trigger.press('Enter');
+  await expect(trigger).toHaveAttribute('aria-expanded','true');
   const selectedChecks = root.locator('.pg-listbox__option[aria-selected="true"] .pg-listbox__option-check');
   await expect(selectedChecks).toHaveCount(3);
   for (const icon of await selectedChecks.all()) {
