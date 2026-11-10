@@ -111,10 +111,9 @@ test('checkbox interaction stays inside the open popup even when focus causes do
   await expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
   // Genuine outside scrolling must still dismiss the popup after the guard re-arms.
-  await expect.poll(() => page.evaluate(async () => {
-    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    return true;
-  })).toBe(true);
+  await page.evaluate(() => new Promise(resolve => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  }));
   await page.evaluate(() => window.dispatchEvent(new Event('scroll')));
   await expect(trigger).toHaveAttribute('aria-expanded', 'false');
 });
