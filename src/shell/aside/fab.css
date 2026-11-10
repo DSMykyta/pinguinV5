@@ -124,7 +124,10 @@
   right: auto;
   bottom: auto;
   flex: 0 0 var(--pg-control-size);
-  translate: 0 -4px; /* Center on the same 12px corner baseline as the global FAB. */
+  /* Footer content ends before the 56px right rail. Shift this instance only,
+   * retaining the shared FAB trigger geometry, to leave an 8px gap to the
+   * global corner FAB and align both vertical centers. */
+  translate: 8px -4px;
 }
 /* Keep existing positioning available to other consumers. */
 .pg-fab[data-pg-fab-position='adjacent'] {
