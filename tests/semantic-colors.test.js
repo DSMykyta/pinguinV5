@@ -27,7 +27,7 @@ function token(theme, name) {
   const line = blocks[theme].match(new RegExp('--pg-tone-' + name + ':\\s*([^;]+);'));
   assert.ok(line, theme + ' missing token --pg-tone-' + name);
   const value = line[1].trim();
-  const alias = value.match(/^var\\(--(pg-tone-[a-z-]+)\\)$/);
+  const alias = value.match(/^var\(--(pg-tone-[a-z-]+)\)$/);
   return alias ? token(theme, alias[1].slice('pg-tone-'.length)) : value;
 }
 
