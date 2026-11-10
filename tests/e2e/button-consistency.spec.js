@@ -84,3 +84,19 @@ test('icon button variants preserve native disabled, hidden, keyboard focus and 
   await btn.evaluate(el=>{el.disabled=false;el.hidden=true;});
   await expect(btn).toBeHidden();
 });
+
+test('clear and tag removal buttons reuse shared controls instead of local CSS skins', async ({page}) => {
+  await page.getByRole('tab',{name:'Текст'}).click();
+  const clear = page.locator('.pg-tools-field-demo .pg-input__clear');
+  await expect(clear).toHaveClass(/pg-mini-button/);
+  await expect(clear).toHaveCSS('width','32px');
+  const aliases = page.locator('.pg-tools-field-demo .pg-tag-field');
+  const input = aliases.locator('input[type="text"]');
+  await input.fill('Повторне використання');
+  await input.press('Enter');
+  const remove = aliases.getByRole('button',{name:'Видалити Повторне використання'});
+  await expect(remove).toHaveClass(/pg-button--quiet/);
+  await expect(remove).toHaveClass(/pg-button--square/);
+  await remove.click();
+  await expect(remove).toHaveCount(0);
+});
