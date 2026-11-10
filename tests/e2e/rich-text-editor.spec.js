@@ -22,8 +22,8 @@ function getEditor(page) {
     root,
     visual: root.getByRole('textbox', { name: 'Редактор тексту' }),
     code: root.getByRole('textbox', { name: 'HTML-код тексту' }),
-    editorMode: root.locator('.pg-rich-text-editor__mode-switch .pg-segment-switch__label[title="Редактор"]'),
-    htmlMode: root.locator('.pg-rich-text-editor__mode-switch .pg-segment-switch__label[title="HTML"]'),
+    editorMode: root.locator('.pg-rich-text-editor__mode-switch .pg-segment-switch__label').filter({hasText:/^Редактор$/}),
+    htmlMode: root.locator('.pg-rich-text-editor__mode-switch .pg-segment-switch__label').filter({hasText:/^HTML$/}),
   };
 }
 
@@ -42,16 +42,9 @@ test('one working surface switches from WYSIWYG to editable HTML and back', asyn
   await expect(root.getByRole('button', { name: /Жирний/ })).toBeDisabled();
   await code.fill('<h1>Новий заголовок</h1><p>Опис <strong>оновлено</strong></p>');
   await editorMode.click();
-  // Diagnostic guard for the repeated HTML/Editor switch; the same adapter
-  // must remain mounted and all labels must survive editing.
-  const modeSnapshot=await root.evaluate(node=>({
-    mode:node.dataset.pgMode,
-    modeHost:node.querySelector('.pg-rich-text-editor__mode-host')?.outerHTML.slice(0,1800),
-    connected:node.isConnected,
-    labelCount:node.querySelectorAll('.pg-rich-text-editor__mode-switch .pg-segment-switch__label').length,
-    titles:[...node.querySelectorAll('.pg-rich-text-editor__mode-switch .pg-segment-switch__label')].map(el=>el.title),
-  }));
-  if(modeSnapshot.labelCount!==2)throw new Error('Rich text mode switch lost its labels: '+JSON.stringify(modeSnapshot));
+  // Tooltip intentionally removes native title attributes on first hover.
+  // Never use [title] as an interaction hook: label text and radio identity persist.
+  await expect(root.locator('.pg-rich-text-editor__mode-switch .pg-segment-switch__label')).toHaveCount(2);
   await expect(code).toBeHidden();
   await expect(visual).toBeVisible();
   await expect(visual.locator('h1')).toHaveText('Новий заголовок');
