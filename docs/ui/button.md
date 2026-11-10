@@ -46,4 +46,18 @@ Playwright: однакова геометрія 32×32px mini і спільно�
 
 ## Семантичне перефарбування (2026-11-10)
 
-Новий [колірний контракт](semantic-colors.md) встановлює `tone` незалежно від геометрії (`variant`, compact, mini, pill) і `appearance` (`soft`, `solid`, `outline`, `ghost`). Публічний API: `setButtonColor(element, { tone, appearance })`, `createIconButton({ ..., tone?, appearance? })`; ті самі `data-pg-tone` / `data-pg-appearance` для текстових кнопок Menu, Selection Actions і Dialog. Одне джерело числових кольорів — `src/styles/tokens.css`, єдиний style owner — `src/ui/button/button.css`. Старий `--pg-color-accent` залишається для нефарбованих елементів, геометрія й анімації незмінні. 
+Новий [колірний контракт](semantic-colors.md) встановлює `tone` незалежно від геометрії (`variant`, compact, mini, pill) і `appearance` (`soft`, `solid`, `outline`, `ghost`). Публічний API: `setButtonColor(element, { tone, appearance })`, `createIconButton({ ..., tone?, appearance? })`; ті самі `data-pg-tone` / `data-pg-appearance` для текстових кнопок Menu, Selection Actions і Dialog. Одне джерело числових кольорів — `src/styles/tokens.css`, єдиний style owner — `src/ui/button/button.css`. Старий `--pg-color-accent` залишається для нефарбованих елементів, геометрія й анімації незмінні.
+
+## Icon + Text і Loading — універсальні механізми (2026-11-10)
+
+**Icon + Text:** у чинному `pg-button` уже є `inline-flex`, `align-items:center` і `gap:8px`. Для `pg-icon` у звичайній текстовій кнопці розмір зафіксовано як **18×18px**; порядок icon/label визначається порядком DOM-елементів (іконка ліворуч або праворуч). **Жодного** `--icon-left` чи `--icon-right` модифікатора не потрібно. Виняток: `pg-button--square` з 16px іконкою зберігає чинну геометрію.
+
+**Loading — стан, не нова кнопка.** `setButtonLoading(button, true|false)` діє на `pg-button` і `pg-icon-button`, включно з mini/corner та FAB. Стан `data-pg-loading='true'`, `aria-busy='true'`, `aria-disabled='true'`; повторний click (включно з Enter/Space) блокується capture-обробником, але фокус і попередній native `disabled` не змінюються. Повернення до попередніх aria-значень відбувається при завершенні. `withButtonLoading(button, asyncTask)` використовує `try/finally` для відновлення і після resolve, і після reject. Не змінювати текст, іконку та розміри в процесі.
+
+**Індикатор:** у **цьому ж `button.css`** через `::after` та `conic-gradient` рухається лише тонкий сегмент по зовнішньому контуру, повторюючи `border-radius`. У `Section Navigator` раніше реалізовано SVG ring для pull-progress, але його `stroke-dashoffset` має іншу семантику (визначений прогрес), тому копіювати JS/DOM між модулями не потрібно. При `prefers-reduced-motion` сегмент залишається статичним. **Не анімувати саму кнопку**: corner/FAB продовжують використовувати свою існуючу анімацію.
+
+**Toggle:** не створювати новий тип і не вводити bounce для звичайних кнопок. `aria-pressed` вже відображає затиснений стан pin/editor-tool; він окремий від Loading. Нову анімацію для нього не додавати.
+
+**Тестування:** у Tools → Текст існує приклад `createButtonDemo` з двома порядками Icon+Text і з Loading для text та mini. Playwright перевіряє gap, розміри іконки, відсутність зсувів, aria-стани, заборону повторної дії, відновлення після помилки, keyboard/focus, reduced-motion.
+
+Джерела дослідження: [Radix Button](https://www.radix-ui.com/themes/docs/components/button), [Radix Spinner](https://www.radix-ui.com/themes/docs/components/spinner), [Chrome Modern Web Guidance — Spinner](https://developer.chrome.com/docs/modern-web-guidance/guides/ui-components/spinner), [WAI-ARIA Button](https://www.w3.org/WAI/ARIA/apg/patterns/button/).
