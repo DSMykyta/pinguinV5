@@ -14,7 +14,6 @@
 import { createViewSwitch } from '../view-switch/view-switch.js';
 import { createCheckbox } from '../checkbox/checkbox.js';
 import { createMenu } from '../menu/menu.js';
-import { createIconButton } from '../button/button.js';
 import { createIcon } from '../icon/icon.js';
 import { createPagination } from '../pagination/pagination.js';
 
@@ -95,6 +94,7 @@ export function createCollectionView({
   const headers=new Map();
   const selected=new Set();
   const editColumnKey=columns.find(column=>column.primary)?.key??columns[0].key;
+  let editClickTimer=null;
   const rowControls=[];
   let dataset=[];
   let currentMode=initialMode;
@@ -268,7 +268,32 @@ export function createCollectionView({
     syncSelection();
     notifySelection();
   }
+  // Delay only actual pointer clicks to distinguish single-click from
+  // double-click text selection. A single timer belongs to the collection.
+  function cancelPendingEdit() {
+    if(editClickTimer!==null)clearTimeout(editClickTimer);
+    editClickTimer=null;
+  }
+  function editFromName(event, content, row) {
+    cancelPendingEdit();
+    if(event.detail>1)return;
+    const selection=content.ownerDocument.getSelection();
+    if(selection && !selection.isCollapsed) {
+      for(let i=0;i<selection.rangeCount;i++) {
+        if(selection.getRangeAt(i).intersectsNode(content))return;
+      }
+    }
+    if(event.detail===0) {
+      onEditRow(row);
+      return;
+    }
+    editClickTimer=setTimeout(()=>{
+      editClickTimer=null;
+      if(content.isConnected)onEditRow(row);
+    },250);
+  }
   function cleanupRows() {
+    cancelPendingEdit();
     rowControls.forEach(({checkbox,menu,tileCheckbox,tileMenu,rowController})=>{
       rowController?.abort();
       checkbox?.destroy();menu?.destroy();
@@ -320,20 +345,26 @@ export function createCollectionView({
         appendContent(span,value);
         if(!(value instanceof Node)&&value!=null)span.title=String(value);
         if(typeof onEditRow==='function'&&column.key===editColumnKey) {
-          const line=document.createElement('div');
-          line.className='pg-collection-view__primary-line';
-          const edit=createIconButton({
-            label:'Редагувати: '+String(row.name??id),
-            icon:'pencil',action:'row-edit',
-            onClick:()=>onEditRow(row),
-          });
-          edit.classList.add('pg-mini-button','pg-collection-view__edit');
-          // Only the pencil opens the editor; ordinary text remains selectable.
-          line.append(span,edit);
-          td.append(line);
-        } else {
-          td.append(span);
+          // No edit icon or overlay: the selectable text itself is the action.
+          // Pointer dragging/double-click selects text; a single click edits.
+          span.classList.add('pg-collection-view__editable-name');
+          span.dataset.pgAction='row-edit';
+          span.setAttribute('role','button');
+          span.tabIndex=0;
+          span.setAttribute('aria-label','Редагувати: '+String(row.name??id));
+          span.addEventListener('click',event=>editFromName(event,span,row),
+            {signal:rowController.signal});
+          span.addEventListener('dblclick',cancelPendingEdit,
+            {signal:rowController.signal});
+          span.addEventListener('keydown',event=>{
+            if(event.key==='Enter'||event.key===' ') {
+              event.preventDefault();
+              cancelPendingEdit();
+              onEditRow(row);
+            }
+          },{signal:rowController.signal});
         }
+        td.append(span);
         tr.append(td);
       }
       // Action menus are always the final column, after every data field.
