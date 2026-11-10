@@ -365,7 +365,10 @@ test('mini action and compact checkbox honor focus, dark theme and reduced motio
   const row=table(page).locator('tbody tr').first();
   const edit=row.getByRole('button',{name:/Редагувати:/});
   await expect(edit).toHaveCSS('transition-duration','0s');
-  await edit.focus();
+  // Reach the mini button by keyboard, not programmatic focus (which is not :focus-visible).
+  await row.getByRole('checkbox').focus();
+  await page.keyboard.press('Tab');
+  await expect(edit).toBeFocused();
   await expect(edit).toHaveCSS('outline-style','solid');
   await expect(row.locator('.pg-checkbox__box')).toHaveCSS('transition-duration','0s');
   await page.evaluate(()=>document.documentElement.setAttribute('data-theme','dark'));
