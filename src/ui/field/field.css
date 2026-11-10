@@ -21,6 +21,17 @@
   font-size: 13px; font-weight: 450; line-height: 1.4;
   overflow-wrap: anywhere; cursor: text;
 }
+/* Only for compact embedded filters: label remains in the accessibility tree. */
+.pg-field__label--sr-only {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 .pg-field__surface {
   display: flex; align-items: stretch; position: relative;
   box-sizing: border-box; inline-size: 100%; min-inline-size: 0;
