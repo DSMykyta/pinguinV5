@@ -3,7 +3,7 @@
  * ║ PINGUIN NEXT — APPLICATION ENTRY                                                                   ║
  * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Завантажує стилі та запускає єдиний Shell.                                            ║
- * ║ ЗАЛЕЖНОСТІ: Shell та спільний CSS.                                                                 ║
+ * ║ ЗАЛЕЖНОСТІ: Shell, shared CSS і opt-in UI behaviors.                                               ║
  * ║ ПУБЛІЧНИЙ API: Точка входу Vite.                                                                   ║
  * ║ ПРИНЦИП: HMR знімає старі слухачі.                                                                 ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
@@ -49,15 +49,18 @@ import { mountShell } from './shell/shell.js';
 import { initTooltips } from './ui/tooltip/tooltip.js';
 import { mountToasts } from './ui/toast/toast.js';
 import { mountDialogs } from './ui/dialog/dialog.js';
+import { mountRotatingPlaceholders } from './ui/input/rotating-placeholder.js';
 
 const host = document.getElementById('app');
 const disposeTooltips = initTooltips();
 const disposeToasts = mountToasts();
 const disposeDialogs = mountDialogs();
 const unmountShell = mountShell(host);
+const unmountPlaceholders = mountRotatingPlaceholders(host);
 
 if (import.meta.hot) {
   import.meta.hot.dispose(() => {
+    unmountPlaceholders();
     unmountShell();
     disposeTooltips();
     disposeToasts();
