@@ -10,6 +10,7 @@
  */
 
 import { createIconButton, setButtonColor, setButtonLoading } from '../button/button.js';
+import { createWorkspaceLayout } from '../workspace-layout/workspace-layout.js';
 
 const EXIT_DURATION = 190;
 let manager = null;
@@ -35,12 +36,14 @@ function validate(options) {
       (cancelText !== null && (typeof cancelText !== 'string' || !cancelText.trim()))) {
     throw new TypeError('Dialog actions need labels');
   }
-  for (const name of ['validate', 'onConfirm', 'closeGuard']) {
+  for (const name of ['validate', 'onConfirm', 'closeGuard', 'onRefresh', 'onDelete', 'isDirty']) {
     if (options[name] !== undefined && typeof options[name] !== 'function')
       throw new TypeError('Dialog ' + name + ' must be a function');
   }
   const size = options.size ?? 'standard';
-  if (!['standard', 'editor'].includes(size)) throw new TypeError('Invalid dialog size');
+  if (!['standard', 'editor', 'workspace'].includes(size)) throw new TypeError('Invalid dialog size');
+  const sections = options.sections ?? [];
+  if (size === 'workspace' && !Array.isArray(sections)) throw new TypeError('Workspace sections must be an array');
   const leftAction = options.leftAction ?? null;
   if (leftAction !== null &&
       (typeof leftAction.label !== 'string' || !leftAction.label.trim() ||
@@ -60,8 +63,9 @@ function validate(options) {
     title: options.title, message, content, confirmText, cancelText, size, leftAction,
     confirmTone, confirmAppearance,
     validate: options.validate, onConfirm: options.onConfirm, closeGuard: options.closeGuard,
-    destructive,
-    closeOnBackdrop: options.closeOnBackdrop !== false,
+    onRefresh: options.onRefresh, onDelete: options.onDelete, isDirty: options.isDirty,
+    sections, destructive,
+    closeOnBackdrop: options.closeOnBackdrop ?? (size !== 'workspace'),
   };
 }
 
@@ -116,8 +120,113 @@ export function mountDialogs() {
     item.status.setAttribute('role', role);
   }
 
+  function hideDecision(item) {
+    if (!item.decision) return;
+    item.decision.remove();
+    item.decision = null;
+    item.decisionOrigin?.focus({ preventScroll: true });
+    item.decisionOrigin = null;
+  }
+
+  function showDecision(item, { message, confirmText, onConfirm, danger = false, origin }) {
+    if (item.busy || item.closing) return;
+    hideDecision(item);
+    const overlay = doc.createElement('div');
+    overlay.className = 'pg-dialog__decision';
+    overlay.setAttribute('role', 'alertdialog');
+    overlay.setAttribute('aria-modal', 'true');
+    const description = doc.createElement('p');
+    description.className = 'pg-dialog__decision-message';
+    description.id = 'pg-dialog-decision-message';
+    description.textContent = message;
+    overlay.setAttribute('aria-describedby', description.id);
+    const actions = doc.createElement('div');
+    actions.className = 'pg-dialog__decision-actions';
+    const cancel = doc.createElement('button');
+    cancel.type = 'button';
+    cancel.className = 'pg-button pg-button--secondary';
+    cancel.textContent = 'Скасувати';
+    const approve = doc.createElement('button');
+    approve.type = 'button';
+    approve.className = danger
+      ? 'pg-button pg-button--destructive' : 'pg-button pg-button--primary';
+    approve.textContent = confirmText;
+    cancel.addEventListener('click', () => hideDecision(item));
+    approve.addEventListener('click', async () => {
+      if (item.busy || item.closing) return;
+      overlay.dataset.pgPending = 'true';
+      approve.disabled = true;
+      cancel.disabled = true;
+      try {
+        await onConfirm();
+        if (item.decision === overlay && !item.closing) hideDecision(item);
+      } catch (error) {
+        console.error('Workspace decision failed:', error);
+        if (!item.closing) {
+          report(item, 'Не вдалося виконати дію.', 'alert');
+          approve.disabled = false;
+          cancel.disabled = false;
+        }
+      }
+    });
+    actions.append(cancel, approve);
+    overlay.append(description, actions);
+    item.decision = overlay;
+    item.decisionOrigin = origin ?? item.element?.querySelector('[data-pg-action="dialog-dismiss"]');
+    item.element.querySelector('.pg-dialog__panel').append(overlay);
+    cancel.focus({ preventScroll: true });
+  }
+
+  async function handleRefresh(item) {
+    if (!item.options.onRefresh || item.busy || item.closing) return;
+    const perform = async () => {
+      setBusy(item, true, item.refreshButton);
+      try {
+        const ok = await item.options.onRefresh();
+        if (!destroyed && active === item && ok !== true) {
+          report(item, 'Не вдалося оновити дані.', 'alert');
+        } else if (!destroyed && active === item) report(item, 'Дані оновлено.');
+      } catch (error) {
+        console.error('Workspace refresh failed:', error);
+        if (!destroyed && active === item) report(item, 'Помилка оновлення.', 'alert');
+      } finally {
+        if (!destroyed && active === item && !item.closing) setBusy(item, false);
+      }
+    };
+    if (item.options.isDirty?.()) {
+      showDecision(item, {
+        message: 'Є незбережені зміни. Відкинути їх і оновити запис?',
+        confirmText: 'Оновити', origin: item.refreshButton,
+        onConfirm: perform,
+      });
+    } else await perform();
+  }
+
+  function handleDelete(item) {
+    if (!item.options.onDelete || item.busy || item.closing) return;
+    showDecision(item, {
+      message: 'Видалити цей запис? Дію не можна скасувати.',
+      confirmText: 'Видалити', danger: true, origin: item.deleteButton,
+      onConfirm: async () => {
+        setBusy(item, true, item.deleteButton);
+        try {
+          if (await item.options.onDelete() === true && !destroyed && active === item) {
+            hideDecision(item);
+            setBusy(item, false);
+            closeNow(item, 'delete');
+          } else if (!destroyed && active === item) {
+            report(item, 'Запис не видалено.', 'alert');
+          }
+        } finally {
+          if (!destroyed && active === item && !item.closing) setBusy(item, false);
+        }
+      },
+    });
+  }
+
   async function requestDismiss(item, reason) {
     if (destroyed || active !== item || item.closing || item.busy) return;
+    if (item.decision) { hideDecision(item); return; }
     if (item.options.closeGuard) {
       setBusy(item, true);
       let allowed = false;
@@ -132,9 +241,18 @@ export function mountDialogs() {
       }
       if (destroyed || active !== item || item.closing) return;
       if (!allowed) {
-        report(item, 'Є незбережені зміни. Щоб вийти, виберіть «Відкинути зміни».');
-        item.discardButton.hidden = false;
-        item.discardButton.focus({ preventScroll: true });
+        if (item.options.size === 'workspace') {
+          showDecision(item, {
+            message: 'Є незбережені зміни. Відкинути їх і закрити редактор?',
+            confirmText: 'Відкинути зміни', danger: true,
+            origin: item.closeButton,
+            onConfirm: async () => { hideDecision(item); closeNow(item); },
+          });
+        } else {
+          report(item, 'Є незбережені зміни. Щоб вийти, виберіть «Відкинути зміни».');
+          item.discardButton.hidden = false;
+          item.discardButton.focus({ preventScroll: true });
+        }
         return;
       }
     }
@@ -173,7 +291,8 @@ export function mountDialogs() {
     const item = active;
     try {
       const d = doc.createElement('dialog');
-      d.className = 'pg-dialog' + (item.options.size === 'editor' ? ' pg-dialog--editor' : '');
+      d.className = 'pg-dialog' + (item.options.size === 'workspace'
+        ? ' pg-dialog--workspace' : item.options.size === 'editor' ? ' pg-dialog--editor' : '');
       d.dataset.pgState = 'entering';
       d.setAttribute('aria-labelledby', 'pg-dialog-title');
       if (item.options.message) d.setAttribute('aria-describedby', 'pg-dialog-message');
@@ -197,6 +316,7 @@ export function mountDialogs() {
         onClick: () => { void requestDismiss(item, 'close-button'); },
       });
       closeButton.classList.add('pg-dialog__close');
+      item.closeButton = closeButton;
       header.append(title, closeButton);
 
       const body = doc.createElement('div');
@@ -215,6 +335,41 @@ export function mountDialogs() {
       status.hidden = true;
       item.status = status;
 
+      let cancelButton = null;
+      if (item.options.size === 'workspace') {
+        const workspace = createWorkspaceLayout({
+          title, body, status, sections: item.options.sections,
+        });
+        const refreshButton = createIconButton({
+          label: 'Оновити', icon: 'refresh', variant: 'corner',
+          action: 'dialog-refresh', onClick: () => { void handleRefresh(item); },
+        });
+        refreshButton.disabled = !item.options.onRefresh;
+        item.refreshButton = refreshButton;
+        const deleteButton = createIconButton({
+          label: 'Видалити', icon: 'delete', variant: 'corner',
+          action: 'dialog-delete', tone: 'danger', appearance: 'ghost',
+          onClick: () => handleDelete(item),
+        });
+        deleteButton.disabled = !item.options.onDelete;
+        item.deleteButton = deleteButton;
+        const saveButton = createIconButton({
+          label: 'Зберегти', icon: 'save', variant: 'corner',
+          action: 'dialog-confirm',
+          onClick: () => { void handleConfirm(item); },
+        });
+        item.confirmButton = saveButton;
+        closeButton.classList.add('pg-icon-button--corner');
+        workspace.topLeft.append(refreshButton);
+        workspace.topRight.append(closeButton);
+        workspace.bottomLeft.append(deleteButton);
+        workspace.bottomRight.append(saveButton);
+        item.actionButtons = [refreshButton, closeButton, deleteButton, saveButton];
+        panel.classList.add('pg-dialog__panel--workspace');
+        panel.append(workspace.element);
+        item.workspace = workspace;
+        d.append(panel);
+      } else {
       const footer = doc.createElement('footer');
       footer.className = 'pg-dialog__footer';
       const left = doc.createElement('div');
@@ -264,7 +419,6 @@ export function mountDialogs() {
         left.append(discardButton);
       }
 
-      let cancelButton = null;
       if (item.options.cancelText !== null) {
         cancelButton = doc.createElement('button');
         cancelButton.type = 'button';
@@ -295,9 +449,18 @@ export function mountDialogs() {
       footer.append(left, right);
       panel.append(header, body, status, footer);
       d.append(panel);
+      }
 
+      d.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && item.decision) {
+          event.preventDefault();
+          event.stopPropagation();
+          hideDecision(item);
+        }
+      }, true);
       d.addEventListener('cancel', event => {
         event.preventDefault();
+        if (item.decision) { hideDecision(item); return; }
         void requestDismiss(item, 'escape');
       });
       d.addEventListener('click', event => {
@@ -306,9 +469,9 @@ export function mountDialogs() {
 
       doc.body.append(d);
       d.showModal();
-      (item.options.size === 'editor'
+      (item.options.size === 'editor' || item.options.size === 'workspace'
         ? (item.options.content?.querySelector('[autofocus]') || title)
-        : (cancelButton ?? confirmButton)).focus({ preventScroll: true });
+        : (cancelButton ?? item.confirmButton)).focus({ preventScroll: true });
       view.requestAnimationFrame(() => {
         if (!destroyed && active === item && !item.closing) {
           d.dataset.pgState = 'visible';
