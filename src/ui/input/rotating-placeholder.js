@@ -295,7 +295,11 @@ export function mountRotatingPlaceholder(input, options = {}) {
     if (state.overlay) {
       state.overlay.remove();
       if (state.shared) state.host.classList.remove('pg-input__rotating-host');
-      else { state.host.before(input); state.host.remove(); }
+      else {
+        // Do not pull a field back when its owner intentionally moved it elsewhere.
+        if (state.host.contains(input)) state.host.before(input);
+        state.host.remove();
+      }
     }
     if (state.originalPlaceholder === null) input.removeAttribute('placeholder');
     else input.placeholder = state.originalPlaceholder;
