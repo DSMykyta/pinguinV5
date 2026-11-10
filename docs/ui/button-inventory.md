@@ -41,3 +41,29 @@
 3. **Справжні відмінності компонентів:** FAB — складена кнопка з відкриванням; Listbox — native-like поле та невеликі дії chip; Tabs/Segment — навігаційні та radio патерни. Тут допустима тільки поведінка й специфічна геометрія композиції, не копія базових hover/focus/disabled.
 4. Під час рев'ю шукати дублікати `border`, `border-radius`, `background`, `color`, `:hover`, `:focus-visible`, `:disabled` у CSS компонентів для звичайного button. Виправляти у спільному `button.css` або через наявний модифікатор, **не додавати ще один**.
 5. Перевірити `npm run check` і E2E: menu trigger (звичайний/mini), pressed pin, Dialog, FAB, pagination, select/listbox, темна тема, keyboard, reduced motion.
+
+## Дослідження відсутніх можливостей (2026-11-10)
+
+**Факт:** у `src/ui/button/button.css` наразі 19 документованих типів і модифікаторів в **одному** CSS-файлі. Це не 19 JS-фабрик: `button.js` надає одну `createIconButton(default|mini|corner)`, а текстові дії використовують спільні CSS-класи на нативному `<button>`.
+
+Джерела: `legacy/css/components/buttons/button-base.css`, `button-ghost.css`, `button-groups.css` (у legacy видалений), `button-icon.css`, `button-option.css`, `button-outline.css`, `button-primary.css`, `button-secondary.css`, `fab.css`; [Radix Button](https://www.radix-ui.com/themes/docs/components/button), [Radix IconButton](https://www.radix-ui.com/themes/docs/components/icon-button), [Material Web](https://github.com/material-components/material-web/blob/main/docs/components/button.md), [W3C APG Button](https://www.w3.org/WAI/ARIA/apg/patterns/button/), [WCAG 2.2 Target Size](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum).
+
+| Потреба | Уже покрито | Рішення та пріоритет |
+| --- | --- | --- |
+| **Loading / Busy** при асинхронній дії | Немає загального стану у `pg-button`/`createIconButton`; споживачі можуть блокувати свої кнопки | **P1:** єдиний стан `aria-busy`, блокування повторного натискання, spinner без зміни геометрії, керування фокусом. **Не нова кнопка** |
+| **Toggle / pressed** | `pg-mini-button` та `--tool` підтримують `aria-pressed`, загальної схеми для текстових варіантів немає | **P1:** спільний контракт стану без нової фабрики. W3C радить стабільне доступне ім'я toggle |
+| **Text + leading/trailing icon** | `pg-button` має gap 8px, але немає задокументованого API та розміру іконок | **P1:** контракт композиції icon+label; не створювати новий CSS-тип |
+| **Ghost** (неакцентна текстова дія з тонованим hover) | `--plain` для сортування та `--quiet` для Toast/Tag покривають частину сценаріїв, але це не повний `legacy .btn-ghost` | **P2, умовно:** спочатку застосувати наявний варіант; новий стиль тільки за повторюваної потреби |
+| **Touch / hit target** | `pg-mini-button` 32×32, `--chip-remove` 20×22 | **P1:** перевірити spacing і фактичну hit-area на мобільному; WCAG 2.2 AA: щонайменше 24×24 CSS px або допустимі винятки. Розміри не змінювати навмання |
+| **Tonal/elevated/outlined icon** | Icon за замовчуванням прозорий; текстові primary/secondary/outline уже є | **Відкласти:** в Material/Radix вони існують, але у Pinguin не доведено потребу |
+| **Split action + dropdown** | Існують Menu і звичайна button | **Відкласти:** компонувати існуючі елементи до появи реального сценарію |
+| **Connected group** | У legacy `button-groups.css` видалено; у work вже є Tabs і SegmentSwitch | **Не створювати** ще один компонент для вибору режиму; використовувати радіосегменти |
+| **Extended FAB** | Один `createAsideFab` обслуговує обидві FAB; label є в меню | **Відкласти:** не створювати третю FAB/фабрику без вимоги |
+| **Icon danger / drag / reveal / touch** | Такі charms були в `legacy .btn-icon`, але зараз немає затверджених загальних контрактів | **Умовно:** додавати стан/поведінку до icon сімейства лише при реальному use-case, не окрему фабрику |
+
+### Як дозволяти нові варіанти
+
+1. Надати конкретний сценарій із UI та довести, чому жоден із 19 існуючих типів не підходить. Спочатку перевірити композицію, стан і токени.
+2. Змінювати тільки **один** `src/ui/button/button.css`, а не створювати окремий CSS-файл на кнопку. Для кожного нового типу обов'язкова власна шапка **ТИП / ПРИЗНАЧЕННЯ / НАВІЩО / ДЕ / ГЕОМЕТРІЯ / СТАНИ / МЕЖА**.
+3. Оновити схвалений реєстр `scripts/check-conventions.mjs` після огляду. Перевіряти клавіатуру, focus-visible, disabled, pressed, loading, темну тему, reduced motion і mobilе hit target. Автоматична перевірка підтверджує структуру, а не якість рішення.
+4. Не перетворювати `pg-tabs`, `pg-select`, `pg-listbox`, `pg-checkbox`, `pg-segment-switch` чи комплексний `createAsideFab` на нові типи стандартної кнопки без обґрунтування.
