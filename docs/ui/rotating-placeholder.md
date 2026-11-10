@@ -21,7 +21,7 @@ createInput({ label: 'Ознака товару', name: 'product-feature', rotat
 
 - `data-pg-placeholder-history="product-feature"`: перевизначає ключ історії; за замовчуванням це стабільний `name`. Для структур `products[0][feature]` і `products[1][feature]` індекс нормалізується, щоб значення одного типу могли перевикористовуватися. Під `[data-pg-module]` ім'я додатково ізолюється за ID модуля. За відсутності ключа функція не монтується.
 - `data-pg-placeholder-interval="5200"`: час між словами; допустимо 2400–20000 мс, типово **5200 мс**. Тривалість CSS-переходу — **840 мс**.
-- `data-pg-placeholder-save="submit"`: записувати значення під час native `submit` форми замість звичайного `change`; це підтвердження наміру відправити, а **не гарантія успішної відповіді сервера**. Для збереження **після** успішної серверної операції власник модуля сам викликає `saveInputPlaceholderHistory(key, value)`; стандартний режим — `change` для локальних редакторів.
+- `data-pg-placeholder-save="submit"` або `createInput({ rotatingPlaceholder: true, placeholderSave: 'submit', ... })`: записувати значення під час native `submit` форми замість звичайного `change`; це підтвердження наміру відправити, а **не гарантія успішної відповіді сервера**. Для збереження **після** успішної серверної операції власник модуля сам викликає `saveInputPlaceholderHistory(key, value)`; стандартний режим — `change` для локальних редакторів.
 - `setRotatingPlaceholdersPaused(true/false)`: спільний програмний вимикач автоматичного руху, який можна прив'язати до вже існуючих налаштувань доступності; не додаємо нову кнопку в Shell.
 - `refreshRotatingPlaceholder(input)`: синхронізує візуальну підказку після програмного `input.value = …`. Стандартний `Input.setValue()` викликає його сам.
 
