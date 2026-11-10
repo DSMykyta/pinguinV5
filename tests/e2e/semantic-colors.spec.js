@@ -39,6 +39,8 @@ test('bulk selection reuses soft warning, success and danger, and danger confirm
       bounds: el.getBoundingClientRect().toJSON(),
     }));
     await button.hover();
+    await expect.poll(() => button.evaluate(el => getComputedStyle(el).backgroundColor))
+      .not.toBe(before.background);
     const after = await button.evaluate(el => ({
       color: getComputedStyle(el).color,
       background: getComputedStyle(el).backgroundColor,
