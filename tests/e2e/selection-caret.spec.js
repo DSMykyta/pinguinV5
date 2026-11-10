@@ -147,7 +147,9 @@ test('custom selection popup and options have one shared skin', async ({ page })
     await expect(option).toHaveCSS('min-block-size', '38px');
     styles.push(await popup.evaluate(node => {
       const css = getComputedStyle(node);
-      return [css.padding, css.borderRadius, css.boxShadow, css.maxBlockSize];
+      // PositionPopup clamps the rendered height to remaining viewport space.
+      // That limit is placement, not a skin variation.
+      return [css.padding, css.borderRadius, css.boxShadow];
     }));
   }
   expect(styles[0]).toEqual(styles[1]);
