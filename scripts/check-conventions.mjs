@@ -120,7 +120,7 @@ async function checkCss(path, label) {
     const required = ['ПРИЗНАЧЕННЯ:', 'НАВІЩО:', 'ДЕ:', 'ГЕОМЕТРІЯ:', 'СТАНИ:', 'МЕЖА:'];
     for (const match of raw.matchAll(/\/\*[\s\S]*?\*\//g)) {
       const comment = match[0];
-      const type = comment.match(/(?:^|\n)\s*\*\s*ТИП:\s*\.(pg-(?:button|icon-button|mini-button)[\w-]*)/);
+      const type = comment.match(/(?:^|\n)\s*\*\s*(?:║\s*)?ТИП:\s*\.(pg-(?:button|icon-button|mini-button)[\w-]*)/);
       if (!type) continue;
       if (headers.has(type[1])) {
         errors.push(label + ': duplicated header for .' + type[1]);
