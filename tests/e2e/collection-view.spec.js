@@ -50,6 +50,7 @@ test('table rounds only its header and last row; the shared workspace stays squa
 
   await expect(main).toHaveCSS('border-radius','0px');
   await expect(scroller).toHaveCSS('border-radius','0px');
+  await expect(table(page)).toHaveCSS('border-radius','16px');
   await expect(firstHeader).toHaveCSS('border-start-start-radius','16px');
   await expect(lastHeader).toHaveCSS('border-start-end-radius','16px');
   await expect(firstBottom).toHaveCSS('border-end-start-radius','16px');
