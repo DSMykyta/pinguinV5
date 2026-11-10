@@ -18,6 +18,7 @@ References: [MUI Autocomplete limitTags](https://mui.com/material-ui/api/autocom
 [Ant Design maxTagCount/maxTagPlaceholder](https://ant.design/components/select/) support compact tags and a visible overflow summary. The disclosure button semantics follow [WAI-ARIA APG](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/).
 
 - A compact multi-selection field displays up to 3 removable chips and a `+N` button when additional selections are hidden.
+- Chip geometry (2026-11-10): 26px-high rounded rectangles with 6px corners, not pills. The first compact chip sits 7px from the outlined field's left/top/bottom edges on desktop; the expanded selection tray preserves the same first-chip alignment. Both states reuse the same chip CSS and the shared remove button; the caret's trailing space remains reserved.
 - No `+N` means hovering/focusing the field does **not** open a selection tray.
 - Hovering `+N` previews the full selection. Clicking or keyboard-focusing `+N` also reveals it. Use `aria-expanded` and `aria-controls` on the actual `+N` button.
 - The expanded tray **covers the original compact chip row**, rather than duplicating the visible chips underneath. It is one expanded visual surface with the same width and border, anchored over the field and growing up or down according to viewport space. The external label stays above.
