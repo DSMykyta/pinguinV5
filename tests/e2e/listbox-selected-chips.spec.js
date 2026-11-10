@@ -120,6 +120,9 @@ test('chips have quieter corners and balanced field insets in compact and expand
   expect(compact.height).toBe(26);
   expect(Math.abs(compact.left - compact.top)).toBeLessThan(1);
   expect(Math.abs(compact.top - compact.bottom)).toBeLessThan(1);
+  const overflow = await root.locator('.pg-listbox__more').boundingBox();
+  expect(overflow).not.toBeNull();
+  expect(Math.abs(overflow.height - compact.height)).toBeLessThan(1);
 
   await hoverOverflow(page, root);
   const expanded = await geometry();
@@ -127,6 +130,17 @@ test('chips have quieter corners and balanced field insets in compact and expand
   expect(expanded.height).toBe(compact.height);
   expect(Math.abs(expanded.left - compact.left)).toBeLessThan(2);
   expect(Math.abs(expanded.top - compact.top)).toBeLessThan(2);
+
+  // The field token rises to 44px on coarse pointers: horizontal and vertical
+  // chip gutters must still be equal, without a separate mobile override.
+  await root.evaluate(el => {
+    el.querySelector('.pg-listbox').style.setProperty('--pg-field-control-size', '44px');
+  });
+  await expect(root.locator('.pg-listbox__selection-tray')).toBeVisible();
+  const touchSized = await geometry();
+  expect(touchSized.left).toBeGreaterThan(compact.left);
+  expect(Math.abs(touchSized.left - touchSized.top)).toBeLessThan(2);
+  expect(Math.abs(touchSized.top - touchSized.bottom)).toBeLessThan(2);
 });
 
 test('× removes one value in expanded view without opening options',async({page})=>{
