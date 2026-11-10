@@ -142,7 +142,10 @@ test('many opted-in fields stay empty before use; sensitive input types are excl
   });
   const hints = page.locator('.pg-input__rotating-placeholder');
   await expect(hints).toHaveCount(101);
-  await expect(page.locator('input[name="email"]').locator('..').locator('.pg-input__rotating-placeholder')).toHaveCount(0);
+  // A non-opted-in input shares the holder with 100 independent overlays.
+  // Test its own wrapper, never all descendants of that common parent.
+  await expect(page.locator('.pg-input__rotating-native-host')
+    .filter({ has: page.locator('input[name="email"]') })).toHaveCount(0);
   const emptyCount = await page.locator('input[name^="attribute-"]').evaluateAll(nodes =>
     nodes.filter(input => input.parentElement.querySelector('.pg-input__rotating-placeholder')?.textContent === '').length);
   expect(emptyCount).toBe(100);
