@@ -56,7 +56,7 @@ test('workspace reuses navigator toggle and correctly stacks shared corner/mini 
 test('small save persists and stays open; checkmark saves and closes; clean close is allowed', async ({ page }) => {
   const dialog = page.getByRole('dialog', { name: 'Редагування бренду' });
   const input = dialog.getByRole('textbox', { name: 'Назва бренду' });
-  await input.fill('Нова тестова назва бренду');
+  await input.fill('Aardvark Test Brand');
   await dialog.locator('[data-pg-action="dialog-save"]').click();
   await expect(dialog).toBeVisible();
   await expect(dialog.locator('.pg-dialog__status')).toHaveText('Зміни збережено.');
@@ -65,13 +65,13 @@ test('small save persists and stays open; checkmark saves and closes; clean clos
   await expect(dialog).toHaveCount(0);
   await expect(page.locator('.pg-dialog__decision')).toHaveCount(0);
   await expect(page.locator('#pg-tools-panel-data-views .pg-collection-view__editable-name')
-    .filter({ hasText: 'Нова тестова назва бренду' })).toHaveCount(1);
+    .filter({ hasText: 'Aardvark Test Brand' })).toHaveCount(1);
 
   await page.locator('#pg-tools-panel-data-views .pg-collection-view__editable-name')
-    .filter({ hasText: 'Нова тестова назва бренду' }).click();
+    .filter({ hasText: 'Aardvark Test Brand' }).click();
   const reopened = page.getByRole('dialog', { name: 'Редагування бренду' });
   await expect(reopened).toBeVisible();
-  await reopened.getByRole('textbox', { name: 'Назва бренду' }).fill('Ще одна тестова назва бренду');
+  await reopened.getByRole('textbox', { name: 'Назва бренду' }).fill('Aardvark Updated Brand');
   await reopened.locator('[data-pg-action="dialog-confirm"]').click();
   await expect(reopened).toHaveCount(0);
 });
