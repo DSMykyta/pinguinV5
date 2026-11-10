@@ -30,6 +30,16 @@
     transform var(--pg-duration-fast) ease-out;
 }
 
+/* In an active native dialog, Popover is promoted above the modal in the
+ * browser top layer. A large numeric z-index by itself would stay behind. */
+.pg-tooltip:popover-open {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  border: 0;
+  overflow: visible;
+}
+
 .pg-tooltip--visible {
   opacity: 1;
   transform: scale(1);
