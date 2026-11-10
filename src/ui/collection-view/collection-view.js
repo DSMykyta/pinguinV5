@@ -94,6 +94,7 @@ export function createCollectionView({
   const controller=new AbortController();
   const headers=new Map();
   const selected=new Set();
+  const editColumnKey=columns.find(column=>column.primary)?.key??columns[0].key;
   const rowControls=[];
   let dataset=[];
   let currentMode=initialMode;
@@ -171,7 +172,7 @@ export function createCollectionView({
     const th=document.createElement('th');
     th.scope='col';
     th.className='pg-collection-view__actions-cell';
-    th.textContent='Дії';
+    th.setAttribute('aria-label','Дії');
     heading.append(th);
   }
 
@@ -304,15 +305,6 @@ export function createCollectionView({
         const controls=document.createElement('div');
         controls.className='pg-collection-view__row-controls';
         controls.append(checkbox.element);
-        if(typeof onEditRow==='function') {
-          const edit=createIconButton({
-            label:'Редагувати: '+String(row.name??id),
-            icon:'pencil',action:'row-edit',
-            onClick:()=>onEditRow(row),
-          });
-          edit.classList.add('pg-mini-button');
-          controls.append(edit);
-        }
         cell.append(controls);
         tr.append(cell);
       }
@@ -327,7 +319,21 @@ export function createCollectionView({
         span.className='pg-collection-view__cell-content';
         appendContent(span,value);
         if(!(value instanceof Node)&&value!=null)span.title=String(value);
-        td.append(span);
+        if(typeof onEditRow==='function'&&column.key===editColumnKey) {
+          const line=document.createElement('div');
+          line.className='pg-collection-view__primary-line';
+          const edit=createIconButton({
+            label:'Редагувати: '+String(row.name??id),
+            icon:'pencil',action:'row-edit',
+            onClick:()=>onEditRow(row),
+          });
+          edit.classList.add('pg-mini-button','pg-collection-view__edit');
+          // Only the pencil opens the editor; ordinary text remains selectable.
+          line.append(span,edit);
+          td.append(line);
+        } else {
+          td.append(span);
+        }
         tr.append(td);
       }
       // Action menus are always the final column, after every data field.
