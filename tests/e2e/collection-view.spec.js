@@ -460,3 +460,31 @@ test('mini action and compact checkbox honor focus, dark theme and reduced motio
   expect(bg).not.toBe('rgba(0, 0, 0, 0)');
   await expect(edit).toHaveCSS('width','32px');
 });
+
+test('footer FAB remains fully clickable on mobile beside the global FAB',async({page})=>{
+  await page.setViewportSize({width:390,height:844});
+  const primary=page.locator('[data-pg-action="aside-fab-toggle"]');
+  const secondary=page.locator('[data-pg-action="page-fab-toggle"]');
+  await expect(primary).toBeVisible();
+  await expect(secondary).toBeVisible();
+  const [a,b]=await Promise.all([primary.boundingBox(),secondary.boundingBox()]);
+  expect(Math.abs(a.y-b.y)).toBeLessThan(2);
+  expect(Math.abs(b.x+b.width+8-a.x)).toBeLessThan(2);
+  expect(await secondary.evaluate(button=>{
+    const r=button.getBoundingClientRect();
+    return [r.left+2,r.right-2].every(x=>{
+      const hit=document.elementFromPoint(x,r.top+r.height/2);
+      return hit===button||button.contains(hit);
+    });
+  })).toBe(true);
+  await secondary.click();
+  await expect(secondary).toHaveAttribute('aria-expanded','true');
+  const choices=page.locator('#pg-page-fab-actions .pg-fab__item');
+  await expect(choices).toHaveCount(5);
+  expect(await choices.evaluateAll(nodes=>nodes.every(node=>{
+    const r=node.getBoundingClientRect();
+    return r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight;
+  }))).toBe(true);
+  await page.keyboard.press('Escape');
+  await expect(secondary).toHaveAttribute('aria-expanded','false');
+});
