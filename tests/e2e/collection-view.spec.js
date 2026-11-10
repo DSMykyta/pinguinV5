@@ -361,6 +361,24 @@ test('the original FAB stays unchanged, with a second instance alongside only on
   const [a,b]=await Promise.all([primary.boundingBox(),secondary.boundingBox()]);
   expect(Math.abs(a.y-b.y)).toBeLessThan(2);
   expect(Math.abs(b.x+b.width+8-a.x)).toBeLessThan(2);
+  // A translated footer FAB must never be clipped by the workspace boundary.
+  // The right edge of its actual hit target remains clickable, not just visible.
+  const edgeHit=await secondary.evaluate(button=>{
+    const r=button.getBoundingClientRect();
+    const hit=document.elementFromPoint(r.right-2,r.top+r.height/2);
+    return button.contains(hit)||hit===button;
+  });
+  expect(edgeHit).toBe(true);
+  // Opening the page-size FAB must keep all shared actions within the viewport.
+  await secondary.click();
+  const pageActions=page.locator('#pg-page-fab-actions .pg-fab__item');
+  await expect(pageActions).toHaveCount(5);
+  const allVisible=await pageActions.evaluateAll(nodes=>nodes.every(node=>{
+    const r=node.getBoundingClientRect();
+    return r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight;
+  }));
+  expect(allVisible).toBe(true);
+  await page.keyboard.press('Escape');
   const ids=await page.locator('.pg-fab__actions').evaluateAll(els=>els.map(el=>el.id));
   expect(new Set(ids).size).toBe(2);
   await primary.click();

@@ -129,6 +129,14 @@
    * global corner FAB and align both vertical centers. */
   translate: 8px -4px;
 }
+/* Below 1080px the desktop 56px right rail is absent. Reserve the global
+   corner FAB's 40px target plus the common 8px inter-button gap instead. */
+@media (max-width: 1080px) {
+  .pg-fab[data-pg-fab-position='footer'] {
+    margin-inline-end: calc(var(--pg-control-size) + 8px);
+    translate: 0 -4px;
+  }
+}
 /* Keep existing positioning available to other consumers. */
 .pg-fab[data-pg-fab-position='adjacent'] {
   right: calc(12px + var(--pg-control-size) + 8px);
