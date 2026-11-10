@@ -53,7 +53,7 @@ export function createCombobox({
   if (required) input.setAttribute('aria-required', 'true');
   const list = document.createElement('ul');
   list.id = uid + '-list';
-  list.className = 'pg-combobox__list pg-scrollbar';
+  list.className = 'pg-combobox__list pg-field__popup pg-scrollbar';
   list.setAttribute('role', 'listbox');
   list.setAttribute('aria-label', label + ': варіанти');
   list.hidden = true;
@@ -76,10 +76,7 @@ export function createCombobox({
   status.setAttribute('role', 'status');
   status.setAttribute('aria-live', 'polite');
   support.append(detail, error, status);
-  const caret = document.createElement('span');
-  caret.className = 'pg-combobox__caret';
-  caret.setAttribute('aria-hidden', 'true');
-  const frame = createFieldFrame({ label, control: input, controlId: uid, trailing: caret });
+  const frame = createFieldFrame({ label, control: input, controlId: uid, trailing: 'caret' });
   frame.field.classList.add('pg-combobox__field');
   frame.label.classList.add('pg-combobox__label');
   frame.setDisabled(disabled);
@@ -118,13 +115,14 @@ export function createCombobox({
   }
   function position() {
     if (!hasPopover || !open) return;
-    positionPopup({ anchor: frame.surface, popup: list, maxHeight: 260 });
+    positionPopup({ anchor: frame.surface, popup: list, maxHeight: 320 });
   }
   function display(openNow) {
     if (destroyed || input.disabled) return;
     if (open === openNow) return;
     open = openNow;
     input.setAttribute('aria-expanded', String(open));
+    frame.setActive(open);
     element.dataset.pgOpen = String(open);
     if (open) {
       list.hidden = false;
@@ -159,7 +157,7 @@ export function createCombobox({
     list.replaceChildren();
     suggestions.forEach((option, index) => {
       const node = document.createElement('li');
-      node.className = 'pg-combobox__option';
+      node.className = 'pg-combobox__option pg-field__option';
       node.id = uid + '-option-' + index;
       node.setAttribute('role', 'option');
       node.setAttribute('aria-selected', 'false');
@@ -171,7 +169,7 @@ export function createCombobox({
     });
     if (!suggestions.length) {
       const empty = document.createElement('li');
-      empty.className = 'pg-combobox__empty';
+      empty.className = 'pg-combobox__empty pg-field__empty';
       empty.setAttribute('role', 'presentation');
       empty.textContent = emptyMessage;
       list.append(empty);
@@ -280,6 +278,11 @@ export function createCombobox({
     if (!element.contains(event.target)) display(false);
   }
   input.addEventListener('focus', () => refresh(input.value), { signal: controller.signal });
+  // A click on the decorative caret hits this same input. After Escape the input
+  // can stay focused, so click must reopen without relying on a second focus event.
+  input.addEventListener('click', () => {
+    if (!open) refresh(input.value);
+  }, { signal: controller.signal });
   input.addEventListener('input', handleInput, { signal: controller.signal });
   input.addEventListener('keydown', handleKeys, { signal: controller.signal });
   input.addEventListener('compositionstart', () => { composing = true; }, { signal: controller.signal });
