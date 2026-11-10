@@ -56,7 +56,7 @@ const approved = await showConfirmDialog({
 // approved === boolean
 \`\`\`
 
-Демонстрація: окремий src/features/tools/dialog-demo.js і dialog-demo.css, кнопки лише в робочій області **вкладки «Текст»**; Toast-демонстрація — у власній вкладці «Таблиці». Обидва варіанти наведені для тесту UI і не є функціональними редакторами. Геометрія Shell незмінна.
+На `/tools` є один виклик інформаційного Dialog у вкладці «Текст». Окремий демонстраційний виклик Confirm вилучено: його поведінка перевіряється реальним локальним видаленням 2+ вибраних записів у «Макетах даних» і «Медіатеці». Toast залишається окремою перевіркою у вкладці «Таблиці». Демо не створюють глобальних кнопок у Shell.
 
 ## Критерії готовності
 
@@ -70,3 +70,10 @@ const approved = await showConfirmDialog({
 ## Editor/Form composition (2026-11-08)
 
 The shared Dialog additionally supports an `editor` size, caller-owned DOM `content`, async `validate` / `onConfirm`, `closeGuard`, an optional destructive left action, and a stationary header/footer around a scrollable body. `src/ui/form-dialog/form-dialog.js` composes these primitives and delegates business validation/persistence to the calling feature. Compact Dialog/Confirm remain unchanged. See [form-dialog.md](form-dialog.md).
+
+## Актуалізація обробки дій (2026-11-10)
+
+- Кнопки Dialog/Confirm/Form Dialog мають стандартні класи `pg-button` із варіантами `primary`, `secondary` або `destructive`. `pg-dialog__button` позначає лише структурну роль; локальних primary/secondary/danger skin немає.
+- Під час асинхронного підтвердження або лівої дії лише натиснута кнопка отримує `setButtonLoading()` із спільного `button.js`; інші дії тимчасово недоступні. Після відмови, помилки чи завершення стан повертається.
+- Зайву кнопку «Відкинути зміни» не створюємо для звичайних Dialog/Confirm. Вона існує тільки за переданого `closeGuard` і показується при відхиленій спробі закриття.
+- `showFormDialog()` повторно використовує `validate/save` і, за потреби, наскрізні `confirmTone/confirmAppearance`. Особливі правила збереження та видалення залишаються власністю feature.

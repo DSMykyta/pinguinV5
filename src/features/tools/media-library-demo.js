@@ -14,7 +14,8 @@
 import { createCollectionView } from '../../ui/collection-view/collection-view.js';
 import { createInput } from '../../ui/input/input.js';
 import { createSelect } from '../../ui/select/select.js';
-import { showDialog, showConfirmDialog } from '../../ui/dialog/dialog.js';
+import { showConfirmDialog } from '../../ui/dialog/dialog.js';
+import { showFormDialog } from '../../ui/form-dialog/form-dialog.js';
 import { createSelectionActions } from '../../ui/selection-actions/selection-actions.js';
 import { DEFAULT_PAGE_SIZES } from '../../ui/pagination/pagination.js';
 
@@ -115,22 +116,21 @@ export function createMediaLibraryDemo() {
   const headerActions=node('div','header-actions');
   const selectedActions=createSelectionActions({
     single:[{value:'duplicate',label:'Дублювати'}],
-    multiple:[{value:'remove',label:'Прибрати'}],
-    onClear:()=>collection.clearSelection(),
+    multiple:[{value:'delete',label:'Видалити',tone:'danger',appearance:'soft'}],
     onAction:action=>{void selectedAction(action).catch(console.error);},
   });
   const rename=async row=>{
     const input=createInput({label:'Назва зображення',value:row.name,required:true});
     try {
-      await showDialog({
-        title:'Редагування зображення',content:input.element,size:'editor',
+      await showFormDialog({
+        title:'Редагування зображення',content:input.element,
         confirmText:'Зберегти',cancelText:'Скасувати',
         validate:()=>{
           const valid=Boolean(input.getValue().trim());
           input.setError(valid?'':'Вкажіть назву');
           return valid;
         },
-        onConfirm:()=>{
+        save:()=>{
           const name=input.getValue().trim();
           records=records.map(item=>item.id===row.id?{...item,name}:item);
           collection.setRows(records);
@@ -170,18 +170,18 @@ export function createMediaLibraryDemo() {
       const row=records.find(record=>record.id===ids[0]);
       if(row)duplicate(row);
       collection.clearSelection();
-    } else if(action==='remove'&&ids.length>1) {
+    } else if(action==='delete'&&ids.length>1) {
       const accepted=await showConfirmDialog({
-        title:'Прибрати зображення?',
-        message:'Зміна стосується лише тестової медіатеки.',
-        confirmText:'Прибрати',cancelText:'Скасувати',destructive:true,
+        title:'Видалити вибрані зображення?',
+        message:'З тестової медіатеки буде видалено '+ids.length+' зображення(ь).',
+        confirmText:'Видалити',cancelText:'Скасувати',destructive:true,
       });
       if(!accepted)return;
       const current=new Set(collection.getSelectedIds());
       records=records.filter(row=>!current.has(row.id));
       collection.setRows(records);
       collection.clearSelection();
-      details.textContent='Прибрано: '+current.size;
+      details.textContent='Видалено локально: '+current.size;
     }
   }
   headerActions.append(collection.headerActions,selectedActions.element);

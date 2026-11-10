@@ -45,40 +45,49 @@ test('Dialog demo belongs to Text tab; native modal darkens and blurs backdrop',
   await expect(text.locator('.pg-tools-dialog-demo')).toHaveAttribute('data-pg-dialog-result', 'confirm');
 });
 
-test('Confirm initially focuses cancel and resolves false on Escape', async ({ page }) => {
-  await page.goto('/tools');
-  await page.getByRole('tab', { name: 'Текст' }).click();
-  const trigger = page.locator('[data-pg-action="dialog-demo-confirm"]');
+async function openBrandDelete(page) {
+  await page.getByRole('tab', { name: 'Макети даних' }).click();
+  const collection = page.locator('#pg-tools-panel-data-views .pg-collection-view');
+  const rows = collection.locator('.pg-collection-view__table tbody tr');
+  await rows.nth(0).locator('.pg-checkbox__row').click();
+  await rows.nth(1).locator('.pg-checkbox__row').click();
+  const trigger = page.locator('[data-pg-selection-action="delete"]');
+  await expect(trigger).toBeVisible();
   await trigger.click();
+  return { collection, trigger };
+}
+
+test('real collection Confirm focuses Cancel, Escape preserves rows, Confirm removes them', async ({ page }) => {
+  await page.goto('/tools');
+  const { collection, trigger } = await openBrandDelete(page);
   const dialog = page.getByRole('dialog');
   await expect(dialog).toBeVisible();
   await expect(dialog.locator('[data-pg-action="dialog-cancel"]')).toBeFocused();
+  await expect(dialog.locator('[data-pg-action="dialog-confirm"]')).toHaveClass(/pg-button--destructive/);
   await page.keyboard.press('Escape');
   await expect(dialog).toHaveCount(0);
-  await expect(page.locator('.pg-tools-dialog-demo')).toHaveAttribute('data-pg-confirm-result', 'false');
+  await expect(collection).toHaveAttribute('data-pg-selected-count', '2');
   await expect(trigger).toBeFocused();
 
   await trigger.click();
   await dialog.locator('[data-pg-action="dialog-confirm"]').click();
   await expect(dialog).toHaveCount(0);
-  await expect(page.locator('.pg-tools-dialog-demo')).toHaveAttribute('data-pg-confirm-result', 'true');
+  await expect(collection).toHaveAttribute('data-pg-selected-count', '0');
+  await expect(page.locator('.pg-shell__footer .pg-pagination__status')).toHaveText('Показано 25 з 30');
 });
 
-test('native modal blocks focus outside and supports explicit cancellation', async ({ page }) => {
+test('native Confirm traps focus and explicit Cancel keeps records intact', async ({ page }) => {
   await page.goto('/tools');
-  await page.getByRole('tab', { name: 'Текст' }).click();
-  await page.locator('[data-pg-action="dialog-demo-confirm"]').click();
+  const { collection } = await openBrandDelete(page);
   const dialog = page.getByRole('dialog');
   await expect(dialog).toBeVisible();
-
   await page.keyboard.press('Tab');
-  const inside = await page.evaluate(() =>
-    document.querySelector('.pg-dialog').contains(document.activeElement));
-  expect(inside).toBe(true);
-
+  expect(await page.evaluate(() =>
+    document.querySelector('.pg-dialog').contains(document.activeElement))).toBe(true);
   await dialog.locator('[data-pg-action="dialog-cancel"]').click();
   await expect(dialog).toHaveCount(0);
-  await expect(page.locator('.pg-tools-dialog-demo')).toHaveAttribute('data-pg-confirm-result', 'false');
+  await expect(collection).toHaveAttribute('data-pg-selected-count', '2');
+  await expect(page.locator('.pg-shell__footer .pg-pagination__status')).toHaveText('Показано 25 з 32');
 });
 
 test('mobile and dark theme preserve native dialog geometry', async ({ page }) => {

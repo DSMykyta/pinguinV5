@@ -401,3 +401,29 @@ test('temporary loading and error retain current collection page without stale t
   expect(result.error).toMatchObject({page:3,total:31,count:0,tilesHidden:true,status:'Помилка завантаження',busy:'false',pagerInert:true});
   expect(result.recovered).toMatchObject({page:3,total:31,count:10,tilesHidden:false,busy:'false',pagerInert:false});
 });
+
+test('media bulk deletion reuses shared danger action and Confirm without demo-only controls', async ({ page }) => {
+  await page.goto('/tools');
+  await tab(page,'Медіатека').click();
+  const view=media(page);
+  const tiles=view.locator('.pg-collection-view__tile');
+  await tiles.nth(0).locator('.pg-checkbox__row').click();
+  await tiles.nth(1).locator('.pg-checkbox__row').click();
+  const remove=page.locator('[data-pg-selection-action="delete"]');
+  await expect(remove).toHaveAttribute('data-pg-tone','danger');
+  await expect(remove).toHaveAttribute('data-pg-appearance','soft');
+
+  await remove.click();
+  const dialog=page.getByRole('dialog');
+  await expect(dialog.locator('[data-pg-action="dialog-confirm"]')).toHaveAttribute('data-pg-tone','danger');
+  await expect(dialog.locator('[data-pg-action="dialog-confirm"]')).toHaveAttribute('data-pg-appearance','solid');
+  await dialog.locator('[data-pg-action="dialog-cancel"]').click();
+  await expect(status(page)).toHaveText('Показано 10 з 19');
+  await expect(view).toHaveAttribute('data-pg-selected-count','2');
+
+  await remove.click();
+  await dialog.locator('[data-pg-action="dialog-confirm"]').click();
+  await expect(dialog).toHaveCount(0);
+  await expect(status(page)).toHaveText('Показано 10 з 17');
+  await expect(view).toHaveAttribute('data-pg-selected-count','0');
+});

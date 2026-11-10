@@ -14,6 +14,7 @@ import { showDialog } from '../dialog/dialog.js';
 export function showFormDialog({
   title, content, validate, save, isDirty = () => false, closeGuard,
   leftAction, confirmText = 'Зберегти', cancelText = 'Скасувати',
+  confirmTone, confirmAppearance,
 } = {}) {
   if (!(content instanceof HTMLElement)) throw new TypeError('Form dialog needs DOM content');
   for (const [name, callback] of Object.entries({ validate, save, isDirty })) {
@@ -24,6 +25,7 @@ export function showFormDialog({
   }
   return showDialog({
     title, content, size: 'editor', confirmText, cancelText, leftAction,
+    confirmTone, confirmAppearance,
     validate, onConfirm: save,
     closeGuard: async context => {
       if (isDirty()) return false;

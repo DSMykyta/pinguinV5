@@ -1,6 +1,6 @@
 # Form Dialog / Editor — design contract (2026-11-08)
 
-Status: specification before implementation. Composes existing native `dialog` manager; never introduces a parallel focus trap.
+Status: implemented shared composition; reuses native `dialog` manager and never introduces a parallel focus trap.
 
 ## Sources
 
@@ -19,9 +19,9 @@ Status: specification before implementation. Composes existing native `dialog` m
 - `editor` size: at most 90vw × 90dvh, min mobile margins; header/footer fixed, only body scrolls. `standard` dialog preserves its compact baseline.
 - Actions are real buttons with safe text; no injected HTML strings. Existing showDialog/Confirm behavior is backward compatible.
 
-## Proposed API
+## Current API
 
-`showFormDialog({title,content,validate,save,isDirty,closeGuard?,leftAction?,confirmText?,cancelText?}) -> Promise<'confirm'|'cancel'>`.
+`showFormDialog({title,content,validate,save,isDirty?,closeGuard?,leftAction?,confirmText?,cancelText?,confirmTone?,confirmAppearance?}) -> Promise<'confirm'|'cancel'>`.
 
 `validate` and `save` are independent async hooks. A feature can also provide `closeGuard` for extra checks; `isDirty` protects accidental Escape/backdrop/cancel.
 The optional left action receives an explicit callback. It is never inferred from form DOM.

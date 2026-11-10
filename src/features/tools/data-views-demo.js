@@ -14,7 +14,8 @@ import { createCollectionView } from '../../ui/collection-view/collection-view.j
 import { createStoredChoice } from '../../core/preferences.js';
 import { createSelect } from '../../ui/select/select.js';
 import { createInput } from '../../ui/input/input.js';
-import { showDialog, showConfirmDialog } from '../../ui/dialog/dialog.js';
+import { showConfirmDialog } from '../../ui/dialog/dialog.js';
+import { showFormDialog } from '../../ui/form-dialog/form-dialog.js';
 import { createSelectionActions } from '../../ui/selection-actions/selection-actions.js';
 import { createSegmentSwitch } from '../../ui/segment-switch/segment-switch.js';
 import { DEFAULT_PAGE_SIZES } from '../../ui/pagination/pagination.js';
@@ -150,10 +151,9 @@ export function createDataViewsDemo() {
     });
     nameField.input.setAttribute('autofocus','');
     try {
-      await showDialog({
+      await showFormDialog({
         title:'Редагування бренду',
         content:nameField.element,
-        size:'editor',
         confirmText:'Зберегти',
         confirmTone:'secondary',
         cancelText:'Скасувати',
@@ -166,7 +166,7 @@ export function createDataViewsDemo() {
             duplicate?'Бренд із такою назвою вже існує':'');
           return Boolean(name&&!duplicate);
         },
-        onConfirm:()=>{
+        save:()=>{
           const name=nameField.getValue().trim();
           records=records.map(item=>item.id===row.id?{...item,name}:item);
           collection.setRows(records);
@@ -177,6 +177,11 @@ export function createDataViewsDemo() {
     } finally {
       nameField.destroy();
     }
+  }
+  function duplicateRecord(row) {
+    const copy={...row,id:'preview-copy-'+(++nextCopy),name:row.name+' (копія)'};
+    records=[...records,copy];
+    details.textContent='Дубльовано локально: '+row.name;
   }
   const collection=createCollectionView({
     label:'Приклад списку брендів',rows:records,columns:COLUMNS,
@@ -199,9 +204,8 @@ export function createDataViewsDemo() {
       if(action==='details') {
         details.textContent=row.name+' · '+row.category+' · '+row.products+' товарів · '+row.status;
       } else if(action==='duplicate') {
-        const copy={...row,id:'preview-copy-'+(++nextCopy),name:row.name+' (копія)'};
-        records=[...records,copy];collection.setRows(records);
-        details.textContent='Створено локальну копію: '+copy.name;
+        duplicateRecord(row);
+        collection.setRows(records);
       } else if(action==='archive') {
         records=records.map(item=>item.id===row.id?{...item,
           status:item.status==='Архівний'?'Активний':'Архівний'}:item);
@@ -220,10 +224,7 @@ export function createDataViewsDemo() {
       if(ids.length!==1)return;
       const original=records.find(row=>selected.has(row.id));
       if(!original)return;
-      const name=original.name+' (копія)';
-      const copy={...original,id:'preview-copy-'+(++nextCopy),name};
-      records=[...records,copy];
-      details.textContent='Дубльовано локально: '+original.name;
+      duplicateRecord(original);
     } else if(action==='archive'||action==='restore') {
       const status=action==='archive'?'Архівний':'Активний';
       records=records.map(row=>selected.has(row.id)?{...row,status}:row);

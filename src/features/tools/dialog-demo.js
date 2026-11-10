@@ -10,7 +10,7 @@
  */
 
 import { createIconButton } from '../../ui/button/button.js';
-import { showDialog, showConfirmDialog } from '../../ui/dialog/dialog.js';
+import { showDialog } from '../../ui/dialog/dialog.js';
 
 export function createDialogDemo() {
   const section = document.createElement('section');
@@ -32,19 +32,7 @@ export function createDialogDemo() {
     }).then(result => { section.dataset.pgDialogResult = result; }),
   });
 
-  const confirm = createIconButton({
-    label: 'Показати підтвердження',
-    icon: 'circle-alert',
-    action: 'dialog-demo-confirm',
-    onClick: () => showConfirmDialog({
-      title: 'Видалити запис?',
-      message: 'Цю дію не можна скасувати.',
-      confirmText: 'Видалити',
-      cancelText: 'Скасувати',
-      destructive: true,
-    }).then(result => { section.dataset.pgConfirmResult = String(result); }),
-  });
-
-  section.append(label, info, confirm);
+  // Confirm is exercised by real collection deletion, not a duplicate fixture.
+  section.append(label, info);
   return section;
 }

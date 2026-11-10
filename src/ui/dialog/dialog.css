@@ -63,9 +63,7 @@
 .pg-dialog__status[role='alert'] { color: var(--pg-color-input-error); }
 .pg-dialog__actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .pg-dialog__actions--right { margin-inline-start: auto; }
-.pg-dialog__button[hidden] { display: none; }
 .pg-dialog[aria-busy='true'] { cursor: progress; }
-.pg-dialog__button:disabled { opacity: .65; cursor: progress; }
 
 
 .pg-dialog__header {

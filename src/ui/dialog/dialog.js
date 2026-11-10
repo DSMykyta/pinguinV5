@@ -9,7 +9,7 @@
  * ╚════════════════════════════════════════════════════════════════════════════════════╝
  */
 
-import { createIconButton, setButtonColor } from '../button/button.js';
+import { createIconButton, setButtonColor, setButtonLoading } from '../button/button.js';
 
 const EXIT_DURATION = 190;
 let manager = null;
@@ -96,10 +96,17 @@ export function mountDialogs() {
     item.timerId = view.setTimeout(() => finish(item), reduced ? 0 : EXIT_DURATION);
   }
 
-  function setBusy(item, busy) {
+  function setBusy(item, busy, source = item.busySource) {
+    // The dialog owns orchestration, while the shared Button owns the visual
+    // loading state. Keep the initiating action focused and block repeats.
+    if (busy) item.busySource = source ?? null;
     item.busy = busy;
     item.element?.setAttribute('aria-busy', String(busy));
-    for (const button of item.actionButtons ?? []) button.disabled = busy;
+    for (const button of item.actionButtons ?? []) {
+      if (button === item.busySource) setButtonLoading(button, busy);
+      else button.disabled = busy;
+    }
+    if (!busy) item.busySource = null;
   }
 
   function report(item, message, role = 'status') {
@@ -136,7 +143,7 @@ export function mountDialogs() {
 
   async function handleConfirm(item) {
     if (destroyed || active !== item || item.closing || item.busy) return;
-    setBusy(item, true);
+    setBusy(item, true, item.confirmButton);
     report(item, '');
     try {
       if (item.options.validate && await item.options.validate() !== true) {
@@ -219,12 +226,12 @@ export function mountDialogs() {
       if (item.options.leftAction) {
         const destructiveButton = doc.createElement('button');
         destructiveButton.type = 'button';
-        destructiveButton.className = 'pg-dialog__button pg-dialog__button--destructive pg-button pg-button--destructive';
+        destructiveButton.className = 'pg-dialog__button pg-button pg-button--destructive';
         destructiveButton.textContent = item.options.leftAction.label;
         setButtonColor(destructiveButton, { tone: 'danger', appearance: 'solid' });
         destructiveButton.addEventListener('click', async () => {
           if (item.busy || item.closing) return;
-          setBusy(item, true);
+          setBusy(item, true, destructiveButton);
           try {
             const done = await item.options.leftAction.onClick();
             if (!destroyed && active === item && done === true) {
@@ -242,22 +249,26 @@ export function mountDialogs() {
         left.append(destructiveButton);
       }
 
-      const discardButton = doc.createElement('button');
-      discardButton.type = 'button';
-      discardButton.className = 'pg-dialog__button pg-dialog__button--destructive pg-button pg-button--destructive';
-      discardButton.textContent = 'Відкинути зміни';
-      setButtonColor(discardButton, { tone: 'danger', appearance: 'solid' });
-      discardButton.hidden = true;
-      discardButton.addEventListener('click', () => closeNow(item, 'cancel'));
-      item.discardButton = discardButton;
-      actionButtons.push(discardButton);
-      left.append(discardButton);
+      // A plain Dialog/Confirm must not carry an unused discard action.
+      // The shared dirty-form guard opts into it only when applicable.
+      if (item.options.closeGuard) {
+        const discardButton = doc.createElement('button');
+        discardButton.type = 'button';
+        discardButton.className = 'pg-dialog__button pg-button pg-button--destructive';
+        discardButton.textContent = 'Відкинути зміни';
+        setButtonColor(discardButton, { tone: 'danger', appearance: 'solid' });
+        discardButton.hidden = true;
+        discardButton.addEventListener('click', () => closeNow(item, 'cancel'));
+        item.discardButton = discardButton;
+        actionButtons.push(discardButton);
+        left.append(discardButton);
+      }
 
       let cancelButton = null;
       if (item.options.cancelText !== null) {
         cancelButton = doc.createElement('button');
         cancelButton.type = 'button';
-        cancelButton.className = 'pg-dialog__button pg-dialog__button--secondary pg-button pg-button--secondary';
+        cancelButton.className = 'pg-dialog__button pg-button pg-button--secondary';
         cancelButton.dataset.pgAction = 'dialog-cancel';
         cancelButton.textContent = item.options.cancelText;
         cancelButton.addEventListener('click', () => { void requestDismiss(item, 'cancel-button'); });
@@ -267,8 +278,8 @@ export function mountDialogs() {
       const confirmButton = doc.createElement('button');
       confirmButton.type = 'button';
       confirmButton.className = item.options.destructive
-        ? 'pg-dialog__button pg-dialog__button--destructive pg-button pg-button--destructive'
-        : 'pg-dialog__button pg-dialog__button--primary pg-button pg-button--primary';
+        ? 'pg-dialog__button pg-button pg-button--destructive'
+        : 'pg-dialog__button pg-button pg-button--primary';
       confirmButton.dataset.pgAction = 'dialog-confirm';
       confirmButton.textContent = item.options.confirmText;
       if (item.options.confirmTone != null) {
@@ -277,6 +288,7 @@ export function mountDialogs() {
         });
       }
       confirmButton.addEventListener('click', () => { void handleConfirm(item); });
+      item.confirmButton = confirmButton;
       actionButtons.push(confirmButton);
       right.append(confirmButton);
       item.actionButtons = actionButtons;
@@ -317,7 +329,7 @@ export function mountDialogs() {
       queue.push({
         options: clean, focusOrigin: doc.activeElement,
         resolve, reject, closing: false, busy: false, result: 'cancel',
-        timerId: null, element: null,
+        timerId: null, element: null, busySource: null,
       });
       showNext();
     });

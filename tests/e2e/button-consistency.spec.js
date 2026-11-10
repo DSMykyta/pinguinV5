@@ -55,12 +55,16 @@ test('outlined Menu trigger and compact table Menu share button skins', async ({
 
 test('Dialog buttons take primary and secondary style from the same button module', async ({page}) => {
   await page.getByRole('tab',{name:'Текст'}).click();
-  await page.locator('[data-pg-action="dialog-demo-confirm"]').click();
+  await page.getByRole('tab',{name:'Макети даних'}).click();
+  const rows=page.locator('.pg-collection-view__table tbody tr');
+  await rows.nth(0).locator('.pg-checkbox__row').click();
+  await rows.nth(1).locator('.pg-checkbox__row').click();
+  await page.locator('[data-pg-selection-action="delete"]').click();
   const dialog = page.getByRole('dialog');
   const cancel = dialog.locator('[data-pg-action="dialog-cancel"]');
   const confirm = dialog.locator('[data-pg-action="dialog-confirm"]');
   await expect(cancel).toHaveClass(/pg-button--secondary/);
-  // The demo intentionally opens a destructive confirmation, not a primary action.
+  // This is the collection's real destructive confirmation, not a demo-only action.
   await expect(confirm).toHaveClass(/pg-button--destructive/);
   await expect(cancel).toHaveCSS('min-height','40px');
   await expect(confirm).toHaveCSS('min-height','40px');
@@ -70,13 +74,8 @@ test('Dialog buttons take primary and secondary style from the same button modul
 
 test('icon button variants preserve native disabled, hidden, keyboard focus and reduced motion', async ({page}) => {
   await page.emulateMedia({reducedMotion:'reduce'});
-  await page.evaluate(async()=>{
-    const {createIconButton}=await import('/src/ui/button/button.js');
-    const button=createIconButton({label:'Окремий тестовий pin',icon:'pin',variant:'mini'});
-    button.id='pg-button-test';
-    document.body.append(button);
-  });
-  const btn=page.locator('#pg-button-test');
+  await page.locator('[data-pg-action="aside-toggle"]').click();
+  const btn=page.locator('[data-pg-action="aside-pin"]');
   await expect(btn).toHaveCSS('transition-duration','0s');
   await btn.focus();
   await expect(btn).toBeFocused();
