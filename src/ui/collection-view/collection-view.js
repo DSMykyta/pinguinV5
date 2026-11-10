@@ -437,6 +437,8 @@ export function createCollectionView({
     sortedCache=null;
     dataState='ready';dataMessage='';
     element.dataset.pgDataState=dataState;
+    element.setAttribute('aria-busy','false');
+    pageControl.element.inert=false;
     const available=new Set(ids);
     const previousSelectionSize=selected.size;
     for(const id of selected)if(!available.has(id))selected.delete(id);
@@ -477,6 +479,8 @@ export function createCollectionView({
     dataState=next;
     dataMessage=String(message??'');
     element.dataset.pgDataState=next;
+    element.setAttribute('aria-busy',String(next==='loading'));
+    pageControl.element.inert=next!=='ready';
     renderData();
   }
   setRows(rows);

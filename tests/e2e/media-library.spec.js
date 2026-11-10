@@ -382,6 +382,8 @@ test('temporary loading and error retain current collection page without stale t
       count:view.element.querySelectorAll('.pg-collection-view__tile').length,
       tilesHidden:view.element.querySelector('.pg-collection-view__tiles').hidden,
       status:view.element.querySelector('.pg-collection-view__empty').textContent,
+      busy:view.element.getAttribute('aria-busy'),
+      pagerInert:view.footerContent.inert,
     });
     view.setPage(3);
     const before=state();
@@ -394,8 +396,8 @@ test('temporary loading and error retain current collection page without stale t
     view.destroy();
     return {before,loading,error,recovered};
   });
-  expect(result.before).toMatchObject({page:3,total:31,count:10,tilesHidden:false});
-  expect(result.loading).toMatchObject({page:3,total:31,count:0,tilesHidden:true,status:'Завантаження записів…'});
-  expect(result.error).toMatchObject({page:3,total:31,count:0,tilesHidden:true,status:'Помилка завантаження'});
-  expect(result.recovered).toMatchObject({page:3,total:31,count:10,tilesHidden:false});
+  expect(result.before).toMatchObject({page:3,total:31,count:10,tilesHidden:false,busy:'false',pagerInert:false});
+  expect(result.loading).toMatchObject({page:3,total:31,count:0,tilesHidden:true,status:'Завантаження записів…',busy:'true',pagerInert:true});
+  expect(result.error).toMatchObject({page:3,total:31,count:0,tilesHidden:true,status:'Помилка завантаження',busy:'false',pagerInert:true});
+  expect(result.recovered).toMatchObject({page:3,total:31,count:10,tilesHidden:false,busy:'false',pagerInert:false});
 });
