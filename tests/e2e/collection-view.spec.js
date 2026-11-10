@@ -163,6 +163,85 @@ test('scrolling a narrow table in both directions leaves no scrollbar button chr
   }
 });
 
+test('checkboxes and actions reveal on hover or keyboard focus while selection persists',async({page})=>{
+  const view=root(page);
+  const header=table(page).locator('thead .pg-collection-view__selection-cell .pg-checkbox');
+  const first=table(page).locator('tbody tr').first();
+  const second=table(page).locator('tbody tr').nth(1);
+  const selection=first.locator('.pg-collection-view__selection-cell .pg-checkbox');
+  const menu=first.locator('.pg-collection-view__row-menu');
+  const edit=first.locator('[data-pg-action="row-edit"]');
+  const th=table(page).locator('thead .pg-collection-view__actions-cell');
+
+  await expect(th).toHaveText('');
+  await expect(th).toHaveAttribute('aria-label','Дії');
+  await expect(view).toHaveAttribute('data-pg-selected-count','0');
+  await page.mouse.move(1,1);
+  await expect(header).toHaveCSS('opacity','0');
+  await expect(selection).toHaveCSS('opacity','0');
+  await expect(menu).toHaveCSS('opacity','0');
+  await expect(edit).toHaveCSS('opacity','0');
+  const before=await first.boundingBox();
+
+  await first.hover();
+  await expect(selection).toHaveCSS('opacity','1');
+  await expect(menu).toHaveCSS('opacity','1');
+  await expect(edit).toHaveCSS('opacity','1');
+  const after=await first.boundingBox();
+  expect(after.width).toBeCloseTo(before.width,1);
+  expect(after.height).toBeCloseTo(before.height,1);
+
+  await table(page).locator('thead .pg-collection-view__selection-cell').hover();
+  await expect(header).toHaveCSS('opacity','1');
+  await first.locator('.pg-checkbox__row').click();
+  await expect(view).toHaveAttribute('data-pg-selected-count','1');
+  await page.mouse.move(1,1);
+  await expect(header).toHaveCSS('opacity','1');
+  await expect(second.locator('.pg-checkbox')).toHaveCSS('opacity','1');
+
+  await first.locator('.pg-checkbox__row').click();
+  await expect(view).toHaveAttribute('data-pg-selected-count','0');
+  await page.mouse.move(1,1);
+  await expect(second.locator('.pg-checkbox')).toHaveCSS('opacity','0');
+  await second.getByRole('checkbox').focus();
+  await expect(second.locator('.pg-checkbox')).toHaveCSS('opacity','1');
+});
+
+test('pencil lives beside the brand and selecting its text never opens the editor',async({page})=>{
+  const row=table(page).locator('tbody tr').first();
+  const checkboxCell=row.locator('td.pg-collection-view__selection-cell');
+  const brandCell=row.locator('td[data-pg-column="name"]');
+  const name=brandCell.locator('.pg-collection-view__cell-content');
+  const pencil=brandCell.getByRole('button',{name:/Редагувати:/});
+
+  await expect(checkboxCell.locator('[data-pg-action="row-edit"]')).toHaveCount(0);
+  await expect(brandCell.locator('.pg-collection-view__primary-line')).toHaveCount(1);
+  await expect(pencil).toHaveCount(1);
+  await expect(name).toHaveCSS('user-select','text');
+  await name.click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+
+  const rect=await name.boundingBox();
+  await page.mouse.move(rect.x+2,rect.y+rect.height/2);
+  await page.mouse.down();
+  await page.mouse.move(rect.x+Math.min(rect.width-2,80),rect.y+rect.height/2,{steps:8});
+  await page.mouse.up();
+  expect((await page.evaluate(()=>window.getSelection()?.toString()??'')).length).toBeGreaterThan(0);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+
+  await pencil.click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+});
+
+test('coarse pointer keeps row checkboxes and actions visible without hover',async({page})=>{
+  await page.emulateMedia({hasTouch:true});
+  const row=table(page).locator('tbody tr').first();
+  await page.mouse.move(1,1);
+  await expect(row.locator('.pg-checkbox')).toHaveCSS('opacity','1');
+  await expect(row.locator('.pg-collection-view__row-menu')).toHaveCSS('opacity','1');
+  await expect(row.locator('.pg-collection-view__edit')).toHaveCSS('opacity','1');
+});
+
 test('native header checkbox uses checked, mixed and empty states across visible page',async({page})=>{
   const all=table(page).getByRole('checkbox',{name:'Вибрати всі на поточній сторінці'});
   const first=table(page).locator('tbody tr').first().getByRole('checkbox');
