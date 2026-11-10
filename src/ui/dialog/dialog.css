@@ -151,6 +151,15 @@
   flex: 1 1 auto;
   font-size: 12px;
 }
+.pg-dialog--workspace .pg-dialog__body {
+  box-sizing: border-box;
+  display: block;
+  min-height: 100%;
+  max-height: none;
+  padding: 28px clamp(20px, 4vw, 48px) 36px;
+  overflow: visible;
+}
+.pg-dialog--workspace .pg-dialog__body > [hidden] { display: none; }
 .pg-dialog__decision {
   position: absolute;
   z-index: 6;
@@ -184,9 +193,6 @@
   gap: 8px;
   width: min(420px, 100%);
 }
-.pg-dialog__decision-actions .pg-button {
-  box-shadow: 0 4px 14px var(--pg-color-shadow);
-}
 @media (max-width: 700px) {
   .pg-dialog--workspace {
     width: 100dvw;
@@ -196,4 +202,5 @@
     border: 0;
     border-radius: 0;
   }
+  .pg-dialog--workspace .pg-dialog__body { padding: 20px 16px 28px; }
 }
