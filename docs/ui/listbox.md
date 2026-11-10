@@ -28,3 +28,13 @@ References: [MUI Autocomplete limitTags](https://mui.com/material-ui/api/autocom
 - The main Listbox open state is independent of the selected-values tray. Do not mix the two `aria-expanded` values.
 
 Native `disabled` inputs are not focusable and never receive user input (per [MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/disabled)). Disabled styling also prevents the mouse from presenting a text-insertion cursor.
+
+
+## Валідація та колір помилки (2026-11-10)
+
+- Помилковий Listbox використовує один стан `frame.setError(true)` і єдиний спільний Field для червоного підпису, рамки, caret і **тексту всередині, включно з placeholder**. Не додавати окремий колірний skin в `listbox.css` або у демонстрації. Важливий контраст із поверхнею має зберігатися для світлої/темної теми.
+- Вибір першого доступного значення (клік або клавіатура) скидає видиму помилку; `aria-invalid` та помилковий `aria-describedby` забираються синхронно до `onChange`. Те саме при `setValue` на коректне значення.
+- Для `required: true` після взаємодії, коли користувач зніме останнє обране значення через chip, toggle або «Зняти всі», стан помилки має відновитися. До першої взаємодії помилка показується лише якщо явно передана опція `error`. Текст для повторної помилки — початковий `error` або стандартне повідомлення.
+- `setError(message)` залишається доступним для зовнішньої валідації; фокусування, фільтрація, hover або відкриття popup **самі по собі** не повинні очищувати повідомлення.
+- Програмна зміна порожнього значення без взаємодії не створює помилки; вибір валідного значення відновлює нейтральний колір тексту/рамки. Припустимий placeholder має початковий нейтральний вигляд тільки в стані без помилки.
+- Перевірки: single/multiple, click/Enter, select all, removal, programmatic setValue, error/ready ARIA, світла/темна тема й відсутність змін геометрії.
