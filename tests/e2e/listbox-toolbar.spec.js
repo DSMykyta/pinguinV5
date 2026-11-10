@@ -71,6 +71,13 @@ test('select-all checkbox clears a mixed selection; filtered actions only affect
   await expect(selected).toHaveCount(5);
   await search.fill('');
   await expect(checkbox).toHaveAccessibleName('Зняти всі');
+  await search.fill('Немає такого маркетплейсу');
+  await expect(checkbox).toBeDisabled();
+  await expect(checkbox).not.toBeChecked();
+  await expect(checkbox).toHaveAccessibleName('Вибрати знайдені');
+  await search.fill('');
+  await expect(checkbox).toBeEnabled();
+  await expect(checkbox).toBeChecked();
 });
 
 test('toolbar stays in one horizontal row on narrow viewport, no new geometry mode', async ({page}) => {
