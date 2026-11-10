@@ -355,8 +355,9 @@ export function mountRotatingPlaceholders(root = document) {
         affected.add(record.target);
         changed.add(record.target);
       } else if (record.type === 'attributes' && record.attributeName === 'data-pg-module') {
-        addInputs(record.target, affected);
-        for (const input of affected) changed.add(input);
+        const nested = new Set();
+        addInputs(record.target, nested);
+        for (const input of nested) { affected.add(input); changed.add(input); }
       } else if (record.type === 'childList') {
         record.addedNodes.forEach(node => addInputs(node, affected));
         record.removedNodes.forEach(node => addInputs(node, affected));
