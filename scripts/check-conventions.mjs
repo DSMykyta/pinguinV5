@@ -103,6 +103,38 @@ async function checkCss(path, label) {
     errors.push(label + ': deprecated aside pin skin is forbidden; use shared .pg-mini-button');
   }
 
+  // Role selectors describe placement and state semantics, not new button skins.
+  // Every ordinary button appearance belongs to src/ui/button/button.css.
+  if (label !== 'src/ui/button/button.css') {
+    const buttonRoles = [
+      'pg-menu__trigger', 'pg-menu__item', 'pg-dialog__button',
+      'pg-selection-actions__action', 'pg-pagination__button',
+      'pg-number-field__step', 'pg-image-field__choose',
+      'pg-image-field__replace', 'pg-image-field__remove',
+      'pg-rich-text-editor__action', 'pg-toast__action', 'pg-toast__close',
+      'pg-listbox__select-all', 'pg-listbox__chip-remove',
+      'pg-listbox__more', 'pg-collection-view__sort',
+    ];
+    const skinProperties = new Set([
+      'background', 'background-color', 'border', 'border-color', 'border-radius',
+      'color', 'box-shadow', 'font-size', 'font-weight', 'transition', 'filter',
+    ]);
+    for (const [, selector, declarations] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+      // A menu checkmark is semantic decoration; a rich-text mark is typography.
+      if (selector.includes('::after')) continue;
+      const role = buttonRoles.find(name =>
+        new RegExp('\\.' + name + '(?![\\w-])').test(selector));
+      if (!role) continue;
+      const props = [...declarations.matchAll(/(?:^|;)\s*([a-z-]+)\s*:/g)]
+        .map(match => match[1])
+        .filter(property => skinProperties.has(property));
+      if (props.length) {
+        errors.push(label + ': .' + role + ' styles ' + props.join(', ') +
+          ' locally; use shared src/ui/button/button.css variant');
+      }
+    }
+  }
+
   for (const [prefix, owner] of cssOwnerByPrefix) {
     if (label !== owner && new RegExp('\\.' + prefix + '(?:__|--|\\b)').test(css)) {
       errors.push(label + ': component .' + prefix + ' must be styled only in ' + owner);
