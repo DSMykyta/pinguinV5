@@ -23,6 +23,7 @@ import './ui/tooltip/tooltip.css';
 import './ui/toast/toast.css';
 import './ui/reveal-panel/reveal-panel.css';
 import './ui/dialog/dialog.css';
+import './ui/workspace-layout/workspace-layout.css';
 import './ui/field/field.css';
 import './ui/scrollbar/scrollbar.css';
 import './ui/input/input.css';
