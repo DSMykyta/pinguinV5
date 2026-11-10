@@ -18,6 +18,7 @@ import {
 const SELECTOR = 'input[data-pg-rotating-placeholder]';
 const DEFAULT_INTERVAL = 5200;
 const entries = new Map();
+const byKey = new Map();
 const historyCache = new Map();
 let observer = null;
 let listeners = null;
@@ -175,9 +176,16 @@ function updateHistory(state, words = loadHistory(state.key)) {
 
 function refreshKey(key) {
   historyCache.delete(key);
+  const related = byKey.get(key);
+  if (!related?.size) return;
   const words = loadHistory(key);
-  for (const state of entries.values()) if (state.key === key) updateHistory(state, words);
-  schedule();
+  let changedClock = false;
+  for (const state of related) {
+    changedClock ||= Boolean(state.nextAt);
+    updateHistory(state, words);
+    changedClock ||= Boolean(state.nextAt);
+  }
+  if (changedClock) schedule();
 }
 
 function refreshAll() {
@@ -250,12 +258,12 @@ function start() {
     if (event.key === null) {
       historyCache.clear();
       for (const state of entries.values()) updateHistory(state);
+      schedule();
     } else if (event.key.startsWith(INPUT_PLACEHOLDER_HISTORY_PREFIX)) {
       try {
         refreshKey(decodeURIComponent(event.key.slice(INPUT_PLACEHOLDER_HISTORY_PREFIX.length)));
       } catch { /* Invalid external storage key. */ }
     }
-    schedule();
   }, { signal });
   unsubscribe = subscribeInputPlaceholderHistory(refreshKey);
 }
@@ -292,6 +300,9 @@ export function mountRotatingPlaceholder(input, options = {}) {
     if (!entries.has(input)) return;
     if (state.observed) observer?.unobserve(input);
     entries.delete(input);
+    const group = byKey.get(state.key);
+    group?.delete(state);
+    if (!group?.size) { byKey.delete(state.key); historyCache.delete(state.key); }
     if (state.overlay) {
       state.overlay.remove();
       if (state.shared) state.host.classList.remove('pg-input__rotating-host');
@@ -307,6 +318,8 @@ export function mountRotatingPlaceholder(input, options = {}) {
     else schedule();
   };
   entries.set(input, state);
+  if (!byKey.has(key)) byKey.set(key, new Set());
+  byKey.get(key).add(state);
   updateHistory(state);
   if (state.nextAt) schedule();
   return state.destroy;
