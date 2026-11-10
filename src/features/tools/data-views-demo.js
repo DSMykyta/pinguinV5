@@ -176,6 +176,7 @@ export function createDataViewsDemo() {
       {id:'channels',label:'Канали продажу',icon:'layers',element:channels},
       {id:'settings',label:'Налаштування',icon:'sliders',element:settings},
     ];
+    let baseline={...row};
     const getDraft=()=>({
       name:nameField.getValue().trim(),
       category:categoryField.getValue(),
@@ -185,7 +186,7 @@ export function createDataViewsDemo() {
     });
     const isDirty=()=>{
       const draft=getDraft();
-      return Object.entries(draft).some(([key,value])=>value!==row[key]);
+      return Object.entries(draft).some(([key,value])=>value!==baseline[key]);
     };
     try {
       await showFormDialog({
@@ -220,6 +221,7 @@ export function createDataViewsDemo() {
           marketField.setValue(latest.marketplace);
           countryField.setValue(latest.country);
           statusField.setValue(latest.status);
+          baseline={...latest};
           nameField.setError('');
           return true;
         },
