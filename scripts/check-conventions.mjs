@@ -99,6 +99,61 @@ async function checkCss(path, label) {
   stylesChecked += 1;
   const raw = await readFile(path, 'utf8');
   const css = raw.replace(/\/\*[\s\S]*?\*\//g, '');
+
+  // Button registry is deliberately finite: new CSS variants require a design
+  // review, an approved entry here, and a per-variant header in button.css.
+  if (label === 'src/ui/button/button.css') {
+    const approved = new Set([
+      'pg-icon-button', 'pg-icon-button--corner', 'pg-mini-button',
+      'pg-button', 'pg-button--primary', 'pg-button--secondary',
+      'pg-button--outline', 'pg-button--destructive', 'pg-button--compact',
+      'pg-button--pill', 'pg-button--page', 'pg-button--step',
+      'pg-button--tool', 'pg-button--list-item', 'pg-button--chip-remove',
+      'pg-button--chip-more', 'pg-button--plain', 'pg-button--quiet',
+      'pg-button--square',
+    ]);
+    const inSelectors = new Set(
+      [...css.matchAll(/\.((?:pg-button|pg-icon-button)(?:--[a-z0-9-]+)?|pg-mini-button)(?=[\s.#:[{,])/g)]
+        .map(match => match[1]),
+    );
+    const headers = new Map();
+    const required = ['ПРИЗНАЧЕННЯ:', 'НАВІЩО:', 'ДЕ:', 'ГЕОМЕТРІЯ:', 'СТАНИ:', 'МЕЖА:'];
+    for (const match of raw.matchAll(/\/\*[\s\S]*?\*\//g)) {
+      const comment = match[0];
+      const type = comment.match(/(?:^|\n)\s*\*\s*ТИП:\s*\.(pg-(?:button|icon-button|mini-button)[\w-]*)/);
+      if (!type) continue;
+      if (headers.has(type[1])) {
+        errors.push(label + ': duplicated header for .' + type[1]);
+      }
+      headers.set(type[1], comment);
+      for (const field of required) {
+        if (!comment.includes(field)) {
+          errors.push(label + ': .' + type[1] + ' header lacks ' + field);
+        }
+      }
+    }
+    for (const type of inSelectors) {
+      if (!approved.has(type)) {
+        errors.push(label + ': new button type .' + type +
+          ' needs explicit design review and registration; do not create one-off skins');
+      }
+      if (!headers.has(type)) {
+        errors.push(label + ': button style .' + type +
+          ' lacks its own purpose/usage/state header');
+      }
+    }
+    for (const type of approved) {
+      if (!inSelectors.has(type) || !headers.has(type)) {
+        errors.push(label + ': approved button type .' + type + ' has no CSS or header');
+      }
+    }
+    for (const type of headers.keys()) {
+      if (!inSelectors.has(type)) {
+        errors.push(label + ': stale button header for unused .' + type);
+      }
+    }
+  }
+
   if (/\.pg-aside__pin\b/.test(css)) {
     errors.push(label + ': deprecated aside pin skin is forbidden; use shared .pg-mini-button');
   }
