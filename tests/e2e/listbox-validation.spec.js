@@ -44,19 +44,15 @@ test('required Listbox uses one red text/border/label/caret state and clears it 
   await expect(problem).toBeHidden();
   await expect(shell).toHaveAttribute('data-pg-state', 'ready');
   await expect(field.locator('.pg-listbox__value')).toHaveText('Пром.ua');
-  await expect(trigger).toHaveCSS('color',
-    await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--pg-color-text-primary').trim())
-      .then(async value => {
-        // CSS custom properties are hex; derive the expected computed rgb instead.
-        return page.evaluate(value => {
-          const span = document.createElement('span');
-          span.style.color = value;
-          document.body.append(span);
-          const color = getComputedStyle(span).color;
-          span.remove();
-          return color;
-        }, value);
-      }));
+  const normalInk = await trigger.evaluate(el => {
+    const probe = document.createElement('span');
+    probe.style.color = 'var(--pg-color-text-primary)';
+    el.append(probe);
+    const value = getComputedStyle(probe).color;
+    probe.remove();
+    return value;
+  });
+  await expect(trigger).toHaveCSS('color', normalInk);
 });
 
 test('required multi Listbox revalidates last removal, select all, and programmatic selection', async ({ page }) => {
