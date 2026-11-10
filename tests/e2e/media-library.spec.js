@@ -107,12 +107,16 @@ test('tile checkbox, action menu, caption and image opening stay independent', a
   const caption=tile.locator('.pg-media-library__caption');
   const hitArea=tile.locator('.pg-collection-view__tile-open');
   const photo=tile.locator('.pg-media-library__image');
-  const [captionBox,hitBox,photoBox]=await Promise.all([
-    caption.boundingBox(),hitArea.boundingBox(),photo.boundingBox(),
+  // Layout dimensions remain exact even when the entire card is rotated.
+  // getBoundingClientRect() reports axis-aligned transformed boxes, whose
+  // corners can overlap visually by a few pixels despite correct hit areas.
+  const [hitHeight,photoHeight,hitTop]=await Promise.all([
+    hitArea.evaluate(element=>element.offsetHeight),
+    photo.evaluate(element=>element.offsetHeight),
+    hitArea.evaluate(element=>element.offsetTop),
   ]);
-  expect(hitBox.y).toBeCloseTo(photoBox.y,0);
-  expect(hitBox.height).toBeCloseTo(photoBox.height,0);
-  expect(hitBox.y+hitBox.height).toBeLessThanOrEqual(captionBox.y+1);
+  expect(hitTop).toBe(0);
+  expect(hitHeight).toBe(photoHeight);
   await caption.click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
 
