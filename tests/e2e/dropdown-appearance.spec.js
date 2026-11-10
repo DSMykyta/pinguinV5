@@ -59,7 +59,7 @@ async function angle(page, selector) {
 
 test('Listbox dropdown spans the full outlined field and arrow rotates on open/close', async ({ page }) => {
   const root = page.locator('#visual-test-listbox');
-  const arrow = '#visual-test-listbox .pg-listbox__caret';
+  const arrow = '#visual-test-listbox .pg-field__caret';
   await expect.poll(() => angle(page, arrow)).toBe(45);
   await root.locator('.pg-listbox__trigger').click();
   await expect(root.locator('.pg-listbox__trigger')).toHaveAttribute('aria-expanded', 'true');
@@ -101,7 +101,7 @@ test('scrollbar remains compact without arrow buttons in long selection lists', 
 test('reduced motion disables the rotating arrow transition', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   for (const [root, selector] of [
-    ['listbox', '.pg-listbox__caret'],
+    ['listbox', '.pg-field__caret'],
     ['combobox', '.pg-combobox__caret'],
   ]) {
     const duration = await page.locator('#visual-test-' + root + ' ' + selector)
