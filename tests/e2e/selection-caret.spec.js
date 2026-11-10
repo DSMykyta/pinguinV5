@@ -25,7 +25,7 @@ async function caretPoint(field) {
       x, y, hitsControl: document.elementFromPoint(x, y) === control,
       trailingEvents: getComputedStyle(trailing).pointerEvents,
       caretEvents: getComputedStyle(arrow).pointerEvents,
-      caretWidth: box.width,
+      caretWidth: arrow.offsetWidth, // Layout width, not 45° transformed bounding box.
       trailingWidth: trailing.getBoundingClientRect().width,
       surfaceHeight: root.querySelector('.pg-field__surface').getBoundingClientRect().height,
     };
