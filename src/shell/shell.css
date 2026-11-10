@@ -32,8 +32,7 @@
   box-sizing:border-box;
   min-width:0;
   min-height:0;
-  /* The permanent 56px rail stays empty behind the moving surface. */
-  border-top:1px solid transparent;
+  /* Permanent 56px rail without a decorative dividing line. */
   background:transparent;
 }
 .pg-shell__footer-panel {
@@ -43,7 +42,6 @@
   min-inline-size:0;
   min-block-size:0;
   box-sizing:border-box;
-  border-top:1px solid var(--pg-color-border);
   background:var(--pg-color-page);
 }
 .pg-shell__mobile-menu { display: none; }
