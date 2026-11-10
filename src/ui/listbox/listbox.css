@@ -22,7 +22,7 @@
   min-inline-size:0; flex:1; display:flex; gap:6px; align-items:center;
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
-/* One row for the existing shared Search Input and ordinary Button.
+/* One row for the existing shared Search Input and tri-state Checkbox.
  * Listbox owns their composition, never their individual visual skins. */
 .pg-listbox__toolbar {
   display: flex;
@@ -31,7 +31,7 @@
   min-inline-size: 0;
 }
 .pg-listbox__search-field { flex: 1 1 0; inline-size: auto; min-inline-size: 0; }
-.pg-listbox__select-all { flex: 0 0 auto; margin-inline-start: auto; white-space: nowrap; }
+.pg-listbox__select-all { flex: 0 0 auto; margin-inline-start: auto; }
 
 .pg-listbox__options {
   min-inline-size:0; margin:0; padding:0; list-style:none;
