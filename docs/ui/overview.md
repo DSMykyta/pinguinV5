@@ -23,6 +23,10 @@
 - Контракт: `--pg-color-selection-bg` та `--pg-color-selection-text` у `src/styles/tokens.css`; `::selection` задає **і фон, і текст**. Не використовувати напівпрозорий `--pg-color-accent-soft` для виділення.
 - Перевірка: виділити текст мишею та клавіатурою у звичайному контенті, input/textarea й редакторі в обох темах; перевірити контраст і відсутність компонентних перевизначень.
 
+## Семантичне перефарбування
+
+[Єдина палітра tone × appearance](semantic-colors.md) повертає ролі `main`, `secondary`, `tertiary`, `danger`, `warning`, `success`, `info` з legacy. Вона не створює нові види кнопок: кольорові атрибути `data-pg-tone` / `data-pg-appearance` працюють через спільний `src/ui/button/button.css` з існуючими Button, Menu, Dialog та Selection Actions. Звичайні елементи без `tone` не перефарбовуються. Розміри й анімації належать їхнім наявним власникам.
+
 ## Компонентний контракт
 
 Підключувані поведінки та lifecycle: [дослідження шармів legacy](../legacy-behavior-research.md). Насамперед перевикористовуємо готові компоненти й native browser APIs; поведінки отримують елемент та callbacks явно.
