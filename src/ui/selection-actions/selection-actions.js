@@ -35,6 +35,7 @@ export function createSelectionActions({ single = [], multiple = [], onAction } 
   const controller = new AbortController();
   const groups = new Map();
   let multipleCount = null;
+  const singleButtons=[];
   for (const [mode, choices] of [['single', single], ['multiple', multiple]]) {
     const group = document.createElement('div');
     group.className = 'pg-selection-actions__group';
@@ -61,6 +62,7 @@ export function createSelectionActions({ single = [], multiple = [], onAction } 
         signal: controller.signal,
       });
       group.append(button);
+      if(mode==='single')singleButtons.push(button);
     }
     // Each group reuses the same Shell RevealPanel animation. Switching
     // 1 ↔ 2+ animates both groups rather than instantly toggling hidden.
@@ -79,7 +81,7 @@ export function createSelectionActions({ single = [], multiple = [], onAction } 
     element.setAttribute('aria-hidden', String(mode === 'none'));
     multipleCount.textContent = mode === 'multiple'
       ? ids.length + ' вибрано' + (outside ? ' · ' + outside + ' поза пошуком' : '') : '';
-    for (const button of groups.get('single').element.querySelectorAll('button')) {
+    for (const button of singleButtons) {
       button.setAttribute('aria-label',button.textContent
         + (outside ? ' (вибраний запис за межами поточного пошуку)' : ''));
     }
