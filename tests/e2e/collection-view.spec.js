@@ -247,6 +247,7 @@ test('closing an editor never leaves an unchecked row checkbox visible from name
   await expect(name).toBeFocused();
   await page.mouse.move(1,1);
   await expect(checkbox).toHaveCSS('opacity','0');
+  await expect(row.locator('.pg-collection-view__row-menu')).toHaveCSS('opacity','0');
   await checkbox.locator('.pg-checkbox__control').focus();
   await expect(checkbox).toHaveCSS('opacity','1');
   await page.mouse.move(1,1);
