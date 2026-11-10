@@ -70,9 +70,11 @@
 .pg-listbox__selection-tray {
   position: absolute; z-index: 59; box-sizing: border-box;
   display: grid; align-content: start;
-  max-block-size: 240px; min-block-size: 56px; overflow: auto;
-  /* Matches the 14px x/y inset of compact tags inside the 56px field. */
-  padding: 13px; margin: 0;
+  max-block-size: 240px; min-block-size: var(--pg-field-control-size); overflow: auto;
+  /* The first chip stays centered over its original row at either Field size. */
+  padding-block: calc((var(--pg-field-control-size) - 32px) / 2);
+  padding-inline: 13px;
+  margin: 0;
   border: 1px solid var(--pg-color-focus);
   border-radius: 10px;
   background: var(--pg-color-surface);
