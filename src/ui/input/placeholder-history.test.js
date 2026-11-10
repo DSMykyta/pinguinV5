@@ -39,6 +39,18 @@ test('history records only explicit keys, deduplicates and keeps independent fie
   assert.deepEqual(getInputPlaceholderHistory('other-field', storage), ['50 mg']);
 });
 
+test('HTML name identifiers are supported without manual history mapping', () => {
+  const storage = memoryStorage();
+  assert.deepEqual(getInputPlaceholderHistory('product[feature]', storage), []);
+  saveInputPlaceholderHistory('product[feature]', 'Sugar Free', storage);
+  saveInputPlaceholderHistory('productFeature', 'Time Release', storage);
+  saveInputPlaceholderHistory('product_feature', '750 mg', storage);
+  assert.deepEqual(getInputPlaceholderHistory('product[feature]', storage), ['Sugar Free']);
+  assert.deepEqual(getInputPlaceholderHistory('productFeature', storage), ['Time Release']);
+  assert.deepEqual(getInputPlaceholderHistory('product_feature', storage), ['750 mg']);
+  assert.deepEqual(getInputPlaceholderHistory('another', storage), []);
+});
+
 test('history limits count and length and ignores multiline or empty values', () => {
   const storage = memoryStorage();
   for (let i = 0; i < 18; i++) saveInputPlaceholderHistory('feature', String(i), storage);
