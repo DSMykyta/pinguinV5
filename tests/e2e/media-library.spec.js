@@ -326,7 +326,7 @@ test('collection differentiates empty search, loading and error without new cont
   expect(result.noRows).toEqual({text:'Немає записів',hidden:false});
 });
 
-test('tile focus-visible retains motion without pointer hover and container adapts to width', async ({ page }) => {
+test('tile keeps accessible focus independently of pointer tilt and adapts to width', async ({ page }) => {
   await page.goto('/tools');
   await tab(page,'Медіатека').click();
   const view=media(page);
@@ -341,4 +341,21 @@ test('tile focus-visible retains motion without pointer hover and container adap
   await expect(view).toHaveCSS('container-type','inline-size');
   await page.emulateMedia({reducedMotion:'reduce'});
   await expect(surface).toHaveCSS('transition-duration','0s');
+});
+
+
+test('footer pagination retains keyboard focus after changing pages', async ({ page }) => {
+  await page.goto('/tools');
+  await tab(page,'Медіатека').click();
+  const next=page.getByRole('button',{name:'Наступна сторінка'});
+  await next.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('button',{name:'Сторінка 2'})).toHaveAttribute('aria-current','page');
+  // On the last page the disabled next control yields focus to the current page.
+  await expect(page.getByRole('button',{name:'Сторінка 2'})).toBeFocused();
+  const previous=page.getByRole('button',{name:'Попередня сторінка'});
+  await previous.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('button',{name:'Сторінка 1'})).toHaveAttribute('aria-current','page');
+  await expect(page.getByRole('button',{name:'Попередня сторінка'})).toBeFocused();
 });

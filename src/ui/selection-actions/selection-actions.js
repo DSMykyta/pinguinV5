@@ -80,7 +80,9 @@ export function createSelectionActions({ single = [], multiple = [], onAction } 
     element.inert = mode === 'none';
     element.setAttribute('aria-hidden', String(mode === 'none'));
     multipleCount.textContent = mode === 'multiple'
-      ? ids.length + ' вибрано' + (outside ? ' · ' + outside + ' поза пошуком' : '') : '';
+      ? ids.length + ' вибрано' + (outside ? ' · ' + outside + ' приховано' : '') : '';
+    multipleCount.setAttribute('aria-label',ids.length+' вибрано'
+      +(outside?', із них '+outside+' поза поточним пошуком':''));
     for (const button of singleButtons) {
       button.setAttribute('aria-label',button.textContent
         + (outside ? ' (вибраний запис за межами поточного пошуку)' : ''));

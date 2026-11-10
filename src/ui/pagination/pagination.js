@@ -68,6 +68,8 @@ export function createPagination({
 
   function render(){
     const state=getState();
+    const focusOwner=nav.contains(document.activeElement)?document.activeElement:null;
+    const focusName=focusOwner?.getAttribute('aria-label')??null;
     status.textContent='Показано '+(state.end-state.start)+' з '+count;
     nav.replaceChildren();
     addButton('‹','Попередня сторінка',current-1,current===1);
@@ -81,6 +83,12 @@ export function createPagination({
       } else addButton(String(n),'Сторінка '+n,n);
     }
     addButton('›','Наступна сторінка',current+1,current===state.totalPages);
+    if(focusName) {
+      const candidates=[...nav.children].filter(item=>item.tagName==='BUTTON'&&!item.disabled);
+      const target=candidates.find(item=>item.getAttribute('aria-label')===focusName)
+        ??candidates.find(item=>item.getAttribute('aria-current')==='page');
+      target?.focus({preventScroll:true});
+    }
   }
 
   function setPage(next){
@@ -98,6 +106,7 @@ export function createPagination({
   }
   function setTotal(next){
     if(!Number.isInteger(next)||next<0)throw new TypeError('Total must be non-negative integer');
+    if(count===next)return;
     count=next;current=Math.max(1,Math.min(pages(),current));render();
   }
 
