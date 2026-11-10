@@ -202,3 +202,41 @@ test('native title is not a forced tooltip: visible text stays quiet, truncated 
   await page.waitForTimeout(650);
   await expect(page.getByRole('tooltip')).toHaveCount(0);
 });
+
+test('select-all tooltip paints above the open listbox, not under its top-layer popup', async ({ page }) => {
+  await page.setViewportSize({ width: 1148, height: 760 });
+  await page.goto('/tools');
+  await page.getByRole('tab', { name: 'Текст' }).click();
+
+  const listbox = page.locator('.pg-tools-listbox-demo .pg-listbox').nth(1);
+  await listbox.locator('.pg-listbox__trigger').click();
+  const panel = listbox.locator('.pg-listbox__panel');
+  await expect(panel).toBeVisible();
+  await expect(panel).toHaveJSProperty('popover', 'manual');
+  await expect(panel).toHaveCSS('position', 'fixed');
+  const selectAll = panel.getByRole('button', { name: 'Вибрати всі' });
+  await selectAll.hover();
+
+  const tooltip = page.getByRole('tooltip');
+  await expect(tooltip).toBeVisible();
+  await expect(tooltip).toHaveText('Вибрати всі');
+  const topLayer = await page.evaluate(() => {
+    const popup = document.querySelector('.pg-tools-listbox-demo .pg-listbox:nth-of-type(2) .pg-listbox__panel');
+    const hint = document.querySelector('#pg-global-tooltip');
+    return {
+      panelOpen: popup?.matches(':popover-open'),
+      tooltipOpen: hint?.matches(':popover-open'),
+      tooltipInBody: hint?.parentElement === document.body,
+      pointerEvents: hint ? getComputedStyle(hint).pointerEvents : null,
+    };
+  });
+  expect(topLayer).toEqual({
+    panelOpen: true, tooltipOpen: true, tooltipInBody: true, pointerEvents: 'none',
+  });
+
+  // The hint is visually the topmost popover but cannot steal pointer clicks.
+  await selectAll.click();
+  await expect(panel).toBeVisible();
+  await page.mouse.move(5, 5);
+  await expect(tooltip).toHaveCount(0);
+});
