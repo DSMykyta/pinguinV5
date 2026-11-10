@@ -71,7 +71,7 @@ export function createCheckbox({
   const controller = new AbortController();
 
   function sync() {
-    element.dataset.pgState = problem.hidden ? (disabled ? 'disabled' : 'ready') : 'error';
+    element.dataset.pgState = problem.hidden ? (input.disabled ? 'disabled' : 'ready') : 'error';
     element.dataset.pgChecked = String(input.checked);
     element.dataset.pgMixed = String(input.indeterminate);
   }
@@ -95,6 +95,14 @@ export function createCheckbox({
     input.indeterminate = Boolean(next);
     sync();
   }
+  function setDisabled(next) {
+    input.disabled = Boolean(next);
+    sync();
+  }
+  function setLabel(next) {
+    if (typeof next !== 'string' || !next.trim()) throw new TypeError('Checkbox label is required');
+    text.textContent = next;
+  }
   input.addEventListener('change', event => {
     sync();
     onChange?.(input.checked, event);
@@ -104,7 +112,7 @@ export function createCheckbox({
   return Object.freeze({
     element, input,
     getState: () => ({ checked: input.checked, indeterminate: input.indeterminate }),
-    setChecked, setIndeterminate, setError,
+    setChecked, setIndeterminate, setDisabled, setLabel, setError,
     focus() { input.focus(); },
     destroy() { controller.abort(); element.remove(); },
   });
