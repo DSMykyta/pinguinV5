@@ -47,8 +47,8 @@ The preceding 56px field height was an implementation choice, not a requirement 
 | Single-line Input, Search, Select, Combobox, Listbox, Number Field | 56px | 40px desktop; 44px coarse pointer |
 | Empty Tag Field, including 30px removable chips | 56px minimum | 40px desktop; 44px coarse pointer; grows as tags wrap |
 | Textarea | multiline | stays multiline; no forced 40px clip |
-| Ordinary Checkbox | 44px clickable row, 24px visual box | unchanged |
-| Compact Checkbox and mini-action | 32px clickable target, 24px visual box | unchanged |
+| Checkbox (усі контексти, з підписом або без) | 44px row у старому звичайному режимі / 32px compact | один 32px hit / 24px box; підпис може збільшувати лише текстовий рядок |
+| Mini-action | 32px target | unchanged |
 | Shared default button (`--pg-control-size`) | 40px | unchanged |
 | Legacy `.input-main`, `.custom-select-trigger` | 40px min-height | reference for the desktop density |
 
