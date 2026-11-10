@@ -12,12 +12,12 @@
 
 - `.pg-icon-button` лишається великим спільним контролом (його геометрію не змінюємо). `.pg-mini-button` — **існуючий модифікатор** того самого `createIconButton()` або `createMenu().trigger`, не нова фабрика.
 - `pg-mini-button`: кругла інтерактивна ціль **32×32px**; без видимого border/background у спокої; іконка **16px** через спільне `.pg-icon` із `createIcon()`. Hover: коло, фон `color-mix(in srgb, var(--pg-color-accent) 20%, transparent)`, `color: var(--pg-color-accent)`, м'яка тінь через `--pg-color-shadow`. Active/open/pressed утримує чітку акцентну індикацію. Focus-visible має доступний outline. Disabled не показує активного hover.
-- `pg-checkbox`: visible box **24×24px**, unchecked квадрат зі скругленням, checked/mixed — коло з відміткою або мінусом; `compact: true` — **32×32px** зовнішній target, центрована видима частина. Загальні поля форм зберігають нормальний 44px рядок. Checkbox має реальний `input type=checkbox`, працює Space та має native `indeterminate`.
+- `pg-checkbox`: **однакова геометрія скрізь** — видимий квадрат **24×24px** всередині постійного **32×32px** `.pg-checkbox__hit`; unchecked квадрат зі скругленням, checked/mixed — коло з відміткою або мінусом. `showLabel` впливає тільки на видимість підпису. Немає окремого компактного/звичайного skin або 44px розміру checkbox. Підпис та опис можуть збільшувати загальну висоту текстового рядка, не контролу. Checkbox має реальний `input type=checkbox`, працює Space та має native `indeterminate`.
 - Ці контролі узгоджені за **зовнішнім розміром** у таблиці, заголовку та плитках; жодного копіювання в `src/features`, Shell або CSS Menu. Порядок checkbox→Edit, Menu в останньому стовпці, вибір 0/1/2+ та пагінація не змінюються.
 
 ## Перевірка
 
-Playwright: однакова геометрія 32×32px mini і компактного checkbox; видимі 24×24px чекбокси; hover колір/фон/тінь; menu open/close, focus-visible, dark theme, reduced motion, table→tiles; незмінні наявні E2E вибору. Запустити `npm run check` і `npm run test:e2e`. Зелений CI не підтверджує візуальну оцінку без браузерного огляду.
+Playwright: однакова геометрія 32×32px mini і спільного checkbox; видимі 24×24px чекбокси; hover колір/фон/тінь; menu open/close, focus-visible, dark theme, reduced motion, table→tiles; незмінні наявні E2E вибору. Запустити `npm run check` і `npm run test:e2e`. Зелений CI не підтверджує візуальну оцінку без браузерного огляду.
 
 ## Помилка консистентності: pin у Aside (2026-11-10)
 
