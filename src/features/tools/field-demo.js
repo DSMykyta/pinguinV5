@@ -35,7 +35,7 @@ export function createFieldDemo() {
   suffix.textContent = 'за шт.';
   const help = document.createElement('button');
   help.type = 'button';
-  help.className = 'pg-tools-field-demo__help';
+  help.className = 'pg-tools-field-demo__help pg-button pg-button--step';
   help.textContent = '?';
   help.setAttribute('aria-label', 'Пояснення одиниць');
   help.dataset.pgTooltip = 'Число та суфікс не змінюють положення підпису';

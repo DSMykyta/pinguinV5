@@ -114,6 +114,7 @@ async function checkCss(path, label) {
       'pg-rich-text-editor__action', 'pg-toast__action', 'pg-toast__close',
       'pg-listbox__select-all', 'pg-listbox__chip-remove',
       'pg-listbox__more', 'pg-collection-view__sort',
+      'pg-tools-field-demo__help',
     ];
     const skinProperties = new Set([
       'background', 'background-color', 'border', 'border-color', 'border-radius',

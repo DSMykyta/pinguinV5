@@ -29,6 +29,7 @@
 | `pg-segment-switch__label` | Table/Tiles, Editor/HTML | Label + нативний radio, **не** button | Єдина plate-анімація, не стилізовані кнопки |
 | `pg-select__control`, `pg-combobox__input` | Поля | Native select / combobox, **не** action button | 56px рамка через Field |
 | `pg-section-navigator` controls | Навігація секцій | Наявний gesture/scroll механізм | Не створювати другу фабрику кнопок навігації |
+| `pg-tools-field-demo__help` | Tools / Field Demo | `pg-button--step` | Лише структурний hook; окремий CSS скасовано |
 | `pg-tools-*__*` demo actions | Tools | Використовувати спільні button/field styles | Feature має лише компонувати |
 
 ## Чіткі межі
