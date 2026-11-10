@@ -22,7 +22,7 @@
   min-inline-size:0; flex:1; display:flex; gap:6px; align-items:center;
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
-/* One row for the existing shared Search Input and tri-state Checkbox.
+/* One row for the existing shared Search Input and mini IconButton.
  * Listbox owns their composition, never their individual visual skins. */
 .pg-listbox__toolbar {
   display: flex;
