@@ -42,7 +42,6 @@ export function initTooltips({ doc = document, view = window } = {}) {
       if (title && !element.hasAttribute('data-pg-tooltip')) {
         element.dataset.pgTooltip = title;
       }
-      if (title) element.setAttribute('data-pg-tooltip-always', '');
       element.removeAttribute('title');
     }
     return element;
@@ -57,9 +56,12 @@ export function initTooltips({ doc = document, view = window } = {}) {
       return element.closest('.pg-shell')?.dataset.pgSidebarState === 'collapsed' &&
         !view.matchMedia('(max-width: 1080px)').matches;
     }
+    // Explicitly labelled icon-only commands retain tooltips. Text gets a
+    // hint only when it is actually cropped in either axis.
     return element.hasAttribute('data-pg-tooltip-always') ||
       element.hasAttribute('data-tooltip-always') ||
-      element.scrollWidth > element.clientWidth;
+      element.scrollWidth > element.clientWidth + 1 ||
+      element.scrollHeight > element.clientHeight + 1;
   }
 
   function cancelTimer() {
