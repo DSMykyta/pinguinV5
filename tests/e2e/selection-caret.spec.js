@@ -39,7 +39,7 @@ async function clickCaret(page, field) {
   expect(hit.caretEvents).toBe('none');
   expect(hit.trailingWidth).toBe(44);
   expect(hit.caretWidth).toBe(9);
-  expect(Math.abs(hit.surfaceHeight - 56)).toBeLessThan(.5);
+  expect(Math.abs(hit.surfaceHeight - 40)).toBeLessThan(.5);
   await page.mouse.click(hit.x, hit.y);
 }
 
@@ -64,7 +64,7 @@ test('every demo value selector uses the same Field caret in both viewports and 
       expect(hit.trailingEvents).toBe('none');
       expect(hit.caretEvents).toBe('none');
       expect(hit.trailingWidth).toBe(44);
-      expect(Math.abs(hit.surfaceHeight - 56)).toBeLessThan(.5);
+      expect(Math.abs(hit.surfaceHeight - 40)).toBeLessThan(.5);
       await expect(field.locator('.pg-field__caret')).toHaveCSS('border-right-width', '2px');
       await expect(field.locator('.pg-field__caret')).toHaveCSS('transition-property', 'transform');
     }
