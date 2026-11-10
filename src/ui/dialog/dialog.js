@@ -103,14 +103,20 @@ export function mountDialogs() {
   function setBusy(item, busy, source = item.busySource) {
     // The dialog owns orchestration, while the shared Button owns the visual
     // loading state. Keep the initiating action focused and block repeats.
-    if (busy) item.busySource = source ?? null;
+    if (busy) {
+      item.busySource = source ?? null;
+      item.disabledBeforeBusy = new Map((item.actionButtons ?? []).map(button => [button, button.disabled]));
+    }
     item.busy = busy;
     item.element?.setAttribute('aria-busy', String(busy));
     for (const button of item.actionButtons ?? []) {
       if (button === item.busySource) setButtonLoading(button, busy);
-      else button.disabled = busy;
+      else button.disabled = busy ? true : (item.disabledBeforeBusy?.get(button) ?? false);
     }
-    if (!busy) item.busySource = null;
+    if (!busy) {
+      item.busySource = null;
+      item.disabledBeforeBusy = null;
+    }
   }
 
   function report(item, message, role = 'status') {
@@ -124,6 +130,7 @@ export function mountDialogs() {
     if (!item.decision) return;
     item.decision.remove();
     item.decision = null;
+    if (item.workspace) item.workspace.element.inert = false;
     item.decisionOrigin?.focus({ preventScroll: true });
     item.decisionOrigin = null;
   }
@@ -172,6 +179,7 @@ export function mountDialogs() {
     actions.append(cancel, approve);
     overlay.append(description, actions);
     item.decision = overlay;
+    if (item.workspace) item.workspace.element.inert = true;
     item.decisionOrigin = origin ?? item.element?.querySelector('[data-pg-action="dialog-dismiss"]');
     item.element.querySelector('.pg-dialog__panel').append(overlay);
     cancel.focus({ preventScroll: true });
