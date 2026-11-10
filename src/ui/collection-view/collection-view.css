@@ -235,8 +235,11 @@
   .pg-collection-view[data-pg-selected-count='0'] .pg-collection-view__table .pg-collection-view__selection-cell .pg-checkbox {
     opacity: 0;
   }
+  /* Hover exposes the row checkbox. Keyboard focus exposes ONLY the
+   * checkbox's own cell; focus restored to an edited name must not latch it. */
   .pg-collection-view[data-pg-selected-count='0'] .pg-collection-view__table thead th:is(:hover, :focus-within) .pg-checkbox,
-  .pg-collection-view[data-pg-selected-count='0'] .pg-collection-view__table tbody tr:is(:hover, :focus-within) .pg-checkbox {
+  .pg-collection-view[data-pg-selected-count='0'] .pg-collection-view__table tbody tr:hover .pg-checkbox,
+  .pg-collection-view[data-pg-selected-count='0'] .pg-collection-view__table tbody .pg-collection-view__selection-cell:focus-within .pg-checkbox {
     opacity: 1;
   }
 
