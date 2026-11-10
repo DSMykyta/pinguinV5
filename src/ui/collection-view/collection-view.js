@@ -307,15 +307,16 @@ export function createCollectionView({
         wrapper.setAttribute('role','listitem');
         wrapper.append(tile);
 
-        // Native button overlays only the card body. Independent controls
-        // remain above it and never activate edit or selection implicitly.
+        // The renderer can expose a smaller edit region without coupling UI to feature markup.
         if(typeof onEditRow==='function') {
           const open=document.createElement('button');
           open.type='button';
           open.className='pg-collection-view__tile-open';
           open.setAttribute('aria-label','Редагувати: '+String(row.name??id));
           open.addEventListener('click',()=>onEditRow(row),{signal:controller.signal});
-          wrapper.append(open);
+          const openTarget=tile.querySelector('[data-pg-tile-open-target]')??wrapper;
+          if(openTarget!==wrapper)openTarget.classList.add('pg-collection-view__tile-open-target');
+          openTarget.append(open);
         }
         if(selectable||rowActions.length) {
           const actions=document.createElement('div');

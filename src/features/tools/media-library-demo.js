@@ -92,7 +92,10 @@ function renderTile(row) {
   const caption=node('div','caption');
   caption.append(node('strong','name',row.name),
     node('span','meta',row.format+' · '+row.dimensions));
-  card.append(image,caption);
+  const preview=node('div','preview');
+  preview.dataset.pgTileOpenTarget='';
+  preview.append(image);
+  card.append(preview,caption);
   return card;
 }
 

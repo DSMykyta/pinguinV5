@@ -93,7 +93,7 @@ test('changing media page-size FAB keeps brands pagination and numeric trigger i
   await expect(page.locator('[data-pg-action="page-fab-toggle"]')).toHaveCount(1);
 });
 
-test('tile checkbox, action menu, and clicking tile body stay independent', async ({ page }) => {
+test('tile checkbox, action menu, caption and image opening stay independent', async ({ page }) => {
   await page.goto('/tools');
   await tab(page, 'Медіатека').click();
   const tile = media(page).locator('.pg-collection-view__tile').first();
@@ -103,7 +103,30 @@ test('tile checkbox, action menu, and clicking tile body stay independent', asyn
   await expect(page.getByRole('menuitem', { name: 'Дублювати' })).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(media(page)).toHaveAttribute('data-pg-selected-count', '1');
-  await tile.locator('.pg-collection-view__tile-open').click();
+
+  const caption=tile.locator('.pg-media-library__caption');
+  const hitArea=tile.locator('.pg-collection-view__tile-open');
+  const photo=tile.locator('.pg-media-library__image');
+  const [captionBox,hitBox,photoBox]=await Promise.all([
+    caption.boundingBox(),hitArea.boundingBox(),photo.boundingBox(),
+  ]);
+  expect(hitBox.y).toBeCloseTo(photoBox.y,0);
+  expect(hitBox.height).toBeCloseTo(photoBox.height,0);
+  expect(hitBox.y+hitBox.height).toBeLessThanOrEqual(captionBox.y+1);
+  await caption.click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+
+  // Caption text remains selectable; dragging over it must not open the editor.
+  const name=tile.locator('.pg-media-library__name');
+  const nameBox=await name.boundingBox();
+  await page.mouse.move(nameBox.x+3,nameBox.y+nameBox.height/2);
+  await page.mouse.down();
+  await page.mouse.move(nameBox.x+Math.min(nameBox.width-3,80),nameBox.y+nameBox.height/2,{steps:8});
+  await page.mouse.up();
+  expect((await page.evaluate(()=>window.getSelection()?.toString()??'')).length).toBeGreaterThan(0);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+
+  await hitArea.click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await expect(page.getByRole('dialog')).toContainText('Редагування зображення');
   await page.getByRole('button', { name: 'Скасувати' }).click();
@@ -126,6 +149,22 @@ test('table columns remain pixel-stable when sorting or paging the media library
   await expect.poll(edges).toEqual(initial);
   await page.getByRole('button', { name: 'Наступна сторінка' }).click();
   await expect.poll(edges).toEqual(initial);
+});
+
+test('tile tilt clears on pointer exit after checkbox is checked and unchecked', async ({ page }) => {
+  await page.goto('/tools');
+  await tab(page, 'Медіатека').click();
+  const tile=media(page).locator('.pg-collection-view__tile').first();
+  const checkbox=tile.locator('.pg-checkbox__control');
+  await tile.hover();
+  await expect(tile).not.toHaveCSS('transform','none');
+  await tile.locator('.pg-checkbox__row').click();
+  await expect(media(page)).toHaveAttribute('data-pg-selected-count','1');
+  await tile.locator('.pg-checkbox__row').click();
+  await expect(media(page)).toHaveAttribute('data-pg-selected-count','0');
+  await expect(checkbox).toBeFocused();
+  await page.mouse.move(1,1);
+  await expect(tile).toHaveCSS('transform','none');
 });
 
 test('tiles share the restrained tilt and disable it in reduced-motion', async ({ page }) => {
