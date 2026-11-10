@@ -91,7 +91,7 @@
   transform-origin:center;
   transition:transform var(--pg-duration-layout) cubic-bezier(.34,1.56,.64,1);
 }
-.pg-collection-view__tile:is(:hover,:has(:focus-visible),
+.pg-collection-view__tile:is(:hover,
   :has(.pg-collection-view__tile-menu[data-pg-open='true'])) > .pg-collection-view__tile-surface {
   /* Existing subtle tilt, now stable when hovering edge controls or an open menu. */
   transform:translateY(-1px) rotate(-.75deg);
@@ -129,7 +129,7 @@
 .pg-collection-view__tile-menu {margin-inline-start:auto;}
 @media (prefers-reduced-motion:reduce) {
   .pg-collection-view__tile-surface { transition:none; }
-  .pg-collection-view__tile:is(:hover,:has(:focus-visible),
+  .pg-collection-view__tile:is(:hover,
     :has(.pg-collection-view__tile-menu[data-pg-open='true'])) > .pg-collection-view__tile-surface {
     transform:none;
   }
