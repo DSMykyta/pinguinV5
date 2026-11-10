@@ -22,10 +22,17 @@
   min-inline-size:0; flex:1; display:flex; gap:6px; align-items:center;
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
-/* Popup shell, options and caret are owned by the shared Field skin. */
-.pg-listbox__search-field { inline-size: 100%; min-inline-size: 0; }
-.pg-listbox__search-field .pg-field { gap: 4px; }
-.pg-listbox__select-all { text-align: start; }
+/* One row for the existing shared Search Input and ordinary Button.
+ * Listbox owns their composition, never their individual visual skins. */
+.pg-listbox__toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--pg-space-2);
+  min-inline-size: 0;
+}
+.pg-listbox__search-field { flex: 1 1 0; inline-size: auto; min-inline-size: 0; }
+.pg-listbox__select-all { flex: 0 0 auto; margin-inline-start: auto; white-space: nowrap; }
+
 .pg-listbox__options {
   min-inline-size:0; margin:0; padding:0; list-style:none;
   overflow:auto; outline:0;
