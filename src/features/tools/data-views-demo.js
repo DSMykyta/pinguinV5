@@ -130,9 +130,9 @@ export function createDataViewsDemo() {
   const selectedActions=createSelectionActions({
     single:[{value:'duplicate',label:'Дублювати'}],
     multiple:[
-      {value:'archive',label:'Архівувати'},
-      {value:'restore',label:'Відновити'},
-      {value:'delete',label:'Видалити'},
+      {value:'archive',label:'Архівувати',tone:'warning',appearance:'soft'},
+      {value:'restore',label:'Відновити',tone:'success',appearance:'soft'},
+      {value:'delete',label:'Видалити',tone:'danger',appearance:'soft'},
     ],
     onAction:action=>{
       void applySelectedAction(action).catch(error=>{
@@ -155,6 +155,7 @@ export function createDataViewsDemo() {
         content:nameField.element,
         size:'editor',
         confirmText:'Зберегти',
+        confirmTone:'secondary',
         cancelText:'Скасувати',
         validate:()=>{
           const name=nameField.getValue().trim();
