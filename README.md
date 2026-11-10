@@ -17,7 +17,7 @@
 ## Документація
 
 - [Архітектура та неймінг](docs/conventions.md)
-- [Правила реалізації, інтеграції та реєстр помилок](docs/implementation-rules.md)
+- [Зведені правила проєкту, інтеграції та реєстр помилок](docs/project-rules.md)
 - [Погоджені правила UI: Shell, FAB, таблиці, вибір, анімація та мої помилки](docs/approved-ui-rules.md)
 - [Шарми legacy — дослідження, сучасні методи й карта перенесення](docs/legacy-behavior-research.md)
 - [База спільного UI](docs/ui/overview.md)
