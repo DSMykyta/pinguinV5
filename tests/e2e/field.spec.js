@@ -49,6 +49,30 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
+test('shared Field renders SVG caret without throwing or replacing its icon classes', async ({ page }) => {
+  const select = page.locator('#pg-field-test-area .pg-select');
+  const caret = select.locator('.pg-field__trailing--decorative svg.pg-icon.pg-field__caret');
+  await expect(caret).toHaveCount(1);
+  await expect(caret).toHaveAttribute('aria-hidden', 'true');
+  await expect(select.getByRole('combobox', { name: 'Країна' })).toBeVisible();
+  await select.getByRole('combobox', { name: 'Країна' }).selectOption('pl');
+  await expect(select.getByRole('combobox', { name: 'Країна' })).toHaveValue('pl');
+
+  // The same public slot API must also accept subsequent caret updates.
+  await page.evaluate(async () => {
+    const { createFieldFrame } = await import('/src/ui/field/field.js');
+    const control = document.createElement('input');
+    const field = createFieldFrame({
+      label: 'Перевірка іконки', control, controlId: 'pg-field-caret-regression',
+      trailing: 'caret',
+    });
+    document.querySelector('#pg-field-test-area').append(field.field);
+    field.setTrailing('caret');
+  });
+  await expect(page.locator('#pg-field-test-area #pg-field-caret-regression')
+    .locator('xpath=../following-sibling::*').locator('svg.pg-icon.pg-field__caret')).toHaveCount(1);
+});
+
 test('Input, Select, Combobox and Tag Field show a permanent label above the border', async ({ page }) => {
   for (const type of ['input', 'select', 'combobox', 'tag-field']) {
     const component = page.locator('#pg-field-test-area .pg-' + type);
