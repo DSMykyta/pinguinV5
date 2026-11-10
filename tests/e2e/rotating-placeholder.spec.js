@@ -113,6 +113,7 @@ test('reduced motion, manual pause and focus preserve native keyboard editing', 
   await expect(hint).toBeHidden();
   await input.pressSequentially('Vegan');
   await expect(input).toHaveValue('Vegan');
+  await input.blur();
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await input.fill('');
   await input.blur();
@@ -171,6 +172,7 @@ test('same semantic indexed names share a history, modules isolate unrelated dat
   const other = page.locator('[data-pg-module="brands"] input');
   await a.fill('Sugar Free');
   await a.blur();
+  await b.scrollIntoViewIfNeeded();
   await expect(b.locator('..').locator('.pg-input__rotating-placeholder')).toHaveCount(1);
   await expect(other.locator('..').locator('.pg-input__rotating-placeholder')).toHaveCount(0);
   const stored = await page.evaluate(() => {
