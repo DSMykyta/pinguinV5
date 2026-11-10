@@ -4,6 +4,12 @@
 
 Status: specification before implementation. Scope: `src/ui/select`, `src/ui/combobox`; never import a feature from shared UI.
 
+## Clickable Select caret (fix 2026-11-10)
+
+`createSelect()` remains a **native HTML `<select>`**; do not replace it with a custom popup, custom event bus, or a duplicate component. Its entire 56px outlined surface, including the visible trailing chevron, must be one pointer target for the select. The chevron is decorative (`aria-hidden`) and must not intercept clicks; the shared trailing slot must not reserve a separate interactive strip. Keep padding for the selected text so it cannot overlap the chevron.
+
+**Implementation:** only in `src/ui/select/select.css`, position the Select-specific trailing adornment over the right edge with `pointer-events: none`, let the native select fill the editing width, and preserve its keyboard, disabled, selected value, label, validation, and mobile picker semantics. Do **not** change `createFieldFrame` globally: other trailing slots may contain interactive buttons. The actual target must be verified by a real pointer click at the chevron's center on desktop and narrow screens (including dark theme); a browser E2E test must also confirm keyboard use and disabled behavior.
+
 ## Research and decisions
 
 - [HTML select (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select): native select provides keyboard, form and mobile-platform behavior. For finite known choices, use native `<select>` as the progressive baseline, not a fabricated menu.
