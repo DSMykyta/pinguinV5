@@ -839,11 +839,11 @@
       var(--pg-button-loading-stroke) 305deg 340deg,
       transparent 360deg
     );
-    -webkit-mask: linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
+    -webkit-mask: linear-gradient(currentColor 0 0) content-box,
+      linear-gradient(currentColor 0 0);
     -webkit-mask-composite: xor;
-    mask: linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
+    mask: linear-gradient(currentColor 0 0) content-box,
+      linear-gradient(currentColor 0 0);
     mask-composite: exclude;
     animation: pg-button-loading-orbit 1100ms linear infinite;
   }
