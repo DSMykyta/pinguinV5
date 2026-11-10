@@ -2,10 +2,10 @@
  * ╔════════════════════════════════════════════════════════════════════════════════════╗
  * ║ PINGUIN NEXT — ROTATING PLACEHOLDER BROWSER TESTS                                 ║
  * ╠════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Перевіряє історію без готових фраз, opt-in HTML і reduced motion.       ║
+ * ║ ПРИЗНАЧЕННЯ: Перевірка history-only UI, lazy DOM, visibility, cleanup і native API. ║
  * ║ ЗАЛЕЖНОСТІ: @playwright/test, /tools і спільний Input.                            ║
  * ║ ПУБЛІЧНИЙ API: playwright test tests/e2e/rotating-placeholder.spec.js.            ║
- * ║ ПРИНЦИП: Реальний браузер; звичайні інпути та autocomplete не змінюються.           ║
+ * ║ ПРИНЦИП: DOM, autocomplete і геометрія основного Input не дублюються.              ║
  * ╚════════════════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -16,28 +16,24 @@ test.beforeEach(async ({ page }) => {
   await page.getByRole('tab', { name: 'Текст' }).click();
 });
 
-test('empty history shows nothing; entered values rotate without changing field geometry', async ({ page }) => {
+test('empty history adds no overlay; two saved values rotate with stable geometry', async ({ page }) => {
   const input = page.locator('input[name="demo-rotating-feature"]');
   const panel = page.locator('.pg-input').filter({ has: input });
   const hint = panel.locator('.pg-input__rotating-placeholder');
-  const regular = page.locator('.pg-input').filter({ has: page.locator('input[name="demo-brand"]') });
-
-  await expect(input).toHaveAttribute('data-pg-rotating-placeholder', '');
-  await expect(input).toHaveAttribute('autocomplete', 'on');
   await expect(input).toHaveAccessibleName('Ознака товару — змінні підказки');
-  await expect(hint).toBeHidden();
-  await expect(hint).toBeEmpty();
-  await expect(regular.locator('.pg-input__rotating-placeholder')).toHaveCount(0);
-  const before = await panel.locator('.pg-field__surface').boundingBox();
+  await expect(input).toHaveAttribute('autocomplete', 'on');
+  await expect(hint).toHaveCount(0);
+  await expect(page.locator('input[name="demo-brand"]').locator('..')
+    .locator('.pg-input__rotating-placeholder')).toHaveCount(0);
 
+  const before = await panel.locator('.pg-field__surface').boundingBox();
   await input.fill('Sugar Free');
   await input.blur();
   await input.fill('Time Release');
   await input.blur();
-  await expect(hint).toBeHidden();
-
   await input.fill('');
   await input.blur();
+
   await expect(hint).toBeVisible();
   await expect(hint).toContainText('Time Release');
   await expect(hint).toContainText('Sugar Free', { timeout: 9000 });
@@ -46,107 +42,178 @@ test('empty history shows nothing; entered values rotate without changing field 
 
   await page.reload();
   await page.getByRole('tab', { name: 'Текст' }).click();
-  await expect(page.locator('.pg-input').filter({ has: page.locator('input[name="demo-rotating-feature"]') })
-    .locator('.pg-input__rotating-placeholder')).toContainText(/Time Release|Sugar Free/);
+  await input.scrollIntoViewIfNeeded();
+  await expect(hint).toContainText(/Time Release|Sugar Free/);
 });
 
-test('one empty HTML attribute derives history from stable name and isolates other fields', async ({ page }) => {
+test('declarative native HTML field keeps autocomplete and only acquires DOM when used', async ({ page }) => {
   await page.evaluate(() => {
-    const container = document.querySelector('.pg-tools-input-demo__grid');
-    container.insertAdjacentHTML('beforeend',
-      '<div><label for="feature-native">HTML поле</label>' +
+    document.querySelector('.pg-tools-input-demo__grid').insertAdjacentHTML('beforeend',
+      '<div><label for="feature-native">Ознака</label>' +
       '<input id="feature-native" type="text" name="feature-native" autocomplete="on" ' +
       'data-pg-rotating-placeholder></div>');
   });
   const input = page.locator('#feature-native');
-  const hint = page.locator('.pg-input__rotating-native-host .pg-input__rotating-placeholder');
-  await expect(hint).toBeHidden();
+  const host = page.locator('.pg-input__rotating-native-host').filter({ has: input });
+  await expect(host).toHaveCount(0);
   await expect(input).toHaveAttribute('autocomplete', 'on');
-
   await input.fill('5 mg');
   await input.blur();
-  await expect(hint).toBeHidden();
   await input.fill('');
   await input.blur();
-  await expect(hint).toBeVisible();
-  await expect(hint).toContainText('5 mg');
-
-  const history = await page.evaluate(() =>
-    JSON.parse(localStorage.getItem('pg:v1:input-placeholder-history:feature-native') || '[]'));
-  expect(history).toEqual(['5 mg']);
-  const unrelated = await page.evaluate(() =>
-    localStorage.getItem('pg:v1:input-placeholder-history:demo-rotating-feature'));
-  expect(unrelated).toBeNull();
+  await expect(host).toHaveCount(1);
+  await expect(host.locator('.pg-input__rotating-placeholder')).toContainText('5 mg');
+  const stored = await page.evaluate(() => JSON.parse(
+    localStorage.getItem('pg:v1:input-placeholder-history:feature-native') || '[]'));
+  expect(stored).toEqual(['5 mg']);
 });
 
-test('reduced motion shows the saved phrase statically and native editing remains accessible', async ({ page }) => {
+test('removing and re-adding HTML opt-in restores native input and state', async ({ page }) => {
+  await page.evaluate(() => {
+    document.querySelector('.pg-tools-input-demo__grid').insertAdjacentHTML('beforeend',
+      '<input id="temporary-rotator" name="temporary-rotator" type="text" data-pg-rotating-placeholder>');
+  });
+  const input = page.locator('#temporary-rotator');
+  await input.fill('First');
+  await input.blur();
+  await input.fill('');
+  await input.blur();
+  const host = page.locator('.pg-input__rotating-native-host').filter({ has: input });
+  await expect(host).toHaveCount(1);
+
+  await input.evaluate(node => node.removeAttribute('data-pg-rotating-placeholder'));
+  await expect(host).toHaveCount(0);
+  await input.fill('Not recorded');
+  await input.blur();
+  await input.evaluate(node => node.setAttribute('data-pg-rotating-placeholder', ''));
+  await expect(input).toHaveValue('Not recorded');
+  await input.fill('Recorded');
+  await input.blur();
+  const stored = await page.evaluate(() => JSON.parse(
+    localStorage.getItem('pg:v1:input-placeholder-history:temporary-rotator') || '[]'));
+  expect(stored).toEqual(['Recorded', 'First']);
+});
+
+test('reduced motion, manual pause and focus preserve native keyboard editing', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   const input = page.locator('input[name="demo-rotating-feature"]');
-  const hint = page.locator('.pg-input').filter({ has: input }).locator('.pg-input__rotating-placeholder');
-
-  await expect(hint).toBeHidden();
+  const hint = page.locator('.pg-input').filter({ has: input })
+    .locator('.pg-input__rotating-placeholder');
   await input.fill('Sugar Free');
   await input.blur();
   await input.fill('Time Release');
   await input.blur();
   await input.fill('');
   await input.blur();
+
   await expect(hint).toContainText('Time Release');
-  await page.waitForTimeout(1700);
+  await page.waitForTimeout(2600);
   await expect(hint).toContainText('Time Release');
   await input.focus();
   await expect(hint).toBeHidden();
   await input.pressSequentially('Vegan');
   await expect(input).toHaveValue('Vegan');
-});
-
-test('removing and restoring the opt-in keeps the original native value', async ({ page }) => {
-  await page.evaluate(() => {
-    document.querySelector('.pg-tools-input-demo__grid').insertAdjacentHTML('beforeend',
-      '<input id="temporary-rotator" name="temporary-rotator" type="text" data-pg-rotating-placeholder>');
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await input.fill('');
+  await input.blur();
+  await page.evaluate(async () => {
+    const { setRotatingPlaceholdersPaused } = await import('/src/ui/input/rotating-placeholder.js');
+    setRotatingPlaceholdersPaused(true);
   });
-  const input = page.locator('#temporary-rotator');
-  await expect(page.locator('.pg-input__rotating-native-host').filter({ has: input })).toHaveCount(1);
-
-  await input.evaluate(node => node.removeAttribute('data-pg-rotating-placeholder'));
-  await expect(page.locator('.pg-input__rotating-native-host').filter({ has: input })).toHaveCount(0);
-  await input.fill('Not recorded');
-  await input.blur();
-  await expect(input).toHaveValue('Not recorded');
-  await input.evaluate(node => node.setAttribute('data-pg-rotating-placeholder', ''));
-  await expect(page.locator('.pg-input__rotating-native-host').filter({ has: input })).toHaveCount(1);
-  await expect(input).toHaveValue('Not recorded');
-  await input.fill('Recorded');
-  await input.blur();
-  const stored = await page.evaluate(() =>
-    JSON.parse(localStorage.getItem('pg:v1:input-placeholder-history:temporary-rotator') || '[]'));
-  expect(stored).toEqual(['Recorded']);
+  await expect(hint).toContainText('Vegan');
+  await page.waitForTimeout(2600);
+  await expect(hint).toContainText('Vegan');
+  await page.evaluate(async () => {
+    const { setRotatingPlaceholdersPaused } = await import('/src/ui/input/rotating-placeholder.js');
+    setRotatingPlaceholdersPaused(false);
+  });
 });
 
-test('many opted-in fields stay empty before use; sensitive input types are excluded', async ({ page }) => {
+test('change and form submit saving policies are independent of input focus', async ({ page }) => {
   await page.evaluate(() => {
-    const grid = document.querySelector('.pg-tools-input-demo__grid');
-    const holder = document.createElement('div');
-    for (let i = 0; i < 100; i++) {
+    const container = document.querySelector('.pg-tools-input-demo__grid');
+    container.insertAdjacentHTML('beforeend',
+      '<form id="save-only"><label for="save-input">Submit-only</label>' +
+      '<input id="save-input" name="save-input" data-pg-rotating-placeholder ' +
+      'data-pg-placeholder-save="submit"><button type="submit">Зберегти</button></form>');
+    document.querySelector('#save-only').addEventListener('submit', event => event.preventDefault());
+  });
+  const input = page.locator('#save-input');
+  await input.fill('Confirmed');
+  await input.blur();
+  const before = await page.evaluate(() =>
+    localStorage.getItem('pg:v1:input-placeholder-history:save-input'));
+  expect(before).toBeNull();
+  await page.locator('#save-only button[type="submit"]').click();
+  const after = await page.evaluate(() => JSON.parse(
+    localStorage.getItem('pg:v1:input-placeholder-history:save-input') || '[]'));
+  expect(after).toEqual(['Confirmed']);
+  await input.fill('');
+  await input.blur();
+  await expect(page.locator('#save-only .pg-input__rotating-placeholder'))
+    .toContainText('Confirmed');
+  await page.locator('#save-only').evaluate(form => form.reset());
+  await expect(input).toHaveValue('');
+});
+
+test('same semantic indexed names share a history, modules isolate unrelated data', async ({ page }) => {
+  await page.evaluate(() => {
+    const host = document.querySelector('.pg-tools-input-demo__grid');
+    host.insertAdjacentHTML('beforeend',
+      '<div data-pg-module="products">' +
+      '<input name="items[0][feature]" data-pg-rotating-placeholder>' +
+      '<input name="items[1][feature]" data-pg-rotating-placeholder></div>' +
+      '<div data-pg-module="brands">' +
+      '<input name="items[0][feature]" data-pg-rotating-placeholder></div>');
+  });
+  const a = page.locator('[data-pg-module="products"] input').first();
+  const b = page.locator('[data-pg-module="products"] input').last();
+  const other = page.locator('[data-pg-module="brands"] input');
+  await a.fill('Sugar Free');
+  await a.blur();
+  await expect(b.locator('..').locator('.pg-input__rotating-placeholder')).toHaveCount(1);
+  await expect(other.locator('..').locator('.pg-input__rotating-placeholder')).toHaveCount(0);
+  const stored = await page.evaluate(() => {
+    const key = 'pg:v1:input-placeholder-history:' + encodeURIComponent('products:items[][feature]');
+    return JSON.parse(localStorage.getItem(key) || '[]');
+  });
+  expect(stored).toEqual(['Sugar Free']);
+});
+
+test('a thousand unused opt-in fields allocate no placeholder DOM', async ({ page }) => {
+  await page.evaluate(() => {
+    const container = document.querySelector('.pg-tools-input-demo__grid');
+    const host = document.createElement('div');
+    for (let i = 0; i < 1000; i++) {
       const input = document.createElement('input');
-      input.name = 'attribute-' + i;
+      input.name = 'unused-' + i;
       input.setAttribute('data-pg-rotating-placeholder', '');
-      holder.append(input);
+      host.append(input);
     }
-    const email = document.createElement('input');
-    email.name = 'email';
-    email.type = 'email';
-    email.setAttribute('data-pg-rotating-placeholder', '');
-    holder.append(email);
-    grid.append(holder);
+    const secret = document.createElement('input');
+    secret.type = 'password';
+    secret.name = 'password';
+    secret.setAttribute('data-pg-rotating-placeholder', '');
+    host.append(secret);
+    container.append(host);
   });
-  const hints = page.locator('.pg-input__rotating-placeholder');
-  await expect(hints).toHaveCount(101);
-  // A non-opted-in input shares the holder with 100 independent overlays.
-  // Test its own wrapper, never all descendants of that common parent.
-  await expect(page.locator('.pg-input__rotating-native-host')
-    .filter({ has: page.locator('input[name="email"]') })).toHaveCount(0);
-  const emptyCount = await page.locator('input[name^="attribute-"]').evaluateAll(nodes =>
-    nodes.filter(input => input.parentElement.querySelector('.pg-input__rotating-placeholder')?.textContent === '').length);
-  expect(emptyCount).toBe(100);
+  await expect(page.locator('.pg-input__rotating-native-host')).toHaveCount(0);
+  await expect(page.locator('.pg-input__rotating-placeholder')).toHaveCount(0);
+  await expect(page.locator('input[name="password"]')).toHaveAttribute('type', 'password');
+});
+
+test('cross-tab local storage changes update a visible field', async ({ page, context }) => {
+  const input = page.locator('input[name="demo-rotating-feature"]');
+  await input.scrollIntoViewIfNeeded();
+  const second = await context.newPage();
+  await second.goto('/tools');
+  await second.evaluate(() => localStorage.setItem(
+    'pg:v1:input-placeholder-history:demo-rotating-feature',
+    JSON.stringify(['From another tab'])
+  ));
+  await second.close();
+  await page.bringToFront();
+  await input.scrollIntoViewIfNeeded();
+  await expect(page.locator('.pg-input').filter({ has: input })
+    .locator('.pg-input__rotating-placeholder')).toContainText('From another tab');
 });
