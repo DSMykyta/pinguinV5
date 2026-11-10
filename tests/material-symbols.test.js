@@ -23,6 +23,7 @@ test('Material Symbols registry contains the existing public aliases', () => {
     'x', 'check-circle', 'info', 'triangle-alert', 'circle-alert',
     'pin', 'pin-off', 'external-link',
     'expand-more', 'check', 'arrow-up', 'arrow-down', 'swap-vert', 'minus',
+    'refresh', 'delete', 'save',
   ];
   assert.equal(Object.keys(MATERIAL_SYMBOLS).length, required.length);
   for (const name of required) {
