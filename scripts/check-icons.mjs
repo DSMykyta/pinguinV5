@@ -41,7 +41,8 @@ async function audit(file) {
   scanned += 1;
   const commentsRemoved = source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
   // These are pictograms in UI when assigned directly as one-character control content.
-  const glyphPattern = /(?:\.textContent\s*=|\bcontent\s*:)\s*['"`](?:×|✕|✖|✓|✔|↑|↓|↕|−|\+)['"`]/g;
+  // A '+' followed by concatenation remains meaningful data, e.g. the '+N' overflow count.
+  const glyphPattern = /(?:\.textContent\s*=|\bcontent\s*:)\s*['"`](?:×|✕|✖|✓|✔|↑|↓|↕|−|\+)['"`](?!\s*\+)/g;
   for (const hit of commentsRemoved.matchAll(glyphPattern)) {
     failures.push(path + ': font-dependent pictogram ' + hit[0] + ' — use createIcon()');
   }
