@@ -3,7 +3,7 @@
  * ║ PINGUIN NEXT — SHARED INPUT                                                                         ║
  * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: All variants use one permanent-label frame; search only adds an icon.                  ║
- * ║ ЗАЛЕЖНОСТІ: ../icon/icon.js, ../field/field.js                                                      ║
+ * ║ ЗАЛЕЖНОСТІ: ../icon/icon.js, ../field/field.js, ./rotating-placeholder.js           ║
  * ║ ПУБЛІЧНИЙ API: createInput()                                                                        ║
  * ║ ПРИНЦИП: Supports DOM adornments on either side of the editable region.                             ║
  * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
@@ -11,6 +11,7 @@
 
 import { createIcon } from '../icon/icon.js';
 import { createFieldFrame } from '../field/field.js';
+import { mountRotatingPlaceholder, refreshRotatingPlaceholder } from './rotating-placeholder.js';
 
 const VARIANTS = new Set(['floating', 'standard', 'search']);
 const INPUT_TYPES = new Set(['text', 'email', 'password', 'tel', 'url']);
@@ -21,6 +22,7 @@ export function createInput({
   value = '', placeholder = '', description = '', error = '',
   required = false, disabled = false, readOnly = false,
   autocomplete, inputMode, clearable, leading, trailing, onInput, onChange,
+  rotatingPlaceholder, placeholderHistoryKey, placeholderInterval,
 } = {}) {
   if (typeof label !== 'string' || !label.trim()) throw new TypeError('Input label must be a non-empty string');
   if (!VARIANTS.has(variant)) throw new TypeError('Unknown input variant: ' + variant);
@@ -42,6 +44,15 @@ export function createInput({
   input.readOnly = Boolean(readOnly);
   if (autocomplete !== undefined) input.autocomplete = autocomplete;
   if (inputMode !== undefined) input.inputMode = inputMode;
+  if (rotatingPlaceholder !== undefined) {
+    if (!Array.isArray(rotatingPlaceholder) && typeof rotatingPlaceholder !== 'string') {
+      throw new TypeError('rotatingPlaceholder must be an array or a pipe-separated string');
+    }
+    input.setAttribute('data-pg-rotating-placeholder', Array.isArray(rotatingPlaceholder)
+      ? rotatingPlaceholder.join(' | ') : rotatingPlaceholder);
+    if (placeholderHistoryKey) input.setAttribute('data-pg-placeholder-history', placeholderHistoryKey);
+    if (placeholderInterval !== undefined) input.setAttribute('data-pg-placeholder-interval', String(placeholderInterval));
+  }
 
   const addons = [];
   if (variant === 'search') {
@@ -73,6 +84,10 @@ export function createInput({
   frame.field.classList.add('pg-input__field');
   frame.label.classList.add('pg-input__label');
   element.append(frame.field);
+  const disposeRotating = rotatingPlaceholder !== undefined
+    ? mountRotatingPlaceholder(input, {
+      phrases: rotatingPlaceholder, historyKey: placeholderHistoryKey, interval: placeholderInterval,
+    }) : null;
 
   const support = document.createElement('div');
   support.className = 'pg-input__support';
@@ -142,9 +157,10 @@ export function createInput({
     setValue(nextValue) {
       input.value = String(nextValue ?? '');
       syncValue();
+      refreshRotatingPlaceholder(input);
     },
     setError,
     focus: () => input.focus(),
-    destroy() { controller.abort(); frame.destroy(); element.remove(); },
+    destroy() { disposeRotating?.(); controller.abort(); frame.destroy(); element.remove(); },
   });
 }
