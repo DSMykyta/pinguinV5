@@ -151,6 +151,10 @@ export function createListbox({
   let opened = false;
   let trayOpened = false;
   let destroyed = false;
+  // Required validation is shown after a user edit (or if explicitly supplied).
+  // An available selection resolves the existing error before onChange fires.
+  let interacted = false;
+  const requiredMessage = String(error || 'Оберіть хоча б одне значення.');
 
   function visibleIndices() {
     return items.map((item,i) => !item.disabled && !optionsDOM[i].hidden ? i : -1).filter(i=>i>=0);
@@ -223,6 +227,7 @@ export function createListbox({
     const oldIndex = buttons.findIndex(button => button.dataset.pgRemove === value);
     selected.delete(value);
     reflect();
+    reconcileSelectionError(true);
     onChange?.(selection(), event);
     // Keep keyboard focus in the selected-values controls after a chip is removed.
     if (event.detail === 0 || event.type === 'keydown') {
@@ -269,6 +274,14 @@ export function createListbox({
     element.dataset.pgState=problem.hidden?(disabled?'disabled':'ready'):'error';
     frame.setError(!problem.hidden);
   }
+  function reconcileSelectionError(userChange = false) {
+    if (userChange) interacted = true;
+    if (selected.size > 0) {
+      if (!problem.hidden) setError('');
+    } else if (required && interacted) {
+      setError(requiredMessage);
+    }
+  }
   function activate(index) {
     if(active>=0) optionsDOM[active]?.classList.remove('pg-field__option--active');
     active=index;
@@ -305,6 +318,7 @@ export function createListbox({
       }
     }
     reflect();
+    reconcileSelectionError();
   }
   function setOptions(next) {
     const previous=selection();
@@ -338,6 +352,7 @@ export function createListbox({
       else selected.add(item.value);
     } else selected=new Set([item.value]);
     reflect();
+    reconcileSelectionError(true);
     onChange?.(selection(),event);
     if(!multiple)close(true);
   }
@@ -490,7 +505,9 @@ export function createListbox({
     const eligible=visibleIndices();
     const already=eligible.length>0&&eligible.every(i=>selected.has(items[i].value));
     eligible.forEach(i=>already?selected.delete(items[i].value):selected.add(items[i].value));
-    reflect();onChange?.(selection(),event);
+    reflect();
+    reconcileSelectionError(true);
+    onChange?.(selection(),event);
   },{signal:controller.signal});
   panel.addEventListener('keydown',event=>{
     if(event.target===all&&event.key==='Escape'){event.preventDefault();close(true);}
