@@ -101,3 +101,106 @@ test('clear and tag removal buttons reuse shared controls instead of local CSS s
   await remove.click();
   await expect(remove).toHaveCount(0);
 });
+
+test('existing Button aligns an icon before or after the text with one 8px gap', async ({page}) => {
+  await page.getByRole('tab', {name:'Текст'}).click();
+  const row=page.locator('.pg-tools-button-demo__row');
+  const before=row.getByRole('button',{name:'Іконка зліва'});
+  const after=row.getByRole('button',{name:'Іконка справа'});
+  await expect(row).toBeVisible();
+  for (const button of [before, after]) {
+    await expect(button).toHaveCSS('display','flex');
+    await expect(button).toHaveCSS('align-items','center');
+    await expect(button).toHaveCSS('gap','8px');
+    await expect(button.locator('.pg-icon')).toHaveCSS('width','18px');
+    await expect(button.locator('.pg-icon')).toHaveCSS('height','18px');
+    const centers=await button.evaluate(el=>{
+      const [a,b]=el.children;
+      const first=a.getBoundingClientRect(),second=b.getBoundingClientRect();
+      return Math.abs((first.top+first.bottom)/2-(second.top+second.bottom)/2);
+    });
+    expect(centers).toBeLessThan(2);
+  }
+  expect(await before.evaluate(el=>el.firstElementChild?.classList.contains('pg-icon'))).toBe(true);
+  expect(await after.evaluate(el=>el.lastElementChild?.classList.contains('pg-icon'))).toBe(true);
+  await after.click();
+  await expect(page.locator('.pg-tools-button-demo__status')).toContainText('після тексту');
+});
+
+test('border orbit loading preserves button geometry and ignores repeated clicks', async ({page})=>{
+  await page.getByRole('tab',{name:'Текст'}).click();
+  const button=page.locator('[data-pg-action="button-loading-demo"]');
+  const before=await button.boundingBox();
+  await button.evaluate(el=>{
+    el.dataset.pgTestClicks='0';
+    el.addEventListener('click',()=>{el.dataset.pgTestClicks=String(Number(el.dataset.pgTestClicks)+1);});
+  });
+  await button.click();
+  await expect(button).toHaveAttribute('data-pg-loading','true');
+  await expect(button).toHaveAttribute('aria-busy','true');
+  await expect(button).toHaveAttribute('aria-disabled','true');
+  await expect(button).toHaveAttribute('data-pg-test-clicks','1');
+  const during=await button.boundingBox();
+  expect(Math.abs(during.width-before.width)).toBeLessThan(.5);
+  expect(Math.abs(during.height-before.height)).toBeLessThan(.5);
+  const visual=await button.evaluate(el=>{
+    const s=getComputedStyle(el,'::after');
+    return {content:s.content,animation:s.animationName,background:s.backgroundImage,
+      radius:s.borderTopLeftRadius,pointer:s.pointerEvents};
+  });
+  expect(visual.content).not.toBe('none');
+  expect(visual.animation).toBe('pg-button-loading-orbit');
+  expect(visual.background).toContain('conic-gradient');
+  expect(visual.pointer).toBe('none');
+  await button.focus();
+  await page.keyboard.press('Enter');
+  await button.evaluate(el=>el.click());
+  await expect(button).toHaveAttribute('data-pg-test-clicks','1');
+  await expect(button).toBeFocused();
+  await expect(button).not.toHaveAttribute('data-pg-loading','true',{timeout:5000});
+  await expect(button).not.toHaveAttribute('aria-busy','true');
+  await expect(button).not.toHaveAttribute('aria-disabled','true');
+  await expect(page.locator('.pg-tools-button-demo__status')).toContainText('завершено');
+});
+
+test('Loading works for mini, restores state after rejection and honors reduced motion',async({page})=>{
+  await page.getByRole('tab',{name:'Текст'}).click();
+  const compact=page.locator('[data-pg-action="button-loading-mini-demo"]');
+  await compact.click();
+  await expect(compact).toHaveAttribute('data-pg-loading','true');
+  await expect(compact).toHaveCSS('width','32px');
+  await expect(compact).toHaveCSS('height','32px');
+  await expect(compact).not.toHaveAttribute('data-pg-loading','true',{timeout:5000});
+
+  await page.emulateMedia({reducedMotion:'reduce'});
+  const state=await page.evaluate(async()=>{
+    const {createIconButton, setButtonLoading, withButtonLoading}=await import('/src/ui/button/button.js');
+    const button=createIconButton({label:'Busy corner',icon:'plus',variant:'corner'});
+    document.body.append(button);
+    button.setAttribute('aria-disabled','false');
+    button.focus();
+    setButtonLoading(button,true);
+    setButtonLoading(button,true);
+    const busy={focus:document.activeElement===button,angle:getComputedStyle(button,'::after').animationName,
+      expanded:button.getAttribute('aria-expanded'),dimension:button.getBoundingClientRect().width};
+    setButtonLoading(button,false);
+    let rejected=false;
+    try {
+      await withButtonLoading(button,async()=>{throw new Error('expected');});
+    } catch(e){rejected=e.message==='expected';}
+    const restored={
+      busy:button.hasAttribute('aria-busy'),loading:button.hasAttribute('data-pg-loading'),
+      disabled:button.getAttribute('aria-disabled'),focus:document.activeElement===button,
+      animation:getComputedStyle(button.querySelector('.pg-icon')).animationName,
+    };
+    button.remove();
+    return {busy,restored,rejected};
+  });
+  expect(state.busy.focus).toBe(true);
+  expect(state.busy.angle).toBe('none');
+  expect(state.busy.dimension).toBe(40);
+  expect(state.rejected).toBe(true);
+  expect(state.restored).toEqual({
+    busy:false,loading:false,disabled:'false',focus:true,animation:'none',
+  });
+});
