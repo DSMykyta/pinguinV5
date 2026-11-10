@@ -19,7 +19,7 @@ const INPUT_TYPES = new Set(['text', 'email', 'password', 'tel', 'url']);
 let nextInputId = 0;
 
 export function createInput({
-  label, id, name, variant = 'floating', type = 'text',
+  label, id, name, variant = 'floating', type = 'text', labelPresentation = 'visible',
   value = '', placeholder = '', description = '', error = '',
   required = false, disabled = false, readOnly = false,
   autocomplete, inputMode, clearable, leading, trailing, onInput, onChange,
@@ -83,7 +83,7 @@ export function createInput({
   }
   // All variants share the exact same frame/label layout; search only adds an icon.
   const frame = createFieldFrame({
-    label, control: input, controlId: inputId,
+    label, control: input, controlId: inputId, labelPresentation,
     leading: addons, trailing: suffixes,
   });
   frame.field.classList.add('pg-input__field');
