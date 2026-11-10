@@ -117,7 +117,10 @@ export function createMediaLibraryDemo() {
   const selectedActions=createSelectionActions({
     single:[{value:'duplicate',label:'Дублювати'}],
     multiple:[{value:'delete',label:'Видалити',tone:'danger',appearance:'soft'}],
-    onAction:action=>{void selectedAction(action).catch(console.error);},
+    onAction:action=>{void selectedAction(action).catch(error=>{
+      console.error('Selected media action failed:',error);
+      details.textContent='Не вдалося виконати дію.';
+    });},
   });
   const rename=async row=>{
     const input=createInput({label:'Назва зображення',value:row.name,required:true});
@@ -177,7 +180,9 @@ export function createMediaLibraryDemo() {
         confirmText:'Видалити',cancelText:'Скасувати',destructive:true,
       });
       if(!accepted)return;
-      const current=new Set(collection.getSelectedIds());
+      // Never delete an item added to selection after this Confirm opened.
+      const confirmedIds=new Set(ids);
+      const current=new Set(collection.getSelectedIds().filter(id=>confirmedIds.has(id)));
       records=records.filter(row=>!current.has(row.id));
       collection.setRows(records);
       collection.clearSelection();

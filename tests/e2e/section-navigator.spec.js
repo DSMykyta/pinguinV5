@@ -238,8 +238,12 @@ test('touch scroll stays native; a new upward pull at the bottom navigates on re
   await expect.poll(() => viewport(page).evaluate(node => node.scrollTop)).toBeGreaterThan(0);
   await expect(heading(page)).toHaveText('Основне');
   // Stop native momentum before starting a separate boundary gesture.
-  await page.waitForTimeout(350);
+  // Native momentum can outlast a fixed timeout in CI. Wait until the viewport
+  // reaches a boundary before treating the next gesture as a new pull.
   await edge(page);
+  await expect.poll(() => viewport(page).evaluate(node =>
+    Math.abs(node.scrollHeight-node.clientHeight-node.scrollTop) < 1
+  )).toBe(true);
   await touch('touchStart', y);
   await touch('touchMove', y - 40);
   await touch('touchMove', y - 110);

@@ -357,7 +357,8 @@ test('footer pagination retains keyboard focus after changing pages', async ({ p
   await previous.focus();
   await page.keyboard.press('Enter');
   await expect(page.getByRole('button',{name:'Сторінка 1'})).toHaveAttribute('aria-current','page');
-  await expect(page.getByRole('button',{name:'Попередня сторінка'})).toBeFocused();
+  // Previous becomes disabled on page 1; focus moves to its active page.
+  await expect(page.getByRole('button',{name:'Сторінка 1'})).toBeFocused();
 });
 
 test('temporary loading and error retain current collection page without stale tiles', async ({ page }) => {

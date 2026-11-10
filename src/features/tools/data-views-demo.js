@@ -240,7 +240,9 @@ export function createDataViewsDemo() {
       });
       if(!confirmed)return;
       // Re-check at confirmation time: selection can change during a dialog.
-      const current=new Set(collection.getSelectedIds());
+      // A queued confirmation may outlive selection updates. Never remove IDs
+      // that were not part of the original confirmation request.
+      const current=new Set(collection.getSelectedIds().filter(id=>selected.has(id)));
       const removed=records.filter(row=>current.has(row.id)).length;
       records=records.filter(row=>!current.has(row.id));
       details.textContent='Видалено локально: '+removed;

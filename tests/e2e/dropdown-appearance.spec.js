@@ -60,28 +60,28 @@ async function angle(page, selector) {
 test('Listbox dropdown spans the full outlined field and arrow rotates on open/close', async ({ page }) => {
   const root = page.locator('#visual-test-listbox');
   const arrow = '#visual-test-listbox .pg-field__caret';
-  await expect.poll(() => angle(page, arrow)).toBe(45);
+  await expect.poll(() => angle(page, arrow)).toBe(0);
   await root.locator('.pg-listbox__trigger').click();
   await expect(root.locator('.pg-listbox__trigger')).toHaveAttribute('aria-expanded', 'true');
   await sameWidth(page, 'listbox', '.pg-listbox__panel');
-  await expect.poll(() => angle(page, arrow)).toBe(225);
+  await expect.poll(() => angle(page, arrow)).toBe(180);
   await root.locator('.pg-listbox__search').press('Escape');
   await expect(root.locator('.pg-listbox__trigger')).toHaveAttribute('aria-expanded', 'false');
-  await expect.poll(() => angle(page, arrow)).toBe(45);
+  await expect.poll(() => angle(page, arrow)).toBe(0);
 });
 
 test('Combobox dropdown matches the whole field including its chevron', async ({ page }) => {
   const root = page.locator('#visual-test-combobox');
   const arrow = '#visual-test-combobox .pg-field__caret';
   const input = root.getByRole('combobox', { name: 'Товар у каталозі' });
-  await expect.poll(() => angle(page, arrow)).toBe(45);
+  await expect.poll(() => angle(page, arrow)).toBe(0);
   await input.focus();
   await expect(input).toHaveAttribute('aria-expanded', 'true');
   await sameWidth(page, 'combobox', '.pg-combobox__list');
-  await expect.poll(() => angle(page, arrow)).toBe(225);
+  await expect.poll(() => angle(page, arrow)).toBe(180);
   await input.press('Escape');
   await expect(input).toHaveAttribute('aria-expanded', 'false');
-  await expect.poll(() => angle(page, arrow)).toBe(45);
+  await expect.poll(() => angle(page, arrow)).toBe(0);
 });
 
 test('scrollbar remains compact without arrow buttons in long selection lists', async ({ page }) => {

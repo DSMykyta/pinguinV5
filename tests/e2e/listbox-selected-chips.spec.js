@@ -199,8 +199,11 @@ test('disabled Input ignores pointer and programmatic focus and renders no text 
 
 test('every selected chip remove action uses the shared Material Symbols Rounded icon', async ({ page }) => {
   const root = page.locator('#selection-test-few');
-  const removeButtons = root.locator('.pg-listbox__chip-remove');
+  // The hidden expansion tray deliberately mirrors selected chips. Count the
+  // three inline action controls, not the detached tray copies.
+  const removeButtons = root.locator('.pg-listbox__value .pg-listbox__chip-remove');
   await expect(removeButtons).toHaveCount(3);
+  await expect(root.locator('.pg-listbox__selection-tray')).toBeHidden();
   for (const button of await removeButtons.all()) {
     await expect(button.locator('svg.pg-icon')).toHaveCount(1);
     await expect(button.locator('svg.pg-icon')).toHaveAttribute('viewBox', '0 -960 960 960');

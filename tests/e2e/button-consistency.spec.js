@@ -95,8 +95,9 @@ test('clear and tag removal buttons reuse shared controls instead of local CSS s
   await input.fill('Повторне використання');
   await input.press('Enter');
   const remove = aliases.getByRole('button',{name:'Видалити Повторне використання'});
-  await expect(remove).toHaveClass(/pg-button--quiet/);
-  await expect(remove).toHaveClass(/pg-button--square/);
+  // TagField reuses the same compact chip-remove skin as Listbox.
+  await expect(remove).toHaveClass(/pg-button--chip-remove/);
+  await expect(remove).toHaveClass(/pg-tag-field__remove/);
   await remove.click();
   await expect(remove).toHaveCount(0);
 });
@@ -108,7 +109,8 @@ test('existing Button aligns an icon before or after the text with one 8px gap',
   const after=row.getByRole('button',{name:'Іконка справа'});
   await expect(row).toBeVisible();
   for (const button of [before, after]) {
-    await expect(button).toHaveCSS('display','inline-flex');
+    // CSS blockifies an inline-flex box when it becomes a flex item.
+    expect(await button.evaluate(el=>getComputedStyle(el).display)).toMatch(/^(inline-)?flex$/);
     await expect(button).toHaveCSS('align-items','center');
     await expect(button).toHaveCSS('gap','8px');
     await expect(button.locator('.pg-icon')).toHaveCSS('width','18px');

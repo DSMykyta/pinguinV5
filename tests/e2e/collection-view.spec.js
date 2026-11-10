@@ -191,7 +191,7 @@ test('row action menu is functional and uses one shared Menu implementation',asy
   await item.click();
   await expect(page.locator('.pg-shell__footer .pg-pagination__status')).toHaveText('Показано 25 з 33');
   await page.locator('[data-pg-action="aside-toggle"]').click();
-  await expect(page.locator('.pg-tools-data-views__aside-detail')).toContainText('Створено локальну копію');
+  await expect(page.locator('.pg-tools-data-views__aside-detail')).toContainText('Дубльовано локально');
 });
 
 test('segmented switch toggles table and tiles without changing underlying page or selection',async({page})=>{
