@@ -369,8 +369,12 @@ export function mountRotatingPlaceholders(root = document) {
     const changed = new Set();
     for (const record of records) {
       if (record.type === 'attributes' && record.target instanceof HTMLInputElement) {
-        affected.add(record.target);
-        changed.add(record.target);
+        if (['disabled', 'readonly'].includes(record.attributeName)) {
+          refreshRotatingPlaceholder(record.target);
+        } else {
+          affected.add(record.target);
+          changed.add(record.target);
+        }
       } else if (record.type === 'attributes' && record.attributeName === 'data-pg-module') {
         const nested = new Set();
         addInputs(record.target, nested);
@@ -386,7 +390,7 @@ export function mountRotatingPlaceholders(root = document) {
     subtree: true, childList: true, attributes: true,
     attributeFilter: ['data-pg-rotating-placeholder', 'data-pg-placeholder-history',
       'data-pg-placeholder-interval', 'data-pg-placeholder-save', 'data-pg-module',
-      'name', 'type', 'autocomplete'],
+      'name', 'type', 'autocomplete', 'disabled', 'readonly'],
   });
   return () => {
     mutations.disconnect();
