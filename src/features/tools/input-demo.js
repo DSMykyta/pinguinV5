@@ -37,7 +37,7 @@ export function createInputDemo() {
     createInput({
       label: 'Ознака товару — змінні підказки', name: 'demo-rotating-feature',
       autocomplete: 'on',
-      rotatingPlaceholder: true, placeholderInterval: 1200,
+      rotatingPlaceholder: true, placeholderInterval: 2400,
     }),
     createInput({ label: 'Бренд', name: 'demo-brand', value: 'Pinguin' }),
     createInput({
