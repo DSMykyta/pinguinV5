@@ -86,7 +86,18 @@ test('touch input increases every shared hit target to 44px without resizing a c
     expect(metrics.checkboxBox).toBe(24);
 
     const listbox = page.locator('.pg-tools-listbox-demo .pg-listbox').first();
-    const arrow = await listbox.locator('.pg-field__caret').boundingBox();
+    const caret = listbox.locator('.pg-field__caret');
+    await caret.scrollIntoViewIfNeeded();
+    const arrow = await caret.boundingBox();
+    expect(arrow).not.toBeNull();
+    // The decorative caret must pass touch through to the actual trigger.
+    const target = await caret.evaluate(node => {
+      const bounds = node.getBoundingClientRect();
+      return document.elementFromPoint(
+        bounds.x + bounds.width / 2, bounds.y + bounds.height / 2
+      )?.closest('.pg-listbox__trigger') !== null;
+    });
+    expect(target).toBe(true);
     await page.touchscreen.tap(arrow.x + arrow.width / 2, arrow.y + arrow.height / 2);
     await expect(listbox.locator('.pg-listbox__trigger')).toHaveAttribute('aria-expanded', 'true');
     await expect(listbox.locator('.pg-listbox__panel')).toBeVisible();
