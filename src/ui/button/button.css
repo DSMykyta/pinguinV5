@@ -440,10 +440,6 @@
   outline: 0;
 }
 .pg-button--list-item:disabled { opacity: .45; }
-.pg-button--list-item[data-pg-danger='true'] { color: var(--pg-color-input-error); }
-.pg-button--list-item[data-pg-danger='true']:is(:hover, :focus):not(:disabled) {
-  color: var(--pg-color-input-error);
-}
 
 /* Compact actions inside selection chips keep their native button semantics. */
 /*
@@ -679,84 +675,84 @@
  */
 
 :is(.pg-button, .pg-icon-button)[data-pg-tone='main'] {
-  --_pg-tone-base: var(--pg-tone-main-base);
-  --_pg-tone-soft: var(--pg-tone-main-soft);
-  --_pg-tone-on-soft: var(--pg-tone-main-on-soft);
-  --_pg-tone-solid: var(--pg-tone-main-solid);
-  --_pg-tone-on-solid: var(--pg-tone-main-on-solid);
+  --pg-button-tone-base: var(--pg-tone-main-base);
+  --pg-button-tone-soft: var(--pg-tone-main-soft);
+  --pg-button-tone-on-soft: var(--pg-tone-main-on-soft);
+  --pg-button-tone-solid: var(--pg-tone-main-solid);
+  --pg-button-tone-on-solid: var(--pg-tone-main-on-solid);
 }
 
 :is(.pg-button, .pg-icon-button)[data-pg-tone='secondary'] {
-  --_pg-tone-base: var(--pg-tone-secondary-base);
-  --_pg-tone-soft: var(--pg-tone-secondary-soft);
-  --_pg-tone-on-soft: var(--pg-tone-secondary-on-soft);
-  --_pg-tone-solid: var(--pg-tone-secondary-solid);
-  --_pg-tone-on-solid: var(--pg-tone-secondary-on-solid);
+  --pg-button-tone-base: var(--pg-tone-secondary-base);
+  --pg-button-tone-soft: var(--pg-tone-secondary-soft);
+  --pg-button-tone-on-soft: var(--pg-tone-secondary-on-soft);
+  --pg-button-tone-solid: var(--pg-tone-secondary-solid);
+  --pg-button-tone-on-solid: var(--pg-tone-secondary-on-solid);
 }
 
 :is(.pg-button, .pg-icon-button)[data-pg-tone='tertiary'] {
-  --_pg-tone-base: var(--pg-tone-tertiary-base);
-  --_pg-tone-soft: var(--pg-tone-tertiary-soft);
-  --_pg-tone-on-soft: var(--pg-tone-tertiary-on-soft);
-  --_pg-tone-solid: var(--pg-tone-tertiary-solid);
-  --_pg-tone-on-solid: var(--pg-tone-tertiary-on-solid);
+  --pg-button-tone-base: var(--pg-tone-tertiary-base);
+  --pg-button-tone-soft: var(--pg-tone-tertiary-soft);
+  --pg-button-tone-on-soft: var(--pg-tone-tertiary-on-soft);
+  --pg-button-tone-solid: var(--pg-tone-tertiary-solid);
+  --pg-button-tone-on-solid: var(--pg-tone-tertiary-on-solid);
 }
 
 :is(.pg-button, .pg-icon-button)[data-pg-tone='danger'] {
-  --_pg-tone-base: var(--pg-tone-danger-base);
-  --_pg-tone-soft: var(--pg-tone-danger-soft);
-  --_pg-tone-on-soft: var(--pg-tone-danger-on-soft);
-  --_pg-tone-solid: var(--pg-tone-danger-solid);
-  --_pg-tone-on-solid: var(--pg-tone-danger-on-solid);
+  --pg-button-tone-base: var(--pg-tone-danger-base);
+  --pg-button-tone-soft: var(--pg-tone-danger-soft);
+  --pg-button-tone-on-soft: var(--pg-tone-danger-on-soft);
+  --pg-button-tone-solid: var(--pg-tone-danger-solid);
+  --pg-button-tone-on-solid: var(--pg-tone-danger-on-solid);
 }
 
 :is(.pg-button, .pg-icon-button)[data-pg-tone='warning'] {
-  --_pg-tone-base: var(--pg-tone-warning-base);
-  --_pg-tone-soft: var(--pg-tone-warning-soft);
-  --_pg-tone-on-soft: var(--pg-tone-warning-on-soft);
-  --_pg-tone-solid: var(--pg-tone-warning-solid);
-  --_pg-tone-on-solid: var(--pg-tone-warning-on-solid);
+  --pg-button-tone-base: var(--pg-tone-warning-base);
+  --pg-button-tone-soft: var(--pg-tone-warning-soft);
+  --pg-button-tone-on-soft: var(--pg-tone-warning-on-soft);
+  --pg-button-tone-solid: var(--pg-tone-warning-solid);
+  --pg-button-tone-on-solid: var(--pg-tone-warning-on-solid);
 }
 
 :is(.pg-button, .pg-icon-button)[data-pg-tone='success'] {
-  --_pg-tone-base: var(--pg-tone-success-base);
-  --_pg-tone-soft: var(--pg-tone-success-soft);
-  --_pg-tone-on-soft: var(--pg-tone-success-on-soft);
-  --_pg-tone-solid: var(--pg-tone-success-solid);
-  --_pg-tone-on-solid: var(--pg-tone-success-on-solid);
+  --pg-button-tone-base: var(--pg-tone-success-base);
+  --pg-button-tone-soft: var(--pg-tone-success-soft);
+  --pg-button-tone-on-soft: var(--pg-tone-success-on-soft);
+  --pg-button-tone-solid: var(--pg-tone-success-solid);
+  --pg-button-tone-on-solid: var(--pg-tone-success-on-solid);
 }
 
 :is(.pg-button, .pg-icon-button)[data-pg-tone='info'] {
-  --_pg-tone-base: var(--pg-tone-info-base);
-  --_pg-tone-soft: var(--pg-tone-info-soft);
-  --_pg-tone-on-soft: var(--pg-tone-info-on-soft);
-  --_pg-tone-solid: var(--pg-tone-info-solid);
-  --_pg-tone-on-solid: var(--pg-tone-info-on-solid);
+  --pg-button-tone-base: var(--pg-tone-info-base);
+  --pg-button-tone-soft: var(--pg-tone-info-soft);
+  --pg-button-tone-on-soft: var(--pg-tone-info-on-soft);
+  --pg-button-tone-solid: var(--pg-tone-info-solid);
+  --pg-button-tone-on-solid: var(--pg-tone-info-on-solid);
 }
 
 /* Preserve every existing size, radius, layout and event handler. */
 :is(.pg-button, .pg-icon-button)[data-pg-tone][data-pg-appearance='soft'] {
-  background: var(--_pg-tone-soft);
-  color: var(--_pg-tone-on-soft);
+  background: var(--pg-button-tone-soft);
+  color: var(--pg-button-tone-on-soft);
   border-color: transparent;
   filter: none;
 }
 :is(.pg-button, .pg-icon-button)[data-pg-tone][data-pg-appearance='solid'] {
-  background: var(--_pg-tone-solid);
-  color: var(--_pg-tone-on-solid);
+  background: var(--pg-button-tone-solid);
+  color: var(--pg-button-tone-on-solid);
   border-color: transparent;
   filter: none;
 }
 :is(.pg-button, .pg-icon-button)[data-pg-tone][data-pg-appearance='outline'] {
   background: transparent;
-  color: var(--_pg-tone-on-soft);
+  color: var(--pg-button-tone-on-soft);
   border-color: transparent;
-  box-shadow: inset 0 0 0 1px var(--_pg-tone-on-soft);
+  box-shadow: inset 0 0 0 1px var(--pg-button-tone-on-soft);
   filter: none;
 }
 :is(.pg-button, .pg-icon-button)[data-pg-tone][data-pg-appearance='ghost'] {
   background: transparent;
-  color: var(--_pg-tone-on-soft);
+  color: var(--pg-button-tone-on-soft);
   border-color: transparent;
   filter: none;
 }
@@ -765,12 +761,12 @@
 :is(.pg-button, .pg-icon-button)[data-pg-tone][data-pg-appearance='soft']:is(:hover, :focus-visible, [aria-pressed='true'], [aria-expanded='true'], [data-pg-state='active']):not(:disabled),
 :is(.pg-button, .pg-icon-button)[data-pg-tone][data-pg-appearance='ghost']:is(:hover, :focus-visible, [aria-pressed='true'], [aria-expanded='true'], [data-pg-state='active']):not(:disabled),
 :is(.pg-button, .pg-icon-button)[data-pg-tone][data-pg-appearance='outline']:is(:hover, :focus-visible, [aria-pressed='true'], [aria-expanded='true'], [data-pg-state='active']):not(:disabled) {
-  background: color-mix(in srgb, var(--_pg-tone-base) 16%, transparent);
-  color: var(--_pg-tone-on-soft);
+  background: color-mix(in srgb, var(--pg-button-tone-base) 16%, transparent);
+  color: var(--pg-button-tone-on-soft);
   filter: none;
 }
 :is(.pg-button, .pg-icon-button)[data-pg-tone][data-pg-appearance='solid']:is(:hover, :focus-visible, [aria-pressed='true'], [aria-expanded='true'], [data-pg-state='active']):not(:disabled) {
-  background: color-mix(in srgb, var(--_pg-tone-solid) 92%, black);
-  color: var(--_pg-tone-on-solid);
+  background: color-mix(in srgb, var(--pg-button-tone-solid) 92%, black);
+  color: var(--pg-button-tone-on-solid);
   filter: none;
 }
