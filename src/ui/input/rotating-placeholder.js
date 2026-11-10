@@ -332,7 +332,11 @@ export function mountRotatingPlaceholders(root = document) {
   function syncInput(input, changed = false) {
     const dispose = owned.get(input);
     const eligibleInput = (root === input || root.contains(input)) && isAllowed(input);
-    if (dispose && (changed || !eligibleInput)) { dispose(); owned.delete(input); }
+    if (dispose && (changed || !eligibleInput ||
+        entries.get(input)?.key !== historyKey(input))) {
+      dispose();
+      owned.delete(input);
+    }
     if (!owned.has(input) && eligibleInput) owned.set(input, mountRotatingPlaceholder(input));
   }
 
@@ -350,6 +354,9 @@ export function mountRotatingPlaceholders(root = document) {
       if (record.type === 'attributes' && record.target instanceof HTMLInputElement) {
         affected.add(record.target);
         changed.add(record.target);
+      } else if (record.type === 'attributes' && record.attributeName === 'data-pg-module') {
+        addInputs(record.target, affected);
+        for (const input of affected) changed.add(input);
       } else if (record.type === 'childList') {
         record.addedNodes.forEach(node => addInputs(node, affected));
         record.removedNodes.forEach(node => addInputs(node, affected));
@@ -360,7 +367,8 @@ export function mountRotatingPlaceholders(root = document) {
   mutations.observe(root, {
     subtree: true, childList: true, attributes: true,
     attributeFilter: ['data-pg-rotating-placeholder', 'data-pg-placeholder-history',
-      'data-pg-placeholder-interval', 'data-pg-placeholder-save', 'name', 'type'],
+      'data-pg-placeholder-interval', 'data-pg-placeholder-save', 'data-pg-module',
+      'name', 'type', 'autocomplete'],
   });
   return () => {
     mutations.disconnect();
