@@ -359,3 +359,43 @@ test('footer pagination retains keyboard focus after changing pages', async ({ p
   await expect(page.getByRole('button',{name:'Сторінка 1'})).toHaveAttribute('aria-current','page');
   await expect(page.getByRole('button',{name:'Попередня сторінка'})).toBeFocused();
 });
+
+test('temporary loading and error retain current collection page without stale tiles', async ({ page }) => {
+  await page.goto('/tools');
+  await tab(page,'Медіатека').click();
+  const result=await page.evaluate(async()=>{
+    const {createCollectionView}=await import('/src/ui/collection-view/collection-view.js');
+    const rows=Array.from({length:31},(_,i)=>({id:'state-'+i,name:'Запис '+i}));
+    const view=createCollectionView({
+      label:'Тест станів',rows,columns:[{key:'name',label:'Назва'}],
+      renderTile:row=>{
+        const element=document.createElement('article');
+        element.textContent=row.name;
+        return element;
+      },
+      modes:['tiles','table'],initialMode:'tiles',pageSize:10,
+    });
+    document.body.append(view.element);
+    const state=()=>({
+      page:view.getPagination().page,
+      total:view.getPagination().total,
+      count:view.element.querySelectorAll('.pg-collection-view__tile').length,
+      tilesHidden:view.element.querySelector('.pg-collection-view__tiles').hidden,
+      status:view.element.querySelector('.pg-collection-view__empty').textContent,
+    });
+    view.setPage(3);
+    const before=state();
+    view.setDataState('loading');
+    const loading=state();
+    view.setDataState('error','Помилка завантаження');
+    const error=state();
+    view.setRows(rows);
+    const recovered=state();
+    view.destroy();
+    return {before,loading,error,recovered};
+  });
+  expect(result.before).toMatchObject({page:3,total:31,count:10,tilesHidden:false});
+  expect(result.loading).toMatchObject({page:3,total:31,count:0,tilesHidden:true,status:'Завантаження записів…'});
+  expect(result.error).toMatchObject({page:3,total:31,count:0,tilesHidden:true,status:'Помилка завантаження'});
+  expect(result.recovered).toMatchObject({page:3,total:31,count:10,tilesHidden:false});
+});

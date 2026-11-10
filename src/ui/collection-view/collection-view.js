@@ -278,7 +278,9 @@ export function createCollectionView({
   function renderData() {
     const previousFocus=captureRowFocus();
     const all=sortedRows();
-    pageControl.setTotal(dataState==='ready'?all.length:0);
+    // Temporary status must preserve the page and item count.
+    // setRows() updates and clamps on recovery.
+    if(dataState==='ready')pageControl.setTotal(all.length);
     const {start,end}=pageControl.getState();
     const shown=dataState==='ready'?all.slice(start,end):[];
     cleanupRows();
@@ -409,8 +411,9 @@ export function createCollectionView({
         :dataset.length===0?'Немає записів'
         :'За поточним запитом нічого не знайдено';
     }
-    tableScroller.hidden=!all.length||currentMode!=='table';
-    tiles.hidden=!all.length||currentMode!=='tiles';
+    const hasVisibleRows=shown.length>0;
+    tableScroller.hidden=!hasVisibleRows||currentMode!=='table';
+    tiles.hidden=!hasVisibleRows||currentMode!=='tiles';
     for(const [key,entry] of headers) {
       const state=sort?.key===key?(sort.direction==='asc'?'ascending':'descending'):null;
       if(state)entry.th.setAttribute('aria-sort',state);
@@ -438,7 +441,8 @@ export function createCollectionView({
     const previousSelectionSize=selected.size;
     for(const id of selected)if(!available.has(id))selected.delete(id);
     renderData();
-    if(selected.size!==previousSelectionSize)notifySelection();
+    // Selected IDs can stay the same while their search/result scope changes.
+    if(selected.size||previousSelectionSize)notifySelection();
   }
   function setQuery(next) {
     query=String(next??'');
