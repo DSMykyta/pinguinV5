@@ -73,6 +73,44 @@ test('single-line input, select and combobox surfaces are all 56px',async ({page
   expect(narrow.every(h=>Math.abs(h-56)<.25)).toBe(true);
 });
 
+test('native Select opens from the chevron area at desktop and mobile widths',async ({page})=>{
+  const field=page.locator('.pg-tools-field-demo .pg-select')
+    .filter({has:page.locator('select[name="demo-field-country"]')});
+  const select=field.locator('select');
+  const caret=field.locator('.pg-select__caret');
+
+  for(const [width,theme] of [[1280,'light'],[390,'dark']]) {
+    await page.setViewportSize({width,height:844});
+    await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);
+    await caret.scrollIntoViewIfNeeded();
+    const target=await caret.evaluate(arrow=>{
+      const r=arrow.getBoundingClientRect();
+      const x=r.left+r.width/2,y=r.top+r.height/2;
+      return {x,y,hit:document.elementFromPoint(x,y)?.getAttribute('name')};
+    });
+    // The arrow is visual only: pointer input must go to the native select.
+    expect(target.hit).toBe('demo-field-country');
+    await select.evaluate(el=>{
+      el.dataset.pgTestCaretPointer='false';
+      el.addEventListener('pointerdown',event=>{
+        el.dataset.pgTestCaretPointer=String(event.target===el);
+      },{once:true});
+    });
+    await page.mouse.click(target.x,target.y);
+    await expect(select).toHaveAttribute('data-pg-test-caret-pointer','true');
+    await expect(select).toBeFocused();
+    await page.keyboard.press('Escape');
+    await select.blur();
+  }
+
+  // Native keyboard selection and option values still work.
+  await select.focus();
+  await select.press('ArrowDown');
+  await expect(select).toHaveValue('ua');
+  await select.selectOption('pl');
+  await expect(select).toHaveValue('pl');
+});
+
 test('checkbox circle and mixed-state keyboard behavior remain unchanged',async ({page})=>{
   const box=page.locator('.pg-tools-advanced-fields .pg-checkbox');
   const checkbox=box.getByRole('checkbox',{name:'Враховувати в описі'});
