@@ -80,6 +80,45 @@ test('select-all checkbox clears a mixed selection; filtered actions only affect
   await expect(checkbox).toBeChecked();
 });
 
+test('checkbox interaction stays inside the open popup even when focus causes document scroll', async ({page}) => {
+  const multi = page.locator('.pg-tools-listbox-demo .pg-listbox').nth(1);
+  const trigger = multi.locator('.pg-listbox__trigger');
+  await trigger.click();
+  const popup = multi.locator('.pg-listbox__panel');
+  const checkbox = multi.locator('.pg-listbox__select-all input[type=checkbox]');
+  const hit = multi.locator('.pg-listbox__select-all .pg-checkbox__row');
+
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+  // Emulate an ancestor scroll produced by focusing a visually hidden native input.
+  await checkbox.evaluate(input => {
+    input.addEventListener('focus', () => {
+      window.dispatchEvent(new Event('scroll'));
+    }, { once: true });
+  });
+  await hit.click();
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+  await expect(popup).toBeVisible();
+  await expect(multi.locator('.pg-listbox__options')).toBeVisible();
+  await expect(checkbox).not.toBeChecked();
+  await expect(checkbox).toHaveAccessibleName('Вибрати всі');
+
+  // Repeating the action and using the keyboard must also keep it open.
+  await hit.click();
+  await expect(checkbox).toBeChecked();
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+  await checkbox.press('Space');
+  await expect(checkbox).not.toBeChecked();
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+  // Genuine outside scrolling must still dismiss the popup after the guard re-arms.
+  await expect.poll(() => page.evaluate(async () => {
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    return true;
+  })).toBe(true);
+  await page.evaluate(() => window.dispatchEvent(new Event('scroll')));
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+});
+
 test('toolbar stays in one horizontal row on narrow viewport, no new geometry mode', async ({page}) => {
   await page.setViewportSize({width:390,height:844});
   const multi = page.locator('.pg-tools-listbox-demo .pg-listbox').nth(1);
