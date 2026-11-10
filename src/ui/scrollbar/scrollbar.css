@@ -40,10 +40,26 @@
   background: var(--pg-color-scrollbar-thumb-hover);
   background-clip: padding-box;
 }
+/* Some Chromium/Windows scrollbars still paint a native arrow in the
+ * horizontal start slot unless the direction-specific part loses its skin.
+ * Keep the track/thumb intact; only native scrollbar buttons are suppressed. */
 .pg-scrollbar::-webkit-scrollbar-button,
-.pg-scrollbar::-webkit-scrollbar-button:single-button {
+.pg-scrollbar::-webkit-scrollbar-button:single-button,
+.pg-scrollbar::-webkit-scrollbar-button:double-button,
+.pg-scrollbar::-webkit-scrollbar-button:horizontal:decrement,
+.pg-scrollbar::-webkit-scrollbar-button:horizontal:increment,
+.pg-scrollbar::-webkit-scrollbar-button:vertical:decrement,
+.pg-scrollbar::-webkit-scrollbar-button:vertical:increment {
+  -webkit-appearance: none;
+  appearance: none;
   display: none;
   width: 0;
   height: 0;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  background-image: none;
 }
 .pg-scrollbar::-webkit-scrollbar-corner { background: transparent; }
