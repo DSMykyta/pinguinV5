@@ -46,7 +46,7 @@ test('dense table renders selection, nine fields, row actions and fixed footer p
   await expect(page.locator('.pg-shell__footer .pg-pagination__status')).toHaveText('Показано 25 з 32');
   await expect(root(page).locator('.pg-pagination')).toHaveCount(0);
   await expect(page.locator('.pg-shell__footer')).toHaveAttribute('data-pg-has-content','true');
-  await expect(page.locator('.pg-shell__footer')).toHaveCSS('border-top-style','solid');
+  await expect(page.locator('.pg-shell__footer')).toHaveCSS('border-top-style','none');
   const footer=await page.locator('.pg-shell__footer').boundingBox();
   const pages=await page.locator('.pg-shell__footer .pg-pagination__pages').boundingBox();
   expect(Math.abs((pages.x+pages.width/2)-(footer.x+footer.width/2))).toBeLessThan(2);
@@ -54,6 +54,35 @@ test('dense table renders selection, nine fields, row actions and fixed footer p
   await expect(root(page).locator('.pg-collection-view__tiles')).toBeHidden();
   await expect(page.locator('.pg-shell__page-actions .pg-view-switch')).toHaveAttribute('role','radiogroup');
   await expect(page.locator('.pg-shell__page-actions .pg-view-switch').getByRole('radio',{name:'Таблиця'})).toBeChecked();
+});
+
+test('shared scrollbars hide native arrows and footer has no decorative divider',async({page})=>{
+  const footer=page.locator('.pg-shell__footer');
+  await expect(footer).toHaveCSS('height','56px');
+  await expect(footer).toHaveCSS('border-top-style','none');
+  await expect(footer.locator('.pg-shell__footer-panel')).toHaveCSS('border-top-style','none');
+
+  for(const selector of ['.pg-collection-view__table-scroll','.pg-collection-view__tiles']) {
+    const scroller=root(page).locator(selector);
+    await expect(scroller).toHaveClass(/pg-scrollbar/);
+    const styles=await scroller.evaluate(node=>({
+      standardWidth:getComputedStyle(node).scrollbarWidth,
+      standardColor:getComputedStyle(node).scrollbarColor,
+      nativeButton:getComputedStyle(node,'::-webkit-scrollbar-button').display,
+    }));
+    // Chromium must use the shared WebKit styling, not the native thin variant.
+    expect(styles.standardWidth).toBe('auto');
+    expect(styles.standardColor).toBe('auto');
+    expect(styles.nativeButton).toBe('none');
+  }
+
+  // The scrollbar is still functional, not hidden or replaced by a fake widget.
+  const scroller=root(page).locator('.pg-collection-view__table-scroll');
+  const scrollTop=await scroller.evaluate(node=>{
+    node.scrollTop=100;
+    return node.scrollTop;
+  });
+  expect(scrollTop).toBeGreaterThan(0);
 });
 
 test('native header checkbox uses checked, mixed and empty states across visible page',async({page})=>{
