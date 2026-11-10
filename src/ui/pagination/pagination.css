@@ -41,7 +41,6 @@
   .pg-pagination {column-gap:4px;}
   .pg-pagination__status {display:none;}
   .pg-pagination__pages{gap:0;padding:2px;}
-  .pg-pagination { --pg-page-button-width: 29px; --pg-page-button-height: 32px; }
-  .pg-pagination__button { padding-inline: 5px; }
+  .pg-pagination { --pg-page-button-width: 29px; --pg-page-button-height: 32px; --pg-page-button-padding: 5px; }
   .pg-pagination__dots{min-inline-size:9px;}
 }

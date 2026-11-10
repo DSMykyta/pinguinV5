@@ -169,6 +169,9 @@
   background: var(--pg-color-hover);
   border-color: var(--pg-color-border-strong);
 }
+@media (max-width: 640px) {
+  .pg-button--pill { padding-inline: 8px; font-size: 11px; }
+}
 
 .pg-button--page {
   display: inline-grid;
@@ -177,7 +180,7 @@
   min-inline-size: var(--pg-page-button-width, 34px);
   block-size: var(--pg-page-button-height, 34px);
   min-block-size: 0;
-  padding: 0 8px;
+  padding: 0 var(--pg-page-button-padding, 8px);
   border: 0;
   border-radius: var(--pg-radius-full);
   background: transparent;

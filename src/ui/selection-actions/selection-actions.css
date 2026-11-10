@@ -50,5 +50,4 @@
 @media (max-width: 640px) {
   .pg-selection-actions { width: calc(100vw - 180px); }
   .pg-selection-actions__count { font-size: 11px; }
-  .pg-selection-actions__action { padding-inline: 8px; font-size: 11px; }
 }
