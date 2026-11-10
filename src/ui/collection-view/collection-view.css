@@ -115,14 +115,10 @@
 .pg-collection-view__tile-controls > * {pointer-events:auto;}
 .pg-collection-view__tile-check {
   display:flex;align-items:center;justify-content:center;
-  min-inline-size:28px;min-block-size:28px;
+  min-inline-size:var(--pg-compact-control-size);min-block-size:var(--pg-compact-control-size);
   /* The existing checkbox already has its own surface and focus styling. */
 }
-.pg-collection-view__tile-menu .pg-menu__trigger {
-  /* Reuse pg-mini-button and Menu styling: no second card behind the button. */
-  box-shadow:none;
-}
-.pg-collection-view__tile-check .pg-checkbox__row {min-block-size:28px;}
+.pg-collection-view__tile-check .pg-checkbox__row {min-block-size:var(--pg-compact-control-size);}
 .pg-collection-view__tile-menu {margin-inline-start:auto;}
 @media (prefers-reduced-motion:reduce) {
   .pg-collection-view__tile { transition:none; }

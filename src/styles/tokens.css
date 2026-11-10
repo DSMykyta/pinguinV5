@@ -85,6 +85,8 @@
   --pg-sidebar-compact-width: 56px;
   --pg-aside-width: 302px;
   --pg-control-size: 40px;
+  --pg-compact-control-size: 32px;
+  --pg-checkbox-box-size: 24px;
   --pg-header-height: 60px;
   --pg-duration-fast: 150ms;
   --pg-duration-normal: 210ms;

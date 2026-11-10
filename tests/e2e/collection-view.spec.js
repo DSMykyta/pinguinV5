@@ -320,3 +320,57 @@ test('the original FAB stays unchanged, with a second instance alongside only on
   await expect(secondary).toBeVisible();
   await expect(page.locator('#pg-fab-actions')).toContainText('Код проєкту');
 });
+
+test('legacy btn-icon mini buttons align with compact checkboxes in table and tiles',async({page})=>{
+  const row=table(page).locator('tbody tr').first();
+  const compact=row.locator('.pg-checkbox__row');
+  const box=row.locator('.pg-checkbox__box');
+  const edit=row.getByRole('button',{name:/Редагувати:/});
+  const menu=row.getByRole('button',{name:/Дії:/});
+
+  for(const control of [compact,edit,menu]) {
+    await expect(control).toHaveCSS('width','32px');
+    await expect(control).toHaveCSS('height','32px');
+  }
+  await expect(box).toHaveCSS('width','24px');
+  await expect(box).toHaveCSS('height','24px');
+  await expect(edit).toHaveCSS('border-top-left-radius','9999px');
+  await expect(edit.locator('.pg-icon')).toHaveCSS('width','16px');
+  await expect(edit).toHaveCSS('border-top-width','0px');
+
+  const idle=await edit.evaluate(el=>getComputedStyle(el).backgroundColor);
+  await edit.hover();
+  const hover=await edit.evaluate(el=>({
+    background:getComputedStyle(el).backgroundColor,
+    shadow:getComputedStyle(el).boxShadow,
+    color:getComputedStyle(el).color,
+  }));
+  expect(hover.background).not.toBe(idle);
+  expect(hover.shadow).not.toBe('none');
+  await menu.click();
+  await expect(menu).toHaveAttribute('aria-expanded','true');
+  await expect(menu).not.toHaveCSS('background-color','rgba(0, 0, 0, 0)');
+  await page.keyboard.press('Escape');
+  await expect(menu).toHaveAttribute('aria-expanded','false');
+
+  await switchTo(page,'tiles');
+  const tile=root(page).locator('.pg-collection-view__tile').first();
+  await expect(tile.locator('.pg-checkbox__row')).toHaveCSS('width','32px');
+  await expect(tile.locator('.pg-checkbox__box')).toHaveCSS('width','24px');
+  await expect(tile.getByRole('button',{name:/Дії:/})).toHaveCSS('width','32px');
+});
+
+test('mini action and compact checkbox honor focus, dark theme and reduced motion',async({page})=>{
+  await page.emulateMedia({reducedMotion:'reduce'});
+  const row=table(page).locator('tbody tr').first();
+  const edit=row.getByRole('button',{name:/Редагувати:/});
+  await expect(edit).toHaveCSS('transition-duration','0s');
+  await edit.focus();
+  await expect(edit).toHaveCSS('outline-style','solid');
+  await expect(row.locator('.pg-checkbox__box')).toHaveCSS('transition-duration','0s');
+  await page.evaluate(()=>document.documentElement.setAttribute('data-theme','dark'));
+  await edit.hover();
+  const bg=await edit.evaluate(el=>getComputedStyle(el).backgroundColor);
+  expect(bg).not.toBe('rgba(0, 0, 0, 0)');
+  await expect(edit).toHaveCSS('width','32px');
+});

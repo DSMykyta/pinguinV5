@@ -47,12 +47,12 @@
 /* Menus size to the longest item; no horizontal scrollbar for action labels. */
 .pg-menu__panel { overflow-x:hidden; overflow-y:auto; }
 .pg-menu__item { white-space:nowrap; }
-.pg-menu__trigger[aria-expanded='true'] {
+.pg-menu__trigger:not(.pg-mini-button)[aria-expanded='true'] {
   background:var(--pg-color-accent-soft);
   border-color:var(--pg-color-focus);
   color:var(--pg-color-accent);
 }
-.pg-menu__trigger:hover:not([aria-expanded='true']) {
+.pg-menu__trigger:not(.pg-mini-button):hover:not([aria-expanded='true']) {
   background:var(--pg-color-hover);
 }
 .pg-menu__item:hover:not(:disabled),
@@ -69,9 +69,4 @@
   .pg-menu__item {
     white-space:normal;overflow-wrap:anywhere;
   }
-}
-
-/* Shared checkbox-morph mini button handles its own background inside ::before. */
-.pg-menu__trigger.pg-mini-button:hover:not([aria-expanded='true']) {
-  background: transparent;
 }

@@ -70,77 +70,69 @@
 }
 
 /*
- * Universal mini action: checkbox-sized 20px square within a 28px hit target.
- * Same morph (square -> circle) as compact checkbox, without impersonating
- * a checkbox's selection semantics.
+ * Shared mini button: legacy .btn-icon look on the existing IconButton/Menu.
+ * A 32px circular action target sits beside a 32px compact checkbox target.
+ * Native checkbox semantics and selection styling remain independent.
  */
 .pg-mini-button,
 .pg-menu__trigger.pg-mini-button {
-  position: relative;
   display: inline-grid;
   place-items: center;
-  flex: 0 0 28px;
-  width: 28px;
-  min-width: 28px;
-  height: 28px;
-  min-height: 28px;
+  flex: 0 0 var(--pg-compact-control-size);
+  box-sizing: border-box;
+  inline-size: var(--pg-compact-control-size);
+  min-inline-size: var(--pg-compact-control-size);
+  block-size: var(--pg-compact-control-size);
+  min-block-size: var(--pg-compact-control-size);
+  margin: 0;
   padding: 0;
   border: 0;
-  border-radius: 0;
+  border-radius: var(--pg-radius-full);
   background: transparent;
   color: var(--pg-color-icon);
+  box-shadow: none;
   font-size: inherit;
   line-height: 1;
-  box-shadow: none;
-  transition: color var(--pg-duration-fast) ease, transform 110ms ease;
+  cursor: pointer;
+  transition: background-color var(--pg-duration-fast) ease,
+    color var(--pg-duration-fast) ease,
+    box-shadow var(--pg-duration-fast) ease,
+    transform 110ms ease;
 }
-.pg-mini-button::before {
-  content: '';
-  position: absolute;
-  inset: 4px;
-  border: 1px solid var(--pg-color-border-strong);
-  border-radius: 5px;
-  background: var(--pg-color-surface);
-  transition: border-radius var(--pg-duration-fast) var(--pg-ease),
-    border-color var(--pg-duration-fast) ease,
-    background-color var(--pg-duration-fast) ease;
-}
+
 .pg-mini-button > .pg-icon {
-  position: relative;
-  z-index: 1;
-  width: 13px;
-  height: 13px;
-  transition: transform var(--pg-duration-fast) var(--pg-ease);
+  inline-size: 16px;
+  block-size: 16px;
 }
-.pg-mini-button:hover,
-.pg-mini-button:focus-visible,
-.pg-menu__trigger.pg-mini-button:hover,
-.pg-menu__trigger.pg-mini-button:focus-visible {
-  background: transparent;
-  color: var(--pg-color-text-primary);
-}
-.pg-mini-button:is(:hover, :focus-visible)::before,
-.pg-mini-button[aria-expanded='true']::before {
-  border-radius: 50%;
-  background: var(--pg-color-hover);
-}
-.pg-mini-button[aria-expanded='true'],
+
+/* Legacy btn-icon: 20% accent tint, accent icon and understated shadow. */
+.pg-mini-button:not(:disabled):is(:hover, :focus-visible),
+.pg-menu__trigger.pg-mini-button:not(:disabled):is(:hover, :focus-visible),
+.pg-mini-button:is([aria-expanded='true'], [aria-pressed='true'], [data-pg-state='active']),
 .pg-menu__trigger.pg-mini-button[aria-expanded='true'] {
-  background: transparent;
+  border-color: transparent;
+  border-radius: var(--pg-radius-full);
+  background: color-mix(in srgb, var(--pg-color-accent) 20%, transparent);
   color: var(--pg-color-accent);
+  box-shadow: 0 2px 8px var(--pg-color-shadow);
 }
-.pg-mini-button[aria-expanded='true']::before {
-  border-color: var(--pg-color-accent);
-  background: var(--pg-color-accent-soft);
+
+.pg-mini-button:active:not(:disabled) {
+  transform: scale(.98);
 }
-.pg-mini-button:active { transform: scale(.95); }
+
 .pg-mini-button:focus-visible {
   outline: 2px solid var(--pg-color-focus);
-  outline-offset: 1px;
-  border-radius: 50%;
+  outline-offset: 2px;
 }
-.pg-mini-button:disabled { opacity: .5; cursor: not-allowed; }
+
+.pg-mini-button:disabled {
+  opacity: .38;
+  cursor: not-allowed;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .pg-mini-button, .pg-mini-button::before,
+  .pg-mini-button,
   .pg-mini-button > .pg-icon { transition: none; }
+  .pg-mini-button:active:not(:disabled) { transform: none; }
 }
