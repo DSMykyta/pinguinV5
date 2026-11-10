@@ -180,13 +180,13 @@ test('checkboxes and actions reveal on hover or keyboard focus while selection p
   await expect(header).toHaveCSS('opacity','0');
   await expect(selection).toHaveCSS('opacity','0');
   await expect(menu).toHaveCSS('opacity','0');
-  await expect(edit).toHaveCSS('opacity','0');
+  await expect(edit).toHaveCSS('user-select','text');
   const before=await first.boundingBox();
 
   await first.hover();
   await expect(selection).toHaveCSS('opacity','1');
   await expect(menu).toHaveCSS('opacity','1');
-  await expect(edit).toHaveCSS('opacity','1');
+  await expect(edit).toHaveCSS('user-select','text');
   const after=await first.boundingBox();
   expect(after.width).toBeCloseTo(before.width,1);
   expect(after.height).toBeCloseTo(before.height,1);
@@ -207,20 +207,16 @@ test('checkboxes and actions reveal on hover or keyboard focus while selection p
   await expect(second.locator('.pg-checkbox')).toHaveCSS('opacity','1');
 });
 
-test('pencil lives beside the brand and selecting its text never opens the editor',async({page})=>{
+test('brand name is the only edit target; selecting text does not open the editor',async({page})=>{
   const row=table(page).locator('tbody tr').first();
-  const checkboxCell=row.locator('td.pg-collection-view__selection-cell');
+  const selectionCell=row.locator('td.pg-collection-view__selection-cell');
   const brandCell=row.locator('td[data-pg-column="name"]');
-  const name=brandCell.locator('.pg-collection-view__cell-content');
-  const pencil=brandCell.getByRole('button',{name:/Редагувати:/});
+  const name=brandCell.locator('.pg-collection-view__editable-name');
 
-  await expect(checkboxCell.locator('[data-pg-action="row-edit"]')).toHaveCount(0);
-  await expect(brandCell.locator('.pg-collection-view__primary-line')).toHaveCount(1);
-  await expect(pencil).toHaveCount(1);
+  await expect(selectionCell.locator('[data-pg-action="row-edit"]')).toHaveCount(0);
+  await expect(brandCell.locator('.pg-collection-view__edit,.pg-collection-view__primary-line')).toHaveCount(0);
+  await expect(name).toHaveAttribute('role','button');
   await expect(name).toHaveCSS('user-select','text');
-  await name.click();
-  await expect(page.getByRole('dialog')).toHaveCount(0);
-
   const rect=await name.boundingBox();
   await page.mouse.move(rect.x+2,rect.y+rect.height/2);
   await page.mouse.down();
@@ -229,8 +225,33 @@ test('pencil lives beside the brand and selecting its text never opens the edito
   expect((await page.evaluate(()=>window.getSelection()?.toString()??'')).length).toBeGreaterThan(0);
   await expect(page.getByRole('dialog')).toHaveCount(0);
 
-  await pencil.click();
-  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.evaluate(()=>window.getSelection()?.removeAllRanges());
+  await name.click();
+  await expect(page.getByRole('dialog',{name:'Редагування бренду'})).toBeVisible();
+});
+
+test('closing an editor never leaves an unchecked row checkbox visible from name focus',async({page})=>{
+  const collection=root(page);
+  const row=table(page).locator('tbody tr').first();
+  const name=row.locator('.pg-collection-view__editable-name');
+  const checkbox=row.locator('.pg-collection-view__selection-cell .pg-checkbox');
+
+  await expect(collection).toHaveAttribute('data-pg-selected-count','0');
+  await name.click();
+  const dialog=page.getByRole('dialog',{name:'Редагування бренду'});
+  await expect(dialog).toBeVisible();
+  await dialog.locator('[data-pg-action="dialog-dismiss"]').click();
+  await expect(dialog).toHaveCount(0);
+  // The native dialog restores focus to the name. That must not act
+  // like a permanently hovered selection cell.
+  await expect(name).toBeFocused();
+  await page.mouse.move(1,1);
+  await expect(checkbox).toHaveCSS('opacity','0');
+  await checkbox.locator('.pg-checkbox__control').focus();
+  await expect(checkbox).toHaveCSS('opacity','1');
+  await page.mouse.move(1,1);
+  await checkbox.locator('.pg-checkbox__control').blur();
+  await expect(checkbox).toHaveCSS('opacity','0');
 });
 
 test('coarse pointer keeps row checkboxes and actions visible without hover',async({browser})=>{
@@ -242,7 +263,7 @@ test('coarse pointer keeps row checkboxes and actions visible without hover',asy
     const row=table(page).locator('tbody tr').first();
     await expect(row.locator('.pg-checkbox')).toHaveCSS('opacity','1');
     await expect(row.locator('.pg-collection-view__row-menu')).toHaveCSS('opacity','1');
-    await expect(row.locator('.pg-collection-view__edit')).toHaveCSS('opacity','1');
+    await expect(row.locator('.pg-collection-view__editable-name')).toHaveCount(1);
   } finally {
     await context.close();
   }
