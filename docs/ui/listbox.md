@@ -40,7 +40,16 @@ Native `disabled` inputs are not focusable and never receive user input (per [MD
 - Перевірки: single/multiple, click/Enter, select all, removal, programmatic setValue, error/ready ARIA, світла/темна тема й відсутність змін геометрії.
 
 
-## Погоджено: пошук і звичайна кнопка в одному рядку (2026-11-10)
+## Погоджено й реалізовано: пошук та тристановий Checkbox (2026-11-10)
+
+- У popup Listbox верхній рядок утворюють **наявні** Input/Search і `createCheckbox({showLabel:false})`; новий вигляд чекбокса, окрема кнопка чи анімація **не створюються**. Залишено вже існуючий `pg-listbox__toolbar` з flex.
+- Чекбокс використовує спільні 32px hit area, 24px видимий квадрат, hover та morph у галочку/мінус із `src/ui/checkbox/checkbox.css`. Search зберігає `labelPresentation:'sr-only'`. Коли немає selectAll, елемент відсутній; single-режим не змінено.
+- Стан обчислюється тільки за **видимими доступними** опціями: none → пусто; частина → мінус; усі → галочка; немає доступних результатів → disabled. Натискання на мінус знімає вибрані видимі (правило Pinguin), а на пустий чекбокс обирає всі видимі.
+- Пошук не скидає приховані вибрані значення. Доступний напис чекбокса й делегований Tooltip змінюються за дією: «Вибрати всі», «Зняти вибір», «Зняти всі», «Вибрати знайдені» або «Зняти знайдені». Візуально напис прихований.
+- Розширено лише **спільний** Checkbox методами `setLabel()` / `setDisabled()`, а наявні `setChecked()` / `setIndeterminate()` перевикористано. Меню не вкладене в `role=option`, тому нативний input не порушує семантику Listbox.
+- Перевірити Playwright `tests/e2e/listbox-toolbar.spec.js` та `tests/e2e/listbox-validation.spec.js`, `npm run check`. Самі коміти не підтверджують, що тести виконані.
+
+## Скасовано: пошук і звичайна кнопка в одному рядку (2026-11-10)
 
 - У popup Listbox верхня панель — **один горизонтальний рядок**: ліворуч наявний пошуковий `createInput({variant:'search'})`, праворуч **звичайна компактна кнопка** `pg-button--secondary pg-button--compact` для `selectAll`. Ніяких checkbox для масового вибору, нових фабрик кнопок чи нових анімацій. Порядок DOM: search → button → options.
 - Вбудований пошук **не показує окремий видимий напис «Пошук» над полем**. Він зберігає справжній підпис для assistive technology через opt-in `labelPresentation:'sr-only'` на спільному Field, який передає існуючий Input. Звичайні поля продовжують показувати label постійно.
