@@ -16,7 +16,7 @@
   cursor:pointer; overflow:hidden; white-space:nowrap;
 }
 .pg-listbox__value {
-  min-inline-size:0; flex:1; display:flex; gap:4px; align-items:center;
+  min-inline-size:0; flex:1; display:flex; gap:6px; align-items:center;
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
 /* Popup shell, options and caret are owned by the shared Field skin. */
@@ -42,7 +42,7 @@
 /* A selected-value chip remains interactive without nesting a button in a button. */
 .pg-listbox__field--multi .pg-listbox__trigger { position: relative; z-index: 0; }
 .pg-listbox__value--interactive {
-  position: absolute; z-index: 1; inset-block: 0; inset-inline-start: 14px;
+  position: absolute; z-index: 1; inset-block: 0; inset-inline-start: 7px;
   inset-inline-end: 44px; inline-size: auto;
   pointer-events: none;
 }
@@ -51,7 +51,7 @@
 .pg-listbox__chip, .pg-listbox__selected-chip {
   display: inline-flex; align-items: center; flex: 0 1 auto;
   gap: 3px; max-inline-size: 100%; min-inline-size: 0;
-  padding: 3px 3px 3px 8px; border-radius: var(--pg-radius-full);
+  padding: 2px 3px 2px 8px; border-radius: 6px;
   background: var(--pg-color-accent-soft); color: var(--pg-color-accent);
   font-size: 12px; font-weight: 600; white-space: nowrap;
 }
@@ -70,9 +70,9 @@
   position: absolute; z-index: 59; box-sizing: border-box;
   display: grid; align-content: start;
   max-block-size: 240px; min-block-size: var(--pg-field-control-size); overflow: auto;
-  /* The first chip stays centered over its original row at either Field size. */
-  padding-block: calc((var(--pg-field-control-size) - 32px) / 2);
-  padding-inline: 13px;
+  /* Match the compact row: 26px chips + 1px tray border on each edge. */
+  padding-block: calc((var(--pg-field-control-size) - 28px) / 2);
+  padding-inline: 6px;
   margin: 0;
   border: 1px solid var(--pg-color-focus);
   border-radius: 10px;
