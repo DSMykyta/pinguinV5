@@ -77,7 +77,7 @@ test('native Select opens from the chevron area at desktop and mobile widths',as
   const field=page.locator('.pg-tools-field-demo .pg-select')
     .filter({has:page.locator('select[name="demo-field-country"]')});
   const select=field.locator('select');
-  const caret=field.locator('.pg-select__caret');
+  const caret=field.locator('.pg-field__caret');
 
   for(const [width,theme] of [[1280,'light'],[390,'dark']]) {
     await page.setViewportSize({width,height:844});
