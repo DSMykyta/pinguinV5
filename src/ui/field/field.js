@@ -21,10 +21,11 @@ function slotNodes(value) {
   return items;
 }
 
-export function createFieldFrame({ label, control, controlId, leading, trailing } = {}) {
+export function createFieldFrame({ label, control, controlId, leading, trailing, labelPresentation = 'visible' } = {}) {
   if (typeof label !== 'string' || !label.trim()) throw new TypeError('Field label is required');
   if (!(control instanceof HTMLElement)) throw new TypeError('Field control must be an HTMLElement');
   if (typeof controlId !== 'string' || !controlId.trim()) throw new TypeError('Field controlId is required');
+  if (!['visible', 'sr-only'].includes(labelPresentation)) throw new TypeError('Invalid label presentation');
 
   const field = document.createElement('div');
   field.className = 'pg-field';
@@ -32,6 +33,7 @@ export function createFieldFrame({ label, control, controlId, leading, trailing 
 
   const caption = document.createElement('label');
   caption.className = 'pg-field__label';
+  if (labelPresentation === 'sr-only') caption.classList.add('pg-field__label--sr-only');
   caption.htmlFor = controlId;
   caption.textContent = label;
 
