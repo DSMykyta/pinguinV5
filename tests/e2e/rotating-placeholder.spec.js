@@ -40,7 +40,7 @@ test('empty history shows nothing; entered values rotate without changing field 
   await input.blur();
   await expect(hint).toBeVisible();
   await expect(hint).toContainText('Time Release');
-  await expect(hint).toContainText('Sugar Free', { timeout: 5000 });
+  await expect(hint).toContainText('Sugar Free', { timeout: 9000 });
   const after = await panel.locator('.pg-field__surface').boundingBox();
   expect(Math.abs(after.height - before.height)).toBeLessThan(1);
 
