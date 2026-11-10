@@ -60,7 +60,8 @@ test('Dialog buttons take primary and secondary style from the same button modul
   const cancel = dialog.locator('[data-pg-action="dialog-cancel"]');
   const confirm = dialog.locator('[data-pg-action="dialog-confirm"]');
   await expect(cancel).toHaveClass(/pg-button--secondary/);
-  await expect(confirm).toHaveClass(/pg-button--primary/);
+  // The demo intentionally opens a destructive confirmation, not a primary action.
+  await expect(confirm).toHaveClass(/pg-button--destructive/);
   await expect(cancel).toHaveCSS('min-height','40px');
   await expect(confirm).toHaveCSS('min-height','40px');
   await cancel.click();
