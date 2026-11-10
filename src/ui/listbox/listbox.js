@@ -53,10 +53,7 @@ export function createListbox({
   display.className = 'pg-listbox__value';
   display.id = uid + '-value';
   trigger.append(display);
-  const caret = document.createElement('span');
-  caret.className = 'pg-listbox__caret';
-  caret.setAttribute('aria-hidden','true');
-  const frame = createFieldFrame({label,control:trigger,controlId:uid,trailing:caret});
+  const frame = createFieldFrame({label,control:trigger,controlId:uid,trailing:'caret'});
   frame.field.classList.add('pg-listbox__field');
   frame.label.id = uid + '-label';
   trigger.setAttribute('aria-labelledby', frame.label.id + ' ' + display.id);
@@ -74,7 +71,7 @@ export function createListbox({
   }
 
   const panel = document.createElement('div');
-  panel.className = 'pg-listbox__panel pg-scrollbar';
+  panel.className = 'pg-listbox__panel pg-field__popup pg-scrollbar';
   panel.hidden = true;
   const hasPopover = typeof panel.showPopover === 'function';
   if (hasPopover) panel.setAttribute('popover', 'manual');
@@ -108,7 +105,7 @@ export function createListbox({
   list.tabIndex = -1;
   if (multiple) list.setAttribute('aria-multiselectable','true');
   const empty = document.createElement('li');
-  empty.className = 'pg-listbox__empty';
+  empty.className = 'pg-listbox__empty pg-field__empty';
   empty.setAttribute('role','presentation');
   empty.textContent = 'Нічого не знайдено';
   empty.hidden = true;
@@ -283,11 +280,11 @@ export function createListbox({
     frame.setError(!problem.hidden);
   }
   function activate(index) {
-    if(active>=0) optionsDOM[active]?.classList.remove('pg-listbox__option--active');
+    if(active>=0) optionsDOM[active]?.classList.remove('pg-field__option--active');
     active=index;
     const node=optionsDOM[index];
     if(node) {
-      node.classList.add('pg-listbox__option--active');
+      node.classList.add('pg-field__option--active');
       list.setAttribute('aria-activedescendant',node.id);
       search.setAttribute('aria-activedescendant',node.id);
       ensureOptionVisible(panel, node);
@@ -326,7 +323,7 @@ export function createListbox({
     list.replaceChildren();
     items.forEach((item,index)=>{
       const node=document.createElement('li');
-      node.className='pg-listbox__option';
+      node.className='pg-listbox__option pg-field__option';
       node.id=uid+'-option-'+index;
       node.setAttribute('role','option');
       node.setAttribute('aria-selected','false');
