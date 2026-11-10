@@ -4,11 +4,19 @@
 
 Status: specification before implementation. Scope: `src/ui/select`, `src/ui/combobox`; never import a feature from shared UI.
 
-## Clickable Select caret (fix 2026-11-10)
+## Спільна стрілка й натискання на всю поверхню (оновлено 2026-11-10)
 
-`createSelect()` remains a **native HTML `<select>`**; do not replace it with a custom popup, custom event bus, or a duplicate component. Its entire 56px outlined surface, including the visible trailing chevron, must be one pointer target for the select. The chevron is decorative (`aria-hidden`) and must not intercept clicks; the shared trailing slot must not reserve a separate interactive strip. Keep padding for the selected text so it cannot overlap the chevron.
+**Аудит комітів:** [`5b0a169`](https://github.com/DSMykyta/pinguinV5/commit/5b0a16974fda) виправив натискання стрілки **лише** для `src/ui/select/select.css`. Він не змінював `Listbox`, `Combobox` та їхні окремі CSS-стрілки. [`556b030`](https://github.com/DSMykyta/pinguinV5/commit/556b03051a77) додав перевірку тільки нативного Select.
 
-**Implementation:** only in `src/ui/select/select.css`, position the Select-specific trailing adornment over the right edge with `pointer-events: none`, let the native select fill the editing width, and preserve its keyboard, disabled, selected value, label, validation, and mobile picker semantics. Do **not** change `createFieldFrame` globally: other trailing slots may contain interactive buttons. The actual target must be verified by a real pointer click at the chevron's center on desktop and narrow screens (including dark theme); a browser E2E test must also confirm keyboard use and disabled behavior.
+**Власність:** `src/ui/field/field.js` створює **один декоративний caret** для `trailing: 'caret'`; `src/ui/field/field.css` задає **єдині** розміри, колір, анімацію, пасивний trailing overlay і резерв місця в контрольному елементі. `Select`, `Listbox` та `Combobox` композиційно використовують цей примітив, без власних CSS-варіантів стрілки. Інші trailing-слоти (clear, help, password, steppers) лишаються інтерактивними; не застосовувати `pointer-events:none` до всіх trailing-елементів.
+
+Кліки в межах стрілки потрапляють у **той самий** `select`, `button` або `input`, що і кліки на текстовій поверхні. Жодного накладеного окремого `button` чи дубльованого стану стрілки. 56px зовнішня геометрія, 44px місця під chevron, label над рамкою, помітні focus/error/disabled стани. Для відкритих custom popup обертання відбувається через `frame.setActive(true)`, а зниження руху — через глобальний `prefers-reduced-motion`.
+
+**Оформлення popup:** `pg-field__popup`, `pg-field__option`, `pg-field__empty` — спільні класи `src/ui/field/field.css` для Listbox/Combobox: однакова ширина за anchor, межа, тінь, радіус, відступи, висота пунктів і hover/selected/disabled стани. Геометрію позиціює існуючий `positionPopup()`; без feature-стилів або другої фабрики dropdown.
+
+**Межі об'єднання:** нативний Select відкриває **системний picker** (його внутрішній вигляд визначає браузер/ОС). Listbox зберігає multiple, chips, optional search; Combobox — текстовий ввід, async data і ARIA; Menu — **меню дій**, не Select. Не перетворювати їх на одну state-machine або кастомний native replacement. Спільне джерело істини для **chrome/caret/hit area**, незалежний механізм вибору для кожного типу.
+
+**Перевірити:** пряме наведення й клік у центр caret у всіх демонстраційних інстанціях (включно з обов'язковим/помилковим та multiple Listbox, сортуванням колекцій); desktop/mobile, light/dark, Enter/Escape, вибір пункту, повторне відкриття після Escape, нативний picker, disabled, chips. Немає дублювання CSS стрілок чи анімацій.
 
 ## Research and decisions
 
