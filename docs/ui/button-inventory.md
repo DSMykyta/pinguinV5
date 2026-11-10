@@ -18,7 +18,7 @@
 | `pg-pagination__button` | Номери сторінок | `pg-button--page` | `aria-current`, footer layout |
 | `pg-number-field__step` | Number Field | `pg-button--step` | Значення +/− та обмеження визначає Number Field |
 | `pg-rich-text-editor__action` | Editor toolbar | `pg-button--tool` | `aria-pressed`, відновлення selection |
-| `pg-rich-text-editor__mode` | Історична mode-кнопка | **Не тиражувати**: для перемикання режимів уже є Segment Switch | Зберегти сумісність до окремого демонтажу |
+| `pg-rich-text-editor__mode-switch` | Редактор/HTML | **`createSegmentSwitch`**, нативні radios | Один адаптер стану, без власної кнопки або CSS |
 | `pg-image-field__choose/replace/remove` | Image Field | `pg-button--outline` (compact) | Локальна поведінка відкриття file picker |
 | `pg-toast__action`, `pg-toast__close` | Toast | `pg-button--quiet`, компактна icon кнопка зі зворотною палітрою через токени | Інверсний контраст Toast; локальна поведінка закриття |
 | `pg-listbox__select-all` | Listbox panel | `pg-button--secondary` компактний | Дія на вибір, не нова модель selection |

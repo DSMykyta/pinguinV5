@@ -9,33 +9,34 @@
  * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
+
+import { createSegmentSwitch } from '../segment-switch/segment-switch.js';
+
+/** Composition only: all radio semantics, geometry and plate motion are shared. */
 export function mountEditorModeSwitch({ host, controls, editorId, sourceId }) {
-  const element = document.createElement('div');
-  element.className = 'pg-rich-text-editor__mode-switch';
-  element.setAttribute('role', 'group');
-  element.setAttribute('aria-label', 'Режим текстового редактора');
-  const controller = new AbortController();
-  const buttons = [
-    { mode: 'editor', text: 'Редактор', target: editorId },
-    { mode: 'html', text: 'HTML', target: sourceId },
-  ].map(({ mode, text, target }) => {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'pg-rich-text-editor__mode';
-    button.dataset.pgMode = mode;
-    button.textContent = text;
-    button.setAttribute('aria-controls', target);
-    button.setAttribute('aria-pressed', String(controls.getMode() === mode));
-    button.addEventListener('click', () => controls.setMode(mode), { signal: controller.signal });
-    element.append(button);
-    return { mode, button };
+  const switcher = createSegmentSwitch({
+    label: 'Режим текстового редактора',
+    options: [
+      { value: 'editor', label: 'Редактор' },
+      { value: 'html', label: 'HTML' },
+    ],
+    value: controls.getMode(),
+    variant: 'outline',
+    compact: true,
+    fit: true,
+    onChange: mode => controls.setMode(mode),
   });
-  const sync = () => {
-    for (const { mode, button } of buttons) {
-      button.setAttribute('aria-pressed', String(controls.getMode() === mode));
-    }
+  switcher.element.classList.add('pg-rich-text-editor__mode-switch');
+  const targets = { editor: editorId, html: sourceId };
+  for (const radio of switcher.element.querySelectorAll('.pg-segment-switch__radio')) {
+    radio.setAttribute('aria-controls', targets[radio.value]);
+  }
+  const unsubscribe = controls.subscribe(() => switcher.setValue(controls.getMode()));
+  host.append(switcher.element);
+  return {
+    dispose() {
+      unsubscribe();
+      switcher.destroy();
+    },
   };
-  const unsubscribe = controls.subscribe(sync);
-  host.append(element);
-  return { dispose() { unsubscribe(); controller.abort(); element.remove(); } };
 }

@@ -22,8 +22,8 @@ function getEditor(page) {
     root,
     visual: root.getByRole('textbox', { name: 'Редактор тексту' }),
     code: root.getByRole('textbox', { name: 'HTML-код тексту' }),
-    editorMode: root.getByRole('button', { name: 'Редактор', exact: true }),
-    htmlMode: root.getByRole('button', { name: 'HTML', exact: true }),
+    editorMode: root.getByRole('radio', { name: 'Редактор', exact: true }),
+    htmlMode: root.getByRole('radio', { name: 'HTML', exact: true }),
   };
 }
 
@@ -32,7 +32,7 @@ test('one working surface switches from WYSIWYG to editable HTML and back', asyn
   await expect(visual).toBeVisible();
   await expect(code).toBeHidden();
   await expect(root.locator('.pg-rich-text-editor__mirror')).toHaveCount(0);
-  await expect(editorMode).toHaveAttribute('aria-pressed', 'true');
+  await expect(editorMode).toBeChecked();
   await htmlMode.click();
   await expect(visual).toBeHidden();
   await expect(code).toBeVisible();
@@ -117,7 +117,7 @@ test('HTML is optional, source and visual honor readonly, instances are isolated
     const readonly = first.source.readOnly;
     first.destroy();
     const alive = second.element.isConnected;
-    const noSwitch = second.element.querySelectorAll('.pg-rich-text-editor__mode').length === 0;
+    const noSwitch = second.element.querySelectorAll('.pg-rich-text-editor__mode-switch').length === 0;
     second.destroy();
     return { values, readonly, alive, noSwitch };
   });
