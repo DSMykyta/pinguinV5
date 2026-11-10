@@ -10,6 +10,7 @@
  */
 
 import { createRevealPanel } from '../reveal-panel/reveal-panel.js';
+import { setButtonColor } from '../button/button.js';
 
 export function getSelectionMode(count) {
   if (!Number.isInteger(count) || count < 0) throw new RangeError('Invalid selection count');
@@ -53,6 +54,9 @@ export function createSelectionActions({ single = [], multiple = [], onAction } 
       button.className = 'pg-selection-actions__action pg-button pg-button--pill';
       button.textContent = choice.label;
       button.dataset.pgSelectionAction = choice.value;
+      if (choice.tone != null || choice.appearance != null) {
+        setButtonColor(button, { tone:choice.tone, appearance:choice.appearance ?? 'soft' });
+      }
       button.addEventListener('click', () => onAction(choice.value), {
         signal: controller.signal,
       });
