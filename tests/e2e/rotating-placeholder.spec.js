@@ -79,3 +79,20 @@ test('reduced motion keeps a static placeholder and focus preserves editing', as
   await input.type('Vegan');
   await expect(input).toHaveValue('Vegan');
 });
+
+test('removing HTML opt-in tears down overlay without touching native value or focus', async ({ page }) => {
+  await page.evaluate(() => {
+    document.querySelector('.pg-tools-input-demo__grid').insertAdjacentHTML('beforeend',
+      '<input id="temporary-rotator" name="temporary-rotator" type="text" ' +
+      'data-pg-rotating-placeholder="A | B">');
+  });
+  const field = page.locator('#temporary-rotator');
+  await expect(page.locator('.pg-input__rotating-native-host').filter({ has: field })).toBeVisible();
+  await field.evaluate(input => input.removeAttribute('data-pg-rotating-placeholder'));
+  await expect(page.locator('.pg-input__rotating-native-host').filter({ has: field })).toHaveCount(0);
+  await field.fill('Retained');
+  await expect(field).toHaveValue('Retained');
+  await field.evaluate(input => input.setAttribute('data-pg-rotating-placeholder', 'Again | And again'));
+  await expect(page.locator('.pg-input__rotating-native-host').filter({ has: field })).toHaveCount(1);
+  await expect(field).toHaveValue('Retained');
+});
