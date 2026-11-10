@@ -551,6 +551,23 @@ export function createListbox({
     popup: tray, isOpen: () => trayOpened, dismiss: () => hideTray(),
     signal: controller.signal,
   });
+  // Focusing the native, visually-hidden checkbox can make the browser
+  // scroll an ancestor to reveal it. This is an INSIDE interaction, not
+  // an outside-scroll dismissal. Re-arm after that focus/scroll settles.
+  if (all) {
+    const protectCheckboxInteraction = () => {
+      if (opened) scrollDismiss.arm();
+    };
+    all.element.addEventListener('pointerdown', protectCheckboxInteraction, {
+      capture: true, signal: controller.signal,
+    });
+    all.input.addEventListener('focus', protectCheckboxInteraction, {
+      signal: controller.signal,
+    });
+    all.input.addEventListener('keydown', event => {
+      if (event.key === ' ' || event.key === 'Enter') protectCheckboxInteraction();
+    }, { signal: controller.signal });
+  }
   setOptions(options);
   setValue(value);
   setError(error);
