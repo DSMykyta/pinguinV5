@@ -49,6 +49,10 @@
   inset-inline-end: 44px; inline-size: auto;
   pointer-events: none;
 }
+/* Keep the empty placeholder aligned with other shared field controls. */
+.pg-listbox__value--interactive.pg-listbox__value--placeholder {
+  inset-inline-start: 14px;
+}
 .pg-listbox__value--interactive .pg-listbox__chip-remove,
 .pg-listbox__value--interactive .pg-listbox__more { pointer-events: auto; }
 .pg-listbox__chip, .pg-listbox__selected-chip {
