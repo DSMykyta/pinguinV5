@@ -114,8 +114,10 @@ test('scrolling a narrow table in both directions leaves no scrollbar button chr
   expect(state.top).toBeGreaterThan(0);
   expect(state.left).toBeGreaterThan(0);
   for(const button of state.buttons) {
-    expect(button.display,button.part).toBe('none');
-    expect(button.background,button.part).toBe('none');
+    // Chromium returns an empty computed style for a non-generated directional
+    // scrollbar pseudo-element. Both '' and 'none' mean there is no arrow.
+    expect(['', 'none'],button.part).toContain(button.display);
+    expect(['', 'none'],button.part).toContain(button.background);
   }
 });
 
