@@ -60,17 +60,24 @@ test('shared Field renders SVG caret without throwing or replacing its icon clas
 
   // The same public slot API must also accept subsequent caret updates.
   await page.evaluate(async () => {
-    const { createFieldFrame } = await import('/src/ui/field/field.js');
+    const [{ createFieldFrame }, { createIcon }] = await Promise.all([
+      import('/src/ui/field/field.js'),
+      import('/src/ui/icon/icon.js'),
+    ]);
     const control = document.createElement('input');
     const field = createFieldFrame({
       label: 'Перевірка іконки', control, controlId: 'pg-field-caret-regression',
       trailing: 'caret',
     });
     document.querySelector('#pg-field-test-area').append(field.field);
+    field.setLeading(createIcon('search'));
+    field.setTrailing(createIcon('expand-more'));
     field.setTrailing('caret');
   });
-  await expect(page.locator('#pg-field-test-area #pg-field-caret-regression')
-    .locator('xpath=../following-sibling::*').locator('svg.pg-icon.pg-field__caret')).toHaveCount(1);
+  const repeatedField = page.locator('#pg-field-test-area .pg-field')
+    .filter({ has: page.locator('#pg-field-caret-regression') });
+  await expect(repeatedField.locator('.pg-field__leading svg.pg-icon')).toHaveCount(1);
+  await expect(repeatedField.locator('.pg-field__trailing svg.pg-icon.pg-field__caret')).toHaveCount(1);
 });
 
 test('Input, Select, Combobox and Tag Field show a permanent label above the border', async ({ page }) => {
