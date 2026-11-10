@@ -40,7 +40,17 @@ Native `disabled` inputs are not focusable and never receive user input (per [MD
 - Перевірки: single/multiple, click/Enter, select all, removal, programmatic setValue, error/ready ARIA, світла/темна тема й відсутність змін геометрії.
 
 
-## Погоджено й реалізовано: пошук та тристановий Checkbox (2026-11-10)
+## Актуальна реалізація: кнопка-імітація тристанового вибору (2026-11-10)
+
+- Причина переходу: нативний Checkbox оновлював свій стан під час ручного вибору пунктів, але сам не реагував на натискання у відкритому popup. Попереднє обхідне виправлення через `dismissOnOutsideScroll.arm()` не усунуло проблему; **не додавати нові обхідні обробники фокусу**.
+- У наявному `pg-listbox__toolbar` праворуч від існуючого Input/Search стоїть **штатний** `createIconButton({ variant:'mini' })`. Одна справжня `button[type=button]`, одна область кліку, жодного прихованого `input[type=checkbox]`. Розмір і hover беруться зі спільного `button.css`; локальний стиль кнопки не створено.
+- Три стани імітуються через наявні Material Symbols: `plus` = не обрано нічого (натискання вибере всі видимі); `minus` = частково (натискання зніме видимі вибрані); `check` = усі (натискання зніме видимі). Колір вибраного стану — через спільний `setButtonColor({tone:'success', appearance:'solid'})`, не через CSS у фічі. `aria-pressed` значення `false` / `mixed` / `true`.
+- Текст для assistive technology і спільного Tooltip (але не видимий напис) змінюється за поточним станом: «Вибрати всі», «Зняти вибір», «Зняти всі» та відфільтровані «Вибрати знайдені» / «Зняти знайдені». Під час фільтрації тільки видимі, доступні елементи входять до операції; за відсутності результатів кнопка disabled.
+- Натискання мишею й `Space` змінюють `selected Set`, `aria-selected` на опціях та chips; список залишається відкритим. Справжній outside click / outside scroll все ще закриває його через наявний `dismissOnOutsideScroll`. Підміна SVG відбувається **всередині** постійної кнопки — немає перенесення фокусу чи нової анімації.
+- Збережено наявні single mode, search, chips, required validation, keyboard navigation, Popover. `createCheckbox()` лишається доступним для форм, таблиць і інших місць; його не переробляли в імітацію.
+- Регресійні тести в `tests/e2e/listbox-toolbar.spec.js` і `tests/e2e/listbox-validation.spec.js` перевіряють **фактичні кліки та кількість вибраних**, не лише вигляд кнопки. Тести створені, браузерне виконання треба підтвердити окремо.
+
+## Скасовано: пошук та тристановий Checkbox (2026-11-10)
 
 - У popup Listbox верхній рядок утворюють **наявні** Input/Search і `createCheckbox({showLabel:false})`; новий вигляд чекбокса, окрема кнопка чи анімація **не створюються**. Залишено вже існуючий `pg-listbox__toolbar` з flex.
 - Чекбокс використовує спільні 32px hit area, 24px видимий квадрат, hover та morph у галочку/мінус із `src/ui/checkbox/checkbox.css`. Search зберігає `labelPresentation:'sr-only'`. Коли немає selectAll, елемент відсутній; single-режим не змінено.
