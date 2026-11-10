@@ -70,6 +70,44 @@
   --pg-color-dialog-danger-text: #ffffff;
   --pg-color-input-error: #b1343b;
 
+  /* Semantic action colors: legacy base hues, accessible display pairs. */
+  --pg-tone-main-base: #113855;
+  --pg-tone-main-soft: color-mix(in srgb, var(--pg-tone-main-base) 10%, transparent);
+  --pg-tone-main-on-soft: #113855;
+  --pg-tone-main-solid: #113855;
+  --pg-tone-main-on-solid: #ffffff;
+  --pg-tone-secondary-base: #007aff;
+  --pg-tone-secondary-soft: color-mix(in srgb, var(--pg-tone-secondary-base) 10%, transparent);
+  --pg-tone-secondary-on-soft: #0053a6;
+  --pg-tone-secondary-solid: #0056b6;
+  --pg-tone-secondary-on-solid: #ffffff;
+  --pg-tone-tertiary-base: #ff5223;
+  --pg-tone-tertiary-soft: color-mix(in srgb, var(--pg-tone-tertiary-base) 10%, transparent);
+  --pg-tone-tertiary-on-soft: #aa3210;
+  --pg-tone-tertiary-solid: #b03917;
+  --pg-tone-tertiary-on-solid: #ffffff;
+  --pg-tone-danger-base: #ef4444;
+  --pg-tone-danger-soft: color-mix(in srgb, var(--pg-tone-danger-base) 10%, transparent);
+  --pg-tone-danger-on-soft: #a32730;
+  --pg-tone-danger-solid: #b1343b;
+  --pg-tone-danger-on-solid: #ffffff;
+  --pg-tone-warning-base: #f59e0b;
+  --pg-tone-warning-soft: color-mix(in srgb, var(--pg-tone-warning-base) 10%, transparent);
+  --pg-tone-warning-on-soft: #815000;
+  --pg-tone-warning-solid: #8e5800;
+  --pg-tone-warning-on-solid: #ffffff;
+  --pg-tone-success-base: #10b981;
+  --pg-tone-success-soft: color-mix(in srgb, var(--pg-tone-success-base) 10%, transparent);
+  --pg-tone-success-on-soft: #006b4a;
+  --pg-tone-success-solid: #08714c;
+  --pg-tone-success-on-solid: #ffffff;
+  --pg-tone-info-base: #3b82f6;
+  --pg-tone-info-soft: color-mix(in srgb, var(--pg-tone-info-base) 10%, transparent);
+  --pg-tone-info-on-soft: #1f539f;
+  --pg-tone-info-solid: #245fad;
+  --pg-tone-info-on-solid: #ffffff;
+
+
   --pg-space-1: 4px;
   --pg-space-2: 8px;
   --pg-space-3: 12px;
@@ -158,4 +196,41 @@
   --pg-color-dialog-danger: #c34b54;
   --pg-color-dialog-danger-text: #ffffff;
   --pg-color-input-error: #ff999f;
+
+  /* Soft backgrounds are translucent over the current dark surface. */
+  --pg-tone-main-base: #7bbad4;
+  --pg-tone-main-soft: color-mix(in srgb, var(--pg-tone-main-base) 11%, transparent);
+  --pg-tone-main-on-soft: #a9d8e8;
+  --pg-tone-main-solid: var(--pg-tone-main-base);
+  --pg-tone-main-on-solid: #000000;
+  --pg-tone-secondary-base: #4da3ff;
+  --pg-tone-secondary-soft: color-mix(in srgb, var(--pg-tone-secondary-base) 11%, transparent);
+  --pg-tone-secondary-on-soft: #9ecaff;
+  --pg-tone-secondary-solid: var(--pg-tone-secondary-base);
+  --pg-tone-secondary-on-solid: #000000;
+  --pg-tone-tertiary-base: #ff7a5c;
+  --pg-tone-tertiary-soft: color-mix(in srgb, var(--pg-tone-tertiary-base) 11%, transparent);
+  --pg-tone-tertiary-on-soft: #ffad95;
+  --pg-tone-tertiary-solid: var(--pg-tone-tertiary-base);
+  --pg-tone-tertiary-on-solid: #000000;
+  --pg-tone-danger-base: #f87171;
+  --pg-tone-danger-soft: color-mix(in srgb, var(--pg-tone-danger-base) 11%, transparent);
+  --pg-tone-danger-on-soft: #ffa3aa;
+  --pg-tone-danger-solid: var(--pg-tone-danger-base);
+  --pg-tone-danger-on-solid: #000000;
+  --pg-tone-warning-base: #fbbf24;
+  --pg-tone-warning-soft: color-mix(in srgb, var(--pg-tone-warning-base) 11%, transparent);
+  --pg-tone-warning-on-soft: #ffe09b;
+  --pg-tone-warning-solid: var(--pg-tone-warning-base);
+  --pg-tone-warning-on-solid: #000000;
+  --pg-tone-success-base: #34d399;
+  --pg-tone-success-soft: color-mix(in srgb, var(--pg-tone-success-base) 11%, transparent);
+  --pg-tone-success-on-soft: #8deac3;
+  --pg-tone-success-solid: var(--pg-tone-success-base);
+  --pg-tone-success-on-solid: #000000;
+  --pg-tone-info-base: #60a5fa;
+  --pg-tone-info-soft: color-mix(in srgb, var(--pg-tone-info-base) 11%, transparent);
+  --pg-tone-info-on-soft: #a6cbff;
+  --pg-tone-info-solid: var(--pg-tone-info-base);
+  --pg-tone-info-on-solid: #000000;
 }
