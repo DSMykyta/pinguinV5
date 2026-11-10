@@ -46,17 +46,19 @@ export function createWorkspaceLayout({ title, body, status, sections = [] }) {
   nav.className = 'pg-workspace-layout__nav';
   nav.setAttribute('aria-label', 'Розділи редактора');
   const toggle = createIconButton({
-    label: 'Згорнути навігацію', icon: 'panel-left', variant: 'mini',
+    label: 'Згорнути меню редактора', icon: 'panel-left', variant: 'corner',
     action: 'workspace-nav-toggle',
     onClick() {
       const expanded = element.dataset.pgNav !== 'expanded';
       element.dataset.pgNav = expanded ? 'expanded' : 'collapsed';
       toggle.setAttribute('aria-expanded', String(expanded));
-      toggle.setAttribute('aria-label', expanded ? 'Згорнути навігацію' : 'Розгорнути навігацію');
+      toggle.setAttribute('aria-label', expanded ? 'Згорнути меню редактора' : 'Розгорнути меню редактора');
       toggle.dataset.pgTooltip = toggle.getAttribute('aria-label');
     },
   });
   toggle.classList.add('pg-workspace-layout__nav-toggle');
+  // Reuse this one existing navigator control in the top-left corner.
+  topLeft.append(toggle);
   toggle.setAttribute('aria-controls', 'pg-workspace-nav-' + (++sequence));
   toggle.setAttribute('aria-expanded', 'true');
 
@@ -64,7 +66,7 @@ export function createWorkspaceLayout({ title, body, status, sections = [] }) {
   navList.id = toggle.getAttribute('aria-controls');
   navList.className = 'pg-workspace-layout__nav-list pg-scrollbar';
   navList.setAttribute('aria-label', 'Розділи редактора');
-  nav.append(toggle, navList);
+  nav.append(navList);
 
   const canvas = document.createElement('main');
   canvas.className = 'pg-workspace-layout__canvas pg-scrollbar';
@@ -136,7 +138,7 @@ export function createWorkspaceLayout({ title, body, status, sections = [] }) {
   if (navigator) syncSelection(navigator.getActive());
 
   return Object.freeze({
-    element, canvas, nav, topLeft, topRight, bottomLeft, bottomRight,
+    element, canvas, nav, navToggle: toggle, topLeft, topRight, bottomLeft, bottomRight,
     activate: (id, options) => navigator?.navigate(id, options) ?? Promise.resolve(false),
     getActiveSection: () => navigator?.getActive() ?? null,
     destroy() { navigator?.destroy(); toggle.remove(); element.remove(); },
