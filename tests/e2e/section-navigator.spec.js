@@ -398,3 +398,35 @@ test('compact controls use ordinary cursor; short sections have no artificial bl
   expect(downBounds.y - (textPanel.y + textPanel.height)).toBeGreaterThanOrEqual(-2);
   await expect(root).toHaveCSS('grid-template-rows', /.+/);
 });
+
+test('external navigator fills a short workspace and keeps the next control at the bottom', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/tools');
+  await page.getByRole('tab', { name: 'Переходи' }).click();
+  const panel = page.locator('#pg-tools-panel-navigation');
+  const navigator = panel.locator('.pg-section-navigator');
+  await expect(navigator).toHaveAttribute('data-pg-scroll-container', 'external');
+  await page.getByRole('button', { name: 'Перейти до розділу «Фото»' }).click();
+  await expect(navigator.locator('.pg-section-navigator__title')).toHaveText('Фото');
+
+  const bounds = await panel.evaluate(node => {
+    const navigator = node.querySelector('.pg-section-navigator');
+    const bottom = node.querySelector('[data-pg-placement="bottom"]');
+    const top = node.querySelector('[data-pg-placement="top"]');
+    const outer = node.getBoundingClientRect();
+    const inner = navigator.getBoundingClientRect();
+    const bottomBox = bottom.getBoundingClientRect();
+    const topBox = top.getBoundingClientRect();
+    return {
+      fill: inner.height >= outer.height - 1,
+      top: topBox.top - outer.top,
+      bottom: outer.bottom - bottomBox.bottom,
+      overflow: getComputedStyle(navigator.querySelector('.pg-section-navigator__viewport')).overflowY,
+    };
+  });
+  expect(bounds.fill).toBe(true);
+  expect(bounds.top).toBeGreaterThanOrEqual(-1);
+  expect(bounds.bottom).toBeGreaterThanOrEqual(-1);
+  expect(bounds.bottom).toBeLessThan(3);
+  expect(bounds.overflow).toBe('visible');
+});
