@@ -38,3 +38,30 @@ Native `disabled` inputs are not focusable and never receive user input (per [MD
 - `setError(message)` залишається доступним для зовнішньої валідації; фокусування, фільтрація, hover або відкриття popup **самі по собі** не повинні очищувати повідомлення.
 - Програмна зміна порожнього значення без взаємодії не створює помилки; вибір валідного значення відновлює нейтральний колір тексту/рамки. Припустимий placeholder має початковий нейтральний вигляд тільки в стані без помилки.
 - Перевірки: single/multiple, click/Enter, select all, removal, programmatic setValue, error/ready ARIA, світла/темна тема й відсутність змін геометрії.
+
+
+## UX-дослідження меню вибору (пропозиція, 2026-11-10)
+
+**Статус: досліджено, дизайн ще не реалізовано/не затверджено.** Вимога: прибрати візуальний зайвий заголовок «Пошук» усередині popup та переосмислити велику кнопку «Вибрати всі». Не переписувати Listbox, Input, Checkbox чи Popup до погодження.
+
+### Порівняння зовнішніх систем
+
+- [PatternFly Select design guidelines](https://v5-archive.patternfly.org/components/menus/select/design-guidelines/): окремі single, checkbox, multi й typeahead режими; для понад ~10 пунктів рекомендовано typeahead, для 5 і менше можна показати чекбокси/радіо без dropdown; multi з chips для форм, checkbox selection — для вузького простору.
+- [Material UI Autocomplete](https://mui.com/material-ui/react-autocomplete/): множинний вибір, візуальні checkbox indicators, `disableCloseOnSelect`, обмежені видимі tags; відокремлення selection та фільтрації.
+- [Ant Design Select](https://ant.design/components/select/): `showSearch`, `mode="multiple"`, selected indicator, `maxTagCount`, варіативні popup, не треба дублювати Search як заголовок.
+- [React Spectrum Selection](https://react-spectrum.adobe.com/selection): stable keys/set, окремий select-all стан; важливо свідомо визначити scope всіх/видимих/завантажених.
+- [WAI-ARIA APG Listbox](https://www.w3.org/WAI/ARIA/apg/patterns/listbox/): `role=option` не призначений для вкладених інтерактивних checkbox/button; окремі візуальні індикатори з `aria-selected`, один keyboard model. Якщо справжні чекбокси у кожному пункті — це вже інша семантична структура і значний рефакторинг.
+- [WAI-ARIA Checkbox](https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/): узгоджений тристановий чекбокс для групи (empty / mixed / all).
+
+### Пропозиція для Pinguin
+
+1. **Single Listbox:** одна клікабельна опція на рядок; вибрана позначена іконкою справа, без checkbox «Вибрати всі». Обране значення — у головному контролі. Без search, якщо лише 6 варіантів.
+2. **Multi Listbox:** кожний `li[role=option]` зберігає наявний клік та `aria-selected`, візуально показує *неінтерактивний* checkbox-like індикатор зліва. Не вкладати реальний `input` у `role=option`, щоб не ламати читачі екрану й навігацію. Колір/розмір індикатора узгодити зі спільним `pg-checkbox`, не створювати другий checkbox factory.
+3. **Select all:** існуючу окрему `pg-listbox__select-all` кнопку прибрати з візуального контракту на користь **одного** `createCheckbox()` з `indeterminate`, розміщеного *поза* `ul[role=listbox]`, між search і опціями; без обрамлення кнопки. Зберегти одну модель stable IDs, `onChange` і selection state. Для mixed за погодженим правилом Pinguin клік знімає вибрані видимі, не добирає решту; none вибирає видимі; all знімає всі видимі. Текст у mixed/all має відбивати фактичну дію («Зняти вибір»), а не обіцяти «Вибрати всі».
+4. **Search у popup:** короткий рядок з лупою, placeholder «Знайти маркетплейс…» / «Пошук у списку…», **без повторного видимого підпису «Пошук»**. Доступний label залишається у DOM як sr-only: це opt-in режим саме вкладеного фільтра, а не зміна правила постійних підписів звичайних форм. Використовувати наявний `createInput({variant:'search'})` і shared Field; якщо потрібен `labelPresentation='sr-only'`, додати тільки один узагальнений дозволений прапорець до Field, без локального дубля CSS. Search включати явним `searchable` або у майбутньому `searchable:'auto'` за порогом ~10+ доступних опцій, не переписувати явні налаштування.
+5. **Контекст фільтра:** «Вибрати всі» та лічильник діють на *поточні видимі доступні* (enabled) результати, інші вибрані опції зберігаються. При активному пошуку назва «Вибрати знайдені», «Зняти вибір знайдених». Для серверних великих списків scope завжди визначати явно; не позначати «всі у всій базі», якщо завантажено лише частину.
+6. **Геометрія:** без додаткового великого заголовка, кнопки/pill для select-all чи нової вкладки. Search з компактним вертикальним відступом, тонкий divider, select-all рядок із текстом та спокійним лічильником, потім рядки опцій. Існуючі surface, radius, shadow, scroll, popup positioning залишаються власністю `pg-field__popup` і `positionPopup`; не створювати паралельні CSS-скини.
+7. **Динаміка:** single закривається після вибору, multi лишається відкритим; фільтр не скидає selected Set; keyboard ArrowUp/Down, Enter/Space, Escape, Tab/Shift+Tab мають лишатися робочими; focus не губиться при виборі, рефільтрації чи видаленні chip; disabled опції ігноруються. Пустий результат «Нічого не знайдено», без зайвої кнопки. Унікальна анімація popup не додається.
+8. **Перевірки:** шість опцій без пошуку vs >10 з пошуком, explicit `searchable`, single/multi, none/mixed/all, пошук і вибір під фільтром, скасування вибору, chips `+N`, світла/темна теми, mobile/coarse pointer, focus, screen readers та reduced motion.
+
+**Важливо:** поточна реалізація `listbox.js` вже має `searchable`, `selectAll`, `selected Set`, один `createInput`, `pg-field__popup` й візуальний check у `role=option`. Потрібний точковий рефакторинг, а не нова бібліотека або новий dropdown компонент.
