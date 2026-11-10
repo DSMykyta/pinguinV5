@@ -19,6 +19,7 @@ import { createFieldDemo } from './field-demo.js';
 import { createAdvancedFieldDemo } from './advanced-field-demo.js';
 import { createListboxDemo } from './listbox-demo.js';
 import { createMenuDemo } from './menu-demo.js';
+import { createButtonDemo } from './button-demo.js';
 import { createImageFieldDemo } from './image-field-demo.js';
 import { createDataViewsDemo } from './data-views-demo.js';
 import { createMediaLibraryDemo } from './media-library-demo.js';
@@ -31,6 +32,7 @@ import './field-demo.css';
 import './advanced-field-demo.css';
 import './listbox-demo.css';
 import './menu-demo.css';
+import './button-demo.css';
 import './image-field-demo.css';
 import './data-views-demo.css';
 import './media-library-demo.css';
@@ -91,8 +93,9 @@ export function mount(host, { setAsideContext, setSearchEntries, setSearchContex
   const advancedDemo = createAdvancedFieldDemo();
   const listboxDemo = createListboxDemo();
   const menuDemo = createMenuDemo();
+  const buttonDemo = createButtonDemo();
   const imageDemo = createImageFieldDemo();
-  textPage.body.append(richTextEditorDemo.element, createDialogDemo(), createInputDemo(), fieldDemo.element, advancedDemo.element, listboxDemo.element, menuDemo.element, imageDemo.element);
+  textPage.body.append(richTextEditorDemo.element, createDialogDemo(), createInputDemo(), fieldDemo.element, advancedDemo.element, listboxDemo.element, buttonDemo.element, menuDemo.element, imageDemo.element);
   const navigationDemo = createSectionNavigatorDemo();
   const pageByTab = new Map([
     ['tables', tablePage],
@@ -162,6 +165,7 @@ export function mount(host, { setAsideContext, setSearchEntries, setSearchContex
     advancedDemo.destroy();
     listboxDemo.destroy();
     menuDemo.destroy();
+    buttonDemo.destroy();
     imageDemo.destroy();
     tabs.destroy();
     host.replaceChildren();

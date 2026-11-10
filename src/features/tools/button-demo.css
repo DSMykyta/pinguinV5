@@ -1,0 +1,28 @@
+/*
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — BUTTON DEMO LAYOUT                                                                 ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Розташовує приклади кнопок у Tools Text без дублювання їхнього вигляду.               ║
+ * ║ ЗАЛЕЖНОСТІ: src/ui/button/button.css та src/styles/tokens.css.                                     ║
+ * ║ ПУБЛІЧНИЙ API: .pg-tools-button-demo, __row, __status.                                             ║
+ * ║ ПРИНЦИП: Лише зовнішній layout; усі border, hover, focus і loading належать button.css.            ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
+.pg-tools-button-demo {
+  max-inline-size: 780px;
+  margin-block-start: var(--pg-space-10);
+}
+.pg-tools-button-demo h3 { margin: 0; font-size: 15px; font-weight: 600; }
+.pg-tools-button-demo > p {
+  margin: var(--pg-space-2) 0 var(--pg-space-5);
+  color: var(--pg-color-text-secondary);
+  font-size: 13px;
+}
+.pg-tools-button-demo__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.pg-tools-button-demo__status { font-size: 12px; color: var(--pg-color-text-secondary); }
