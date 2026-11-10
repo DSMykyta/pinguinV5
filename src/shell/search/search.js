@@ -10,6 +10,7 @@
  */
 
 import { createIcon } from '../../ui/icon/icon.js';
+import { createIconButton } from '../../ui/button/button.js';
 
 export function createSearch({ onOpen } = {}) {
   const root = document.createElement('div');
@@ -29,12 +30,25 @@ export function createSearch({ onOpen } = {}) {
   input.spellcheck = false;
   field.append(input);
 
+  // The browser's own search-cancel glyph is platform-colored and inconsistent
+  // with Material Symbols. Reuse the shared IconButton, not a second icon skin.
+  const clearButton = createIconButton({
+    label: 'Очистити пошук', icon: 'x', variant: 'mini', action: 'site-search-clear',
+    onClick() {
+      input.value = '';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.focus();
+    },
+  });
+  clearButton.classList.add('pg-search__clear');
+  clearButton.hidden = true;
+
   // Feedback for screen readers; no visual dropdown or extra panel.
   const status = document.createElement('span');
   status.className = 'pg-search__status';
   status.setAttribute('role', 'status');
   status.setAttribute('aria-live', 'polite');
-  root.append(field, status);
+  root.append(field, clearButton, status);
 
   let entries = [];
   // null = global page navigation search, false = no searchable content,
@@ -42,6 +56,9 @@ export function createSearch({ onOpen } = {}) {
   let currentContext = null;
   const defaultPlaceholder = input.placeholder;
   const defaultLabel = input.getAttribute('aria-label');
+  function syncClear() {
+    clearButton.hidden = input.value.length === 0 || root.hidden;
+  }
   function setContext(next) {
     if (next !== null && next !== false &&
         (typeof next !== 'object' || typeof next.onQuery !== 'function')) {
@@ -53,6 +70,7 @@ export function createSearch({ onOpen } = {}) {
     input.placeholder = next && next.placeholder ? String(next.placeholder) : defaultPlaceholder;
     input.setAttribute('aria-label',next && next.label ? String(next.label) : defaultLabel);
     if (next && next.value) input.value = String(next.value);
+    syncClear();
   }
 
   function setEntries(next) {
@@ -69,6 +87,7 @@ export function createSearch({ onOpen } = {}) {
   function close() {
     input.value = '';
     status.textContent = '';
+    syncClear();
     if (root.contains(document.activeElement)) input.blur();
   }
 
@@ -93,6 +112,7 @@ export function createSearch({ onOpen } = {}) {
 
   function onInput() {
     status.textContent = '';
+    syncClear();
     if (currentContext) currentContext.onQuery(input.value);
   }
 
