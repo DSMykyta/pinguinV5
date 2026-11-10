@@ -3,7 +3,7 @@
  * ║ PINGUIN NEXT — LISTBOX (SINGLE OR MULTIPLE)                                                         ║
  * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Separate from native Select and editable Combobox; no feature ownership.               ║
- * ║ ЗАЛЕЖНОСТІ: ../field/field.js, ../input/input.js, ../checkbox/checkbox.js, ../position/position-popup.js,                    ║
+ * ║ ЗАЛЕЖНОСТІ: ../field/field.js, ../input/input.js, ../button/button.js, ../position/position-popup.js,                    ║
  * ║ ../position/dismiss-on-scroll.js, ../position/ensure-option-visible.js, ../icon/icon.js                              ║
  * ║ ПУБЛІЧНИЙ API: createListbox()                                                                      ║
  * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
@@ -13,7 +13,7 @@
 import { createIcon } from '../icon/icon.js';
 import { createFieldFrame } from '../field/field.js';
 import { createInput } from '../input/input.js';
-import { createCheckbox } from '../checkbox/checkbox.js';
+import { createIconButton, setButtonColor } from '../button/button.js';
 import { positionPopup } from '../position/position-popup.js';
 import { dismissOnOutsideScroll } from '../position/dismiss-on-scroll.js';
 import { ensureOptionVisible } from '../position/ensure-option-visible.js';
@@ -77,7 +77,7 @@ export function createListbox({
   panel.hidden = true;
   const hasPopover = typeof panel.showPopover === 'function';
   if (hasPopover) panel.setAttribute('popover', 'manual');
-  // The existing Input and Checkbox share one compact popup toolbar.
+  // The existing Input and IconButton share one compact popup toolbar.
   // An embedded search keeps its accessible label without taking a second row.
   const toolbar = document.createElement('div');
   toolbar.className = 'pg-listbox__toolbar';
@@ -98,11 +98,14 @@ export function createListbox({
     search.setAttribute('aria-expanded', 'true');
     toolbar.append(searchField.element);
   }
-  const all = multiple && selectAll ? createCheckbox({
-    label: 'Вибрати всі', id: uid + '-select-all', showLabel: false,
-    disabled, onChange: (_, event) => {
+  // Native input/label focus was unreliable inside the top-layer popup.
+  // Keep the shared mini Button as the sole interactive target.
+  const all = multiple && selectAll ? createIconButton({
+    label: 'Вибрати всі', icon: 'plus', variant: 'mini',
+    action: 'listbox-select-all',
+    onClick(event) {
+      if (!opened || disabled) return;
       const eligible = visibleIndices();
-      // Mixed state intentionally clears visible selections (Pinguin selection rule).
       const hasSelected = eligible.some(i => selected.has(items[i].value));
       eligible.forEach(i => hasSelected
         ? selected.delete(items[i].value) : selected.add(items[i].value));
@@ -112,9 +115,8 @@ export function createListbox({
     },
   }) : null;
   if (all) {
-    all.element.classList.add('pg-listbox__select-all');
-    all.element.setAttribute('data-pg-tooltip-always', '');
-    toolbar.append(all.element);
+    all.classList.add('pg-listbox__select-all');
+    toolbar.append(all);
   }
   if (toolbar.childElementCount) panel.append(toolbar);
   const list = document.createElement('ul');
@@ -280,11 +282,24 @@ export function createListbox({
       const actionLabel = filtered
         ? (chosen ? 'Зняти знайдені' : 'Вибрати знайдені')
         : !chosen ? 'Вибрати всі' : chosen === shown.length ? 'Зняти всі' : 'Зняти вибір';
-      all.setChecked(shown.length > 0 && chosen === shown.length);
-      all.setIndeterminate(chosen > 0 && chosen < shown.length);
-      all.setDisabled(disabled || shown.length === 0);
-      all.setLabel(actionLabel);
-      all.element.dataset.pgTooltip = actionLabel;
+      const state = !chosen ? 'false' : chosen === shown.length ? 'true' : 'mixed';
+      all.setAttribute('aria-pressed', state);
+      all.disabled = disabled || shown.length === 0;
+      all.setAttribute('aria-label', actionLabel);
+      all.dataset.pgTooltip = actionLabel;
+      if (state === 'false') {
+        delete all.dataset.pgState;
+        setButtonColor(all);
+      } else {
+        all.dataset.pgState = 'active';
+        setButtonColor(all, { tone: 'success', appearance: 'solid' });
+      }
+      // Swap only the existing button's SVG, never the button or its focus.
+      const iconName = state === 'false' ? 'plus' : state === 'mixed' ? 'minus' : 'check';
+      if (all.dataset.pgIcon !== iconName) {
+        all.replaceChildren(createIcon(iconName));
+        all.dataset.pgIcon = iconName;
+      }
     }
     updateValue();
   }
@@ -529,7 +544,7 @@ export function createListbox({
   },{signal:controller.signal});
 
   panel.addEventListener('keydown',event=>{
-    if(event.target===all?.input&&event.key==='Escape'){event.preventDefault();close(true);}
+    if(event.target===all&&event.key==='Escape'){event.preventDefault();close(true);}
   },{signal:controller.signal});
   document.addEventListener('focusin',event=>{
     if(opened&&!element.contains(event.target))close();
@@ -551,23 +566,6 @@ export function createListbox({
     popup: tray, isOpen: () => trayOpened, dismiss: () => hideTray(),
     signal: controller.signal,
   });
-  // Focusing the native, visually-hidden checkbox can make the browser
-  // scroll an ancestor to reveal it. This is an INSIDE interaction, not
-  // an outside-scroll dismissal. Re-arm after that focus/scroll settles.
-  if (all) {
-    const protectCheckboxInteraction = () => {
-      if (opened) scrollDismiss.arm();
-    };
-    all.element.addEventListener('pointerdown', protectCheckboxInteraction, {
-      capture: true, signal: controller.signal,
-    });
-    all.input.addEventListener('focus', protectCheckboxInteraction, {
-      signal: controller.signal,
-    });
-    all.input.addEventListener('keydown', event => {
-      if (event.key === ' ' || event.key === 'Enter') protectCheckboxInteraction();
-    }, { signal: controller.signal });
-  }
   setOptions(options);
   setValue(value);
   setError(error);
@@ -575,7 +573,7 @@ export function createListbox({
     element, trigger, getValue:selection,setValue,setOptions,setError,open,close,
     focus(){trigger.focus();},
     destroy(){
-      destroyed=true;close();hideTray();controller.abort();searchField?.destroy();all?.destroy();frame.destroy();element.remove();
+      destroyed=true;close();hideTray();controller.abort();searchField?.destroy();frame.destroy();element.remove();
     },
   });
 }
