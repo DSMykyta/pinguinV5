@@ -300,6 +300,7 @@ export function mountRotatingPlaceholder(input, options = {}) {
       input.getAttribute('data-pg-placeholder-interval')),
     saveMode: input.getAttribute('data-pg-placeholder-save') === 'submit' ? 'submit' : 'change',
     originalPlaceholder: input.getAttribute('placeholder'),
+    hasExplicitKey: Boolean(options.historyKey),
     inView: !observer, observed: false, nextAt: 0, overlay: null, host: null, shared: false,
     destroy: null,
   };
@@ -357,7 +358,7 @@ export function mountRotatingPlaceholders(root = document) {
     const dispose = owned.get(input);
     const eligibleInput = (root === input || root.contains(input)) && isAllowed(input);
     if (dispose && (changed || !eligibleInput ||
-        entries.get(input)?.key !== historyKey(input))) {
+        (!entries.get(input)?.hasExplicitKey && entries.get(input)?.key !== historyKey(input)))) {
       dispose();
       owned.delete(input);
     }
