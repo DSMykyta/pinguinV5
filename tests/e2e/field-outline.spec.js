@@ -57,20 +57,20 @@ test('adornments and different surrounding backgrounds do not affect the label',
   expect(after.y+after.height).toBeLessThan(border.y);
 });
 
-test('single-line input, select and combobox surfaces are all 56px',async ({page})=>{
+test('single-line input, select and combobox surfaces share a compact 40px height',async ({page})=>{
   const heights=await page.evaluate(()=>{
     const root=document.querySelector('.pg-tools-field-demo');
     return ['.pg-input .pg-field__surface','.pg-select .pg-field__surface',
       '.pg-combobox .pg-field__surface'].map(s=>root.querySelector(s).getBoundingClientRect().height);
   });
-  expect(heights.every(h=>Math.abs(h-56)<.25)).toBe(true);
+  expect(heights.every(h=>Math.abs(h-40)<.25)).toBe(true);
   await page.setViewportSize({width:390,height:844});
   const narrow=await page.evaluate(()=>{
     const root=document.querySelector('.pg-tools-field-demo');
     return ['.pg-input .pg-field__surface','.pg-select .pg-field__surface',
       '.pg-combobox .pg-field__surface'].map(s=>root.querySelector(s).getBoundingClientRect().height);
   });
-  expect(narrow.every(h=>Math.abs(h-56)<.25)).toBe(true);
+  expect(narrow.every(h=>Math.abs(h-40)<.25)).toBe(true);
 });
 
 test('native Select opens from the chevron area at desktop and mobile widths',async ({page})=>{
