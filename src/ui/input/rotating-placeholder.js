@@ -15,11 +15,11 @@ import { getInputPlaceholderHistory, saveInputPlaceholderHistory } from './place
 const SELECTOR = 'input[data-pg-rotating-placeholder]';
 const SUPPORTED_TYPES = new Set(['text', 'search']);
 const mountedInputs = new WeakMap();
-const DEFAULT_INTERVAL = 2600;
+const DEFAULT_INTERVAL = 5200;
 
 function intervalInRange(value) {
   const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed >= 1200 && parsed <= 10000
+  return Number.isFinite(parsed) && parsed >= 2400 && parsed <= 20000
     ? parsed : DEFAULT_INTERVAL;
 }
 
@@ -94,7 +94,7 @@ export function mountRotatingPlaceholder(input, options = {}) {
         overlay.replaceChildren(current);
         current.removeAttribute('data-pg-state');
         cleanupTimer = null;
-      }, 430);
+      }, 860);
     } else {
       overlay.replaceChildren(current);
     }
