@@ -25,6 +25,8 @@ let listeners = null;
 let unsubscribe = null;
 let reducedMotion = null;
 let timer = null;
+let resetTimer = null;
+const pendingResets = new Set();
 let isPaused = false;
 
 function intervalInRange(value) {
@@ -217,16 +219,19 @@ function onSubmit(event) {
 
 function onReset(event) {
   if (!(event.target instanceof HTMLFormElement)) return;
-  // The native reset default action runs after the reset event has dispatched.
-  setTimeout(() => {
+  pendingResets.add(event.target);
+  if (resetTimer !== null) return;
+  // Let the browser finish its native reset before reading input.value.
+  resetTimer = setTimeout(() => {
+    resetTimer = null;
     let changed = false;
     for (const state of entries.values()) {
-      if (state.input.form === event.target) {
-        changed ||= Boolean(state.nextAt);
-        update(state);
-        changed ||= Boolean(state.nextAt);
-      }
+      if (!pendingResets.has(state.input.form)) continue;
+      changed ||= Boolean(state.nextAt);
+      update(state);
+      changed ||= Boolean(state.nextAt);
     }
+    pendingResets.clear();
     if (changed) schedule();
   }, 0);
 }
@@ -277,7 +282,9 @@ function stop() {
   unsubscribe = null;
   reducedMotion = null;
   if (timer !== null) clearTimeout(timer);
-  timer = null;
+  if (resetTimer !== null) clearTimeout(resetTimer);
+  timer = resetTimer = null;
+  pendingResets.clear();
   historyCache.clear();
 }
 
