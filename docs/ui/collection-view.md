@@ -1,5 +1,7 @@
 # Data Collection — table and optional tiles
 
+**Чинний погоджений контракт:** [П'ятизонний Shell, FAB, дії рядка, вибір і анімації](../approved-ui-rules.md). Нижче збережено дослідження й історію ітерацій; якщо старий опис суперечив новішій вимозі, застосовується погоджений контракт.
+
 Status: interactive design review preview in Tools → «Макети даних», 2026-11-09. The outer Shell header, global search, context controls, navigation and tool tabs must **not be recreated**. The first screenshot defines a dense table/list below existing chrome; the second defines an optional card/tile layout for e.g. Brands.
 
 ## Architecture: one dataset, two presentations
@@ -15,7 +17,7 @@ Status: interactive design review preview in Tools → «Макети даних
 1. Native `table` with caption, `th scope=col` and `aria-sort` on the sorted header. Sorting buttons use full header text and toggle ascending/descending. A plain table, **not** `role=grid` (which would require keyboard focus management not used by this preview).
 2. Compact, consistent row height (~46px), quiet 1px separators and restrained hover, primary name visually stronger, supporting text subdued. Right-align numeric columns, use `font-variant-numeric: tabular-nums`.
 3. Sticky header inside a full-height scrollable table viewport; many columns scroll horizontally without clipping any data. The leading name column stays visible horizontally where supported. Keep keyboard-focus outlines and semantic headers.
-4. Existing shared Menu and Checkbox supply real local record actions and selection. The Shell contains the single data-context search, and the aside hosts sort and bulk controls.
+4. Existing shared Menu and Checkbox supply real local record actions and selection. The Shell contains the single data-context search; aside provides sorting controls, while **bulk actions for selected records belong in the top Header**, to the left of the view switch.
 5. Responsive narrow layout does not delete columns; horizontal scroll affords access to all. Do not fake table semantics with `div` grids.
 
 ## Optional tile style
@@ -62,7 +64,7 @@ Shared `createCollectionView` now includes:
 - The existing Shell search field accepts a page-scoped `onQuery` handler and
   is hidden for tabs without searchable content. The existing aside accepts
   optional page-owned controls; for data tables, it holds the real sort Select,
-  direction segmented control, selection count, and bulk action.
+  direction segmented control. **Selection count (only 2+) and bulk actions appear in the existing Header slot to the left of the view switch, not in aside.**
 - There is **one** Shell workspace layout and **one** tab-panel animation.
   No page-specific `flush` mode, `fill` switch or duplicate header exists.
 
@@ -71,13 +73,13 @@ This remains a **UI alignment preview**, not a production Brands route.
 ## Legacy footer, menu and checkbox corrections
 
 - Header checkbox `−` is a clear action: if **any** row on the current page is selected, clicking it deselects all visible selected rows; if none, clicking selects the visible page. The checked state also clears selection. Individual checkboxes keep the generic circular appearance.
-- The order of table cells is **selection checkbox, action menu, data columns**. A table without selection still places actions before the data. No sticky actions column at the far right.
+- **Актуальний порядок:** перша клітинка — checkbox + окрема кнопка edit, далі всі колонки даних, **останній стовпець — «Дії» (`⋯`)**. Меню дій — sticky справа, якщо це підтримує таблиця; воно ніколи не стоїть між checkbox і назвою.
 - Action Menu uses the existing `createMenu` and shared popup positioning. The panel measures text and fits the longest label without horizontal scrolling, and both hovered/focused items and the open trigger have visible state.
 - Pagination is rendered in the existing Shell footer via one optional `setFooterContent` callback. It uses the same `createPagination` instance for table and tiles, not a clone and not a separate work-area mode. The shared footer remains empty on unrelated tabs.
 
-## Shared FAB composition correction
+## Shared FAB composition — актуальний стан
 
-The global fourth-corner FAB stays in place and keeps its original actions. A second FAB instance from the **same existing factory** sits immediately to its left only for data collections, configured by `setPageFabContext`. Page-size selection is not embedded in the pagination and does not replace the original corner button. No duplicate FAB/dial implementation exists.
+The global fourth-corner FAB stays in the **Aside rail** and keeps its original actions. A second instance from the **same existing factory** is mounted **inside the Footer pagination**, aligned to the **far right edge of Footer** and configured by `setPageFabContext`. The centered page numbers do not move, the Footer FAB is not in Aside, and the original FAB is never replaced. No duplicate FAB/dial implementation exists.
 
 ## Table row controls: explicit placement contract (2026-11-09)
 
