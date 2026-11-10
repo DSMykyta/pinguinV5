@@ -233,8 +233,8 @@
  * ╚═══════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 .pg-button--destructive {
-  background: var(--pg-color-dialog-danger);
-  color: var(--pg-color-dialog-danger-text);
+  background: var(--pg-tone-danger-solid);
+  color: var(--pg-tone-danger-on-solid);
 }
 .pg-button:is(.pg-button--primary, .pg-button--destructive):hover:not(:disabled) {
   filter: brightness(.92);
@@ -668,4 +668,109 @@
   .pg-mini-button,
   .pg-mini-button > .pg-icon { transition: none; }
   .pg-mini-button:active:not(:disabled) { transform: none; }
+}
+
+/*
+ * ╔════════════════════════════════════════════════════════════════════════════╗
+ * ║ SEMANTIC TONE × APPEARANCE — color only, independently of button geometry. ║
+ * ║ The same palette works for pill, mini, icon, menu row and Dialog actions. ║
+ * ║ Source and API: docs/ui/semantic-colors.md; raw values: tokens.css.       ║
+ * ╚════════════════════════════════════════════════════════════════════════════╝
+ */
+
+:is(.pg-button, .pg-icon-button)[data-pg-tone='main'] {
+  --_pg-tone-base: var(--pg-tone-main-base);
+  --_pg-tone-soft: var(--pg-tone-main-soft);
+  --_pg-tone-on-soft: var(--pg-tone-main-on-soft);
+  --_pg-tone-solid: var(--pg-tone-main-solid);
+  --_pg-tone-on-solid: var(--pg-tone-main-on-solid);
+}
+
+:is(.pg-button, .pg-icon-button)[data-pg-tone='secondary'] {
+  --_pg-tone-base: var(--pg-tone-secondary-base);
+  --_pg-tone-soft: var(--pg-tone-secondary-soft);
+  --_pg-tone-on-soft: var(--pg-tone-secondary-on-soft);
+  --_pg-tone-solid: var(--pg-tone-secondary-solid);
+  --_pg-tone-on-solid: var(--pg-tone-secondary-on-solid);
+}
+
+:is(.pg-button, .pg-icon-button)[data-pg-tone='tertiary'] {
+  --_pg-tone-base: var(--pg-tone-tertiary-base);
+  --_pg-tone-soft: var(--pg-tone-tertiary-soft);
+  --_pg-tone-on-soft: var(--pg-tone-tertiary-on-soft);
+  --_pg-tone-solid: var(--pg-tone-tertiary-solid);
+  --_pg-tone-on-solid: var(--pg-tone-tertiary-on-solid);
+}
+
+:is(.pg-button, .pg-icon-button)[data-pg-tone='danger'] {
+  --_pg-tone-base: var(--pg-tone-danger-base);
+  --_pg-tone-soft: var(--pg-tone-danger-soft);
+  --_pg-tone-on-soft: var(--pg-tone-danger-on-soft);
+  --_pg-tone-solid: var(--pg-tone-danger-solid);
+  --_pg-tone-on-solid: var(--pg-tone-danger-on-solid);
+}
+
+:is(.pg-button, .pg-icon-button)[data-pg-tone='warning'] {
+  --_pg-tone-base: var(--pg-tone-warning-base);
+  --_pg-tone-soft: var(--pg-tone-warning-soft);
+  --_pg-tone-on-soft: var(--pg-tone-warning-on-soft);
+  --_pg-tone-solid: var(--pg-tone-warning-solid);
+  --_pg-tone-on-solid: var(--pg-tone-warning-on-solid);
+}
+
+:is(.pg-button, .pg-icon-button)[data-pg-tone='success'] {
+  --_pg-tone-base: var(--pg-tone-success-base);
+  --_pg-tone-soft: var(--pg-tone-success-soft);
+  --_pg-tone-on-soft: var(--pg-tone-success-on-soft);
+  --_pg-tone-solid: var(--pg-tone-success-solid);
+  --_pg-tone-on-solid: var(--pg-tone-success-on-solid);
+}
+
+:is(.pg-button, .pg-icon-button)[data-pg-tone='info'] {
+  --_pg-tone-base: var(--pg-tone-info-base);
+  --_pg-tone-soft: var(--pg-tone-info-soft);
+  --_pg-tone-on-soft: var(--pg-tone-info-on-soft);
+  --_pg-tone-solid: var(--pg-tone-info-solid);
+  --_pg-tone-on-solid: var(--pg-tone-info-on-solid);
+}
+
+/* Preserve every existing size, radius, layout and event handler. */
+:is(.pg-button, .pg-icon-button)[data-pg-tone][data-pg-appearance='soft'] {
+  background: var(--_pg-tone-soft);
+  color: var(--_pg-tone-on-soft);
+  border-color: transparent;
+  filter: none;
+}
+:is(.pg-button, .pg-icon-button)[data-pg-tone][data-pg-appearance='solid'] {
+  background: var(--_pg-tone-solid);
+  color: var(--_pg-tone-on-solid);
+  border-color: transparent;
+  filter: none;
+}
+:is(.pg-button, .pg-icon-button)[data-pg-tone][data-pg-appearance='outline'] {
+  background: transparent;
+  color: var(--_pg-tone-on-soft);
+  border-color: transparent;
+  box-shadow: inset 0 0 0 1px var(--_pg-tone-on-soft);
+  filter: none;
+}
+:is(.pg-button, .pg-icon-button)[data-pg-tone][data-pg-appearance='ghost'] {
+  background: transparent;
+  color: var(--_pg-tone-on-soft);
+  border-color: transparent;
+  filter: none;
+}
+
+/* Includes mini pressed/open, Menu focus and persistent selected controls. */
+:is(.pg-button, .pg-icon-button)[data-pg-tone][data-pg-appearance='soft']:is(:hover, :focus-visible, [aria-pressed='true'], [aria-expanded='true'], [data-pg-state='active']):not(:disabled),
+:is(.pg-button, .pg-icon-button)[data-pg-tone][data-pg-appearance='ghost']:is(:hover, :focus-visible, [aria-pressed='true'], [aria-expanded='true'], [data-pg-state='active']):not(:disabled),
+:is(.pg-button, .pg-icon-button)[data-pg-tone][data-pg-appearance='outline']:is(:hover, :focus-visible, [aria-pressed='true'], [aria-expanded='true'], [data-pg-state='active']):not(:disabled) {
+  background: color-mix(in srgb, var(--_pg-tone-base) 16%, transparent);
+  color: var(--_pg-tone-on-soft);
+  filter: none;
+}
+:is(.pg-button, .pg-icon-button)[data-pg-tone][data-pg-appearance='solid']:is(:hover, :focus-visible, [aria-pressed='true'], [aria-expanded='true'], [data-pg-state='active']):not(:disabled) {
+  background: color-mix(in srgb, var(--_pg-tone-solid) 92%, black);
+  color: var(--_pg-tone-on-solid);
+  filter: none;
 }
