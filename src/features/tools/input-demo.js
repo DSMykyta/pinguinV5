@@ -23,7 +23,7 @@ export function createInputDemo() {
 
   const introduction = document.createElement('p');
   introduction.className = 'pg-tools-input-demo__hint';
-  introduction.textContent = 'Підписи постійно розташовані над полями. Рамка не має вирізів або підкладок і не змінює висоту при фокусі.';
+  introduction.textContent = 'Підписи розташовані над полями. У полі «Ознака товару» підказки з’являться лише після введення значень — за відсутності історії воно порожнє.';
 
   const grid = document.createElement('div');
   grid.className = 'pg-tools-input-demo__grid';
@@ -37,8 +37,7 @@ export function createInputDemo() {
     createInput({
       label: 'Ознака товару — змінні підказки', name: 'demo-rotating-feature',
       autocomplete: 'on',
-      rotatingPlaceholder: ['Sugar Free', 'Time Release', 'Vegan Formula'],
-      placeholderHistoryKey: 'demo-product-feature', placeholderInterval: 1200,
+      rotatingPlaceholder: true, placeholderInterval: 1200,
     }),
     createInput({ label: 'Бренд', name: 'demo-brand', value: 'Pinguin' }),
     createInput({
