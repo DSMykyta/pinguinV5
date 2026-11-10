@@ -117,7 +117,7 @@ export function createCollectionView({
     th.className='pg-collection-view__selection-cell';
     th.setAttribute('aria-label','Вибір записів');
     allCheckbox=createCheckbox({
-      label:'Вибрати всі на поточній сторінці',compact:true,
+      label:'Вибрати всі на поточній сторінці',showLabel:false,
       onChange:()=>{
         const pageRows=getVisibleRows();
         // Mixed means "clear what is selected", never "select the rest".
@@ -242,7 +242,7 @@ export function createCollectionView({
       let checkbox=null;
       if(selectable) {
         checkbox=createCheckbox({
-          label:'Вибрати: '+String(row.name??id),compact:true,
+          label:'Вибрати: '+String(row.name??id),showLabel:false,
           checked:selected.has(id),
           onChange:checked=>setRowSelected(id,checked),
         });
@@ -329,7 +329,7 @@ export function createCollectionView({
             const checkHost=document.createElement('div');
             checkHost.className='pg-collection-view__tile-check';
             tileCheckbox=createCheckbox({
-              label:'Вибрати: '+String(row.name??id),compact:true,
+              label:'Вибрати: '+String(row.name??id),showLabel:false,
               checked:selected.has(id),
               onChange:checked=>setRowSelected(id,checked),
             });
