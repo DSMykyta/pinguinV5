@@ -277,7 +277,14 @@ export function mountDialogs() {
     try {
       if (item.options.validate && await item.options.validate() !== true) {
         report(item, 'Перевірте позначені поля.', 'alert');
-        item.element.querySelector('[aria-invalid="true"]')?.focus({ preventScroll: true });
+        const invalid = item.element.querySelector('[aria-invalid="true"]');
+        if (invalid && item.workspace) {
+          const section = item.options.sections.find(entry => entry.element.contains(invalid));
+          if (section) await item.workspace.activate(section.id, { focus: false });
+        }
+        if (!destroyed && active === item && !item.closing) {
+          invalid?.focus({ preventScroll: true });
+        }
         return;
       }
       if (destroyed || active !== item || item.closing) return;
