@@ -45,7 +45,16 @@ export function createFieldFrame({ label, control, controlId, leading, trailing 
   trail.className = 'pg-field__trailing';
 
   function setSlot(slot, value) {
-    slot.replaceChildren(...slotNodes(value));
+    // The literal 'caret' is a shared decorative dropdown accessory.
+    // Unlike an interactive trailing button it must never capture clicks.
+    const decorative = slot === trail && value === 'caret';
+    const contents = decorative ? [document.createElement('span')] : slotNodes(value);
+    if (decorative) {
+      contents[0].className = 'pg-field__caret';
+      contents[0].setAttribute('aria-hidden', 'true');
+    }
+    slot.classList.toggle('pg-field__trailing--decorative', decorative);
+    slot.replaceChildren(...contents);
     slot.hidden = slot.childElementCount === 0;
   }
   setSlot(lead, leading);
