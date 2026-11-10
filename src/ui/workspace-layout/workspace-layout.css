@@ -83,13 +83,6 @@
   min-width: 0; margin: 0; padding: 0 8px; overflow: hidden; text-overflow: ellipsis;
   white-space: nowrap;
 }
-.pg-workspace-layout__canvas .pg-dialog__body {
-  box-sizing: border-box; display: block;
-  min-height: 100%; max-height: none;
-  padding: 28px clamp(20px, 4vw, 48px) 36px;
-  overflow: visible;
-}
-.pg-workspace-layout__canvas .pg-dialog__body > [hidden] { display: none; }
 .pg-workspace-layout__nav-item:focus-visible { outline-offset: -2px; }
 
 @media (max-width: 700px) {
@@ -108,7 +101,6 @@
     border-radius: 0 var(--pg-radius-md) var(--pg-radius-md) 0;
   }
   .pg-workspace-layout__title { font-size: 17px; }
-  .pg-workspace-layout__canvas .pg-dialog__body { padding: 20px 16px 28px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .pg-workspace-layout, .pg-workspace-layout__nav-label { transition: none; }
