@@ -113,7 +113,7 @@ export function createTagField({
       text.textContent = value;
       const button = document.createElement('button');
       button.type = 'button';
-      button.className = 'pg-tag-field__remove';
+      button.className = 'pg-tag-field__remove pg-button pg-button--quiet pg-button--square';
       button.setAttribute('aria-label', 'Видалити ' + value);
       button.disabled = Boolean(disabled);
       button.textContent = '×';

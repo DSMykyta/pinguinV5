@@ -22,7 +22,9 @@
 | `pg-image-field__choose/replace/remove` | Image Field | `pg-button--outline` (compact) | Локальна поведінка відкриття file picker |
 | `pg-toast__action`, `pg-toast__close` | Toast | `pg-button--quiet`, компактна icon кнопка зі зворотною палітрою через токени | Інверсний контраст Toast; локальна поведінка закриття |
 | `pg-listbox__select-all` | Listbox panel | `pg-button--secondary` компактний | Дія на вибір, не нова модель selection |
-| `pg-listbox__chip-remove`, `pg-listbox__more` | Chips, tray у Listbox | Малі інтерактивні controls у складі Listbox | Micro-target у chip та незалежне розкриття +N |
+| `pg-listbox__chip-remove`, `pg-listbox__more` | Chips, tray у Listbox | `pg-button--chip-remove` / `pg-button--chip-more` | Micro-target у chip та незалежне розкриття +N |
+| `pg-input__clear` | Input/Search | `createIconButton({variant:'mini'})` | Саме поле має власний lifecycle |
+| `pg-tag-field__remove` | Tag Field | `pg-button--quiet pg-button--square` | Малі дії біля тегів; keyboard/undo належать Tag Field |
 | `pg-listbox__trigger` | Listbox | Спільна `pg-field__control` / Field | **Button за семантикою**, але візуально **поле**, не дія |
 | `pg-collection-view__sort` | Заголовки таблиці | Text-ghost button в межах sortable header | Сортує, не повинен створювати власний button-skin |
 | `pg-tabs__tab` | Shell Tabs | Спільний компонент Tabs з нативною tab-семантикою | Відмінний control, не довільна кнопка |

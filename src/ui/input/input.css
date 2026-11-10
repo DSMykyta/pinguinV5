@@ -19,15 +19,6 @@
 .pg-input--search .pg-input__control { padding-inline-start: 10px; }
 .pg-input__control::-webkit-search-cancel-button { display: none; }
 .pg-input[data-pg-state='disabled'] .pg-input__field { cursor: not-allowed; }
-.pg-input__clear {
-  display: grid; place-items: center; inline-size: 34px; block-size: 34px;
-  padding: 0; border: 0; border-radius: var(--pg-radius-sm);
-  background: transparent; color: var(--pg-color-text-secondary); cursor: pointer;
-}
-.pg-input__clear[hidden] { display: none; }
-.pg-input__clear > .pg-icon { inline-size: 16px; block-size: 16px; }
-.pg-input__clear:hover { background: var(--pg-color-hover); color: var(--pg-color-text-primary); }
-.pg-input__clear:focus-visible { outline: 2px solid var(--pg-color-focus); outline-offset: -2px; }
 .pg-input__support { display: grid; gap: 3px; padding-inline: 2px; font-size: 12px; line-height: 1.4; }
 .pg-input__support[hidden], .pg-input__support > [hidden] { display: none; }
 .pg-input__description { color: var(--pg-color-text-secondary); }

@@ -10,6 +10,7 @@
  */
 
 import { createIcon } from '../icon/icon.js';
+import { createIconButton } from '../button/button.js';
 import { createFieldFrame } from '../field/field.js';
 import { mountRotatingPlaceholder, refreshRotatingPlaceholder } from './rotating-placeholder.js';
 
@@ -67,12 +68,13 @@ export function createInput({
   const suffixes = [];
   if (trailing != null) suffixes.push(...(Array.isArray(trailing) ? trailing : [trailing]));
   if (shouldClear) {
-    clearButton = document.createElement('button');
-    clearButton.type = 'button';
-    clearButton.className = 'pg-input__clear';
-    clearButton.dataset.pgAction = 'input-clear';
-    clearButton.setAttribute('aria-label', 'Очистити поле ' + label);
-    clearButton.append(createIcon('x'));
+    clearButton = createIconButton({
+      label: 'Очистити поле ' + label,
+      icon: 'x',
+      action: 'input-clear',
+      variant: 'mini',
+    });
+    clearButton.classList.add('pg-input__clear');
     suffixes.push(clearButton);
   }
   // All variants share the exact same frame/label layout; search only adds an icon.

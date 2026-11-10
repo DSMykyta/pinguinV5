@@ -348,6 +348,7 @@
   block-size: 32px;
   min-block-size: 32px;
   padding: 0;
+  font-size: 18px;
 }
 .pg-button--square > .pg-icon { inline-size: 16px; block-size: 16px; }
 
