@@ -52,7 +52,7 @@ export function createFieldFrame({ label, control, controlId, leading, trailing 
     const decorative = slot === trail && value === 'caret';
     const contents = decorative ? [createIcon('expand-more')] : slotNodes(value);
     if (decorative) {
-      contents[0].className = 'pg-field__caret';
+      contents[0].classList.add('pg-field__caret');
       contents[0].setAttribute('aria-hidden', 'true');
     }
     slot.classList.toggle('pg-field__trailing--decorative', decorative);
