@@ -81,6 +81,102 @@
 .pg-field__leading { padding-inline-start: 10px; padding-inline-end: 0; }
 .pg-field__trailing { padding-inline-start: 0; padding-inline-end: 6px; }
 
+/* One decorative caret for Select, Listbox and Combobox.
+ * Unlike ordinary trailing actions, it never owns a separate hit target.
+ * The underlying native select / button / input spans the entire surface.
+ */
+.pg-field__trailing--decorative {
+  position: absolute;
+  z-index: 1;
+  inset-block: 0;
+  inset-inline-end: 0;
+  inline-size: 44px;
+  justify-content: center;
+  padding: 0;
+  pointer-events: none;
+}
+.pg-field__surface:has(> .pg-field__trailing--decorative) .pg-field__control {
+  padding-inline-end: 44px;
+}
+.pg-field__caret {
+  display: block;
+  inline-size: 9px;
+  block-size: 9px;
+  margin-block-start: -4px;
+  border-inline-end: 2px solid currentColor;
+  border-block-end: 2px solid currentColor;
+  color: var(--pg-color-text-secondary);
+  transform: rotate(45deg);
+  transform-origin: center;
+  transition: transform var(--pg-duration-normal) var(--pg-ease);
+  pointer-events: none;
+}
+.pg-field[data-pg-active='true'] .pg-field__caret {
+  transform: rotate(225deg);
+}
+.pg-field[data-pg-state='error'] .pg-field__caret {
+  color: var(--pg-color-input-error);
+}
+.pg-field[data-pg-disabled='true'] .pg-field__caret {
+  color: var(--pg-color-text-muted);
+}
+
+/* Shared popup skin for value selection. Listbox and Combobox supply only
+ * their distinct selection logic; the geometry and item states live here.
+ */
+.pg-field__popup {
+  position: absolute;
+  z-index: 60;
+  inset: calc(100% + 4px) 0 auto;
+  box-sizing: border-box;
+  display: grid;
+  gap: 5px;
+  min-inline-size: 0;
+  max-block-size: 320px;
+  overflow: auto;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border: 1px solid var(--pg-color-border-strong);
+  border-radius: var(--pg-radius-md);
+  background: var(--pg-color-surface);
+  color: var(--pg-color-text-primary);
+  box-shadow: 0 12px 24px var(--pg-color-shadow);
+}
+.pg-field__popup[hidden] { display: none; }
+.pg-field__popup:popover-open { inset: auto; margin: 0; }
+.pg-field__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-block-size: 38px;
+  padding: 9px 12px;
+  border-radius: var(--pg-radius-sm);
+  color: var(--pg-color-text-primary);
+  font-size: 13px;
+  cursor: pointer;
+}
+.pg-field__option[hidden], .pg-field__empty[hidden] { display: none; }
+.pg-field__option:is(:hover, .pg-field__option--active) {
+  background: var(--pg-color-hover);
+}
+.pg-field__option[aria-selected='true'] {
+  background: var(--pg-color-selected);
+}
+.pg-field__option[aria-disabled='true'] {
+  opacity: .45;
+  cursor: not-allowed;
+}
+.pg-field__empty {
+  padding: 10px;
+  color: var(--pg-color-text-muted);
+  font-size: 13px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pg-field__caret { transition: none; }
+}
+
 /* Only multiline and token collection surfaces may grow in block size. */
 .pg-textarea .pg-field__surface, .pg-tag-field .pg-field__surface {
   block-size: auto; min-block-size: 56px;
