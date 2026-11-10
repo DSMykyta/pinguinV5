@@ -42,10 +42,7 @@ export function createSelect({
   control.required = Boolean(required);
   control.disabled = Boolean(disabled);
 
-  const caret = document.createElement('span');
-  caret.className = 'pg-select__caret';
-  caret.setAttribute('aria-hidden', 'true');
-  const frame = createFieldFrame({ label, control, controlId: uid, trailing: caret });
+  const frame = createFieldFrame({ label, control, controlId: uid, trailing: 'caret' });
   frame.field.classList.add('pg-select__field');
   frame.label.classList.add('pg-select__label');
 
