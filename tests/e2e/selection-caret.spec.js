@@ -134,6 +134,7 @@ test('action Menu is still a separate shared component, not a cloned value picke
 test('custom selection popup and options have one shared skin', async ({ page }) => {
   const listbox = page.locator('.pg-tools-listbox-demo .pg-listbox').first();
   const combo = page.locator('.pg-tools-field-demo .pg-combobox');
+  await combo.getByRole('combobox').focus(); // Combobox suggestions render on opening.
   const popupSelectors = [
     ['.pg-listbox__panel', listbox],
     ['.pg-combobox__list', combo],
@@ -143,10 +144,10 @@ test('custom selection popup and options have one shared skin', async ({ page })
     const popup = owner.locator(selector);
     await expect(popup).toHaveClass(/pg-field__popup/);
     const option = owner.locator('.pg-field__option').first();
-    await expect(option).toHaveCSS('min-height', '38px');
+    await expect(option).toHaveCSS('min-block-size', '38px');
     styles.push(await popup.evaluate(node => {
       const css = getComputedStyle(node);
-      return [css.padding, css.borderRadius, css.boxShadow, css.maxHeight];
+      return [css.padding, css.borderRadius, css.boxShadow, css.maxBlockSize];
     }));
   }
   expect(styles[0]).toEqual(styles[1]);
