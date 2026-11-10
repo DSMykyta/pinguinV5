@@ -65,10 +65,10 @@
   transform: translateY(-50%);
 }
 .pg-input__rotating-word[data-pg-state='entering'] {
-  animation: pg-input-placeholder-enter 420ms cubic-bezier(.22, 1, .36, 1) both;
+  animation: pg-input-placeholder-enter 840ms cubic-bezier(.22, 1, .36, 1) both;
 }
 .pg-input__rotating-word[data-pg-state='leaving'] {
-  animation: pg-input-placeholder-leave 420ms cubic-bezier(.22, 1, .36, 1) both;
+  animation: pg-input-placeholder-leave 840ms cubic-bezier(.22, 1, .36, 1) both;
 }
 @keyframes pg-input-placeholder-enter {
   from { opacity: 0; transform: translateY(-180%); }
