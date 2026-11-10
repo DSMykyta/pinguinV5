@@ -109,7 +109,7 @@ test('existing Button aligns an icon before or after the text with one 8px gap',
   const after=row.getByRole('button',{name:'Іконка справа'});
   await expect(row).toBeVisible();
   for (const button of [before, after]) {
-    await expect(button).toHaveCSS('display','flex');
+    await expect(button).toHaveCSS('display','inline-flex');
     await expect(button).toHaveCSS('align-items','center');
     await expect(button).toHaveCSS('gap','8px');
     await expect(button.locator('.pg-icon')).toHaveCSS('width','18px');
