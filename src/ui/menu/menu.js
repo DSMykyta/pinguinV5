@@ -35,7 +35,7 @@ export function createMenu({label,id,items=[],align='start',disabled=false,onSel
   element.className='pg-menu';
   element.dataset.pgAlign=align;
   const trigger=document.createElement('button');
-  trigger.className='pg-menu__trigger';
+  trigger.className='pg-menu__trigger pg-button pg-button--outline';
   trigger.type='button';
   trigger.disabled=Boolean(disabled);
   trigger.textContent=label;

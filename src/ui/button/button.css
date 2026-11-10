@@ -35,6 +35,11 @@
 }
 
 .pg-icon-button[aria-expanded='true'] { color: var(--pg-color-text-primary); }
+.pg-icon-button:focus-visible {
+  outline: 2px solid var(--pg-color-focus);
+  outline-offset: 2px;
+}
+.pg-icon-button:disabled { opacity: .38; cursor: not-allowed; }
 
 @media (prefers-reduced-motion: reduce) {
   .pg-icon-button { transition: none; }
@@ -67,6 +72,81 @@
 
 @media (prefers-reduced-motion: reduce) {
   .pg-icon-button--corner > .pg-icon { transition: none; }
+}
+
+
+/*
+ * One button-skin owner for ordinary actions. Component BEM classes may
+ * identify role/placement but must not restyle these visuals or interaction states.
+ */
+.pg-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  min-block-size: 40px;
+  padding: 9px 16px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--pg-color-text-primary);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--pg-duration-fast) ease,
+    border-color var(--pg-duration-fast) ease,
+    color var(--pg-duration-fast) ease,
+    filter var(--pg-duration-fast) ease;
+}
+.pg-button:focus-visible {
+  outline: 2px solid var(--pg-color-focus);
+  outline-offset: 2px;
+}
+.pg-button:disabled { opacity: .5; cursor: not-allowed; }
+.pg-button[hidden], .pg-icon-button[hidden], .pg-mini-button[hidden] { display: none; }
+
+.pg-button--outline:not(.pg-mini-button) {
+  background: var(--pg-color-surface);
+  color: var(--pg-color-text-primary);
+  border-color: var(--pg-color-border-strong);
+  border-radius: var(--pg-radius-md);
+}
+.pg-button--outline:not(.pg-mini-button):hover:not(:disabled) {
+  background: var(--pg-color-hover);
+}
+.pg-button--outline:not(.pg-mini-button)[aria-expanded='true'] {
+  background: var(--pg-color-accent-soft);
+  border-color: var(--pg-color-focus);
+  color: var(--pg-color-accent);
+}
+
+.pg-button--secondary {
+  background: var(--pg-color-selected);
+  color: var(--pg-color-text-primary);
+  border-color: var(--pg-color-border);
+}
+.pg-button--secondary:hover:not(:disabled) { background: var(--pg-color-hover); }
+
+.pg-button--primary {
+  background: var(--pg-color-accent);
+  color: var(--pg-color-dialog-action-text);
+}
+.pg-button--destructive {
+  background: var(--pg-color-dialog-danger);
+  color: var(--pg-color-dialog-danger-text);
+}
+.pg-button:is(.pg-button--primary, .pg-button--destructive):hover:not(:disabled) {
+  filter: brightness(.92);
+}
+
+.pg-button--compact { min-block-size: 36px; padding: 7px 12px; border-radius: var(--pg-radius-sm); font-weight: 500; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pg-button { transition: none; }
 }
 
 /*

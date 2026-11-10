@@ -39,9 +39,9 @@ export function createAside({ onPinToggle }) {
     label: 'Закріпити панель',
     icon: 'pin',
     action: 'aside-pin',
+    variant: 'mini',
     onClick: onPinToggle,
   });
-  pinButton.classList.add('pg-aside__pin');
   pinButton.setAttribute('aria-pressed', 'false');
   pinButton.setAttribute('aria-controls', 'pg-aside-panel');
   header.append(title, pinButton);

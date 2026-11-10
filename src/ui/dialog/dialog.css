@@ -105,39 +105,6 @@
   border-top: 1px solid var(--pg-color-border);
 }
 
-.pg-dialog__button {
-  min-width: 94px;
-  min-height: 40px;
-  padding: 9px 16px;
-  border: 1px solid transparent;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  transition: background var(--pg-duration-fast) ease,
-    color var(--pg-duration-fast) ease;
-}
-
-.pg-dialog__button--secondary {
-  background: var(--pg-color-selected);
-  color: var(--pg-color-text-primary);
-  border-color: var(--pg-color-border);
-}
-
-.pg-dialog__button--secondary:hover { background: var(--pg-color-hover); }
-
-.pg-dialog__button--primary {
-  background: var(--pg-color-accent);
-  color: var(--pg-color-dialog-action-text);
-}
-
-.pg-dialog__button--destructive {
-  background: var(--pg-color-dialog-danger);
-  color: var(--pg-color-dialog-danger-text);
-}
-
-.pg-dialog__button--primary:hover,
-.pg-dialog__button--destructive:hover { filter: brightness(.92); }
-
 @media (max-width: 480px) {
   .pg-dialog__header { padding: 18px 18px 0; }
   .pg-dialog__body { padding-inline: 18px; }

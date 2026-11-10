@@ -209,7 +209,7 @@ export function mountDialogs() {
       if (item.options.leftAction) {
         const destructiveButton = doc.createElement('button');
         destructiveButton.type = 'button';
-        destructiveButton.className = 'pg-dialog__button pg-dialog__button--destructive';
+        destructiveButton.className = 'pg-dialog__button pg-dialog__button--destructive pg-button pg-button--destructive';
         destructiveButton.textContent = item.options.leftAction.label;
         destructiveButton.addEventListener('click', async () => {
           if (item.busy || item.closing) return;
@@ -233,7 +233,7 @@ export function mountDialogs() {
 
       const discardButton = doc.createElement('button');
       discardButton.type = 'button';
-      discardButton.className = 'pg-dialog__button pg-dialog__button--destructive';
+      discardButton.className = 'pg-dialog__button pg-dialog__button--destructive pg-button pg-button--destructive';
       discardButton.textContent = 'Відкинути зміни';
       discardButton.hidden = true;
       discardButton.addEventListener('click', () => closeNow(item, 'cancel'));
@@ -245,7 +245,7 @@ export function mountDialogs() {
       if (item.options.cancelText !== null) {
         cancelButton = doc.createElement('button');
         cancelButton.type = 'button';
-        cancelButton.className = 'pg-dialog__button pg-dialog__button--secondary';
+        cancelButton.className = 'pg-dialog__button pg-dialog__button--secondary pg-button pg-button--secondary';
         cancelButton.dataset.pgAction = 'dialog-cancel';
         cancelButton.textContent = item.options.cancelText;
         cancelButton.addEventListener('click', () => { void requestDismiss(item, 'cancel-button'); });
@@ -255,8 +255,8 @@ export function mountDialogs() {
       const confirmButton = doc.createElement('button');
       confirmButton.type = 'button';
       confirmButton.className = item.options.destructive
-        ? 'pg-dialog__button pg-dialog__button--destructive'
-        : 'pg-dialog__button pg-dialog__button--primary';
+        ? 'pg-dialog__button pg-dialog__button--destructive pg-button pg-button--destructive'
+        : 'pg-dialog__button pg-dialog__button--primary pg-button pg-button--primary';
       confirmButton.dataset.pgAction = 'dialog-confirm';
       confirmButton.textContent = item.options.confirmText;
       confirmButton.addEventListener('click', () => { void handleConfirm(item); });
