@@ -19,8 +19,8 @@ function getStorage() {
 }
 
 function storageKey(key) {
-  if (typeof key !== 'string' || !/^[a-z0-9][a-z0-9-]{0,79}$/.test(key)) return '';
-  return STORAGE_PREFIX + key;
+  if (typeof key !== 'string' || !/^[a-zA-Z0-9][a-zA-Z0-9_.\[\]-]{0,119}$/.test(key)) return '';
+  return STORAGE_PREFIX + encodeURIComponent(key);
 }
 
 export function getInputPlaceholderHistory(key, storage = getStorage()) {
