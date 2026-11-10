@@ -88,15 +88,16 @@ test('required multi Listbox revalidates last removal, select all, and programma
   await expect(problem).toBeVisible();
   await expect(trigger).toHaveAttribute('aria-invalid', 'true');
 
-  const selectAll = field.locator('.pg-listbox__select-all');
-  const checkbox = selectAll.locator('input[type=checkbox]');
-  await expect(checkbox).toHaveAccessibleName('Вибрати всі');
-  await selectAll.locator('.pg-checkbox__row').click();
-  await expect(checkbox).toBeChecked();
+  const selectAll = field.locator('button.pg-listbox__select-all');
+  await expect(selectAll).toHaveAttribute('aria-label', 'Вибрати всі');
+  await selectAll.click();
+  await expect(selectAll).toHaveAttribute('aria-pressed', 'true');
   await expect(problem).toBeHidden();
-  await selectAll.locator('.pg-checkbox__row').click();
-  await expect(checkbox).not.toBeChecked();
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+  await selectAll.click();
+  await expect(selectAll).toHaveAttribute('aria-pressed', 'false');
   await expect(problem).toBeVisible();
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
   await page.evaluate(() => window.pgRequiredMultiRegression.setValue(['rozetka']));
   await expect(problem).toBeHidden();
