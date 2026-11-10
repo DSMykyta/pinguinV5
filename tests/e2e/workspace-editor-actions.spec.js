@@ -64,8 +64,8 @@ test('small save persists and stays open; checkmark saves and closes; clean clos
   await dialog.locator('[data-pg-action="dialog-dismiss"]').click();
   await expect(dialog).toHaveCount(0);
   await expect(page.locator('.pg-dialog__decision')).toHaveCount(0);
-  await expect(page.locator('#pg-tools-panel-data-views .pg-collection-view__editable-name'))
-    .toContainText(['Нова тестова назва бренду']);
+  await expect(page.locator('#pg-tools-panel-data-views .pg-collection-view__editable-name')
+    .filter({ hasText: 'Нова тестова назва бренду' })).toHaveCount(1);
 
   await page.locator('#pg-tools-panel-data-views .pg-collection-view__editable-name')
     .filter({ hasText: 'Нова тестова назва бренду' }).click();
