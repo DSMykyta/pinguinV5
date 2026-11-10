@@ -46,7 +46,22 @@
   font-size: 13px;
 }
 .pg-search__input::placeholder { color: var(--pg-color-text-muted); }
-.pg-search__input::-webkit-search-cancel-button { cursor: pointer; }
+/* Prevent Chromium's blue native x; the shared IconButton owns clearing. */
+.pg-search__input::-webkit-search-cancel-button,
+.pg-search__input::-webkit-search-decoration,
+.pg-search__input::-webkit-search-results-button,
+.pg-search__input::-webkit-search-results-decoration {
+  display: none;
+  -webkit-appearance: none;
+}
+.pg-search__input { padding-inline-end: var(--pg-compact-control-size); }
+.pg-search__clear {
+  position: absolute;
+  inset-block-start: 2px;
+  inset-inline-end: 4px;
+  z-index: 1;
+}
+.pg-search__clear[hidden] { display: none; }
 
 .pg-search__status {
   position: absolute;
