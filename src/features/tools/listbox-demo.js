@@ -32,7 +32,7 @@ export function createListboxDemo() {
     createListbox({label:'Маркетплейси',name:'demo-marketplaces',options:PLATFORMS,
       value:['prom','rozetka'],multiple:true,searchable:true,selectAll:true,
       description:'Пошук, мультивибір і чіпи.'}),
-    createListbox({label:'Обов’язкове поле',options:PLATFORMS,
+    createListbox({label:'Обов’язкове поле',options:PLATFORMS,required:true,
       error:'Оберіть хоча б один маркетплейс.'}),
   ];
   controls.forEach(control=>grid.append(control.element));
