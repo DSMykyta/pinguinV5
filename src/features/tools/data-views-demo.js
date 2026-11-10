@@ -145,18 +145,52 @@ export function createDataViewsDemo() {
   const headerActions=document.createElement('div');
   headerActions.className='pg-tools-data-views__header-actions';
   async function editRecord(row) {
-    // The demo owns its data changes; the shared collection only emits the edit intent.
-    const nameField=createInput({
-      label:'Назва бренду',value:row.name,required:true,
-    });
+    // Local data remains the feature's responsibility. Shared Dialog owns all
+    // corners, navigation, modal lifecycle, dirty checks and async action states.
+    const nameField=createInput({label:'Назва бренду',value:row.name,required:true});
     nameField.input.setAttribute('autofocus','');
+    const categoryField=createSelect({
+      label:'Категорія',placeholder:null,value:row.category,
+      options:CATEGORIES.map(item=>({label:item,value:item})),
+    });
+    const marketField=createInput({label:'Канали продажу',value:row.marketplace});
+    const countryField=createSelect({
+      label:'Країна',placeholder:null,value:row.country,
+      options:COUNTRIES.map(item=>({label:item,value:item})),
+    });
+    const statusChoices=[...new Set(STATUSES)];
+    const statusField=createSelect({
+      label:'Статус',placeholder:null,value:row.status,
+      options:statusChoices.map(item=>({label:item,value:item})),
+    });
+    const content=node('div','edit-content');
+    const general=node('section','edit-section');
+    general.append(nameField.element);
+    const channels=node('section','edit-section');
+    channels.append(categoryField.element,marketField.element);
+    const settings=node('section','edit-section');
+    settings.append(countryField.element,statusField.element);
+    content.append(general,channels,settings);
+    const sections=[
+      {id:'general',label:'Основне',icon:'pencil',element:general},
+      {id:'channels',label:'Канали продажу',icon:'layers',element:channels},
+      {id:'settings',label:'Налаштування',icon:'sliders',element:settings},
+    ];
+    const getDraft=()=>({
+      name:nameField.getValue().trim(),
+      category:categoryField.getValue(),
+      marketplace:marketField.getValue().trim(),
+      country:countryField.getValue(),
+      status:statusField.getValue(),
+    });
+    const isDirty=()=>{
+      const draft=getDraft();
+      return Object.entries(draft).some(([key,value])=>value!==row[key]);
+    };
     try {
       await showFormDialog({
         title:'Редагування бренду',
-        content:nameField.element,
-        confirmText:'Зберегти',
-        confirmTone:'secondary',
-        cancelText:'Скасувати',
+        layout:'workspace',content,sections,isDirty,
         validate:()=>{
           const name=nameField.getValue().trim();
           const duplicate=records.some(item=>
@@ -164,18 +198,45 @@ export function createDataViewsDemo() {
           );
           nameField.setError(!name?'Вкажіть назву бренду':
             duplicate?'Бренд із такою назвою вже існує':'');
+          if(!name||duplicate) {
+            const generalButton=content.closest('.pg-workspace-layout')
+              ?.querySelector('.pg-workspace-layout__nav-item');
+            generalButton?.click();
+          }
           return Boolean(name&&!duplicate);
         },
         save:()=>{
-          const name=nameField.getValue().trim();
-          records=records.map(item=>item.id===row.id?{...item,name}:item);
+          const draft=getDraft();
+          records=records.map(item=>item.id===row.id?{...item,...draft}:item);
           collection.setRows(records);
-          details.textContent='Змінено назву: '+name;
+          details.textContent='Збережено локально: '+draft.name;
+          return true;
+        },
+        onRefresh:()=>{
+          const latest=records.find(item=>item.id===row.id);
+          if(!latest)return false;
+          nameField.setValue(latest.name);
+          categoryField.setValue(latest.category);
+          marketField.setValue(latest.marketplace);
+          countryField.setValue(latest.country);
+          statusField.setValue(latest.status);
+          nameField.setError('');
+          return true;
+        },
+        onDelete:()=>{
+          if(!records.some(item=>item.id===row.id))return false;
+          records=records.filter(item=>item.id!==row.id);
+          collection.setRows(records);
+          details.textContent='Видалено локально: '+row.name;
           return true;
         },
       });
     } finally {
       nameField.destroy();
+      categoryField.destroy();
+      marketField.destroy();
+      countryField.destroy();
+      statusField.destroy();
     }
   }
   function duplicateRecord(row) {
