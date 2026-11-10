@@ -26,7 +26,7 @@ test('form, table header, rows and tiles share the exact same Checkbox geometry'
   await page.goto('/tools');
   await page.getByRole('tab', { name: 'Текст' }).click();
 
-  const form = page.locator('.pg-tools-advanced-fields .pg-checkbox');
+  const form = page.locator('.pg-tools-advanced-fields__grid .pg-checkbox').first();
   await sameCheckbox(form);
   await expect(form.locator('.pg-checkbox__copy')).toBeVisible();
   await expect(form.locator('.pg-checkbox__description')).toBeVisible();
@@ -57,7 +57,7 @@ test('form, table header, rows and tiles share the exact same Checkbox geometry'
 test('the same checkbox retains visible form labels, mixed state, focus and disabled behavior', async ({ page }) => {
   await page.goto('/tools');
   await page.getByRole('tab', { name: 'Текст' }).click();
-  const form = page.locator('.pg-tools-advanced-fields .pg-checkbox');
+  const form = page.locator('.pg-tools-advanced-fields__grid .pg-checkbox').first();
   const control = form.getByRole('checkbox', { name: 'Враховувати в описі' });
 
   await sameCheckbox(form);
