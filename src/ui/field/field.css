@@ -24,7 +24,7 @@
 .pg-field__surface {
   display: flex; align-items: stretch; position: relative;
   box-sizing: border-box; inline-size: 100%; min-inline-size: 0;
-  block-size: 56px; min-block-size: 56px;
+  block-size: var(--pg-field-control-size); min-block-size: var(--pg-field-control-size);
   border: 1px solid var(--pg-color-border-strong);
   border-radius: 10px; background: var(--pg-color-surface);
   color: var(--pg-color-text-primary);
@@ -64,7 +64,8 @@
 .pg-field__control {
   display: block; flex: 1 1 auto;
   box-sizing: border-box;
-  inline-size: 100%; min-inline-size: 0; block-size: 54px;
+  inline-size: 100%; min-inline-size: 0;
+  block-size: calc(var(--pg-field-control-size) - 2px);
   padding-inline: 14px; padding-block: 0;
   border: 0; border-radius: inherit; outline: 0;
   background: transparent; color: inherit; font: inherit;
@@ -180,7 +181,7 @@
 
 /* Only multiline and token collection surfaces may grow in block size. */
 .pg-textarea .pg-field__surface, .pg-tag-field .pg-field__surface {
-  block-size: auto; min-block-size: 56px;
+  block-size: auto; min-block-size: var(--pg-field-control-size);
 }
 @media (prefers-reduced-motion: reduce) {
   .pg-field__surface { transition: none !important; }
