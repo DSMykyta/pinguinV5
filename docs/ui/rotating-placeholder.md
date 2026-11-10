@@ -1,40 +1,53 @@
-# Rotating Placeholder — історія введень без шаблонних фраз
+# Rotating Placeholder — опційна історія введень
 
-**Статус:** opt-in у гілці `work`. Діє в уже наявному `Input` або звичайному `<input>`; label завжди залишається над рамкою за [field.md](field.md). Першочергове правило власника: **жодних ручних списків `Sugar Free | Time Release` для полів.**
+**Контракт:** [shared Input](input.md), [Field](field.md), [LEGO conventions](../conventions.md). Усі зміни лише у гілці `work`. Rotating Placeholder — незалежна opt-in поведінка, **не другий Input**.
 
-## Одного HTML-атрибута достатньо
+## Просте підключення
 
 ```html
 <label for="feature">Ознака товару</label>
-<input id="feature" name="product-feature" autocomplete="on"
-       data-pg-rotating-placeholder>
+<input id="feature" name="product-feature" autocomplete="on" data-pg-rotating-placeholder>
 ```
 
-- Наявність `data-pg-rotating-placeholder` вмикає **лише історію**; значення атрибута і жодні списки фраз не читаються. Без атрибута поведінка не підключається.
-- Ключ історії автоматично береться з **постійного `name`** поля. Тому в шаблоні для сотень товарів не потрібно окремо вказувати тексти підказок. Поля з однаковим `name` (на одному origin) поділяють список. Без `name` і без явно заданого ключа історія не зберігається і нові підказки не з'являються.
-- `data-pg-placeholder-history="product-feature"` — необов'язкове *перевизначення ключа*, коли треба розділити поля з однаковим name або об'єднати поля з різними names.
-- `data-pg-placeholder-interval="2500"` — необов'язкова затримка між фразами (2400–20000 мс, типово 5200).
-- `createInput({ label: 'Ознака товару', name: 'product-feature', rotatingPlaceholder: true })` — аналогічний режим у наявному JS-компоненті.
-- `autocomplete="on"` залишається окремою **нативною функцією браузера**. Не змінюємо й не вимикаємо її.
-- Для звичайного HTML достатньо атрибута: `mountRotatingPlaceholders(root)` уже запускається один раз у `src/main.js`, стежить за додаванням/видаленням відповідних елементів і коректно очищує ресурси.
+Рівнозначний JS API для наявного `createInput`:
 
-## Поведінка
+```js
+createInput({ label: 'Ознака товару', name: 'product-feature', rotatingPlaceholder: true });
+```
 
-1. Немає раніше збережених значень для ключа → **анімації й динамічного тексту немає**. Жодного фальшивого демонстраційного значення. Спеціально переданий *звичайний* HTML `placeholder` не змінюємо, поки історія порожня.
-2. Після першого завершеного вводу (нативна подія `change`) значення потрапляє до власної локальної історії — не при кожному символі. З однією фразою підказка статична; з двома й більше — циклічна анімація (перехід 840 мс) (попередня вниз, наступна зверху). Власна історія — до 12 унікальних значень по 100 символів.
-3. Підказку показуємо тільки коли input порожній, не у фокусі, не disabled/readOnly і сторінка видима. Введення, вибір нативного autocomplete, caret, IME, paste й клавіатура працюють нативно. Програмний `setValue()` не створює запису в історії.
-4. `prefers-reduced-motion`: без циклу та анімації. Overlay має `aria-hidden="true"`, `pointer-events:none`; доступний підпис — статичний `label`.
-5. Ключ локального сховища `pg:v1:input-placeholder-history:<key>` (для спеціальних символів у name — URL-екранування). `clearInputPlaceholderHistory(key)` очищує значення. Недоступність або заповнення `localStorage` не заважають редагуванню.
-6. Компонент має власний lifecycle і cleanup. Немає нового Input, стилів Shell або дублювання Combobox. Спостереження динамічної HTML-вставки обробляє лише змінені вузли, а не всі 1000 полів при кожному кадрі/зміні підказки.
+**Нічого не писати в `placeholder` чи в атрибуті `data-pg-rotating-placeholder`.** Цей атрибут лише вмикає локальну історію. Поки історії немає, текст і анімація **не з'являються**. Інпути без атрибута не зачіпаємо.
 
-## Приватність та межі
+### Додаткові необов'язкові параметри
 
-Вмикати цей opt-in **лише для несекретних текстових полів** (як-от ознака товару). `password`, `email`, `tel`, `url` і решта нетекстових типів не збираються цією поведінкою. Не застосовувати до персональних, платіжних або захищених даних навіть якщо їхній HTML тип — text.
+- `data-pg-placeholder-history="product-feature"`: перевизначає ключ історії; за замовчуванням це стабільний `name`. Для структур `products[0][feature]` і `products[1][feature]` індекс нормалізується, щоб значення одного типу могли перевикористовуватися. Під `[data-pg-module]` ім'я додатково ізолюється за ID модуля. За відсутності ключа функція не монтується.
+- `data-pg-placeholder-interval="5200"`: час між словами; допустимо 2400–20000 мс, типово **5200 мс**. Тривалість CSS-переходу — **840 мс**.
+- `data-pg-placeholder-save="submit"`: записувати значення під час native `submit` форми замість звичайного `change`; це підтвердження наміру відправити, а **не гарантія успішної відповіді сервера**. Для збереження **після** успішної серверної операції власник модуля сам викликає `saveInputPlaceholderHistory(key, value)`; стандартний режим — `change` для локальних редакторів.
+- `setRotatingPlaceholdersPaused(true/false)`: спільний програмний вимикач автоматичного руху, який можна прив'язати до вже існуючих налаштувань доступності; не додаємо нову кнопку в Shell.
+- `refreshRotatingPlaceholder(input)`: синхронізує візуальну підказку після програмного `input.value = …`. Стандартний `Input.setValue()` викликає його сам.
 
-**Стару історію браузерного autocomplete JavaScript прочитати не може.** Список починає накопичуватися після встановлення механізму; значення, вибране у нативній підказці, потрапляє до нього тільки після події `change`. Не додаємо власний dropdown замість браузерного.
+`autocomplete` — власний браузерний механізм. Сайт **не може** прочитати приховану історію браузера; власна історія поповнюється після належної події у поточному сайті.
 
-Джерела: [MDN autocomplete](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/autocomplete), [MDN placeholder](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/placeholder), [MDN prefers-reduced-motion](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion), [дослідження шармів legacy](../legacy-behavior-research.md).
+## LEGO-власники
 
-## Критерії перевірки
+- `src/ui/input/placeholder-history.js`: дані та локальне сховище — `getInputPlaceholderHistory()`, `saveInputPlaceholderHistory()`, `removeInputPlaceholderHistoryValue()`, `clearInputPlaceholderHistory()`, `subscribeInputPlaceholderHistory()`. Інша частина UI не залежить від формату `localStorage`. Дані обмежені 12 унікальними значеннями до 100 символів; помилки сховища не блокують ввід.
+- `src/ui/input/rotating-placeholder.js`: одна поведінка на input, один спільний `IntersectionObserver` і один планувальник для всіх активних видимих інпутів, спільні делеговані listeners. Немає `setInterval` чи DOM-обгорток у полів без збережених підказок. CSS анімує лише трансформацію/прозорість слова, не розміри input.
+- `mountRotatingPlaceholder(input)` повертає cleanup; `mountRotatingPlaceholders(root)` підключено один раз в `src/main.js` та монтує також нові HTML поля через локальний MutationObserver. При демонтажі очищує listeners, observer, timer і DOM; повторне монтування не створює дублікати.
+- `src/ui/input/input.js` залишає native `input.value`, label і slots з `createFieldFrame()` без змін. Немає імпортів із Shell або features.
 
-Відсутність підказок до першого введення; одна/дві збережені фрази; reload, повернення фокуса й очищення; нативний autocomplete без змін; два поля з однаковим name / різними names; opt-out; HTML-вставка та видалення атрибута; reduced motion; 1000 інпутів без глобального проходу на кожен tick; перевірки `npm run check` і Playwright окремо від факту запису коду в GitHub.
+## Коли анімація працює
+
+Значення існує; поле порожнє й не у фокусі; поле видиме в viewport; вкладка браузера видима; немає `disabled`/`readOnly`; не активовано pause, hover або `prefers-reduced-motion`. За одного значення підказка статична. При наведенні або системній зменшеній анімації вона стає статичною, при focus зникає. Автоматична зміна тексту може бути вимкнена через спільний API паузи; перед повноцінним релізом сторінки з нескінченним рухом власник має надати доступний користувачу спосіб керування цим станом.
+
+Довгі фрази обрізаються CSS і не впливають на геометрію. Нативний placeholder, якщо явно переданий, не замінюється при порожній історії. `aria-hidden="true"` на декоративному шарі не анонсує кожну фразу; доступна назва лишається label.
+
+Інші вкладки цього origin отримують оновлення через browser `storage`. Видаляти помилкові фрази можна через `removeInputPlaceholderHistoryValue(key, value)`, очищувати конкретний ключ — `clearInputPlaceholderHistory(key)`.
+
+## Приватність
+
+Вмикати **лише для несекретних** текстових значень; password, email, tel, url не збираються. За `autocomplete` із категоріями паролів, платіжних, адресних та ідентифікаційних полів механізм також вимкнений. Для чутливого довільного `type="text"` власник форми **не повинен** додавати opt-in. Історія зберігається **тільки локально в браузері**, не синхронізується з акаунтом і не надсилається на сервер. При спільному браузерному профілі записи можуть бути доступні іншим користувачам.
+
+## Перевірки
+
+Unit: нормалізація ключів, видалення, ліміт, помилки storage і повідомлення про зміну. Browser: перший ввід/дві фрази/reload; native HTML і програмний Input; видимість і зупинка; reset/submit; інші вкладки; 1000 полів без зайвого DOM; cleanup/remount; native autocomplete та keyboard; reduced motion. Збірка, CI і візуальна перевірка повідомляються **окремо** і не вважаються пройденими без фактичного запуску.
+
+Довідка: [MDN autocomplete](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete), [MDN IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API), [MDN storage event](https://developer.mozilla.org/en-US/docs/Web/API/Window/storage_event), [WCAG Pause, Stop, Hide](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html).
