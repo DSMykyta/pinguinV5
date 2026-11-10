@@ -9,6 +9,7 @@
  * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
+import { setButtonColor } from '../button/button.js';
 import { positionPopup } from '../position/position-popup.js';
 import { dismissOnOutsideScroll } from '../position/dismiss-on-scroll.js';
 
@@ -27,8 +28,12 @@ export function createMenu({label,id,items=[],align='start',disabled=false,onSel
     if(!item||typeof item.label!=='string'||!item.label.trim())throw new TypeError('Menu item needs label');
     const type=item.type||'action';
     if(!allowed.has(type))throw new TypeError('Invalid menu item type');
+    if(item.danger && item.tone != null && item.tone !== 'danger') {
+      throw new TypeError('Dangerous menu actions must have danger tone');
+    }
     return {label:item.label,value:String(item.value??i),type,disabled:Boolean(item.disabled),
-      danger:Boolean(item.danger),checked:Boolean(item.checked)};
+      danger:Boolean(item.danger),checked:Boolean(item.checked),
+      tone:item.tone ?? (item.danger ? 'danger' : undefined),appearance:item.appearance};
   });
   const uid=id||'pg-menu-'+(++sequence);
   const element=document.createElement('div');
@@ -64,6 +69,9 @@ export function createMenu({label,id,items=[],align='start',disabled=false,onSel
     action.setAttribute('role',item.type==='check'?'menuitemcheckbox':'menuitem');
     if(item.type==='check')action.setAttribute('aria-checked',String(item.checked));
     if(item.danger)action.dataset.pgDanger='true';
+    if(item.tone != null || item.appearance != null) {
+      setButtonColor(action, { tone:item.tone, appearance:item.appearance ?? 'ghost' });
+    }
     action.tabIndex=-1;
     action.addEventListener('click',event=>{
       if(item.disabled)return;
