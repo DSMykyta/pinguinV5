@@ -93,7 +93,7 @@ test('scrollbar remains compact without arrow buttons in long selection lists', 
     arrowDisplay: getComputedStyle(node, '::-webkit-scrollbar-button').display,
     maxHeight: getComputedStyle(node).maxHeight,
   }));
-  expect(styles.width).toBe('thin');
+  expect(styles.width).toBe('auto'); // Chromium uses the shared 8px WebKit scrollbar skin.
   expect(styles.arrowDisplay).toBe('none');
   expect(parseFloat(styles.maxHeight)).toBeGreaterThan(100);
 });
