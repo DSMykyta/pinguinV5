@@ -84,7 +84,7 @@ test('Combobox dropdown matches the whole field including its chevron', async ({
   await expect.poll(() => angle(page, arrow)).toBe(45);
 });
 
-test('scrollbar remains thin without arrow buttons in long selection lists', async ({ page }) => {
+test('scrollbar remains compact without arrow buttons in long selection lists', async ({ page }) => {
   const root = page.locator('#visual-test-listbox');
   await root.locator('.pg-listbox__trigger').click();
   const panel = root.locator('.pg-listbox__panel');
