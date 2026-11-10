@@ -9,9 +9,21 @@
  * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
+/* Standards fallback for engines without the full WebKit scrollbar family. */
 .pg-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: var(--pg-color-scrollbar-thumb) transparent;
+}
+
+/* Non-auto standard properties override ::-webkit-scrollbar-* in Chromium.
+ * Restore WebKit styling so the shared arrow-hiding rule actually applies.
+ * Test for the thumb, not the base selector (partially supported by Firefox).
+ */
+@supports selector(::-webkit-scrollbar-thumb) {
+  .pg-scrollbar {
+    scrollbar-width: auto;
+    scrollbar-color: auto;
+  }
 }
 .pg-scrollbar::-webkit-scrollbar {
   width: 8px;
