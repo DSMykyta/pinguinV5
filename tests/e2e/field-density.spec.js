@@ -54,7 +54,8 @@ test('all six single-line fields remain 40px beside the universal table-sized ch
   await visitTools(page);
   const metrics = await dimensions(page);
   expect(metrics.touch).toBe(false);
-  expect(metrics.sizes.map(size => size.surface)).toEqual([40, 40, 40, 40, 40, 40]);
+  expect(metrics.sizes).toHaveLength(6);
+  expect(metrics.sizes.every(size => Math.abs(size.surface - 40) < .25)).toBe(true);
   expect(metrics.sizes.every(size => size.inner <= 40 && size.inner >= 32)).toBe(true);
   // Descriptions can make the surrounding label row taller, but not the checkbox itself.
   expect(metrics.checkboxRow).toBeGreaterThanOrEqual(32);
@@ -78,7 +79,9 @@ test('touch input increases every shared hit target to 44px without resizing a c
     const metrics = await dimensions(page);
     expect(metrics.touch).toBe(true);
     expect(metrics.token).toBe('44px');
-    expect(metrics.sizes.map(size => size.surface)).toEqual([44, 44, 44, 44, 44, 44]);
+    // Fractional layout zoom can produce 43.9999px or 44.0001px.
+    expect(metrics.sizes).toHaveLength(6);
+    expect(metrics.sizes.every(size => Math.abs(size.surface - 44) < .25)).toBe(true);
     expect(metrics.checkboxHit).toEqual([32, 32]);
     expect(metrics.checkboxBox).toBe(24);
 
