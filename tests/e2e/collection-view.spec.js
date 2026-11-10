@@ -233,13 +233,19 @@ test('pencil lives beside the brand and selecting its text never opens the edito
   await expect(page.getByRole('dialog')).toBeVisible();
 });
 
-test('coarse pointer keeps row checkboxes and actions visible without hover',async({page})=>{
-  await page.emulateMedia({hasTouch:true});
-  const row=table(page).locator('tbody tr').first();
-  await page.mouse.move(1,1);
-  await expect(row.locator('.pg-checkbox')).toHaveCSS('opacity','1');
-  await expect(row.locator('.pg-collection-view__row-menu')).toHaveCSS('opacity','1');
-  await expect(row.locator('.pg-collection-view__edit')).toHaveCSS('opacity','1');
+test('coarse pointer keeps row checkboxes and actions visible without hover',async({browser})=>{
+  const context=await browser.newContext({viewport:{width:390,height:800},isMobile:true,hasTouch:true});
+  try {
+    const page=await context.newPage();
+    await page.goto('/tools');
+    await page.getByRole('tab',{name:'Макети даних'}).click();
+    const row=table(page).locator('tbody tr').first();
+    await expect(row.locator('.pg-checkbox')).toHaveCSS('opacity','1');
+    await expect(row.locator('.pg-collection-view__row-menu')).toHaveCSS('opacity','1');
+    await expect(row.locator('.pg-collection-view__edit')).toHaveCSS('opacity','1');
+  } finally {
+    await context.close();
+  }
 });
 
 test('native header checkbox uses checked, mixed and empty states across visible page',async({page})=>{
