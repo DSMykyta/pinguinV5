@@ -72,3 +72,9 @@
 ## Семантичний колір (2026-11-10)
 
 Після аудиту введено `tone`/`appearance`, а не нові сімейства кнопок. Будь-яка наявна звичайна, compact, pill чи mini action може використовувати [спільний контракт кольорів](semantic-colors.md); `setButtonColor()` лише задає атрибути. Menu `danger` відповідає `danger/ghost`, підтвердження видалення — `danger/solid`, bulk delete — `danger/soft`. Style owner незмінний: `button.css`.
+
+### Рішення 2026-11-10: Loading та Icon + Text реалізовані без нових видів
+
+- **Loading:** `setButtonLoading()`, `withButtonLoading()` у чинному `button.js`; анімований контур у чинному `button.css`, без нового `pg-button--loading`. Активація заблокована під час очікування, фокус не зникає, після будь-якого завершення попередні aria-атрибути відновлюються.
+- **Icon + Text:** 8px gap та flex-центрування в базовому `pg-button`, 18px іконка; порядок іконки визначає DOM, а не додатковий клас.
+- **Toggle:** окремого типу **не потрібно**, `aria-pressed` уже доступний, а анімації corner/FAB лишаються їхньою власністю.
