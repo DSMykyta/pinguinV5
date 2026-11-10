@@ -85,6 +85,40 @@ test('shared scrollbars hide native arrows and footer has no decorative divider'
   expect(scrollTop).toBeGreaterThan(0);
 });
 
+test('scrolling a narrow table in both directions leaves no scrollbar button chrome',async({page})=>{
+  await page.setViewportSize({width:600,height:720});
+  const scroller=root(page).locator('.pg-collection-view__table-scroll');
+  const state=await scroller.evaluate(node=>{
+    node.scrollTop=160;
+    node.scrollLeft=160;
+    const parts=[
+      '::-webkit-scrollbar-button:horizontal:decrement',
+      '::-webkit-scrollbar-button:horizontal:increment',
+      '::-webkit-scrollbar-button:vertical:decrement',
+      '::-webkit-scrollbar-button:vertical:increment',
+    ];
+    return {
+      top:node.scrollTop,left:node.scrollLeft,
+      horizontalOverflow:node.scrollWidth>node.clientWidth,
+      verticalOverflow:node.scrollHeight>node.clientHeight,
+      buttons:parts.map(part=>({
+        part,
+        display:getComputedStyle(node,part).display,
+        appearance:getComputedStyle(node,part).getPropertyValue('-webkit-appearance'),
+        background:getComputedStyle(node,part).backgroundImage,
+      })),
+    };
+  });
+  expect(state.horizontalOverflow).toBe(true);
+  expect(state.verticalOverflow).toBe(true);
+  expect(state.top).toBeGreaterThan(0);
+  expect(state.left).toBeGreaterThan(0);
+  for(const button of state.buttons) {
+    expect(button.display,button.part).toBe('none');
+    expect(button.background,button.part).toBe('none');
+  }
+});
+
 test('native header checkbox uses checked, mixed and empty states across visible page',async({page})=>{
   const all=table(page).getByRole('checkbox',{name:'Вибрати всі на поточній сторінці'});
   const first=table(page).locator('tbody tr').first().getByRole('checkbox');
