@@ -1,6 +1,6 @@
 # Data Collection — table and optional tiles
 
-**Чинний погоджений контракт:** [П'ятизонний Shell, FAB, дії рядка, вибір і анімації](../project-rules.md). Нижче збережено дослідження й історію ітерацій; якщо старий опис суперечив новішій вимозі, застосовується погоджений контракт.
+**Чинний погоджений контракт:** [П'ятизонний Shell, FAB, дії рядка, вибір і анімації](../approved-ui-rules.md). Нижче збережено дослідження й історію ітерацій; якщо старий опис суперечив новішій вимозі, застосовується погоджений контракт.
 
 Status: interactive design review preview in Tools → «Макети даних», 2026-11-09. The outer Shell header, global search, context controls, navigation and tool tabs must **not be recreated**. The first screenshot defines a dense table/list below existing chrome; the second defines an optional card/tile layout for e.g. Brands.
 

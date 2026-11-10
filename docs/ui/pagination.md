@@ -1,6 +1,6 @@
 # Pagination — Pinguin shared component
 
-**Обов'язковий актуальний контракт**: [project-rules.md](../project-rules.md). Footer FAB розміщується справа в Footer; глобальний FAB залишається в зоні Aside.
+**Обов'язковий актуальний контракт**: [approved-ui-rules.md](../approved-ui-rules.md). Footer FAB розміщується справа в Footer; глобальний FAB залишається в зоні Aside.
 
 Implemented 2026-11-09. Adapted from the actual legacy branch pagination logic,
 without copying its page-specific DOM, scattered state globals, or styled controls.

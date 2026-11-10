@@ -1,8 +1,8 @@
 # Pinguin Next — база спільного UI
 
-> **Спільні правила для наступних змін:** [зведений контракт, погоджена геометрія та реєстр помилок](../project-rules.md); [процес інтеграції](../project-rules.md#8-процес-і-якість). При суперечності старих описів із новими рішеннями перевіряти актуальний компонент і прямі уточнення власника; зокрема labels тепер постійні над полями ([field.md](field.md)), а footer приймає контекстну пагінацію ([pagination.md](pagination.md)).
+> **Спільні правила для наступних змін:** [погоджені правила UI, геометрії та реєстр помилок](../approved-ui-rules.md); [процес інтеграції](../implementation-rules.md). При суперечності старих описів із новими рішеннями перевіряти актуальний компонент і прямі уточнення власника; зокрема labels тепер постійні над полями ([field.md](field.md)), а footer приймає контекстну пагінацію ([pagination.md](pagination.md)).
 
-Статус: робочий стандарт гілки `work`, деталізує [канонічні правила](../conventions.md), [зведені правила UI й реалізації](../project-rules.md). Погоджений скелетон Shell не змінюється під час створення компонентів.
+Статус: робочий стандарт гілки `work`, деталізує [канонічні правила](../conventions.md), [погоджені правила UI](../approved-ui-rules.md) та [правила реалізації](../implementation-rules.md). Погоджений скелетон Shell не змінюється під час створення компонентів.
 
 ## Відповідальність і розміщення
 
@@ -44,7 +44,7 @@
 | Dialog / Confirm | `src/ui/dialog` | [Специфікація](dialog.md): native modal + blur |
 | Input / Search field | `src/ui/input` | [Дослідження, контракт та реалізація](input.md): floating, standard, search; supports flexible adornments |
 | Shared Field | `src/ui/field` | [One plain outline, static label above, leading/trailing slots](field.md) |
-| Native Select | `src/ui/select` | Native browser choice with shared floating label; [contract](selection-fields.md) |
+| Native Select | `src/ui/select` | Native browser choice with shared static label above the field; [contract](selection-fields.md) |
 | Combobox | `src/ui/combobox` | Editable selection, async search and keyboard listbox; [contract](selection-fields.md) |
 | Listbox | `src/ui/listbox` | [Single/multiple listbox with chips, search and select-all](listbox.md) |
 | Menu | `src/ui/menu` | [Keyboard action/check menus](menu.md) |
