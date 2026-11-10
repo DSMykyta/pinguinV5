@@ -80,17 +80,18 @@
   overflow: hidden; vertical-align: middle;
   text-overflow: ellipsis;
 }
-/* The primary value is ordinary selectable text. The existing edit IconButton
- * occupies a stable adjacent hit area; clicking the text does not open Dialog. */
-.pg-collection-view__primary-line {
-  display: flex; align-items: center; gap: 4px;
-  min-inline-size: 0; inline-size: 100%;
-}
-.pg-collection-view__primary-line > .pg-collection-view__cell-content {
-  flex: 0 1 auto; min-inline-size: 0; white-space: nowrap;
+/* Name is editable on click while retaining native drag/double-click
+ * text selection. No pencil button, overlay or reserved trailing slot. */
+.pg-collection-view__editable-name {
+  max-inline-size: 100%;
   user-select: text;
+  cursor: pointer;
 }
-.pg-collection-view__edit { flex: 0 0 var(--pg-compact-control-size); }
+.pg-collection-view__editable-name:focus-visible {
+  outline: 2px solid var(--pg-color-focus);
+  outline-offset: 2px;
+  border-radius: var(--pg-radius-sm);
+}
 .pg-collection-view__table [data-pg-primary='true'] { font-weight: 600; color: var(--pg-color-text-primary); }
 .pg-collection-view__table [data-pg-muted='true'] { color: var(--pg-color-text-secondary); }
 .pg-collection-view__sort {
@@ -174,38 +175,39 @@
   .pg-collection-view__table-scroll { scroll-behavior: auto; }
 }
 
-/* Checkbox and edit occupy one fixed left cell; action menu stays at row end. */
+/* Compact unchanged hit targets: 32px checkbox/menu within 44px columns.
+ * No empty pencil slot at the start and no vertical end-column separator. */
 .pg-collection-view__selection-cell {
-  width: 88px;
-  min-width: 88px;
-  max-width: 88px;
-  padding-inline: 8px !important;
+  width: 44px;
+  min-width: 44px;
+  max-width: 44px;
+  padding-inline: 6px !important;
   text-align: left !important;
 }
 .pg-collection-view__row-controls {
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 8px;
+  gap: 0;
   white-space: nowrap;
 }
 .pg-collection-view__row-menu { display: inline-flex; }
 .pg-collection-view__actions-cell {
-  width: 58px;
-  min-width: 58px;
-  max-width: 58px;
-  padding-inline: 12px !important;
+  width: 44px;
+  min-width: 44px;
+  max-width: 44px;
+  padding-inline: 6px !important;
   text-align: center !important;
 }
 .pg-collection-view[data-pg-selectable='true'] .pg-collection-view__table th:first-child,
 .pg-collection-view[data-pg-selectable='true'] .pg-collection-view__table td:first-child {
-  min-width: 88px;
-  max-width: 88px;
+  min-width: 44px;
+  max-width: 44px;
 }
 .pg-collection-view[data-pg-selectable='true'] .pg-collection-view__table th:nth-child(2),
 .pg-collection-view[data-pg-selectable='true'] .pg-collection-view__table td:nth-child(2) {
   position: sticky;
-  left: 88px;
+  left: 44px;
   z-index: 1;
   /* This may be an image preview, not always the name column. */
   min-width: 0;
@@ -219,7 +221,6 @@
   position: sticky;
   right: 0;
   z-index: 2;
-  box-shadow: -1px 0 0 var(--pg-color-border);
 }
 .pg-collection-view[data-pg-row-actions='true'] .pg-collection-view__table thead th:last-child {
   z-index: 4;
@@ -239,17 +240,10 @@
     opacity: 1;
   }
 
-  .pg-collection-view__table tbody .pg-collection-view__row-menu,
-  .pg-collection-view__table tbody .pg-collection-view__edit {
-    opacity: 0;
-  }
+  .pg-collection-view__table tbody .pg-collection-view__row-menu { opacity: 0; }
   .pg-collection-view__table tbody tr:is(:hover, :focus-within) .pg-collection-view__row-menu,
-  .pg-collection-view__table tbody tr:is(:hover, :focus-within) .pg-collection-view__edit,
-  .pg-collection-view__row-menu[data-pg-open='true'] {
-    opacity: 1;
-  }
-  .pg-collection-view__table tbody tr:not(:hover):not(:focus-within) .pg-collection-view__row-menu:not([data-pg-open='true']),
-  .pg-collection-view__table tbody tr:not(:hover):not(:focus-within) .pg-collection-view__edit {
+  .pg-collection-view__row-menu[data-pg-open='true'] { opacity: 1; }
+  .pg-collection-view__table tbody tr:not(:hover):not(:focus-within) .pg-collection-view__row-menu:not([data-pg-open='true']) {
     pointer-events: none;
   }
 }
