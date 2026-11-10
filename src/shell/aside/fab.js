@@ -53,9 +53,10 @@ export function createAsideFab({
     label: 'Відкрити ' + label,
     icon,
     action,
+    variant: 'corner',
     onClick: () => setOpen(!open),
   });
-  button.classList.add('pg-fab__trigger', 'pg-icon-button--corner');
+  button.classList.add('pg-fab__trigger');
   // Both FAB instances use exactly the same face and same hover/open motion.
   // It may contain either an SVG icon or text, but is never replaced.
   const face = document.createElement('span');
