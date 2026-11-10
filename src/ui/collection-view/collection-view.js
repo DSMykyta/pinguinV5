@@ -305,7 +305,11 @@ export function createCollectionView({
         wrapper.dataset.pgRowId=id;
         wrapper.dataset.pgSelected=String(selected.has(id));
         wrapper.setAttribute('role','listitem');
-        wrapper.append(tile);
+        // Keep the hover hit area stationary while its inner surface tilts.
+        const surface=document.createElement('div');
+        surface.className='pg-collection-view__tile-surface';
+        surface.append(tile);
+        wrapper.append(surface);
 
         // The renderer can expose a smaller edit region without coupling UI to feature markup.
         if(typeof onEditRow==='function') {
@@ -314,7 +318,7 @@ export function createCollectionView({
           open.className='pg-collection-view__tile-open';
           open.setAttribute('aria-label','Редагувати: '+String(row.name??id));
           open.addEventListener('click',()=>onEditRow(row),{signal:controller.signal});
-          const openTarget=tile.querySelector('[data-pg-tile-open-target]')??wrapper;
+          const openTarget=tile.querySelector('[data-pg-tile-open-target]')??surface;
           if(openTarget!==wrapper)openTarget.classList.add('pg-collection-view__tile-open-target');
           openTarget.append(open);
         }
@@ -343,7 +347,7 @@ export function createCollectionView({
             tileMenu.element.classList.add('pg-collection-view__tile-menu');
             actions.append(tileMenu.element);
           }
-          wrapper.append(actions);
+          surface.append(actions);
         }
         tiles.append(wrapper);
       }

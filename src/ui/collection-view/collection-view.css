@@ -83,17 +83,25 @@
 }
 .pg-collection-view__tile {
   position:relative;min-inline-size:0;
+  /* The outer tile is the stable hover boundary; do not transform it. */
+}
+.pg-collection-view__tile-surface {
+  position:relative;min-inline-size:0;
   transform-origin:center;
   transition:transform var(--pg-duration-layout) cubic-bezier(.34,1.56,.64,1);
 }
-.pg-collection-view__tile:is(:hover, :has(:focus-visible)) {
-  /* The existing subtle corner-control tilt, shared by all tile collections. */
+.pg-collection-view__tile:is(:hover, :has(:focus-visible),
+  :has(.pg-collection-view__tile-menu[data-pg-open='true'])) > .pg-collection-view__tile-surface {
+  /* Existing subtle tilt, now stable when hovering edge controls or an open menu. */
   transform:translateY(-1px) rotate(-.75deg);
 }
-.pg-collection-view__tile[data-pg-selected='true'] {
+.pg-collection-view__tile[data-pg-selected='true'] > .pg-collection-view__tile-surface::after {
+  /* One uninterrupted selection stroke overlays the card's regular 1px border. */
+  content:'';
+  position:absolute;inset:0;z-index:3;
+  box-sizing:border-box;pointer-events:none;
+  border:2px solid var(--pg-color-accent);
   border-radius:var(--pg-radius-md);
-  outline:2px solid var(--pg-color-accent);
-  outline-offset:-2px;
 }
 .pg-collection-view__tile-open-target {position:relative;}
 .pg-collection-view__tile-open {
@@ -120,8 +128,11 @@
 .pg-collection-view__tile-check .pg-checkbox__row {min-block-size:var(--pg-compact-control-size);}
 .pg-collection-view__tile-menu {margin-inline-start:auto;}
 @media (prefers-reduced-motion:reduce) {
-  .pg-collection-view__tile { transition:none; }
-  .pg-collection-view__tile:is(:hover, :has(:focus-visible)) { transform:none; }
+  .pg-collection-view__tile-surface { transition:none; }
+  .pg-collection-view__tile:is(:hover, :has(:focus-visible),
+    :has(.pg-collection-view__tile-menu[data-pg-open='true'])) > .pg-collection-view__tile-surface {
+    transform:none;
+  }
 }
 .pg-collection-view__empty {
   padding: 48px 20px; margin: 0;

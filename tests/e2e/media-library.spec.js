@@ -155,25 +155,73 @@ test('tile tilt clears on pointer exit after checkbox is checked and unchecked',
   await page.goto('/tools');
   await tab(page, 'Медіатека').click();
   const tile=media(page).locator('.pg-collection-view__tile').first();
+  const surface=tile.locator('.pg-collection-view__tile-surface');
   const checkbox=tile.locator('.pg-checkbox__control');
   await tile.hover();
-  await expect(tile).not.toHaveCSS('transform','none');
+  await expect(tile).toHaveCSS('transform','none');
+  await expect(surface).not.toHaveCSS('transform','none');
   await tile.locator('.pg-checkbox__row').click();
   await expect(media(page)).toHaveAttribute('data-pg-selected-count','1');
   await tile.locator('.pg-checkbox__row').click();
   await expect(media(page)).toHaveAttribute('data-pg-selected-count','0');
   await expect(checkbox).toBeFocused();
   await page.mouse.move(1,1);
-  await expect(tile).toHaveCSS('transform','none');
+  await expect(surface).toHaveCSS('transform','none');
 });
 
 test('tiles share the restrained tilt and disable it in reduced-motion', async ({ page }) => {
   await page.goto('/tools');
   await page.getByRole('tab',{name:'Медіатека'}).click();
   const tile=page.locator('#pg-tools-panel-media-library .pg-collection-view__tile').first();
+  const surface=tile.locator('.pg-collection-view__tile-surface');
   await tile.hover();
-  await expect(tile).not.toHaveCSS('transform', 'none');
+  await expect(surface).not.toHaveCSS('transform','none');
   await page.emulateMedia({reducedMotion:'reduce'});
-  await expect(tile).toHaveCSS('transition-duration','0s');
-  await expect(tile).toHaveCSS('transform','none');
+  await expect(surface).toHaveCSS('transition-duration','0s');
+  await expect(surface).toHaveCSS('transform','none');
+});
+
+
+test('selected tiles draw one consistent border without changing layout', async ({ page }) => {
+  await page.goto('/tools');
+  await tab(page,'Медіатека').click();
+  const tile=media(page).locator('.pg-collection-view__tile').first();
+  const surface=tile.locator('.pg-collection-view__tile-surface');
+  const boundsBefore=await tile.boundingBox();
+  await tile.locator('.pg-checkbox__row').click();
+  await expect(tile).toHaveAttribute('data-pg-selected','true');
+  const border=await surface.evaluate(element=>{
+    const style=getComputedStyle(element,'::after');
+    return {content:style.content,widths:[style.borderTopWidth,style.borderRightWidth,
+      style.borderBottomWidth,style.borderLeftWidth],color:style.borderTopColor,
+      pointerEvents:style.pointerEvents};
+  });
+  expect(border.content).toBe('""');
+  expect(border.widths).toEqual(['2px','2px','2px','2px']);
+  expect(border.pointerEvents).toBe('none');
+  const boundsAfter=await tile.boundingBox();
+  expect(boundsAfter.width).toBeCloseTo(boundsBefore.width,1);
+  expect(boundsAfter.height).toBeCloseTo(boundsBefore.height,1);
+  await tile.locator('.pg-checkbox__row').click();
+  await expect(tile).toHaveAttribute('data-pg-selected','false');
+  await expect.poll(()=>surface.evaluate(element=>getComputedStyle(element,'::after').content)).toBe('none');
+});
+
+test('tile stays tilted when pointer crosses onto ellipsis and open menu items', async ({ page }) => {
+  await page.goto('/tools');
+  await tab(page,'Медіатека').click();
+  const tile=media(page).locator('.pg-collection-view__tile').first();
+  const surface=tile.locator('.pg-collection-view__tile-surface');
+  const menu=tile.locator('.pg-collection-view__tile-menu .pg-menu__trigger');
+  await tile.hover();
+  await expect(surface).not.toHaveCSS('transform','none');
+  await menu.hover();
+  await expect(surface).not.toHaveCSS('transform','none');
+  await menu.click();
+  await expect(surface).not.toHaveCSS('transform','none');
+  await page.getByRole('menuitem',{name:'Переглянути дані'}).hover();
+  await expect(surface).not.toHaveCSS('transform','none');
+  await page.keyboard.press('Escape');
+  await page.mouse.move(1,1);
+  await expect(surface).toHaveCSS('transform','none');
 });
