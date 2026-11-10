@@ -21,3 +21,7 @@ Status: contracts before implementation, 2026-11-08.
 ## Visual checkbox decision (2026-11-09)
 
 The native checkbox remains the source of truth and keyboard/form control. A visually rendered rounded square morphs into a full circle when checked; the native `indeterminate` state uses a circular minus, as in the pre-existing MiniMax component references. Focus ring, error, disabled and reduced-motion states remain independent. No Brands page or global CSS imports.
+
+## Compact checkbox geometry (approved 2026-11-10)
+
+`legacy/css/components/forms/checkbox.css` uses a 24×24px visible selection box. `legacy/css/components/buttons/button-icon.css` uses a 32×32px circular icon button. In `work`, all checkboxes retain the same native input and visible 24×24px square (checked/mixed: circle), and `compact:true` places it in an aligned 32×32px target beside the shared `pg-mini-button`. No second checkbox implementation and no changes to the checkbox selection rules. See [button.md](button.md).

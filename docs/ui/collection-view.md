@@ -85,7 +85,7 @@ The global fourth-corner FAB stays in the **Aside rail** and keeps its original 
 
 - The first cell groups the native compact selection checkbox and a separate **Edit** icon button immediately to its right. The edit action is opt-in through `onEditRow(row)`, and it changes data only in the calling feature. In the Tools preview it opens the existing shared Dialog/Input and saves a new brand name to local preview records.
 - The `rowActions` menu is the **last cell after all record fields**, with its own trailing header `Дії`; it never occupies the column between the checkbox and the record name.
-- Both the edit button and the trailing action-menu trigger reuse the global `.pg-mini-button` style in `ui/button/button.css`: a 20px checkbox-shaped square, a 28px accessible click target, and an animated square-to-circle morph on hover/focus. This is an appearance shared by action buttons; the native checkbox retains its distinct selection semantics.
+- Both the edit button and the trailing action-menu trigger reuse the global `.pg-mini-button` style in `ui/button/button.css`: a round 32×32px button following legacy `.btn-icon` (transparent idle, accent-tinted background/ink and subtle shadow on hover, maintained active/open and visible focus). Compact native checkboxes share a 32×32px hit target around their 24×24px selection box. This is an appearance shared by action buttons; the native checkbox retains its distinct selection semantics.
 - Keep the first cell and primary name visible during horizontal scrolling; keep the final action cell attached to the right edge. Do not add independent feature CSS copies of the mini-control style.
 
 ## Contextual selection actions in the existing header (2026-11-09)

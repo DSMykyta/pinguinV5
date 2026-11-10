@@ -33,7 +33,7 @@
 | Компонент | Місце | Стан |
 | --- | --- | --- |
 | Іконки | `src/ui/icon` | [Google Material Symbols Rounded, локальні SVG](icons.md) |
-| Кнопки | `src/ui/button` | Є |
+| Кнопки | `src/ui/button` | [Icon Button і Mini Button — контракт legacy `btn-icon`](button.md) |
 | Tooltip | `src/ui/tooltip` | Є, збережено корисну поведінку legacy |
 | Tabs | `src/ui/tabs` | Є |
 | Page view | `src/ui/page` | Є |
