@@ -380,6 +380,9 @@ export function mountShell(host) {
   }
 
   function handlePointerDown(event) {
+    // A native modal makes the whole background inert; Shell must not react
+    // even indirectly to pointer events originating inside its top layer.
+    if (document.querySelector('dialog:modal')) return;
     if (asideFab.isOpen() && !asideFab.element.contains(event.target)) asideFab.close();
     if (pageFab.isOpen() && !pageFab.element.contains(event.target)) pageFab.close();
     const isOpen = viewport.matches ? mobileAsideOpen : preferences.asideOpen;
