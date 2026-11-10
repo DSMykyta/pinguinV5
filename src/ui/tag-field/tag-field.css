@@ -13,7 +13,7 @@
 .pg-tag-field { display: grid; gap: 6px; min-inline-size: 0; }
 .pg-tag-field__composite.pg-field__control {
   display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
-  block-size: auto; min-block-size: 54px; padding: 10px 8px;
+  block-size: auto; min-block-size: calc(var(--pg-field-control-size) - 2px); padding: 3px 8px;
 }
 .pg-tag-field__tokens { display: contents; }
 .pg-tag-field { --pg-button-quiet-ink: var(--pg-color-text-secondary); }
