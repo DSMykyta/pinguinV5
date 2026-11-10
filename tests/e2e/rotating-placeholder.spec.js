@@ -219,3 +219,56 @@ test('cross-tab local storage changes update a visible field', async ({ page, co
   await expect(page.locator('.pg-input').filter({ has: input })
     .locator('.pg-input__rotating-placeholder')).toContainText('From another tab');
 });
+
+test('invalid values are not memorized and per-value deletion updates the existing UI', async ({ page }) => {
+  await page.evaluate(() => {
+    document.querySelector('.pg-tools-input-demo__grid').insertAdjacentHTML('beforeend',
+      '<div><label for="valid-feature">Валідне значення</label>' +
+      '<input id="valid-feature" name="valid-feature" pattern="[A-Z]{3}" data-pg-rotating-placeholder></div>');
+  });
+  const input = page.locator('#valid-feature');
+  await input.fill('123');
+  await input.blur();
+  const invalid = await page.evaluate(() =>
+    localStorage.getItem('pg:v1:input-placeholder-history:valid-feature'));
+  expect(invalid).toBeNull();
+  await input.fill('ABC');
+  await input.blur();
+  await input.fill('DEF');
+  await input.blur();
+  await input.fill('');
+  await input.blur();
+
+  const hint = input.locator('..').locator('.pg-input__rotating-placeholder');
+  await expect(hint).toContainText('DEF');
+  await page.evaluate(async () => {
+    const { removeInputPlaceholderHistoryValue } = await import('/src/ui/input/placeholder-history.js');
+    removeInputPlaceholderHistoryValue('valid-feature', 'DEF');
+  });
+  await expect(hint).toContainText('ABC');
+  await page.evaluate(async () => {
+    const { clearInputPlaceholderHistory } = await import('/src/ui/input/placeholder-history.js');
+    clearInputPlaceholderHistory('valid-feature');
+  });
+  await expect(hint).toBeHidden();
+});
+
+test('moving an input between module owners re-scopes rather than mixing histories', async ({ page }) => {
+  await page.evaluate(() => {
+    document.querySelector('.pg-tools-input-demo__grid').insertAdjacentHTML('beforeend',
+      '<div data-pg-module="module-a"><input id="moved" name="feature" data-pg-rotating-placeholder></div>' +
+      '<div data-pg-module="module-b"></div>');
+  });
+  const input = page.locator('#moved');
+  await input.fill('Only A');
+  await input.blur();
+  await page.evaluate(() => document.querySelector('[data-pg-module="module-b"]')
+    .append(document.querySelector('#moved')));
+  await input.fill('');
+  await input.blur();
+  await expect(page.locator('[data-pg-module="module-b"] .pg-input__rotating-placeholder'))
+    .toHaveCount(0);
+  const stored = await page.evaluate(() => localStorage.getItem(
+    'pg:v1:input-placeholder-history:' + encodeURIComponent('module-b:feature')));
+  expect(stored).toBeNull();
+});
