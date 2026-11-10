@@ -1,0 +1,115 @@
+/*
+ * ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — WORKSPACE LAYOUT STYLES                                                             ║
+ * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Спільна геометрія п'яти зон редактора, згорнута/розгорнута локальна навігація.        ║
+ * ║ ЗАЛЕЖНОСТІ: tokens.css; shared button.css для вигляду всіх кнопок.                                  ║
+ * ║ ПУБЛІЧНИЙ API: .pg-workspace-layout та її структурні __зони.                                       ║
+ * ║ ПРИНЦИП: Не змінює Shell, Dialog lifecycle, FAB і Button skin.                                     ║
+ * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
+.pg-workspace-layout {
+  --pg-workspace-nav-width: var(--pg-sidebar-width);
+  --pg-workspace-rail-width: var(--pg-sidebar-compact-width);
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--pg-workspace-nav-width) minmax(0, 1fr) var(--pg-workspace-rail-width);
+  grid-template-rows: var(--pg-header-height) minmax(0, 1fr) var(--pg-workspace-rail-width);
+  grid-template-areas: "header header rail" "nav canvas rail" "footer footer rail";
+  inline-size: 100%; block-size: 100%; min-inline-size: 0; min-block-size: 0;
+  overflow: hidden;
+  background: var(--pg-color-page);
+  transition: grid-template-columns var(--pg-duration-layout) var(--pg-ease-layout);
+}
+.pg-workspace-layout[data-pg-nav='collapsed'] {
+  --pg-workspace-nav-width: var(--pg-sidebar-compact-width);
+}
+.pg-workspace-layout__header {
+  grid-area: header; display: flex; align-items: center;
+  min-width: 0; min-height: 0;
+}
+.pg-workspace-layout__title {
+  flex: 1 1 auto; min-width: 0; margin: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.pg-workspace-layout__top-left, .pg-workspace-layout__top-right,
+.pg-workspace-layout__bottom-left, .pg-workspace-layout__bottom-right {
+  display: grid; place-items: center; flex: 0 0 var(--pg-workspace-rail-width);
+  inline-size: var(--pg-workspace-rail-width); block-size: var(--pg-workspace-rail-width);
+}
+.pg-workspace-layout__nav {
+  grid-area: nav; display: flex; flex-direction: column; min-width: 0; min-height: 0;
+  padding: 8px; overflow: hidden;
+}
+.pg-workspace-layout__nav-toggle { flex: 0 0 auto; margin: 4px; }
+.pg-workspace-layout__nav-list {
+  display: flex; flex-direction: column; gap: 2px;
+  flex: 1 1 auto; min-width: 0; min-height: 0; overflow-x: hidden; overflow-y: auto;
+}
+.pg-workspace-layout__nav-item {
+  display: flex; flex: 0 0 auto; min-height: 40px;
+  padding: 0 11px; gap: 12px; white-space: nowrap;
+}
+.pg-workspace-layout__nav-item .pg-icon { flex: 0 0 18px; inline-size: 18px; block-size: 18px; }
+.pg-workspace-layout__nav-item[aria-current='true'] {
+  background: var(--pg-color-selected);
+}
+.pg-workspace-layout__nav-label {
+  overflow: hidden; text-overflow: ellipsis;
+  transition: opacity var(--pg-duration-fast) ease;
+}
+.pg-workspace-layout[data-pg-nav='collapsed'] .pg-workspace-layout__nav-item {
+  padding-inline: 11px; gap: 0; width: 40px;
+}
+.pg-workspace-layout[data-pg-nav='collapsed'] .pg-workspace-layout__nav-label {
+  opacity: 0; width: 0; pointer-events: none;
+}
+.pg-workspace-layout__canvas {
+  grid-area: canvas; min-width: 0; min-height: 0; overflow: auto;
+  background: var(--pg-color-surface);
+  border-radius: 18px 18px 0 0; overscroll-behavior: contain;
+}
+.pg-workspace-layout__footer {
+  grid-area: footer; display: flex; align-items: center;
+  min-width: 0; min-height: 0; gap: 8px;
+}
+.pg-workspace-layout__rail {
+  grid-area: rail; display: flex; flex-direction: column;
+  align-items: center; justify-content: space-between;
+  min-height: 0; min-width: 0;
+}
+.pg-workspace-layout__status {
+  min-width: 0; margin: 0; padding: 0 8px; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pg-workspace-layout__canvas .pg-dialog__body {
+  box-sizing: border-box; display: block;
+  min-height: 100%; max-height: none;
+  padding: 28px clamp(20px, 4vw, 48px) 36px;
+  overflow: visible;
+}
+.pg-workspace-layout__canvas .pg-dialog__body > [hidden] { display: none; }
+.pg-workspace-layout__nav-item:focus-visible { outline-offset: -2px; }
+
+@media (max-width: 700px) {
+  .pg-workspace-layout {
+    grid-template-columns: var(--pg-workspace-rail-width) minmax(0, 1fr) var(--pg-workspace-rail-width);
+  }
+  .pg-workspace-layout__nav {
+    width: var(--pg-workspace-rail-width);
+  }
+  .pg-workspace-layout[data-pg-nav='expanded'] .pg-workspace-layout__nav {
+    position: absolute; z-index: 3;
+    top: var(--pg-header-height); bottom: var(--pg-workspace-rail-width); left: 0;
+    box-sizing: border-box; width: min(228px, calc(100% - 72px));
+    background: var(--pg-color-page);
+    box-shadow: 8px 0 20px var(--pg-color-shadow);
+    border-radius: 0 var(--pg-radius-md) var(--pg-radius-md) 0;
+  }
+  .pg-workspace-layout__title { font-size: 17px; }
+  .pg-workspace-layout__canvas .pg-dialog__body { padding: 20px 16px 28px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pg-workspace-layout, .pg-workspace-layout__nav-label { transition: none; }
+}
