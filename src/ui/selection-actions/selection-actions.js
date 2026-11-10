@@ -50,7 +50,7 @@ export function createSelectionActions({ single = [], multiple = [], onAction } 
     for (const choice of choices) {
       const button = document.createElement('button');
       button.type = 'button';
-      button.className = 'pg-selection-actions__action';
+      button.className = 'pg-selection-actions__action pg-button pg-button--pill';
       button.textContent = choice.label;
       button.dataset.pgSelectionAction = choice.value;
       button.addEventListener('click', () => onAction(choice.value), {

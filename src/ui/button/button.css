@@ -149,6 +149,94 @@
   .pg-button { transition: none; }
 }
 
+
+/* Context-neutral variations. The caller owns events; button.css owns appearance. */
+.pg-button--pill {
+  flex: 0 0 auto;
+  min-block-size: 32px;
+  padding: 5px 11px;
+  border-color: var(--pg-color-border);
+  border-radius: var(--pg-radius-full);
+  background: var(--pg-color-surface);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+.pg-button--pill:is(:hover, :focus-visible):not(:disabled) {
+  background: var(--pg-color-hover);
+  border-color: var(--pg-color-border-strong);
+}
+
+.pg-button--page {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  min-inline-size: var(--pg-page-button-width, 34px);
+  block-size: var(--pg-page-button-height, 34px);
+  min-block-size: 0;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--pg-radius-full);
+  background: transparent;
+  color: var(--pg-color-text-secondary);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 400;
+}
+.pg-button--page:hover:not(:disabled) {
+  background: var(--pg-color-hover);
+  color: var(--pg-color-text-primary);
+}
+.pg-button--page[aria-current='page'] {
+  background: var(--pg-color-selected);
+  color: var(--pg-color-text-primary);
+  font-weight: 700;
+}
+.pg-button--page:disabled { opacity: .35; }
+
+.pg-button--step {
+  display: grid;
+  place-items: center;
+  min-inline-size: 32px;
+  inline-size: 32px;
+  block-size: 32px;
+  min-block-size: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--pg-radius-sm);
+  background: var(--pg-color-selected);
+  color: var(--pg-color-text-primary);
+  font-size: 18px;
+  font-weight: 500;
+}
+.pg-button--step:hover:not(:disabled) { background: var(--pg-color-hover); }
+.pg-button--step:disabled { opacity: .35; }
+.pg-button--step:focus-visible { outline-offset: 1px; }
+
+.pg-button--tool {
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: 36px;
+  min-block-size: 36px;
+  padding: var(--pg-space-2);
+  border: 0;
+  border-radius: var(--pg-radius-sm);
+  background: transparent;
+  color: var(--pg-color-text-secondary);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.2;
+}
+.pg-button--tool:hover:not(:disabled) {
+  background: var(--pg-color-hover);
+  color: var(--pg-color-text-primary);
+}
+.pg-button--tool[aria-pressed='true'] {
+  background: var(--pg-color-accent-soft);
+  color: var(--pg-color-accent);
+}
+.pg-button--tool:disabled { opacity: .4; }
+
 /*
  * Shared mini button: legacy .btn-icon look on the existing IconButton/Menu.
  * A 32px circular action target sits beside a 32px compact checkbox target.

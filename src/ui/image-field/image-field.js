@@ -32,7 +32,7 @@ export function createImageField({
   zone.setAttribute('aria-label','Зображення: '+label);
   const picker=document.createElement('button');
   picker.type='button';
-  picker.className='pg-image-field__choose';
+  picker.className='pg-image-field__choose pg-button pg-button--outline pg-button--compact';
   picker.textContent='Додати зображення';
   picker.disabled=Boolean(disabled);
   const fileInput=document.createElement('input');
@@ -53,12 +53,12 @@ export function createImageField({
   imageName.className='pg-image-field__filename';
   const remove=document.createElement('button');
   remove.type='button';
-  remove.className='pg-image-field__remove';
+  remove.className='pg-image-field__remove pg-button pg-button--outline pg-button--compact';
   remove.textContent='Прибрати';
   remove.disabled=Boolean(disabled);
   const replace=document.createElement('button');
   replace.type='button';
-  replace.className='pg-image-field__replace';
+  replace.className='pg-image-field__replace pg-button pg-button--outline pg-button--compact';
   replace.textContent='Замінити';
   replace.disabled=Boolean(disabled);
   preview.append(image,imageName,replace,remove);

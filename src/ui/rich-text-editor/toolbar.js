@@ -33,7 +33,7 @@ export function mountEditorToolbar({ host, controls, root }) {
   const buttons = ITEMS.map(item => {
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = 'pg-rich-text-editor__action';
+    button.className = 'pg-rich-text-editor__action pg-button pg-button--tool';
     button.dataset.pgAction = item.id;
     button.title = item.label;
     button.setAttribute('aria-label', item.label);

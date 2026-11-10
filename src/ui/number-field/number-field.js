@@ -62,7 +62,7 @@ export function createNumberField({
     decrement = document.createElement('button');
     increment = document.createElement('button');
     decrement.type = increment.type = 'button';
-    decrement.className = increment.className = 'pg-number-field__step';
+    decrement.className = increment.className = 'pg-number-field__step pg-button pg-button--step';
     decrement.textContent = '−';
     increment.textContent = '+';
     decrement.setAttribute('aria-label', 'Зменшити ' + label);

@@ -21,15 +21,6 @@
 .pg-image-field__zone[data-pg-dragging='true'] {
   border-color:var(--pg-color-focus);box-shadow:0 0 0 2px var(--pg-color-accent-soft);
 }
-.pg-image-field__choose, .pg-image-field__replace, .pg-image-field__remove {
-  padding:7px 12px;min-block-size:36px;border:1px solid var(--pg-color-border-strong);
-  border-radius:var(--pg-radius-sm);
-  background:var(--pg-color-surface);color:var(--pg-color-text-primary);
-  font:inherit;font-size:13px;cursor:pointer;
-}
-.pg-image-field__choose:focus-visible,.pg-image-field__replace:focus-visible,.pg-image-field__remove:focus-visible {
-  outline:2px solid var(--pg-color-focus);outline-offset:2px;
-}
 .pg-image-field__choose[hidden],.pg-image-field__preview[hidden] {display:none;}
 .pg-image-field__preview {
   display:flex;flex-wrap:wrap;justify-content:center;align-items:center;

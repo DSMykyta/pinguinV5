@@ -57,7 +57,7 @@ export function createPagination({
   function addButton(text,accessibleName,to,disabled=false){
     const button=document.createElement('button');
     button.type='button';
-    button.className='pg-pagination__button';
+    button.className='pg-pagination__button pg-button pg-button--page';
     button.textContent=text;
     button.setAttribute('aria-label',accessibleName);
     button.dataset.pgPageTarget=String(to);
