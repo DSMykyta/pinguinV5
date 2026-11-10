@@ -63,7 +63,7 @@
 | Image Field | `src/ui/image-field` | [Local image preview, drag/drop and URL cleanup](image-field.md) |
 | Tag Field | `src/ui/tag-field` | Independent tag collection, paste parsing, two-step removal, undo; [contract](tag-field.md) |
 | Form Dialog | `src/ui/form-dialog` | Shared Dialog composition with validation and dirty close guard; [contract](form-dialog.md) |
-| Workspace Dialog (design) | `src/ui/dialog` + `src/ui/form-dialog` | [Дослідження та обрана архітектура великих редакторів](workspace-dialog.md), ще не реалізовано |
+| Workspace Dialog | `src/ui/dialog` + `src/ui/form-dialog` + `src/ui/workspace-layout` | [Спільний редактор з навігацією «Переходи»](workspace-dialog.md); приклад у «Макетах даних» |
 | Section navigator | `src/ui/section-navigator` | [Дослідження, API та жести](section-navigator.md): незалежні блоки, boundary scroll, ручки й кнопки |
 | Rich Text Editor | `src/ui/rich-text-editor` | [WYSIWYG ↔ редагований HTML, один документ, модульний toolbar і stats](rich-text-editor.md); [дослідження](../research/rich-text-editor.md) |
 | Textarea | `src/ui/textarea` | [Multiline native editor, auto-height and count](textarea.md) |
