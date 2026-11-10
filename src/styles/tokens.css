@@ -32,6 +32,9 @@
   --pg-color-focus: #397f6c;
   --pg-color-accent: #326e5c;
   --pg-color-accent-soft: #e7f0eb;
+  /* Opaque, contrast-safe native text selection (legacy palette). */
+  --pg-color-selection-bg: #113855;
+  --pg-color-selection-text: #ffffff;
   --pg-color-mark: #d8eccd;
   --pg-color-mark-ink: #325e46;
   --pg-color-overlay: rgb(15 16 18 / 0.20);
@@ -114,6 +117,8 @@
   --pg-color-focus: #79c1ab;
   --pg-color-accent: #96d2b8;
   --pg-color-accent-soft: #2c443c;
+  --pg-color-selection-bg: #7bbad4;
+  --pg-color-selection-text: #000000;
   --pg-color-mark: #3d594a;
   --pg-color-mark-ink: #c6e5cf;
   --pg-color-overlay: rgb(0 0 0 / 0.38);
