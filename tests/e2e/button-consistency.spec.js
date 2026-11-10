@@ -42,7 +42,7 @@ test('outlined Menu trigger and compact table Menu share button skins', async ({
   await expect(trigger).toHaveCSS('min-height','40px');
   await trigger.click();
   await expect(trigger).toHaveAttribute('aria-expanded','true');
-  await trigger.press('Escape');
+  await page.keyboard.press('Escape');
   await expect(trigger).toHaveAttribute('aria-expanded','false');
 
   await page.getByRole('tab',{name:'Макети даних'}).click();
