@@ -14,13 +14,12 @@ let nextCheckboxId = 0;
 export function createCheckbox({
   label, id, name, value = 'on', description = '', error = '',
   checked = false, indeterminate = false, required = false,
-  disabled = false, compact = false, onChange,
+  disabled = false, showLabel = true, onChange,
 } = {}) {
   if (typeof label !== 'string' || !label.trim()) throw new TypeError('Checkbox label is required');
   const uid = id || 'pg-checkbox-' + (++nextCheckboxId);
   const element = document.createElement('div');
   element.className = 'pg-checkbox';
-  element.dataset.pgCompact = String(Boolean(compact));
   const row = document.createElement('label');
   row.className = 'pg-checkbox__row';
   row.htmlFor = uid;
@@ -40,6 +39,9 @@ export function createCheckbox({
   box.setAttribute('aria-hidden', 'true');
   const copy = document.createElement('span');
   copy.className = 'pg-checkbox__copy';
+  // Presentation only: compact collection cells keep an accessible name
+  // without reserving label space. The checkbox geometry is always identical.
+  if (!showLabel) copy.classList.add('pg-checkbox__copy--sr-only');
   const text = document.createElement('span');
   text.id = uid + '-label';
   text.className = 'pg-checkbox__label';
