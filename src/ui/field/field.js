@@ -14,8 +14,9 @@ import { createIcon } from '../icon/icon.js';
 function slotNodes(value) {
   if (value == null) return [];
   const items = Array.isArray(value) ? value : [value];
-  if (items.some(item => !(item instanceof HTMLElement))) {
-    throw new TypeError('Field slots accept HTMLElements only');
+  // Shared Google Material Symbols are SVGElements, not HTMLElements.
+  if (items.some(item => !(item instanceof HTMLElement || item instanceof SVGElement))) {
+    throw new TypeError('Field slots accept HTML or SVG elements only');
   }
   return items;
 }
