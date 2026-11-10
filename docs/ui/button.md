@@ -18,3 +18,11 @@
 ## Перевірка
 
 Playwright: однакова геометрія 32×32px mini і компактного checkbox; видимі 24×24px чекбокси; hover колір/фон/тінь; menu open/close, focus-visible, dark theme, reduced motion, table→tiles; незмінні наявні E2E вибору. Запустити `npm run check` і `npm run test:e2e`. Зелений CI не підтверджує візуальну оцінку без браузерного огляду.
+
+## Помилка консистентності: pin у Aside (2026-11-10)
+
+**Дефект:** `src/shell/aside/aside.js` правильно викликав `createIconButton()`, однак додавав `pg-aside__pin`, а `aside.css` повторював власну геометрію (28×28, radius 8px), розмір іконки та `aria-pressed` стиль. Це була **локальна кнопка за виглядом**, хоча фабрика спільна. Так само назва `pg-menu__trigger` до рефакторингу визначала і функціональну роль, і повний окремий button-skin. Обидва підходи порушують reuse-by-contract. Помилку не виправляє просте перейменування класу.
+
+**Рішення:** `pin` — `createIconButton({ variant: 'mini' })`, із уже затвердженим `pg-mini-button` та глобальним станом `aria-pressed`. Ніякого нового `pg-pin-button`. `pg-aside__pin` не має окремих стилів і не потрібен навіть як DOM-hook: існує `[data-pg-action="aside-pin"]`. `pg-menu__trigger` може лишатися структурним DOM-класом для логіки й тестів, але його вигляд задає `pg-button` + `pg-button--outline` або `pg-mini-button`. Спільні основні стани (idle / hover / pressed / expanded / focus-visible / disabled / reduced motion) належать виключно `src/ui/button/button.css`.
+
+**Запобіжник:** перед будь-яким новим `button` перевіряти [реєстр кнопок](button-inventory.md), застосовувати наявний клас вигляду та фабрику. `src/features`, `src/shell` і CSS інших UI-компонентів можуть лише позиціонувати/обмежувати вміст наявного контролу; розміри, рамка, радіус, кольори та стани **не дублюються**. Виняток — справжня складова поведінка, як FAB з власним pop-out меню або native label/radio, яка задокументована в реєстрі.
