@@ -1,4 +1,14 @@
-/* Tools-only grid. Individual component styling remains in src/ui. */
+/*
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — ADVANCED FIELD DEMO STYLES                                                           ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Розмітка сітки для демонстрації розширених полів у Tools.                              ║
+ * ║ ЗАЛЕЖНОСТІ: Спільні токени src/styles/tokens.css та UI-поля.                                        ║
+ * ║ ПУБЛІЧНИЙ API: .pg-tools-advanced-fields, .pg-tools-advanced-fields__grid.                          ║
+ * ║ ПРИНЦИП: Демонстрація керує розташуванням; стилі самих полів належать src/ui.                       ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 .pg-tools-advanced-fields { max-inline-size: 780px; margin-block-start: var(--pg-space-10); }
 .pg-tools-advanced-fields__heading { font-size: 15px; font-weight: 600; margin: 0; }
 .pg-tools-advanced-fields__hint {
