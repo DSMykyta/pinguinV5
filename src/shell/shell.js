@@ -352,6 +352,8 @@ export function mountShell(host) {
 
   function handleKeydown(event) {
     if (event.key !== 'Escape') return;
+    // Native modal owns Escape. Background Shell must not close its aside/FAB.
+    if (document.querySelector('dialog[open]')) return;
     if (pageFab.isOpen()) {
       pageFab.close();
       pageFab.button.focus();
