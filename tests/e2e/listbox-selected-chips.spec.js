@@ -98,6 +98,37 @@ test('ordinary hovering shows nothing; hovering +N replaces compact chips with o
   expect(geometry.expandedHeight).toBeGreaterThan(geometry.surfaceHeight);
 });
 
+test('chips have quieter corners and balanced field insets in compact and expanded states', async ({ page }) => {
+  const root = page.locator('#selection-test-normal');
+  const geometry = () => root.evaluate(element => {
+    const surface = element.querySelector(':scope > .pg-listbox > .pg-field > .pg-field__surface');
+    const compact = element.querySelector('.pg-listbox__value--interactive .pg-listbox__chip');
+    const expanded = element.querySelector('.pg-listbox__selection-tray .pg-listbox__selected-chip');
+    const chip = element.querySelector('.pg-listbox').dataset.pgTray === 'true' ? expanded : compact;
+    const fieldBox = surface.getBoundingClientRect();
+    const chipBox = chip.getBoundingClientRect();
+    return {
+      left: chipBox.left - fieldBox.left,
+      top: chipBox.top - fieldBox.top,
+      bottom: fieldBox.bottom - chipBox.bottom,
+      radius: parseFloat(getComputedStyle(chip).borderTopLeftRadius),
+      height: chipBox.height,
+    };
+  });
+  const compact = await geometry();
+  expect(compact.radius).toBe(6);
+  expect(compact.height).toBe(26);
+  expect(Math.abs(compact.left - compact.top)).toBeLessThan(1);
+  expect(Math.abs(compact.top - compact.bottom)).toBeLessThan(1);
+
+  await hoverOverflow(page, root);
+  const expanded = await geometry();
+  expect(expanded.radius).toBe(compact.radius);
+  expect(expanded.height).toBe(compact.height);
+  expect(Math.abs(expanded.left - compact.left)).toBeLessThan(2);
+  expect(Math.abs(expanded.top - compact.top)).toBeLessThan(2);
+});
+
 test('× removes one value in expanded view without opening options',async({page})=>{
   const root=page.locator('#selection-test-normal');
   await hoverOverflow(page, root);
