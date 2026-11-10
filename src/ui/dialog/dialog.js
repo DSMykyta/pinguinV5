@@ -85,6 +85,7 @@ export function mountDialogs() {
     }
     if (item.element?.open) item.element.close();
     item.element?.remove();
+    doc.dispatchEvent(new Event('pg:modal-change'));
     if (item.focusOrigin?.isConnected) item.focusOrigin.focus({ preventScroll: true });
     if (active === item) active = null;
     item.resolve(item.result);
@@ -477,6 +478,7 @@ export function mountDialogs() {
 
       doc.body.append(d);
       d.showModal();
+      doc.dispatchEvent(new Event('pg:modal-change'));
       (item.options.size === 'editor' || item.options.size === 'workspace'
         ? (item.options.content?.querySelector('[autofocus]') || title)
         : (cancelButton ?? item.confirmButton)).focus({ preventScroll: true });
@@ -513,6 +515,7 @@ export function mountDialogs() {
       if (active.timerId !== null) view.clearTimeout(active.timerId);
       if (active.element?.open) active.element.close();
       active.element?.remove();
+      doc.dispatchEvent(new Event('pg:modal-change'));
       active.resolve('cancel');
       active = null;
     }
