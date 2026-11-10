@@ -89,6 +89,7 @@ test('soft danger is readable and its color changes with the theme, not its size
   await page.evaluate(() => document.documentElement.removeAttribute('data-theme'));
   const light = await capture();
   await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'dark'));
+  await expect.poll(async () => (await capture()).color).not.toBe(light.color);
   const dark = await capture();
   expect(light.color).not.toBe(dark.color);
   expect(light.background).not.toBe(dark.background);
