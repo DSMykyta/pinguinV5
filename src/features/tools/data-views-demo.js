@@ -194,7 +194,7 @@ export function createDataViewsDemo() {
     onSortChange:sort=>{
       sortBy.setValue(sort.key);direction.setValue(sort.direction);
     },
-    onSelectionChange:ids=>selectedActions.setSelection(ids),
+    onSelectionChange:(ids,scope)=>selectedActions.setSelection(ids,scope),
     onRowAction:(action,row)=>{
       if(action==='details') {
         details.textContent=row.name+' · '+row.category+' · '+row.products+' товарів · '+row.status;

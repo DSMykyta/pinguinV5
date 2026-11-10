@@ -10,7 +10,7 @@
  * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
-.pg-collection-view { display: flex; flex-direction: column; min-inline-size: 0; min-block-size: 0; width: 100%; height: 100%; }
+.pg-collection-view { display: flex; flex-direction: column; min-inline-size: 0; min-block-size: 0; width: 100%; height: 100%; container-type: inline-size; }
 .pg-collection-view__table-scroll {
   flex: 1 1 auto; min-block-size: 0; min-inline-size: 0;
   overflow: auto;
@@ -90,7 +90,7 @@
   transform-origin:center;
   transition:transform var(--pg-duration-layout) cubic-bezier(.34,1.56,.64,1);
 }
-.pg-collection-view__tile:is(:hover,
+.pg-collection-view__tile:is(:hover,:has(:focus-visible),
   :has(.pg-collection-view__tile-menu[data-pg-open='true'])) > .pg-collection-view__tile-surface {
   /* Existing subtle tilt, now stable when hovering edge controls or an open menu. */
   transform:translateY(-1px) rotate(-.75deg);
@@ -128,7 +128,7 @@
 .pg-collection-view__tile-menu {margin-inline-start:auto;}
 @media (prefers-reduced-motion:reduce) {
   .pg-collection-view__tile-surface { transition:none; }
-  .pg-collection-view__tile:is(:hover,
+  .pg-collection-view__tile:is(:hover,:has(:focus-visible),
     :has(.pg-collection-view__tile-menu[data-pg-open='true'])) > .pg-collection-view__tile-surface {
     transform:none;
   }
@@ -137,7 +137,7 @@
   padding: 48px 20px; margin: 0;
   text-align: center; color: var(--pg-color-text-secondary);
 }
-@media (max-width: 640px) {
+@container (max-width: 640px) {
   .pg-collection-view__table { min-width: 980px; }
   .pg-collection-view__table thead th, .pg-collection-view__table tbody td { padding-inline: 12px; }
   .pg-collection-view__tiles { gap: 10px; grid-template-columns: repeat(auto-fill,minmax(min(145px,100%),1fr)); }

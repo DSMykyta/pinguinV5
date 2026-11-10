@@ -162,7 +162,7 @@ export function createMediaLibraryDemo() {
       else if(action==='duplicate')duplicate(row);
     },
     onSortChange:state=>sortBy.setValue(state.key),
-    onSelectionChange:ids=>selectedActions.setSelection(ids),
+    onSelectionChange:(ids,scope)=>selectedActions.setSelection(ids,scope),
   });
   async function selectedAction(action) {
     const ids=collection.getSelectedIds();

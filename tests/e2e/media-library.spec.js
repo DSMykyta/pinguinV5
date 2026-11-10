@@ -229,3 +229,116 @@ test('tile stays tilted when pointer crosses onto ellipsis and open menu items',
   await page.mouse.move(1,1);
   await expect(surface).toHaveCSS('transform','none');
 });
+
+// Data and presentation regressions: no inactive DOM, scope-aware selection, focus, states.
+test('only active media view mounts records and keeps IDs across switches', async ({ page }) => {
+  await page.goto('/tools');
+  await tab(page,'Медіатека').click();
+  const view=media(page);
+  await expect(view.locator('.pg-collection-view__tile')).toHaveCount(10);
+  await expect(view.locator('tbody tr')).toHaveCount(0);
+  await view.locator('.pg-collection-view__tile').first().locator('.pg-checkbox__row').click();
+  await page.locator('.pg-view-switch [title="Таблиця"]').click();
+  await expect(view.locator('.pg-collection-view__tile')).toHaveCount(0);
+  await expect(view.locator('tbody tr')).toHaveCount(10);
+  await expect(view).toHaveAttribute('data-pg-selected-count','1');
+  await page.locator('.pg-view-switch [title="Плитки"]').click();
+  await expect(view.locator('.pg-collection-view__tile')).toHaveCount(10);
+  await expect(view.locator('tbody tr')).toHaveCount(0);
+  await expect(view).toHaveAttribute('data-pg-selected-count','1');
+});
+
+test('selection scope distinguishes current page and hidden search results', async ({ page }) => {
+  await page.goto('/tools');
+  await tab(page,'Медіатека').click();
+  const view=media(page);
+  await view.locator('.pg-collection-view__tile').nth(0).locator('.pg-checkbox__row').click();
+  await view.locator('.pg-collection-view__tile').nth(1).locator('.pg-checkbox__row').click();
+  const before=await view.evaluate(node=>{
+    const names=[...node.querySelectorAll('.pg-media-library__name')].map(item=>item.textContent);
+    return names.slice(0,2);
+  });
+  const scope=await page.evaluate(async()=>{
+    // Inspect the public Collection View API from an independent instance.
+    const {createCollectionView}=await import('/src/ui/collection-view/collection-view.js');
+    const host=createCollectionView({
+      label:'Selection scope test',
+      rows:[{id:'1',name:'Перший'},{id:'2',name:'Другий'},{id:'3',name:'Третій'}],
+      columns:[{key:'name',label:'Назва'}],selectable:true,pageSize:10,
+    });
+    document.body.append(host.element);
+    const checks=host.element.querySelectorAll('tbody .pg-checkbox__control');
+    checks[0].click();checks[1].click();
+    host.setQuery('Перший');
+    const filtered=host.getSelectionSummary();
+    host.setQuery('');
+    const unfiltered=host.getSelectionSummary();
+    host.destroy();
+    return {filtered,unfiltered};
+  });
+  expect(scope.filtered).toEqual({
+    total:2,inResults:1,onCurrentPage:1,outsideResults:1,outsidePage:1,
+  });
+  expect(scope.unfiltered).toEqual({
+    total:2,inResults:2,onCurrentPage:2,outsideResults:0,outsidePage:0,
+  });
+  expect(before).toHaveLength(2);
+});
+
+test('keyboard focus returns to row menu after duplicate rebuilds the media collection', async ({ page }) => {
+  await page.goto('/tools');
+  await tab(page,'Медіатека').click();
+  const view=media(page);
+  const tile=view.locator('.pg-collection-view__tile').first();
+  const name=await tile.locator('.pg-media-library__name').textContent();
+  await tile.locator('.pg-collection-view__tile-menu .pg-menu__trigger').click();
+  await page.getByRole('menuitem',{name:'Дублювати'}).click();
+  await expect(view.locator('.pg-media-library__name')).toContainText([name]);
+  const focused=page.locator(':focus');
+  await expect(focused).toHaveAttribute('aria-label',new RegExp('Дії:'));
+});
+
+test('collection differentiates empty search, loading and error without new controls', async ({ page }) => {
+  await page.goto('/tools');
+  const result=await page.evaluate(async()=>{
+    const {createCollectionView}=await import('/src/ui/collection-view/collection-view.js');
+    const view=createCollectionView({
+      label:'Empty states',rows:[{id:'a',name:'Альфа'}],
+      columns:[{key:'name',label:'Назва'}],
+    });
+    document.body.append(view.element);
+    const read=()=>({text:view.element.querySelector('.pg-collection-view__empty').textContent,
+      hidden:view.element.querySelector('.pg-collection-view__empty').hidden});
+    view.setQuery('немає');
+    const noMatches=read();
+    view.setDataState('loading');
+    const loading=read();
+    view.setDataState('error','Сервер недоступний');
+    const error=read();
+    view.setRows([]);
+    const noRows=read();
+    view.destroy();
+    return {noMatches,loading,error,noRows};
+  });
+  expect(result.noMatches).toEqual({text:'За поточним запитом нічого не знайдено',hidden:false});
+  expect(result.loading).toEqual({text:'Завантаження записів…',hidden:false});
+  expect(result.error).toEqual({text:'Сервер недоступний',hidden:false});
+  expect(result.noRows).toEqual({text:'Немає записів',hidden:false});
+});
+
+test('tile focus-visible retains motion without pointer hover and container adapts to width', async ({ page }) => {
+  await page.goto('/tools');
+  await tab(page,'Медіатека').click();
+  const view=media(page);
+  const tile=view.locator('.pg-collection-view__tile').first();
+  const surface=tile.locator('.pg-collection-view__tile-surface');
+  await page.mouse.move(1,1);
+  await page.keyboard.press('Tab');
+  await tile.locator('.pg-checkbox__control').focus();
+  await expect(tile.locator('.pg-checkbox__control')).toBeFocused();
+  // Programmatic focus does not always trigger :focus-visible: force keyboard modality.
+  await page.keyboard.press('Tab');
+  await expect(view).toHaveCSS('container-type','inline-size');
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await expect(surface).toHaveCSS('transition-duration','0s');
+});

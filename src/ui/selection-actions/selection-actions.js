@@ -69,13 +69,20 @@ export function createSelectionActions({ single = [], multiple = [], onAction } 
     element.append(group);
   }
 
-  function setSelection(ids) {
+  function setSelection(ids, scope = {}) {
     if (!Array.isArray(ids)) throw new TypeError('Expected selected row IDs');
     const mode = getSelectionMode(ids.length);
+    const outside = Number.isInteger(scope.outsideResults)
+      ? Math.max(0,Math.min(scope.outsideResults,ids.length)) : 0;
     element.dataset.pgMode = mode;
     element.inert = mode === 'none';
     element.setAttribute('aria-hidden', String(mode === 'none'));
-    multipleCount.textContent = ids.length > 1 ? ids.length + ' вибрано' : '';
+    multipleCount.textContent = mode === 'multiple'
+      ? ids.length + ' вибрано' + (outside ? ' · ' + outside + ' поза пошуком' : '') : '';
+    for (const button of groups.get('single').element.querySelectorAll('button')) {
+      button.setAttribute('aria-label',button.textContent
+        + (outside ? ' (вибраний запис за межами поточного пошуку)' : ''));
+    }
     for (const [name, group] of groups) group.reveal.setVisible(name === mode);
   }
 

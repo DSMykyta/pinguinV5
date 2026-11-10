@@ -89,6 +89,7 @@ export function createCollectionView({
   const empty=document.createElement('p');
   empty.className='pg-collection-view__empty';
   empty.textContent='Немає записів';
+  empty.setAttribute('role','status');
   empty.hidden=true;
   const controller=new AbortController();
   const headers=new Map();
@@ -98,6 +99,8 @@ export function createCollectionView({
   let currentMode=initialMode;
   let sort=initialSort?{...initialSort}:null;
   let query='';
+  let sortedCache=null;
+  let dataState='ready',dataMessage='';
 
   const switcher=modes.length>1?createViewSwitch({
     modes,value:currentMode,
@@ -128,7 +131,7 @@ export function createCollectionView({
           if(hadSelection)selected.delete(id);else selected.add(id);
         });
         syncSelection();
-        onSelectionChange?.(getSelectedIds());
+        notifySelection();
       },
     });
     const controls=document.createElement('div');
@@ -179,17 +182,19 @@ export function createCollectionView({
   // The caller may mount this same pagination element in the shared footer slot.
 
   function sortedRows() {
+    if(sortedCache!==null)return sortedCache;
     const match=query.trim().toLocaleLowerCase('uk');
     const filtered=match?dataset.filter(row=>
       columns.some(column=>String(row[column.key]??'').toLocaleLowerCase('uk').includes(match))
     ):dataset;
-    if(!sort)return [...filtered];
+    if(!sort)return (sortedCache=[...filtered]);
     const column=columns.find(col=>col.key===sort.key);
-    return filtered.map((row,index)=>({row,index})).sort((a,b)=>{
+    sortedCache=filtered.map((row,index)=>({row,index})).sort((a,b)=>{
       const value=column.sortValue||((record)=>record[column.key]);
       const delta=compareValues(value(a.row),value(b.row));
       return (sort.direction==='asc'?delta:-delta)||(a.index-b.index);
     }).map(item=>item.row);
+    return sortedCache;
   }
   function getVisibleRows() {
     const all=sortedRows();
@@ -197,6 +202,48 @@ export function createCollectionView({
     return all.slice(start,end);
   }
   function getSelectedIds() {return [...selected];}
+  function getSelectionSummary() {
+    const results=new Set(sortedRows().map(row=>String(getRowId(row))));
+    const onPage=new Set(getVisibleRows().map(row=>String(getRowId(row))));
+    let inResults=0,onCurrentPage=0;
+    for(const id of selected) {
+      if(results.has(id))inResults++;
+      if(onPage.has(id))onCurrentPage++;
+    }
+    return Object.freeze({
+      total:selected.size,inResults,onCurrentPage,
+      outsideResults:selected.size-inResults,
+      outsidePage:selected.size-onCurrentPage,
+    });
+  }
+  function notifySelection() {
+    onSelectionChange?.(getSelectedIds(),getSelectionSummary());
+  }
+  // Keep keyboard focus on the same row action after the DOM is recreated.
+  function captureRowFocus() {
+    const active=document.activeElement;
+    if(!(active instanceof Element)||!element.contains(active))return null;
+    const host=active.closest('[data-pg-row-id]');
+    if(!host)return null;
+    let selector=null;
+    if(active.matches('.pg-checkbox__control'))selector='.pg-checkbox__control';
+    else if(active.matches('.pg-menu__trigger,.pg-menu__item'))selector='.pg-menu__trigger';
+    else if(active.matches('[data-pg-action="row-edit"]'))selector='[data-pg-action="row-edit"]';
+    else if(active.matches('.pg-collection-view__tile-open'))selector='.pg-collection-view__tile-open';
+    if(!selector)return null;
+    const peers=[...host.parentElement.children];
+    return {id:host.dataset.pgRowId,index:peers.indexOf(host),selector};
+  }
+  function restoreRowFocus(previous) {
+    if(!previous)return;
+    const view=currentMode==='table'?tbody:tiles;
+    const hosts=[...view.children];
+    const host=hosts.find(item=>item.dataset.pgRowId===previous.id)
+      ??hosts[Math.min(previous.index,hosts.length-1)];
+    const target=host?.querySelector(previous.selector)
+      ??host?.querySelector('.pg-checkbox__control,.pg-menu__trigger,.pg-collection-view__tile-open');
+    target?.focus({preventScroll:true});
+  }
   function syncSelection() {
     if(!selectable)return;
     const visible=getVisibleRows();
@@ -218,28 +265,32 @@ export function createCollectionView({
   function setRowSelected(id,checked) {
     if(checked)selected.add(id);else selected.delete(id);
     syncSelection();
-    onSelectionChange?.(getSelectedIds());
+    notifySelection();
   }
   function cleanupRows() {
-    rowControls.forEach(({checkbox,menu,tileCheckbox,tileMenu})=>{
+    rowControls.forEach(({checkbox,menu,tileCheckbox,tileMenu,rowController})=>{
+      rowController?.abort();
       checkbox?.destroy();menu?.destroy();
       tileCheckbox?.destroy();tileMenu?.destroy();
     });
     rowControls.length=0;
   }
   function renderData() {
+    const previousFocus=captureRowFocus();
     const all=sortedRows();
-    pageControl.setTotal(all.length);
+    pageControl.setTotal(dataState==='ready'?all.length:0);
     const {start,end}=pageControl.getState();
-    const shown=all.slice(start,end);
+    const shown=dataState==='ready'?all.slice(start,end):[];
     cleanupRows();
     tbody.replaceChildren();
     tiles.replaceChildren();
     for(const row of shown) {
       const id=String(getRowId(row));
+      const rowController=new AbortController();
+      let checkbox=null,menu=null,tileCheckbox=null,tileMenu=null;
+      if(currentMode==='table') {
       const tr=document.createElement('tr');
       tr.dataset.pgRowId=id;
-      let checkbox=null;
       if(selectable) {
         checkbox=createCheckbox({
           label:'Вибрати: '+String(row.name??id),showLabel:false,
@@ -263,7 +314,6 @@ export function createCollectionView({
         cell.append(controls);
         tr.append(cell);
       }
-      let menu=null;
       for(const column of columns) {
         const td=document.createElement('td');
         td.dataset.pgColumn=column.key;
@@ -295,9 +345,8 @@ export function createCollectionView({
         tr.append(cell);
       }
       tbody.append(tr);
-      let tileCheckbox=null;
-      let tileMenu=null;
-      if(modes.includes('tiles')) {
+      }
+      if(currentMode==='tiles') {
         const tile=renderTile(row);
         if(!(tile instanceof HTMLElement))throw new TypeError('renderTile must return HTMLElement');
         const wrapper=document.createElement('div');
@@ -317,7 +366,7 @@ export function createCollectionView({
           open.type='button';
           open.className='pg-collection-view__tile-open';
           open.setAttribute('aria-label','Редагувати: '+String(row.name??id));
-          open.addEventListener('click',()=>onEditRow(row),{signal:controller.signal});
+          open.addEventListener('click',()=>onEditRow(row),{signal:rowController.signal});
           const openTarget=tile.querySelector('[data-pg-tile-open-target]')??surface;
           if(openTarget!==wrapper)openTarget.classList.add('pg-collection-view__tile-open-target');
           openTarget.append(open);
@@ -351,9 +400,15 @@ export function createCollectionView({
         }
         tiles.append(wrapper);
       }
-      rowControls.push({id,checkbox,menu,tileCheckbox,tileMenu});
+      rowControls.push({id,checkbox,menu,tileCheckbox,tileMenu,rowController});
     }
-    empty.hidden=all.length>0;
+    empty.hidden=dataState==='ready'&&all.length>0;
+    if(!empty.hidden) {
+      empty.textContent=dataState==='loading'?'Завантаження записів…'
+        :dataState==='error'?(dataMessage||'Не вдалося завантажити записи')
+        :dataset.length===0?'Немає записів'
+        :'За поточним запитом нічого не знайдено';
+    }
     tableScroller.hidden=!all.length||currentMode!=='table';
     tiles.hidden=!all.length||currentMode!=='tiles';
     for(const [key,entry] of headers) {
@@ -364,6 +419,7 @@ export function createCollectionView({
       entry.marker.textContent=state==='ascending'?'↑':state==='descending'?'↓':'↕';
     }
     syncSelection();
+    restoreRowFocus(previousFocus);
   }
   function setRows(next) {
     if(!Array.isArray(next))throw new TypeError('Rows must be array');
@@ -371,23 +427,29 @@ export function createCollectionView({
     if(ids.some(id=>!id||id==='undefined')||new Set(ids).size!==ids.length)
       throw new TypeError('Rows need unique stable ids');
     dataset=[...next];
+    sortedCache=null;
+    dataState='ready';dataMessage='';
+    element.dataset.pgDataState=dataState;
     const available=new Set(ids);
     const previousSelectionSize=selected.size;
     for(const id of selected)if(!available.has(id))selected.delete(id);
     renderData();
-    if(selected.size!==previousSelectionSize)onSelectionChange?.(getSelectedIds());
+    if(selected.size!==previousSelectionSize)notifySelection();
   }
   function setQuery(next) {
     query=String(next??'');
+    sortedCache=null;
     const onFirstPage=pageControl.getState().page===1;
     // setPage() already invokes renderData() when the page actually changes.
     pageControl.setPage(1);
     if(onFirstPage)renderData();
+    if(selectable&&selected.size)notifySelection();
   }
   function setSort(key,direction='asc') {
     if(!columns.some(col=>col.key===key&&col.sortable!==false)||
       !['asc','desc'].includes(direction))throw new RangeError('Invalid collection sort');
     sort={key,direction};
+    sortedCache=null;
     const onFirstPage=pageControl.getState().page===1;
     pageControl.setPage(1);
     if(onFirstPage)renderData();
@@ -395,21 +457,29 @@ export function createCollectionView({
   }
   function setMode(next) {
     if(!modes.includes(next))throw new RangeError('Unsupported view mode');
+    const changed=currentMode!==next;
     currentMode=next;
     switcher?.setValue(next);
     element.dataset.pgView=next;
-    const hasRows=sortedRows().length>0;
-    tableScroller.hidden=!hasRows||next!=='table';
-    tiles.hidden=!hasRows||next!=='tiles';
+    if(changed)renderData();
+  }
+  function setDataState(next,message='') {
+    if(!['ready','loading','error'].includes(next))
+      throw new RangeError('Invalid collection data state');
+    dataState=next;
+    dataMessage=String(message??'');
+    element.dataset.pgDataState=next;
+    renderData();
   }
   setRows(rows);
   setMode(currentMode);
   return Object.freeze({
     element,headerActions:switcher?.element??null,footerContent:pageControl.element,
     getMode:()=>currentMode,setMode,
-    getRows:sortedRows,getVisibleRows,getSort:()=>sort?{...sort}:null,
-    setSort,getQuery:()=>query,setQuery,getSelectedIds,clearSelection() {
-      if(!selected.size)return;selected.clear();syncSelection();onSelectionChange?.([]);
+    getRows:()=>[...sortedRows()],getVisibleRows,getSort:()=>sort?{...sort}:null,
+    setSort,getQuery:()=>query,setQuery,getSelectedIds,getSelectionSummary,
+    getDataState:()=>dataState,setDataState,clearSelection() {
+      if(!selected.size)return;selected.clear();syncSelection();notifySelection();
     },
     getPagination:pageControl.getState,setPage:pageControl.setPage,
     setPageSize:pageControl.setPageSize,setRows,

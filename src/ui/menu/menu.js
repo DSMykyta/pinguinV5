@@ -79,8 +79,8 @@ export function createMenu({label,id,items=[],align='start',disabled=false,onSel
         item.checked=!item.checked;
         action.setAttribute('aria-checked',String(item.checked));
       }
-      onSelect?.(item.value,{...item},event);
       close(true);
+      onSelect?.(item.value,{...item},event);
     },{signal:controller.signal});
     buttons.push(action);
     panel.append(action);
