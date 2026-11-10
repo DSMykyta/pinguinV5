@@ -10,10 +10,15 @@
  * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
-.pg-checkbox { display: grid; min-inline-size: 0; gap: 3px; }
+/* One checkbox geometry in tables, tiles, forms and dialogs.
+ * Visible glyph: 24px. Base click target: 32px. Labels are content, not
+ * a second size variant: a multiline description may naturally grow its row.
+ */
+.pg-checkbox { display: inline-flex; flex-direction: column; align-items: flex-start; min-inline-size: 0; gap: 3px; }
 .pg-checkbox__row {
-  display: flex; align-items: center; gap: 10px; min-block-size: 44px;
-  padding: 4px 2px; color: var(--pg-color-text-primary);
+  display: inline-flex; align-items: center; gap: 10px;
+  box-sizing: border-box; min-block-size: var(--pg-compact-control-size);
+  padding: 4px; color: var(--pg-color-text-primary);
   font-size: 14px; cursor: pointer;
 }
 .pg-checkbox__control {
@@ -69,18 +74,11 @@
   .pg-checkbox__box, .pg-checkbox__box::after { transition: none; }
 }
 
-/* Shared compact checkbox option for table/collection selection cells. */
-.pg-checkbox[data-pg-compact='true'] { display: inline-flex; vertical-align: middle; }
-.pg-checkbox[data-pg-compact='true'] .pg-checkbox__row {
-  box-sizing: border-box;
-  inline-size: var(--pg-compact-control-size);
-  min-inline-size: var(--pg-compact-control-size);
-  block-size: var(--pg-compact-control-size);
-  min-block-size: var(--pg-compact-control-size);
-  padding: 4px; gap: 0;
-  justify-content: center;
-}
-.pg-checkbox[data-pg-compact='true'] .pg-checkbox__copy {
+/* The label is visually omitted only where a table/tile already names the
+ * record. It stays in the accessibility tree; the exact same 32px checkbox
+ * remains clickable. No compact/normal checkbox styling variants exist.
+ */
+.pg-checkbox__copy--sr-only {
   position: absolute; inline-size: 1px; block-size: 1px;
   margin: -1px; padding: 0; overflow: hidden;
   clip-path: inset(50%); white-space: nowrap;
