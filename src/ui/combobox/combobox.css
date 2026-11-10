@@ -4,7 +4,7 @@
  * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Combobox owns only its listbox; field geometry is shared with Input/Select.            ║
  * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
- * ║ ПУБЛІЧНИЙ API: .pg-combobox, .pg-combobox__caret, .pg-combobox__list, .pg-combobox__option,         ║
+ * ║ ПУБЛІЧНИЙ API: .pg-combobox, спільні .pg-field__caret/.pg-field__popup/.pg-field__option,           ║
  * ║ .pg-combobox__empty                                                                                 ║
  * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
  * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
@@ -15,6 +15,4 @@
 .pg-combobox__support { font-size: 12px; color: var(--pg-color-text-secondary); }
 .pg-combobox__support[hidden] { display: none; }
 .pg-combobox__error { color: var(--pg-color-input-error); }
-@media (prefers-reduced-motion: reduce) { .pg-combobox__list { scroll-behavior: auto; } }
 
-@media (prefers-reduced-motion: reduce) { .pg-combobox__caret { transition: none; } }
