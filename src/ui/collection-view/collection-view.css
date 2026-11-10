@@ -76,10 +76,20 @@
 }
 .pg-collection-view__table thead th:first-child { z-index: 3; }
 .pg-collection-view__cell-content {
-  display: inline-block; max-inline-size: 260px;
+  display: inline-block; max-inline-size: min(100%, 260px);
   overflow: hidden; vertical-align: middle;
   text-overflow: ellipsis;
 }
+/* The primary value is ordinary selectable text. The existing edit IconButton
+ * occupies a stable adjacent hit area; clicking the text does not open Dialog. */
+.pg-collection-view__primary-line {
+  display: flex; align-items: center; gap: 4px;
+  min-inline-size: 0; inline-size: 100%;
+}
+.pg-collection-view__primary-line > .pg-collection-view__cell-content {
+  flex: 0 1 auto; min-inline-size: 0; white-space: nowrap;
+}
+.pg-collection-view__edit { flex: 0 0 var(--pg-compact-control-size); }
 .pg-collection-view__table [data-pg-primary='true'] { font-weight: 600; color: var(--pg-color-text-primary); }
 .pg-collection-view__table [data-pg-muted='true'] { color: var(--pg-color-text-secondary); }
 .pg-collection-view__sort {
@@ -215,4 +225,30 @@
 }
 .pg-collection-view__table tbody tr[data-pg-selected='true'] td {
   background: var(--pg-color-selected);
+}
+
+/* Hover disclosure never changes a column's geometry. Keyboard focus opens
+ * the same controls; touch/no-hover devices keep them fully visible. */
+@media (hover: hover) and (pointer: fine) {
+  .pg-collection-view[data-pg-selected-count='0'] .pg-collection-view__table .pg-collection-view__selection-cell .pg-checkbox {
+    opacity: 0;
+  }
+  .pg-collection-view[data-pg-selected-count='0'] .pg-collection-view__table thead th:is(:hover, :focus-within) .pg-checkbox,
+  .pg-collection-view[data-pg-selected-count='0'] .pg-collection-view__table tbody tr:is(:hover, :focus-within) .pg-checkbox {
+    opacity: 1;
+  }
+
+  .pg-collection-view__table tbody .pg-collection-view__row-menu,
+  .pg-collection-view__table tbody .pg-collection-view__edit {
+    opacity: 0;
+  }
+  .pg-collection-view__table tbody tr:is(:hover, :focus-within) .pg-collection-view__row-menu,
+  .pg-collection-view__table tbody tr:is(:hover, :focus-within) .pg-collection-view__edit,
+  .pg-collection-view__row-menu[data-pg-open='true'] {
+    opacity: 1;
+  }
+  .pg-collection-view__table tbody tr:not(:hover):not(:focus-within) .pg-collection-view__row-menu:not([data-pg-open='true']),
+  .pg-collection-view__table tbody tr:not(:hover):not(:focus-within) .pg-collection-view__edit {
+    pointer-events: none;
+  }
 }
