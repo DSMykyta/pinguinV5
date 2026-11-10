@@ -38,9 +38,11 @@ async function dimensions(page) {
     });
     const row = document.querySelector('.pg-tools-advanced-fields .pg-checkbox__row');
     const box = document.querySelector('.pg-tools-advanced-fields .pg-checkbox__box');
+    const hit = document.querySelector('.pg-tools-advanced-fields .pg-checkbox__hit');
     return {
       sizes,
       checkboxRow: row.getBoundingClientRect().height,
+      checkboxHit: [hit.getBoundingClientRect().width, hit.getBoundingClientRect().height],
       checkboxBox: box.getBoundingClientRect().height,
       touch: matchMedia('(pointer: coarse)').matches,
       token: getComputedStyle(document.documentElement).getPropertyValue('--pg-field-control-size').trim(),
@@ -48,13 +50,15 @@ async function dimensions(page) {
   }, FIELD_SELECTORS);
 }
 
-test('all six single-line field families use the same 40px desktop height beside normal checkboxes', async ({ page }) => {
+test('all six single-line fields remain 40px beside the universal table-sized checkbox', async ({ page }) => {
   await visitTools(page);
   const metrics = await dimensions(page);
   expect(metrics.touch).toBe(false);
   expect(metrics.sizes.map(size => size.surface)).toEqual([40, 40, 40, 40, 40, 40]);
   expect(metrics.sizes.every(size => size.inner <= 40 && size.inner >= 32)).toBe(true);
-  expect(metrics.checkboxRow).toBeGreaterThanOrEqual(44);
+  // Descriptions can make the surrounding label row taller, but not the checkbox itself.
+  expect(metrics.checkboxRow).toBeGreaterThanOrEqual(32);
+  expect(metrics.checkboxHit).toEqual([32, 32]);
   expect(metrics.checkboxBox).toBe(24);
 
   const multiline = await page.locator('.pg-tools-advanced-fields .pg-textarea .pg-field__surface').first().boundingBox();
@@ -75,6 +79,7 @@ test('touch input increases every shared hit target to 44px without resizing a c
     expect(metrics.touch).toBe(true);
     expect(metrics.token).toBe('44px');
     expect(metrics.sizes.map(size => size.surface)).toEqual([44, 44, 44, 44, 44, 44]);
+    expect(metrics.checkboxHit).toEqual([32, 32]);
     expect(metrics.checkboxBox).toBe(24);
 
     const listbox = page.locator('.pg-tools-listbox-demo .pg-listbox').first();
