@@ -18,6 +18,7 @@ import {
 const SELECTOR = 'input[data-pg-rotating-placeholder]';
 const DEFAULT_INTERVAL = 5200;
 const entries = new Map();
+const historyCache = new Map();
 let observer = null;
 let listeners = null;
 let unsubscribe = null;
@@ -152,7 +153,12 @@ function tick() {
   schedule();
 }
 
-function updateHistory(state, words = getInputPlaceholderHistory(state.key)) {
+function loadHistory(key) {
+  if (!historyCache.has(key)) historyCache.set(key, getInputPlaceholderHistory(key));
+  return historyCache.get(key);
+}
+
+function updateHistory(state, words = loadHistory(state.key)) {
   state.words = words;
   state.index = 0;
   if (state.words.length && !state.observed && observer) {
@@ -168,7 +174,8 @@ function updateHistory(state, words = getInputPlaceholderHistory(state.key)) {
 }
 
 function refreshKey(key) {
-  const words = getInputPlaceholderHistory(key);
+  historyCache.delete(key);
+  const words = loadHistory(key);
   for (const state of entries.values()) if (state.key === key) updateHistory(state, words);
   schedule();
 }
@@ -182,18 +189,19 @@ function onInputEvent(event) {
   const state = entries.get(event.target);
   if (!state) return;
   if (event.type === 'change' && state.saveMode === 'change' &&
-      !state.input.disabled && !state.input.readOnly) {
+      !state.input.disabled && !state.input.readOnly && state.input.validity.valid) {
     saveInputPlaceholderHistory(state.key, state.input.value);
   }
+  const previous = state.nextAt;
   update(state);
-  schedule();
+  if (previous || state.nextAt) schedule();
 }
 
 function onSubmit(event) {
   if (!(event.target instanceof HTMLFormElement)) return;
   for (const state of entries.values()) {
     if (state.saveMode === 'submit' && state.input.form === event.target &&
-        !state.input.disabled && !state.input.readOnly) {
+        !state.input.disabled && !state.input.readOnly && state.input.validity.valid) {
       saveInputPlaceholderHistory(state.key, state.input.value);
     }
   }
@@ -203,10 +211,15 @@ function onReset(event) {
   if (!(event.target instanceof HTMLFormElement)) return;
   // The native reset default action runs after the reset event has dispatched.
   setTimeout(() => {
+    let changed = false;
     for (const state of entries.values()) {
-      if (state.input.form === event.target) update(state);
+      if (state.input.form === event.target) {
+        changed ||= Boolean(state.nextAt);
+        update(state);
+        changed ||= Boolean(state.nextAt);
+      }
     }
-    schedule();
+    if (changed) schedule();
   }, 0);
 }
 
@@ -235,6 +248,7 @@ function start() {
   reducedMotion?.addEventListener?.('change', refreshAll, { signal });
   window.addEventListener('storage', event => {
     if (event.key === null) {
+      historyCache.clear();
       for (const state of entries.values()) updateHistory(state);
     } else if (event.key.startsWith(INPUT_PLACEHOLDER_HISTORY_PREFIX)) {
       try {
@@ -256,6 +270,7 @@ function stop() {
   reducedMotion = null;
   if (timer !== null) clearTimeout(timer);
   timer = null;
+  historyCache.clear();
 }
 
 export function mountRotatingPlaceholder(input, options = {}) {
@@ -289,13 +304,17 @@ export function mountRotatingPlaceholder(input, options = {}) {
   };
   entries.set(input, state);
   updateHistory(state);
-  schedule();
+  if (state.nextAt) schedule();
   return state.destroy;
 }
 
 export function refreshRotatingPlaceholder(input) {
   const state = entries.get(input);
-  if (state) { update(state); schedule(); }
+  if (state) {
+    const previous = state.nextAt;
+    update(state);
+    if (previous || state.nextAt) schedule();
+  }
 }
 
 export function setRotatingPlaceholdersPaused(paused) {
