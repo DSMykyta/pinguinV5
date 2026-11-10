@@ -205,6 +205,9 @@ export function createDataViewsDemo() {
           const draft=getDraft();
           records=records.map(item=>item.id===row.id?{...item,...draft}:item);
           collection.setRows(records);
+          // Save-only stays in this editor: the persisted values are now the
+          // clean baseline for dirty confirmation, refresh and later edits.
+          baseline={...row,...draft};
           details.textContent='Збережено локально: '+draft.name;
           return true;
         },
