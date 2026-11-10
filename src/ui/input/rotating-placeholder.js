@@ -2,234 +2,350 @@
  * ╔════════════════════════════════════════════════════════════════════════════════════╗
  * ║ PINGUIN NEXT — ROTATING PLACEHOLDER                                               ║
  * ╠════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Опційна HTML-атрибутна підказка у звичайному native input.            ║
- * ║ ЗАЛЕЖНОСТІ: ./placeholder-history.js, native DOM/CSS анімація.                   ║
+ * ║ ПРИЗНАЧЕННЯ: Opt-in history hints with one visibility observer and one scheduler.  ║
+ * ║ ЗАЛЕЖНОСТІ: ./placeholder-history.js; native DOM, IntersectionObserver, CSS.      ║
  * ║ ПУБЛІЧНИЙ API: mountRotatingPlaceholder(), mountRotatingPlaceholders(),            ║
- * ║                refreshRotatingPlaceholder().                                        ║
- * ║ ПРИНЦИП: Лише opt-in; жодного дублювання Input, зміни його value чи autocomplete.  ║
+ * ║                refreshRotatingPlaceholder(), setRotatingPlaceholdersPaused().       ║
+ * ║ ПРИНЦИП: No second Input, per-field timers, fake data, or work while invisible.    ║
  * ╚════════════════════════════════════════════════════════════════════════════════════╝
  */
 
-import { getInputPlaceholderHistory, saveInputPlaceholderHistory } from './placeholder-history.js';
+import {
+  INPUT_PLACEHOLDER_HISTORY_PREFIX, getInputPlaceholderHistory,
+  saveInputPlaceholderHistory, subscribeInputPlaceholderHistory,
+} from './placeholder-history.js';
 
 const SELECTOR = 'input[data-pg-rotating-placeholder]';
-const SUPPORTED_TYPES = new Set(['text', 'search']);
-const mountedInputs = new WeakMap();
 const DEFAULT_INTERVAL = 5200;
+const entries = new Map();
+let observer = null;
+let listeners = null;
+let unsubscribe = null;
+let reducedMotion = null;
+let timer = null;
+let isPaused = false;
 
 function intervalInRange(value) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed >= 2400 && parsed <= 20000
-    ? parsed : DEFAULT_INTERVAL;
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 2400 && number <= 20000
+    ? number : DEFAULT_INTERVAL;
 }
 
-export function mountRotatingPlaceholder(input, options = {}) {
-  if (!(input instanceof HTMLInputElement)) {
-    throw new TypeError('Rotating placeholder requires a native input');
-  }
-  if (mountedInputs.has(input)) return mountedInputs.get(input).destroy;
-  if (!SUPPORTED_TYPES.has(input.type) || !input.hasAttribute('data-pg-rotating-placeholder')) {
-    return () => {};
-  }
+function isAllowed(input) {
+  if (!input.matches(SELECTOR) || !['text', 'search'].includes(input.type)) return false;
+  const autocomplete = input.autocomplete.toLowerCase();
+  const name = input.name.toLowerCase();
+  return !/(?:^|[\s-])(password|email|tel|phone|cc|address|otp|token|secret|passport|iban|ssn|birth|cvv)(?:$|[\s-])/.test(name) &&
+    !/(?:password|cc-|one-time-code|email|tel|street-address|address-line|postal-code|bday|name|username)/.test(autocomplete);
+}
 
-  // An explicit opt-in is enough; the field's stable native name owns its history.
-  const historyKey = options.historyKey || input.getAttribute('data-pg-placeholder-history') || input.name;
-  if (!historyKey) return () => {};
-  const interval = intervalInRange(options.interval ?? input.getAttribute('data-pg-placeholder-interval'));
-  const originalPlaceholder = input.getAttribute('placeholder');
-  const isSharedField = input.parentElement?.classList.contains('pg-field__edit');
-  const host = isSharedField ? input.parentElement : document.createElement('span');
-  if (!isSharedField) {
+function historyKey(input, explicitKey) {
+  if (explicitKey) return explicitKey;
+  const key = input.getAttribute('data-pg-placeholder-history');
+  if (key) return key;
+  const name = input.name.replace(/\[\d+\]/g, '[]');
+  if (!name) return '';
+  const owner = input.closest('[data-pg-module]')?.getAttribute('data-pg-module');
+  return owner ? owner + ':' + name : name;
+}
+
+function settle(state) {
+  if (!state.overlay || state.overlay.childElementCount < 2) return;
+  const current = state.overlay.lastElementChild;
+  state.overlay.replaceChildren(current);
+  current.removeAttribute('data-pg-state');
+}
+
+function drawWord(state, animate = false) {
+  const overlay = state.overlay;
+  if (!overlay) return;
+  const phrase = state.words[state.index];
+  if (!phrase) { overlay.replaceChildren(); return; }
+  const old = overlay.lastElementChild;
+  if (old?.textContent === phrase) { settle(state); old.removeAttribute('data-pg-state'); return; }
+  settle(state);
+  const previous = overlay.lastElementChild;
+  const current = document.createElement('span');
+  current.className = 'pg-input__rotating-word';
+  current.textContent = phrase;
+  if (animate && previous && !reducedMotion?.matches) {
+    previous.dataset.pgState = 'leaving';
+    current.dataset.pgState = 'entering';
+    overlay.append(current);
+    current.addEventListener('animationend', () => {
+      if (overlay.lastElementChild !== current) return;
+      overlay.replaceChildren(current);
+      current.removeAttribute('data-pg-state');
+    }, { once: true });
+  } else {
+    overlay.replaceChildren(current);
+  }
+}
+
+function ensureOverlay(state) {
+  if (state.overlay) return;
+  const input = state.input;
+  const shared = input.parentElement?.classList.contains('pg-field__edit');
+  const host = shared ? input.parentElement : document.createElement('span');
+  if (!shared) {
     host.className = 'pg-input__rotating-native-host';
     input.before(host);
     host.append(input);
   }
   host.classList.add('pg-input__rotating-host');
-
   const overlay = document.createElement('span');
   overlay.className = 'pg-input__rotating-placeholder';
   overlay.setAttribute('aria-hidden', 'true');
   host.append(overlay);
+  state.host = host;
+  state.shared = shared;
+  state.overlay = overlay;
+  input.placeholder = ' ';
+}
 
+function eligible(state) {
+  const input = state.input;
+  return Boolean(state.words.length && state.inView && input.isConnected &&
+    !document.hidden && !input.value && !input.disabled && !input.readOnly &&
+    !input.matches(':focus'));
+}
+
+function update(state) {
+  const visible = eligible(state);
+  state.nextAt = 0;
+  if (!visible) {
+    if (state.overlay) { state.overlay.hidden = true; settle(state); }
+    return;
+  }
+  ensureOverlay(state);
+  state.overlay.hidden = false;
+  drawWord(state);
+  if (state.words.length > 1 && !isPaused && !reducedMotion?.matches &&
+      !state.input.matches(':hover')) {
+    state.nextAt = Date.now() + state.interval;
+  }
+}
+
+function schedule() {
+  if (timer !== null) clearTimeout(timer);
+  timer = null;
+  let soonest = Infinity;
+  for (const state of entries.values()) {
+    if (state.nextAt && state.nextAt < soonest) soonest = state.nextAt;
+  }
+  if (soonest !== Infinity) timer = setTimeout(tick, Math.max(1, soonest - Date.now()));
+}
+
+function tick() {
+  timer = null;
+  const now = Date.now();
+  for (const state of entries.values()) {
+    if (!state.nextAt || state.nextAt > now) continue;
+    if (!eligible(state) || isPaused || reducedMotion?.matches || state.input.matches(':hover')) {
+      update(state);
+      continue;
+    }
+    state.index = (state.index + 1) % state.words.length;
+    drawWord(state, true);
+    state.nextAt = now + state.interval;
+  }
+  schedule();
+}
+
+function updateHistory(state, words = getInputPlaceholderHistory(state.key)) {
+  state.words = words;
+  state.index = 0;
+  if (state.words.length && !state.observed && observer) {
+    observer.observe(state.input);
+    state.observed = true;
+  } else if (!state.words.length && state.observed && observer) {
+    observer.unobserve(state.input);
+    state.observed = false;
+    state.inView = false;
+  }
+  if (!state.words.length && state.overlay) state.input.placeholder = state.originalPlaceholder ?? '';
+  update(state);
+}
+
+function refreshKey(key) {
+  const words = getInputPlaceholderHistory(key);
+  for (const state of entries.values()) if (state.key === key) updateHistory(state, words);
+  schedule();
+}
+
+function refreshAll() {
+  for (const state of entries.values()) update(state);
+  schedule();
+}
+
+function onInputEvent(event) {
+  const state = entries.get(event.target);
+  if (!state) return;
+  if (event.type === 'change' && state.saveMode === 'change' &&
+      !state.input.disabled && !state.input.readOnly) {
+    saveInputPlaceholderHistory(state.key, state.input.value);
+  }
+  update(state);
+  schedule();
+}
+
+function onSubmit(event) {
+  if (!(event.target instanceof HTMLFormElement)) return;
+  for (const state of entries.values()) {
+    if (state.saveMode === 'submit' && state.input.form === event.target &&
+        !state.input.disabled && !state.input.readOnly) {
+      saveInputPlaceholderHistory(state.key, state.input.value);
+    }
+  }
+}
+
+function onReset(event) {
+  if (!(event.target instanceof HTMLFormElement)) return;
+  // The native reset default action runs after the reset event has dispatched.
+  setTimeout(() => {
+    for (const state of entries.values()) {
+      if (state.input.form === event.target) update(state);
+    }
+    schedule();
+  }, 0);
+}
+
+function start() {
   const controller = new AbortController();
-  const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)');
-  let words = [];
-  let index = 0;
-  let timer = null;
-  let cleanupTimer = null;
-  let disposed = false;
-
-  function clearTimers() {
-    clearTimeout(timer);
-    clearTimeout(cleanupTimer);
-    timer = null;
-    cleanupTimer = null;
-  }
-
-  function displayWord(animated = false) {
-    const phrase = words[index];
-    if (!phrase) {
-      overlay.replaceChildren();
-      return;
-    }
-    const previous = overlay.lastElementChild;
-    if (previous?.textContent === phrase) {
-      // An interrupted animation must never leave the outgoing word visible.
-      if (overlay.childElementCount > 1 || previous.hasAttribute('data-pg-state')) {
-        overlay.replaceChildren(previous);
-        previous.removeAttribute('data-pg-state');
+  listeners = controller;
+  const signal = controller.signal;
+  reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+  if (typeof IntersectionObserver !== 'undefined') {
+    observer = new IntersectionObserver(changes => {
+      for (const change of changes) {
+        const state = entries.get(change.target);
+        if (!state) continue;
+        state.inView = change.isIntersecting;
+        update(state);
       }
-      return;
+      schedule();
+    });
+  }
+  for (const name of ['input', 'change', 'focusin', 'focusout', 'pointerover', 'pointerout']) {
+    document.addEventListener(name, onInputEvent, { capture: true, signal });
+  }
+  document.addEventListener('visibilitychange', refreshAll, { signal });
+  document.addEventListener('submit', onSubmit, { capture: true, signal });
+  document.addEventListener('reset', onReset, { capture: true, signal });
+  reducedMotion?.addEventListener?.('change', refreshAll, { signal });
+  window.addEventListener('storage', event => {
+    if (event.key === null) {
+      for (const state of entries.values()) updateHistory(state);
+    } else if (event.key.startsWith(INPUT_PLACEHOLDER_HISTORY_PREFIX)) {
+      try {
+        refreshKey(decodeURIComponent(event.key.slice(INPUT_PLACEHOLDER_HISTORY_PREFIX.length)));
+      } catch { /* Invalid external storage key. */ }
     }
-    const current = document.createElement('span');
-    current.className = 'pg-input__rotating-word';
-    current.textContent = phrase;
-    if (animated && previous && !reducedMotion?.matches) {
-      current.dataset.pgState = 'entering';
-      previous.dataset.pgState = 'leaving';
-      overlay.append(current);
-      clearTimeout(cleanupTimer);
-      cleanupTimer = setTimeout(() => {
-        if (disposed) return;
-        overlay.replaceChildren(current);
-        current.removeAttribute('data-pg-state');
-        cleanupTimer = null;
-      }, 860);
-    } else {
-      overlay.replaceChildren(current);
+    schedule();
+  }, { signal });
+  unsubscribe = subscribeInputPlaceholderHistory(refreshKey);
+}
+
+function stop() {
+  listeners?.abort();
+  listeners = null;
+  observer?.disconnect();
+  observer = null;
+  unsubscribe?.();
+  unsubscribe = null;
+  reducedMotion = null;
+  if (timer !== null) clearTimeout(timer);
+  timer = null;
+}
+
+export function mountRotatingPlaceholder(input, options = {}) {
+  if (!(input instanceof HTMLInputElement)) throw new TypeError('A native input is required');
+  if (entries.has(input)) return entries.get(input).destroy;
+  if (!isAllowed(input)) return () => {};
+  const key = historyKey(input, options.historyKey);
+  if (!key) return () => {};
+  if (!listeners) start();
+  const state = {
+    input, key, words: [], index: 0, interval: intervalInRange(options.interval ??
+      input.getAttribute('data-pg-placeholder-interval')),
+    saveMode: input.getAttribute('data-pg-placeholder-save') === 'submit' ? 'submit' : 'change',
+    originalPlaceholder: input.getAttribute('placeholder'),
+    inView: !observer, observed: false, nextAt: 0, overlay: null, host: null, shared: false,
+    destroy: null,
+  };
+  state.destroy = () => {
+    if (!entries.has(input)) return;
+    if (state.observed) observer?.unobserve(input);
+    entries.delete(input);
+    if (state.overlay) {
+      state.overlay.remove();
+      if (state.shared) state.host.classList.remove('pg-input__rotating-host');
+      else { state.host.before(input); state.host.remove(); }
     }
-  }
-
-  function refreshWords() {
-    words = getInputPlaceholderHistory(historyKey);
-    index = 0;
-    input.placeholder = words.length ? ' ' : originalPlaceholder ?? '';
-    displayWord();
-  }
-
-  function canShow() {
-    return Boolean(words.length) && !input.value && !input.disabled && !input.readOnly &&
-      !input.matches(':focus') && !document.hidden;
-  }
-
-  function scheduleNext() {
-    clearTimeout(timer);
-    timer = null;
-    if (disposed || !canShow() || reducedMotion?.matches || words.length < 2) return;
-    timer = setTimeout(() => {
-      timer = null;
-      if (disposed || !canShow()) return;
-      index = (index + 1) % words.length;
-      displayWord(true);
-      scheduleNext();
-    }, interval);
-  }
-
-  function updateVisibility() {
-    if (disposed) return;
-    const visible = canShow();
-    overlay.hidden = !visible;
-    if (!visible) {
-      clearTimers();
-      displayWord();
-    } else {
-      displayWord();
-      scheduleNext();
-    }
-  }
-
-  function handleChange() {
-    if (!input.disabled && !input.readOnly) {
-      saveInputPlaceholderHistory(historyKey, input.value);
-      refreshWords();
-    }
-    updateVisibility();
-  }
-
-  input.addEventListener('focus', updateVisibility, { signal: controller.signal });
-  input.addEventListener('blur', () => { refreshWords(); updateVisibility(); }, { signal: controller.signal });
-  input.addEventListener('input', updateVisibility, { signal: controller.signal });
-  input.addEventListener('change', handleChange, { signal: controller.signal });
-  document.addEventListener('visibilitychange', updateVisibility, { signal: controller.signal });
-  reducedMotion?.addEventListener?.('change', updateVisibility, { signal: controller.signal });
-
-  function destroy() {
-    if (disposed) return;
-    disposed = true;
-    clearTimers();
-    controller.abort();
-    overlay.remove();
-    input.placeholder = originalPlaceholder ?? '';
-    if (isSharedField) {
-      host.classList.remove('pg-input__rotating-host');
-    } else {
-      host.before(input);
-      host.remove();
-    }
-    mountedInputs.delete(input);
-  }
-
-  mountedInputs.set(input, { destroy, refresh: updateVisibility });
-  refreshWords();
-  updateVisibility();
-  return destroy;
+    if (state.originalPlaceholder === null) input.removeAttribute('placeholder');
+    else input.placeholder = state.originalPlaceholder;
+    if (!entries.size) stop();
+    else schedule();
+  };
+  entries.set(input, state);
+  updateHistory(state);
+  schedule();
+  return state.destroy;
 }
 
 export function refreshRotatingPlaceholder(input) {
-  mountedInputs.get(input)?.refresh();
+  const state = entries.get(input);
+  if (state) { update(state); schedule(); }
 }
 
-// One mount per application root; only changed opt-in inputs are inspected.
+export function setRotatingPlaceholdersPaused(paused) {
+  isPaused = Boolean(paused);
+  refreshAll();
+}
+
+// Dynamic HTML opt-in. Mutations are processed only for affected nodes.
 export function mountRotatingPlaceholders(root = document) {
   if (!(root instanceof Element) && !(root instanceof Document)) {
-    throw new TypeError('Rotating placeholder root must be an Element or Document');
+    throw new TypeError('Root must be an Element or Document');
   }
-  const disposers = new Map();
+  const owned = new Map();
 
-  function isWithinRoot(input) {
-    return root === input || root.contains(input);
-  }
-
-  function syncInput(input, isReconfigured = false) {
-    const destroy = disposers.get(input);
-    if (destroy && (isReconfigured || !isWithinRoot(input) || !input.matches(SELECTOR))) {
-      destroy();
-      disposers.delete(input);
-    }
-    if (!disposers.has(input) && isWithinRoot(input) && input.matches(SELECTOR)) {
-      disposers.set(input, mountRotatingPlaceholder(input));
-    }
+  function syncInput(input, changed = false) {
+    const dispose = owned.get(input);
+    const eligibleInput = (root === input || root.contains(input)) && isAllowed(input);
+    if (dispose && (changed || !eligibleInput)) { dispose(); owned.delete(input); }
+    if (!owned.has(input) && eligibleInput) owned.set(input, mountRotatingPlaceholder(input));
   }
 
-  function collectOptedInInputs(node, changed) {
-    if (node instanceof Element && node.matches(SELECTOR)) changed.add(node);
-    node.querySelectorAll?.(SELECTOR).forEach(input => changed.add(input));
+  function addInputs(node, affected) {
+    if (node instanceof Element && node.matches(SELECTOR)) affected.add(node);
+    node.querySelectorAll?.(SELECTOR).forEach(input => affected.add(input));
   }
 
   root.querySelectorAll(SELECTOR).forEach(input => syncInput(input));
-  if (root instanceof HTMLInputElement && root.matches(SELECTOR)) syncInput(root);
-
-  const observer = new MutationObserver(records => {
+  if (root instanceof HTMLInputElement) syncInput(root);
+  const mutations = new MutationObserver(records => {
+    const affected = new Set();
     const changed = new Set();
-    const reconfigured = new Set();
     for (const record of records) {
       if (record.type === 'attributes' && record.target instanceof HTMLInputElement) {
+        affected.add(record.target);
         changed.add(record.target);
-        reconfigured.add(record.target);
       } else if (record.type === 'childList') {
-        record.addedNodes.forEach(node => collectOptedInInputs(node, changed));
-        record.removedNodes.forEach(node => collectOptedInInputs(node, changed));
+        record.addedNodes.forEach(node => addInputs(node, affected));
+        record.removedNodes.forEach(node => addInputs(node, affected));
       }
     }
-    for (const input of changed) syncInput(input, reconfigured.has(input));
+    for (const input of affected) syncInput(input, changed.has(input));
   });
-  observer.observe(root, {
+  mutations.observe(root, {
     subtree: true, childList: true, attributes: true,
-    attributeFilter: ['data-pg-rotating-placeholder', 'data-pg-placeholder-history', 'data-pg-placeholder-interval', 'name', 'type'],
+    attributeFilter: ['data-pg-rotating-placeholder', 'data-pg-placeholder-history',
+      'data-pg-placeholder-interval', 'data-pg-placeholder-save', 'name', 'type'],
   });
   return () => {
-    observer.disconnect();
-    for (const destroy of disposers.values()) destroy();
-    disposers.clear();
+    mutations.disconnect();
+    for (const dispose of owned.values()) dispose();
+    owned.clear();
   };
 }
