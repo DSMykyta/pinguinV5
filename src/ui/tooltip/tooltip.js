@@ -142,11 +142,13 @@ export function initTooltips({ doc = document, view = window } = {}) {
     tooltip.setAttribute('role', 'tooltip');
     tooltip.textContent = label;
     const modal = doc.querySelector('dialog:modal');
-    // z-index cannot beat the native dialog top layer. A non-interactive
-    // manual Popover, parented inside the modal, joins that same top layer.
+    // Listbox/Combobox/Menu panels also use native popovers. A normal
+    // body-level tooltip (even at z-index:10000) renders BEHIND their top
+    // layer. Always promote the tooltip after the target popover, including
+    // outside dialogs. Keep it non-interactive via the shared CSS.
     const owner = modal ?? doc.body;
     owner.append(tooltip);
-    if (modal && typeof tooltip.showPopover === 'function') {
+    if (typeof tooltip.showPopover === 'function') {
       tooltip.setAttribute('popover', 'manual');
       tooltip.showPopover();
     }
