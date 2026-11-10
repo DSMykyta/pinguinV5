@@ -13,17 +13,9 @@
 import { getInputPlaceholderHistory, saveInputPlaceholderHistory } from './placeholder-history.js';
 
 const SELECTOR = 'input[data-pg-rotating-placeholder]';
-const SUPPORTED_TYPES = new Set(['text', 'search', 'email', 'tel', 'url']);
+const SUPPORTED_TYPES = new Set(['text', 'search']);
 const mountedInputs = new WeakMap();
 const DEFAULT_INTERVAL = 2600;
-
-function normalizePhrases(value) {
-  const candidates = Array.isArray(value) ? value : String(value ?? '').split('|');
-  return [...new Set(candidates
-    .filter(item => typeof item === 'string')
-    .map(item => item.trim())
-    .filter(item => item && item.length <= 100))].slice(0, 20);
-}
 
 function intervalInRange(value) {
   const parsed = Number(value);
@@ -36,12 +28,13 @@ export function mountRotatingPlaceholder(input, options = {}) {
     throw new TypeError('Rotating placeholder requires a native input');
   }
   if (mountedInputs.has(input)) return mountedInputs.get(input).destroy;
-  if (!SUPPORTED_TYPES.has(input.type) || (options.phrases === undefined && !input.hasAttribute('data-pg-rotating-placeholder'))) {
+  if (!SUPPORTED_TYPES.has(input.type) || !input.hasAttribute('data-pg-rotating-placeholder')) {
     return () => {};
   }
 
-  const phrases = normalizePhrases(options.phrases ?? input.getAttribute('data-pg-rotating-placeholder'));
-  const historyKey = options.historyKey ?? input.getAttribute('data-pg-placeholder-history') ?? '';
+  // An explicit opt-in is enough; the field's stable native name owns its history.
+  const historyKey = options.historyKey || input.getAttribute('data-pg-placeholder-history') || input.name;
+  if (!historyKey) return () => {};
   const interval = intervalInRange(options.interval ?? input.getAttribute('data-pg-placeholder-interval'));
   const originalPlaceholder = input.getAttribute('placeholder');
   const isSharedField = input.parentElement?.classList.contains('pg-field__edit');
@@ -108,9 +101,8 @@ export function mountRotatingPlaceholder(input, options = {}) {
   }
 
   function refreshWords() {
-    const history = historyKey ? getInputPlaceholderHistory(historyKey) : [];
-    words = normalizePhrases([...history, ...phrases]);
-    if (index >= words.length) index = 0;
+    words = getInputPlaceholderHistory(historyKey);
+    index = 0;
     input.placeholder = words.length ? ' ' : originalPlaceholder ?? '';
     displayWord();
   }
@@ -147,7 +139,7 @@ export function mountRotatingPlaceholder(input, options = {}) {
   }
 
   function handleChange() {
-    if (historyKey && !input.disabled && !input.readOnly) {
+    if (!input.disabled && !input.readOnly) {
       saveInputPlaceholderHistory(historyKey, input.value);
       refreshWords();
     }
@@ -155,7 +147,7 @@ export function mountRotatingPlaceholder(input, options = {}) {
   }
 
   input.addEventListener('focus', updateVisibility, { signal: controller.signal });
-  input.addEventListener('blur', updateVisibility, { signal: controller.signal });
+  input.addEventListener('blur', () => { refreshWords(); updateVisibility(); }, { signal: controller.signal });
   input.addEventListener('input', updateVisibility, { signal: controller.signal });
   input.addEventListener('change', handleChange, { signal: controller.signal });
   document.addEventListener('visibilitychange', updateVisibility, { signal: controller.signal });
@@ -187,48 +179,53 @@ export function refreshRotatingPlaceholder(input) {
   mountedInputs.get(input)?.refresh();
 }
 
-// One mount per application root; dynamically inserted HTML with data-pg-* is supported.
+// One mount per application root; only changed opt-in inputs are inspected.
 export function mountRotatingPlaceholders(root = document) {
   if (!(root instanceof Element) && !(root instanceof Document)) {
     throw new TypeError('Rotating placeholder root must be an Element or Document');
   }
   const disposers = new Map();
-  function synchronize() {
-    const found = new Set(root.querySelectorAll(SELECTOR));
-    if (root instanceof HTMLInputElement && root.matches(SELECTOR)) found.add(root);
-    for (const [input, destroy] of disposers) {
-      if (!found.has(input)) {
-        destroy();
-        disposers.delete(input);
-      }
+
+  function isWithinRoot(input) {
+    return root === input || root.contains(input);
+  }
+
+  function syncInput(input, isReconfigured = false) {
+    const destroy = disposers.get(input);
+    if (destroy && (isReconfigured || !isWithinRoot(input) || !input.matches(SELECTOR))) {
+      destroy();
+      disposers.delete(input);
     }
-    for (const input of found) {
-      if (!disposers.has(input)) disposers.set(input, mountRotatingPlaceholder(input));
+    if (!disposers.has(input) && isWithinRoot(input) && input.matches(SELECTOR)) {
+      disposers.set(input, mountRotatingPlaceholder(input));
     }
   }
 
-  synchronize();
+  function collectOptedInInputs(node, changed) {
+    if (node instanceof Element && node.matches(SELECTOR)) changed.add(node);
+    node.querySelectorAll?.(SELECTOR).forEach(input => changed.add(input));
+  }
+
+  root.querySelectorAll(SELECTOR).forEach(input => syncInput(input));
+  if (root instanceof HTMLInputElement && root.matches(SELECTOR)) syncInput(root);
+
   const observer = new MutationObserver(records => {
-    const changed = records.some(record => record.type === 'childList' ||
-      record.attributeName === 'data-pg-rotating-placeholder' ||
-      record.attributeName === 'data-pg-placeholder-history' ||
-      record.attributeName === 'data-pg-placeholder-interval');
-    if (!changed) return;
+    const changed = new Set();
+    const reconfigured = new Set();
     for (const record of records) {
-      if (record.type !== 'attributes' || !(record.target instanceof HTMLInputElement)) continue;
-      const existing = disposers.get(record.target);
-      if (existing) {
-        existing();
-        disposers.delete(record.target);
+      if (record.type === 'attributes' && record.target instanceof HTMLInputElement) {
+        changed.add(record.target);
+        reconfigured.add(record.target);
+      } else if (record.type === 'childList') {
+        record.addedNodes.forEach(node => collectOptedInInputs(node, changed));
+        record.removedNodes.forEach(node => collectOptedInInputs(node, changed));
       }
     }
-    synchronize();
+    for (const input of changed) syncInput(input, reconfigured.has(input));
   });
   observer.observe(root, {
-    subtree: true,
-    childList: true,
-    attributes: true,
-    attributeFilter: ['data-pg-rotating-placeholder', 'data-pg-placeholder-history', 'data-pg-placeholder-interval'],
+    subtree: true, childList: true, attributes: true,
+    attributeFilter: ['data-pg-rotating-placeholder', 'data-pg-placeholder-history', 'data-pg-placeholder-interval', 'name', 'type'],
   });
   return () => {
     observer.disconnect();
