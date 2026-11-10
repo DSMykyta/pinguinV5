@@ -109,8 +109,8 @@ test('pagination comes up from below and exits below using the same reveal contr
   const pagination = panel.locator('.pg-pagination');
   await expect(panel).toHaveAttribute('data-pg-reveal-direction', 'bottom');
   await expect(panel).toHaveAttribute('data-pg-state', 'visible');
-  await expect(panel).toHaveCSS('border-top-style', 'solid');
-  await expect(footer).toHaveCSS('border-top-color', 'rgba(0, 0, 0, 0)');
+  await expect(panel).toHaveCSS('border-top-style', 'none');
+  await expect(footer).toHaveCSS('border-top-style', 'none');
   await expect(pagination).toHaveCount(1);
   await expect(pagination.locator('.pg-pagination__status')).toHaveText('Показано 25 з 32');
   await expect(footer).toHaveCSS('height', '56px');
