@@ -3,7 +3,7 @@
  * ║ PINGUIN NEXT — WORKSPACE LAYOUT                                                                    ║
  * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Ізольована сітка header/nav/canvas/footer/rightRail для великого редактора.            ║
- * ║ ЗАЛЕЖНОСТІ: ../button/button.js, ../icon/icon.js (без Dialog, Shell чи feature).                    ║
+ * ║ ЗАЛЕЖНОСТІ: Button, Icon, Section Navigator (без Dialog, Shell чи feature).                          ║
  * ║ ПУБЛІЧНИЙ API: createWorkspaceLayout({title,body,status,sections}).                                ║
  * ║ ПРИНЦИП: Лише геометрія й локальна навігація; дані і чотири дії належать власнику.                  ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
@@ -11,6 +11,7 @@
 
 import { createIconButton } from '../button/button.js';
 import { createIcon } from '../icon/icon.js';
+import { createSectionNavigator } from '../section-navigator/section-navigator.js';
 
 let sequence = 0;
 
@@ -88,38 +89,56 @@ export function createWorkspaceLayout({ title, body, status, sections = [] }) {
   element.append(header, nav, canvas, footer, rail);
 
   const buttons = new Map();
-  let active = sections[0]?.id ?? null;
-  function activate(id, focus = false) {
-    if (!ids.has(id)) return false;
-    active = id;
+  let navigator = null;
+
+  // The existing Section Navigator owns all transitions: wheel/touch boundary
+  // pull, progress rings, scroll restoration, keyboard focus and animation.
+  // The left aside only supplies shortcuts into that same navigator.
+  function syncSelection(id) {
     for (const section of sections) {
-      const selected = section.id === active;
-      section.element.hidden = !selected;
-      buttons.get(section.id).setAttribute('aria-current', selected ? 'true' : 'false');
+      buttons.get(section.id)?.setAttribute('aria-current', String(section.id === id));
     }
-    canvas.scrollTop = 0;
-    if (focus) buttons.get(id).focus({ preventScroll: true });
-    return true;
+  }
+  if (sections.length) {
+    const host = sections[0].element.parentElement;
+    if (!host || sections.some(section => section.element.parentElement !== host)) {
+      throw new TypeError('Workspace sections must share one content host');
+    }
+    navigator = createSectionNavigator({
+      label: 'Переходи між розділами редактора',
+      items: sections.map(section => ({
+        id: section.id, label: section.label, content: section.element,
+      })),
+      onChange: ({ toId }) => syncSelection(toId),
+    });
+    navigator.element.classList.add('pg-workspace-layout__navigator');
+    host.append(navigator.element);
+    // Reuse the same outer scroll surface as the rest of this workspace.
+    navigator.setScrollContainer(canvas);
   }
   for (const section of sections) {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'pg-workspace-layout__nav-item pg-button pg-button--list-item';
     button.setAttribute('aria-label', section.label);
+    button.setAttribute('aria-controls', navigator.element.querySelector('.pg-section-navigator__viewport').id);
     button.append(createIcon(section.icon || 'layers'));
     const label = document.createElement('span');
     label.className = 'pg-workspace-layout__nav-label';
     label.textContent = section.label;
     button.append(label);
-    button.addEventListener('click', () => activate(section.id));
+    button.addEventListener('click', () => {
+      void navigator.navigate(section.id, { focus: false });
+    });
     buttons.set(section.id, button);
     navList.append(button);
   }
-  if (active) activate(active);
+  if (navigator) syncSelection(navigator.getActive());
 
   return Object.freeze({
     element, canvas, nav, topLeft, topRight, bottomLeft, bottomRight,
-    activate, getActiveSection: () => active,
-    destroy() { toggle.remove(); element.remove(); },
+    activate: (id, options) => navigator?.navigate(id, options) ?? Promise.resolve(false),
+    getActiveSection: () => navigator?.getActive() ?? null,
+    destroy() { navigator?.destroy(); toggle.remove(); element.remove(); },
   });
 }
