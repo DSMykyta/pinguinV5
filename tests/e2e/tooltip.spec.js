@@ -220,11 +220,10 @@ test('select-all tooltip paints above the open listbox, not under its top-layer 
   const tooltip = page.getByRole('tooltip');
   await expect(tooltip).toBeVisible();
   await expect(tooltip).toHaveText('Вибрати всі');
-  const topLayer = await page.evaluate(() => {
-    const popup = document.querySelector('.pg-tools-listbox-demo .pg-listbox:nth-of-type(2) .pg-listbox__panel');
+  const topLayer = await panel.evaluate(popup => {
     const hint = document.querySelector('#pg-global-tooltip');
     return {
-      panelOpen: popup?.matches(':popover-open'),
+      panelOpen: popup.matches(':popover-open'),
       tooltipOpen: hint?.matches(':popover-open'),
       tooltipInBody: hint?.parentElement === document.body,
       pointerEvents: hint ? getComputedStyle(hint).pointerEvents : null,
