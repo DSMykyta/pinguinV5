@@ -1,8 +1,14 @@
 /**
- * PINGUIN NEXT — RICH TEXT HTML BOUNDARY
- * Native DOM allowlist; no npm dependencies or executable user HTML.
- * Public API: parseSafeHtml(), serializeSafeHtml().
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — RICH TEXT HTML BOUNDARY                                                              ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Native DOM allowlist; no npm dependencies or executable user HTML.                     ║
+ * ║ ЗАЛЕЖНОСТІ: Стандартні API платформи; зовнішніх імпортів немає.                                     ║
+ * ║ ПУБЛІЧНИЙ API: parseSafeHtml(), serializeSafeHtml()                                                 ║
+ * ║ ПРИНЦИП: Public API: parseSafeHtml(), serializeSafeHtml().                                          ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 const ALLOWED_TAGS = new Set([
   'p', 'div', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'h1', 'h2', 'h3',
   'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'a', 'hr',

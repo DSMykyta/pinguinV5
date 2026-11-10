@@ -1,7 +1,14 @@
 /**
- * PINGUIN NEXT — shared dense collection, native selection and legacy-inspired
- * pagination + segmented view switch. All tabs share one Shell layout/animation.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — E2E COLLECTION VIEW                                                                  ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: E2E: перевіряє collection view у браузері через Playwright.                            ║
+ * ║ ЗАЛЕЖНОСТІ: @playwright/test                                                                        ║
+ * ║ ПУБЛІЧНИЙ API: npx playwright test tests/e2e/collection-view.spec.js.                               ║
+ * ║ ПРИНЦИП: Перевіряє спостережувану поведінку; production-компоненти не змінюються.                   ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { test, expect } from '@playwright/test';
 
 const root = page => page.locator('#pg-tools-panel-data-views .pg-collection-view');

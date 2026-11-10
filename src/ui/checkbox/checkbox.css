@@ -1,7 +1,15 @@
 /*
- * Rounded square at rest; green circle with check or minus on selection.
- * Native input supplies keyboard and accessible semantics.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — CHECKBOX                                                                             ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Rounded square at rest; green circle with check or minus on selection.                 ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-checkbox, .pg-checkbox__row, .pg-checkbox__control, .pg-checkbox__box,           ║
+ * ║ .pg-checkbox__copy                                                                                  ║
+ * ║ ПРИНЦИП: Native input supplies keyboard and accessible semantics.                                   ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 .pg-checkbox { display: grid; min-inline-size: 0; gap: 3px; }
 .pg-checkbox__row {
   display: flex; align-items: center; gap: 10px; min-block-size: 44px;

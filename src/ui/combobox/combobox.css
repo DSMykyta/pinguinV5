@@ -1,4 +1,15 @@
-/* Combobox owns only its listbox; field geometry is shared with Input/Select. */
+/*
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — COMBOBOX                                                                             ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Combobox owns only its listbox; field geometry is shared with Input/Select.            ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-combobox, .pg-combobox__caret, .pg-combobox__list, .pg-combobox__option,         ║
+ * ║ .pg-combobox__empty                                                                                 ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 .pg-combobox { position: relative; display: grid; gap: 6px; min-inline-size: 0; align-content: start; align-self: start; }
 .pg-combobox__caret {
   inline-size: 9px; block-size: 9px; display: block;

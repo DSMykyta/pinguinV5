@@ -1,10 +1,14 @@
 /**
- * PINGUIN NEXT — SECTION NAVIGATOR BROWSER TESTS
- * ПРИЗНАЧЕННЯ: Перевіряє реальні незалежні панелі й локальні жести.
- * ЗАЛЕЖНОСТІ: Playwright, native Section navigator.
- * ПУБЛІЧНИЙ API: npm run test:e2e.
- * ПРИНЦИП: Тести не потребують готового редактора товарів.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — E2E SECTION NAVIGATOR                                                                ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: E2E: перевіряє section navigator у браузері через Playwright.                          ║
+ * ║ ЗАЛЕЖНОСТІ: @playwright/test                                                                        ║
+ * ║ ПУБЛІЧНИЙ API: npx playwright test tests/e2e/section-navigator.spec.js.                             ║
+ * ║ ПРИНЦИП: Перевіряє спостережувану поведінку; production-компоненти не змінюються.                   ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { test, expect } from '@playwright/test';
 
 async function mountFixture(page) {

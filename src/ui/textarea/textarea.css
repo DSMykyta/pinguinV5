@@ -1,4 +1,15 @@
-/* Multiline geometry only: shared field.css still owns border, notch and states. */
+/*
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — TEXTAREA                                                                             ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Multiline geometry only: shared field.css still owns border, notch and states.         ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-textarea, .pg-field__edit, .pg-textarea__control, .pg-field__control,            ║
+ * ║ .pg-textarea__meta                                                                                  ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 .pg-textarea { display: grid; gap: 6px; inline-size: 100%; min-inline-size: 0; }
 .pg-textarea .pg-field__edit { align-items: stretch; }
 .pg-textarea__control.pg-field__control {

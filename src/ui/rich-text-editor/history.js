@@ -1,7 +1,14 @@
 /**
- * PINGUIN NEXT — RICH TEXT HISTORY & SELECTION
- * Local to each editor instance; no global document store.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — RICH TEXT HISTORY & SELECTION                                                        ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Local to each editor instance; no global document store.                               ║
+ * ║ ЗАЛЕЖНОСТІ: Стандартні API платформи; зовнішніх імпортів немає.                                     ║
+ * ║ ПУБЛІЧНИЙ API: captureSelection(), restoreSelection(), createEditorHistory()                        ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 function pathFromRoot(root, node) {
   const path = [];
   for (let current = node; current && current !== root; current = current.parentNode) {

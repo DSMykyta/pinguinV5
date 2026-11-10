@@ -1,7 +1,14 @@
 /**
- * Shared native field descriptions and errors.
- * The control and the owner remain independent of this small DOM helper.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SUPPORT                                                                              ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Shared native field descriptions and errors.                                           ║
+ * ║ ЗАЛЕЖНОСТІ: Стандартні API платформи; зовнішніх імпортів немає.                                     ║
+ * ║ ПУБЛІЧНИЙ API: createFieldSupport()                                                                 ║
+ * ║ ПРИНЦИП: The control and the owner remain independent of this small DOM helper.                     ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 export function createFieldSupport({ id, control, description = '', error = '' } = {}) {
   if (!(control instanceof HTMLElement) || !id) throw new TypeError('Field support needs control and id');
   const element = document.createElement('div');

@@ -1,8 +1,14 @@
 /**
- * PINGUIN NEXT — CONTENT SIZE TRANSITION
- * Animate the natural block height after synchronous content changes.
- * No page-specific selectors; self-contained interruption and reduced-motion.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — CONTENT SIZE TRANSITION                                                              ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Animate the natural block height after synchronous content changes.                    ║
+ * ║ ЗАЛЕЖНОСТІ: Стандартні API платформи; зовнішніх імпортів немає.                                     ║
+ * ║ ПУБЛІЧНИЙ API: createSizeTransition()                                                               ║
+ * ║ ПРИНЦИП: No page-specific selectors; self-contained interruption and reduced-motion.                ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 export function createSizeTransition({ element, duration = 280 } = {}) {
   if (!(element instanceof HTMLElement) || !Number.isFinite(duration) || duration < 0) {
     throw new TypeError('Size transition requires an element and nonnegative duration');

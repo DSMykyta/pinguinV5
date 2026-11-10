@@ -1,4 +1,15 @@
-/* Tools gallery positioning only. All editor visuals live in its UI CSS. */
+/*
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — RICH TEXT EDITOR DEMO                                                                ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Tools gallery positioning only. All editor visuals live in its UI CSS.                 ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-tools-rich-text-editor-demo, .pg-tools-rich-text-editor-demo__heading,           ║
+ * ║ .pg-tools-rich-text-editor-demo__hint                                                               ║
+ * ║ ПРИНЦИП: Лише приклад; оформлення спільних компонентів не дублюється.                               ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 .pg-tools-rich-text-editor-demo { min-inline-size: 0; margin-block: var(--pg-space-8); }
 .pg-tools-rich-text-editor-demo__heading { margin: 0; font-size: 16px; font-weight: 600; }
 .pg-tools-rich-text-editor-demo__hint {

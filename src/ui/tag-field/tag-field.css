@@ -1,4 +1,15 @@
-/* Tag Field shares the outlined label and border; only chips and token layout are local. */
+/*
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — TAG FIELD                                                                            ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Tag Field shares the outlined label and border; only chips and token layout are local. ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-tag-field, .pg-tag-field__composite, .pg-field__control, .pg-tag-field__tokens,  ║
+ * ║ .pg-tag-field__tag                                                                                  ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 .pg-tag-field { display: grid; gap: 6px; min-inline-size: 0; }
 .pg-tag-field__composite.pg-field__control {
   display: flex; align-items: center; flex-wrap: wrap; gap: 6px;

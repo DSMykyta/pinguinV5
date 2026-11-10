@@ -1,7 +1,14 @@
 /**
- * PINGUIN NEXT — NATIVE SELECT
- * Platform selection with the same outlined floating label as Input/Combobox.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — NATIVE SELECT                                                                        ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Platform selection with the same outlined floating label as Input/Combobox.            ║
+ * ║ ЗАЛЕЖНОСТІ: ../field/field.js                                                                       ║
+ * ║ ПУБЛІЧНИЙ API: createSelect()                                                                       ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { createFieldFrame } from '../field/field.js';
 let nextSelectId = 0;
 

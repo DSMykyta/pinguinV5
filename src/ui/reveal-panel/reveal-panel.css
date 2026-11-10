@@ -1,8 +1,14 @@
 /*
- * PINGUIN NEXT — REVEAL PANEL
- * Purpose: top/bottom reversible motion for arbitrary contextual UI, not Toast stacks.
- * Only transforms/opacity animate. No fixed dimensions, colors or decorative surfaces.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — REVEAL PANEL                                                                         ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Purpose: top/bottom reversible motion for arbitrary contextual UI, not Toast stacks.   ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-reveal-panel                                                                     ║
+ * ║ ПРИНЦИП: Only transforms/opacity animate. No fixed dimensions, colors or decorative surfaces.       ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 .pg-reveal-panel {
   --pg-reveal-panel-offset: 14px;
   opacity: 0;

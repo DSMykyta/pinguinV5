@@ -1,7 +1,14 @@
 /**
- * PINGUIN NEXT — RICH TEXT EDITOR / HTML MODE
- * Full app regression scenarios, not a standalone demo mock.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — E2E RICH TEXT EDITOR                                                                 ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: E2E: перевіряє rich text editor у браузері через Playwright.                           ║
+ * ║ ЗАЛЕЖНОСТІ: @playwright/test                                                                        ║
+ * ║ ПУБЛІЧНИЙ API: npx playwright test tests/e2e/rich-text-editor.spec.js.                              ║
+ * ║ ПРИНЦИП: Перевіряє спостережувану поведінку; production-компоненти не змінюються.                   ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {

@@ -1,8 +1,14 @@
 /**
- * PINGUIN NEXT — RICH TEXT COMMANDS
- * Independent DOM Range formatting; no deprecated document.execCommand().
- * Public API: executeRichTextCommand(), getEditorSelection().
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — RICH TEXT COMMANDS                                                                   ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Independent DOM Range formatting; no deprecated document.execCommand().                ║
+ * ║ ЗАЛЕЖНОСТІ: Стандартні API платформи; зовнішніх імпортів немає.                                     ║
+ * ║ ПУБЛІЧНИЙ API: getEditorSelection(), executeRichTextCommand()                                       ║
+ * ║ ПРИНЦИП: Public API: executeRichTextCommand(), getEditorSelection().                                ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 const MARKS = Object.freeze({ bold: 'strong', italic: 'em', underline: 'u' });
 const BLOCKS = new Set(['p', 'div', 'h1', 'h2', 'h3', 'blockquote', 'li']);
 

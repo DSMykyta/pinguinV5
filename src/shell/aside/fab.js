@@ -1,9 +1,15 @@
 /**
- * PINGUIN NEXT — persistent aside FAB.
- * The action launcher belongs to the right-hand shell rail, not the transient
- * aside popover: hiding/inerting the popover must never hide the fourth corner.
- * Actions are taken from the active page's existing aside context.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — PERSISTENT ASIDE FAB.                                                                ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: The action launcher belongs to the right-hand shell rail, not the transient            ║
+ * ║ ЗАЛЕЖНОСТІ: ../../ui/icon/icon.js, ../../ui/button/button.js, ./aside.js                            ║
+ * ║ ПУБЛІЧНИЙ API: createAsideFab()                                                                     ║
+ * ║ ПРИНЦИП: aside popover: hiding/inerting the popover must never hide the fourth corner. Actions are  ║
+ * ║ taken from the active page's existing aside context.                                                ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { createIcon } from '../../ui/icon/icon.js';
 import { createIconButton } from '../../ui/button/button.js';
 import { DEFAULT_LINKS } from './aside.js';

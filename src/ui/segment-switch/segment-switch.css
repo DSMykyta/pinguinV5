@@ -1,4 +1,15 @@
-/* Native radio switch with one sliding plate. Styles are local and token based. */
+/*
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SEGMENT SWITCH                                                                       ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Native radio switch with one sliding plate. Styles are local and token based.          ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-segment-switch, .pg-segment-switch__plate, .pg-segment-switch__radio,            ║
+ * ║ .pg-segment-switch__label, .pg-icon                                                                 ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 .pg-segment-switch {
   --pg-switch-padding: 3px;
   --pg-switch-gap: 2px;

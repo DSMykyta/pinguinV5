@@ -1,7 +1,14 @@
 /*
- * Compact legacy-style scrollbars shared by floating UI surfaces.
- * No browser arrows. The browser still owns wheel/touch/keyboard scrolling.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SCROLLBAR                                                                            ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Compact legacy-style scrollbars shared by floating UI surfaces.                        ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-scrollbar                                                                        ║
+ * ║ ПРИНЦИП: No browser arrows. The browser still owns wheel/touch/keyboard scrolling.                  ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 .pg-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: var(--pg-color-scrollbar-thumb) transparent;

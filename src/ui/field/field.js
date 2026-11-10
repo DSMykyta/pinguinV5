@@ -1,8 +1,14 @@
 /**
- * PINGUIN NEXT — SHARED FIELD FRAME
- * Permanent label above a plain border; independent leading/trailing slots.
- * No notch, floating animation, background masking, or DOM observers.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SHARED FIELD FRAME                                                                   ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Permanent label above a plain border; independent leading/trailing slots.              ║
+ * ║ ЗАЛЕЖНОСТІ: Стандартні API платформи; зовнішніх імпортів немає.                                     ║
+ * ║ ПУБЛІЧНИЙ API: createFieldFrame()                                                                   ║
+ * ║ ПРИНЦИП: No notch, floating animation, background masking, or DOM observers.                        ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 function slotNodes(value) {
   if (value == null) return [];
   const items = Array.isArray(value) ? value : [value];

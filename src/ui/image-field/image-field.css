@@ -1,4 +1,15 @@
-/* File UI: picker, dropzone and preview. No upload or product feature styling. */
+/*
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — IMAGE FIELD                                                                          ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: File UI: picker, dropzone and preview. No upload or product feature styling.           ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-image-field, .pg-image-field__label, .pg-image-field__zone,                      ║
+ * ║ .pg-image-field__choose, .pg-image-field__replace                                                   ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 .pg-image-field {display:grid;gap:6px;min-inline-size:0;align-content:start;}
 .pg-image-field__label {font-size:13px;color:var(--pg-color-text-secondary);}
 .pg-image-field__zone {

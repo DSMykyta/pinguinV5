@@ -1,8 +1,14 @@
 /*
- * PINGUIN NEXT — SHARED FIELD
- * Plain outline and permanent real label above, on all backgrounds.
- * No floating text, fieldset/legend, notch, or opaque label patches.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SHARED FIELD                                                                         ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Plain outline and permanent real label above, on all backgrounds.                      ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-field, .pg-field__label, .pg-field__surface, .pg-field__control, .pg-field__edit ║
+ * ║ ПРИНЦИП: No floating text, fieldset/legend, notch, or opaque label patches.                         ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 .pg-field {
   display: grid; gap: 6px;
   inline-size: 100%; min-inline-size: 0;

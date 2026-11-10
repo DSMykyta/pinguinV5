@@ -1,7 +1,15 @@
 /**
- * PINGUIN NEXT — LISTBOX (single or multiple)
- * Separate from native Select and editable Combobox; no feature ownership.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — LISTBOX (SINGLE OR MULTIPLE)                                                         ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Separate from native Select and editable Combobox; no feature ownership.               ║
+ * ║ ЗАЛЕЖНОСТІ: ../field/field.js, ../input/input.js, ../position/position-popup.js,                    ║
+ * ║ ../position/dismiss-on-scroll.js, ../position/ensure-option-visible.js                              ║
+ * ║ ПУБЛІЧНИЙ API: createListbox()                                                                      ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { createFieldFrame } from '../field/field.js';
 import { createInput } from '../input/input.js';
 import { positionPopup } from '../position/position-popup.js';

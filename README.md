@@ -37,6 +37,7 @@
 npm install
 npm run dev
 npm run check
+npm run check:headers
 npm run test:e2e
 ```
 

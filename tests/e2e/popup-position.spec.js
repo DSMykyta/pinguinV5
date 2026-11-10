@@ -1,7 +1,14 @@
 /**
- * Upward opening must align with the REAL rendered popup height, not its cap.
- * Fixtures near the viewport bottom force all three popup components upward.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — E2E POPUP POSITION                                                                   ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: E2E: перевіряє popup position у браузері через Playwright.                             ║
+ * ║ ЗАЛЕЖНОСТІ: @playwright/test                                                                        ║
+ * ║ ПУБЛІЧНИЙ API: npx playwright test tests/e2e/popup-position.spec.js.                                ║
+ * ║ ПРИНЦИП: Перевіряє спостережувану поведінку; production-компоненти не змінюються.                   ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {

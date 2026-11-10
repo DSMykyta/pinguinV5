@@ -1,8 +1,15 @@
 /**
- * PINGUIN NEXT — DATA COLLECTION DESIGN PREVIEW
- * Fictional Brands records. One shared UI collection, no Brands feature/backend.
- * Its persisted view mode is the same universal choice mechanism as Shell IO.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — DATA COLLECTION DESIGN PREVIEW                                                       ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Fictional Brands records. One shared UI collection, no Brands feature/backend.         ║
+ * ║ ЗАЛЕЖНОСТІ: ../../ui/collection-view/collection-view, ../../core/preferences,                       ║
+ * ║ ../../ui/select/select, ../../ui/input/input, ../../ui/dialog/dialog                                ║
+ * ║ ПУБЛІЧНИЙ API: createDataViewsDemo()                                                                ║
+ * ║ ПРИНЦИП: Its persisted view mode is the same universal choice mechanism as Shell IO.                ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { createCollectionView } from '../../ui/collection-view/collection-view.js';
 import { createStoredChoice } from '../../core/preferences.js';
 import { createSelect } from '../../ui/select/select.js';

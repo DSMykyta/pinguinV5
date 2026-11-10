@@ -1,6 +1,14 @@
 /**
- * Menu preview. The example callback only updates its own status text.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — MENU DEMO                                                                            ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Menu preview. The example callback only updates its own status text.                   ║
+ * ║ ЗАЛЕЖНОСТІ: ../../ui/menu/menu.js                                                                   ║
+ * ║ ПУБЛІЧНИЙ API: createMenuDemo()                                                                     ║
+ * ║ ПРИНЦИП: Лише приклад; оформлення спільних компонентів не дублюється.                               ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { createMenu } from '../../ui/menu/menu.js';
 
 export function createMenuDemo() {

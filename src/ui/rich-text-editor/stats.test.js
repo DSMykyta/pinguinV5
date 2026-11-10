@@ -1,4 +1,14 @@
-/** Pure text statistics checks without a browser or npm. */
+/**
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — STATS                                                                                ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Pure text statistics checks without a browser or npm.                                  ║
+ * ║ ЗАЛЕЖНОСТІ: node:test, node:assert/strict, ./stats.js                                               ║
+ * ║ ПУБЛІЧНИЙ API: Набір тестів Node.js.                                                                ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { getEditorTextStats } from './stats.js';

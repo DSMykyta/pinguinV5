@@ -1,7 +1,14 @@
 /**
- * PINGUIN NEXT — NATIVE RADIO GROUP
- * Fieldset/legend and same-name inputs supply browser keyboard behavior.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — NATIVE RADIO GROUP                                                                   ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Fieldset/legend and same-name inputs supply browser keyboard behavior.                 ║
+ * ║ ЗАЛЕЖНОСТІ: Стандартні API платформи; зовнішніх імпортів немає.                                     ║
+ * ║ ПУБЛІЧНИЙ API: createRadioGroup()                                                                   ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 let nextGroupId = 0;
 
 function validateOptions(options) {

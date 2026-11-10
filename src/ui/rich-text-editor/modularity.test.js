@@ -1,4 +1,14 @@
-/** UI adapters must not import other adapters, composition root, features or Shell. */
+/**
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — MODULARITY                                                                           ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: UI adapters must not import other adapters, composition root, features or Shell.       ║
+ * ║ ЗАЛЕЖНОСТІ: node:test, node:assert/strict, node:fs, node:url                                        ║
+ * ║ ПУБЛІЧНИЙ API: Набір тестів Node.js.                                                                ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';

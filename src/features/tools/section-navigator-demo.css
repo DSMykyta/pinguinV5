@@ -1,4 +1,16 @@
-/* PINGUIN NEXT — DEMO SECTION CONTENT (no extra containers). */
+/*
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — DEMO SECTION CONTENT (NO EXTRA CONTAINERS).                                          ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Стилі section navigator demo з локальною відповідальністю.                             ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-tools-section-navigator-demo, .pg-tools-section-navigator-demo__fields,          ║
+ * ║ .pg-tools-section-navigator-demo__description, .pg-tools-section-navigator-demo__note,              ║
+ * ║ .pg-tools-section-navigator-demo__photos                                                            ║
+ * ║ ПРИНЦИП: Лише приклад; оформлення спільних компонентів не дублюється.                               ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 .pg-tools-section-navigator-demo { inline-size: 100%; min-block-size: 0; min-inline-size: 0; }
 .pg-tools-section-navigator-demo__fields,
 .pg-tools-section-navigator-demo__description { display: grid; gap: var(--pg-space-5); }

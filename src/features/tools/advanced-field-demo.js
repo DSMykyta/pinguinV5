@@ -1,7 +1,15 @@
 /**
- * PINGUIN NEXT — ADVANCED FIELD GALLERY
- * Isolated functional controls; no persistence and no Shell dependencies.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — ADVANCED FIELD GALLERY                                                               ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Isolated functional controls; no persistence and no Shell dependencies.                ║
+ * ║ ЗАЛЕЖНОСТІ: ../../ui/textarea/textarea, ../../ui/number-field/number-field,                         ║
+ * ║ ../../ui/checkbox/checkbox, ../../ui/switch/switch, ../../ui/radio-group/radio-group                ║
+ * ║ ПУБЛІЧНИЙ API: createAdvancedFieldDemo()                                                            ║
+ * ║ ПРИНЦИП: Тільки демонстрація; вигляд і логіка спільного UI не дублюються.                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { createTextarea } from '../../ui/textarea/textarea.js';
 import { createNumberField } from '../../ui/number-field/number-field.js';
 import { createCheckbox } from '../../ui/checkbox/checkbox.js';

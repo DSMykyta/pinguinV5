@@ -1,9 +1,15 @@
 /**
- * PINGUIN NEXT — shared icon factory.
- * All icon geometry comes from locally embedded, official Google
- * Material Symbols Rounded SVGs (Apache-2.0).
- * Existing semantic aliases remain stable for every caller.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SHARED ICON FACTORY.                                                                 ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: All icon geometry comes from locally embedded, official Google                         ║
+ * ║ ЗАЛЕЖНОСТІ: ./material-symbols.js                                                                   ║
+ * ║ ПУБЛІЧНИЙ API: createIcon()                                                                         ║
+ * ║ ПРИНЦИП: Material Symbols Rounded SVGs (Apache-2.0). Existing semantic aliases remain stable for    ║
+ * ║ every caller.                                                                                       ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { MATERIAL_SYMBOLS } from './material-symbols.js';
 
 export function createIcon(name) {

@@ -1,8 +1,14 @@
 /**
- * PINGUIN NEXT — NUMBER FIELD
- * Native numeric spinbutton with optional accessible step controls.
- * No custom number parser, value coercion or duplicate keyboard handler.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — NUMBER FIELD                                                                         ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Native numeric spinbutton with optional accessible step controls.                      ║
+ * ║ ЗАЛЕЖНОСТІ: ../field/field.js, ../field/support.js                                                  ║
+ * ║ ПУБЛІЧНИЙ API: createNumberField()                                                                  ║
+ * ║ ПРИНЦИП: No custom number parser, value coercion or duplicate keyboard handler.                     ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { createFieldFrame } from '../field/field.js';
 import { createFieldSupport } from '../field/support.js';
 

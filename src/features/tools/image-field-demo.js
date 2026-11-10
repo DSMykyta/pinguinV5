@@ -1,6 +1,14 @@
 /**
- * Independent Image Field preview; local browser URL, no network upload.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — IMAGE FIELD DEMO                                                                     ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Independent Image Field preview; local browser URL, no network upload.                 ║
+ * ║ ЗАЛЕЖНОСТІ: ../../ui/image-field/image-field                                                        ║
+ * ║ ПУБЛІЧНИЙ API: createImageFieldDemo()                                                               ║
+ * ║ ПРИНЦИП: Тільки демонстрація; вигляд і логіка спільного UI не дублюються.                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { createImageField } from '../../ui/image-field/image-field.js';
 
 export function createImageFieldDemo() {

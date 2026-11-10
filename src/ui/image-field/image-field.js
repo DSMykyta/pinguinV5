@@ -1,8 +1,14 @@
 /**
- * PINGUIN NEXT — IMAGE FIELD
- * Native file picking and optional drop/paste, local preview and explicit cleanup.
- * No upload/persistence logic and no references to any feature.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — IMAGE FIELD                                                                          ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Native file picking and optional drop/paste, local preview and explicit cleanup.       ║
+ * ║ ЗАЛЕЖНОСТІ: Стандартні API платформи; зовнішніх імпортів немає.                                     ║
+ * ║ ПУБЛІЧНИЙ API: createImageField()                                                                   ║
+ * ║ ПРИНЦИП: No upload/persistence logic and no references to any feature.                              ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 let sequence=0;
 const DEFAULT_TYPES=['image/png','image/jpeg','image/webp','image/gif','image/avif'];
 

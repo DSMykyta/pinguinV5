@@ -1,7 +1,14 @@
 /**
- * PINGUIN NEXT — selection-dependent header actions.
- * Owns only view state and interaction; the caller owns the records and effects.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SELECTION-DEPENDENT HEADER ACTIONS.                                                  ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Owns only view state and interaction; the caller owns the records and effects.         ║
+ * ║ ЗАЛЕЖНОСТІ: ../reveal-panel/reveal-panel.js                                                         ║
+ * ║ ПУБЛІЧНИЙ API: getSelectionMode(), createSelectionActions()                                         ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { createRevealPanel } from '../reveal-panel/reveal-panel.js';
 
 export function getSelectionMode(count) {

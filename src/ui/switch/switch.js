@@ -1,7 +1,14 @@
 /**
- * PINGUIN NEXT — NATIVE SWITCH
- * Accessible checkbox input with role=switch; optional async commit and rollback.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — NATIVE SWITCH                                                                        ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Accessible checkbox input with role=switch; optional async commit and rollback.        ║
+ * ║ ЗАЛЕЖНОСТІ: Стандартні API платформи; зовнішніх імпортів немає.                                     ║
+ * ║ ПУБЛІЧНИЙ API: createSwitch()                                                                       ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 let nextSwitchId = 0;
 
 export function createSwitch({

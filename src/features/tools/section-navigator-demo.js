@@ -1,10 +1,16 @@
 /**
- * PINGUIN NEXT — SECTION NAVIGATOR DEMO
- * ПРИЗНАЧЕННЯ: Ізольований приклад переходів між блоками.
- * ЗАЛЕЖНОСТІ: Універсальні Section navigator та Input.
- * ПУБЛІЧНИЙ API: createSectionNavigatorDemo() → { element, destroy }.
- * ПРИНЦИП: Приклад контенту без залежностей між секціями.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SECTION NAVIGATOR DEMO                                                               ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: ПРИЗНАЧЕННЯ: Ізольований приклад переходів між блоками.                                ║
+ * ║ ЗАЛЕЖНОСТІ: ../../ui/section-navigator/section-navigator.js, ../../ui/input/input.js                ║
+ * ║ ПУБЛІЧНИЙ API: createSectionNavigatorDemo()                                                         ║
+ * ║ ПРИНЦИП: ЗАЛЕЖНОСТІ: Універсальні Section navigator та Input. ПУБЛІЧНИЙ API:                        ║
+ * ║ createSectionNavigatorDemo() → { element, destroy }. ПРИНЦИП: Приклад контенту без залежностей між  ║
+ * ║ секціями.                                                                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { createSectionNavigator } from '../../ui/section-navigator/section-navigator.js';
 import { createInput } from '../../ui/input/input.js';
 import '../../ui/section-navigator/section-navigator.css';

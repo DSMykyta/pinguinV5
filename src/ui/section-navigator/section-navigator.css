@@ -1,7 +1,15 @@
 /*
- * PINGUIN NEXT — SECTION NAVIGATOR
- * Full workspace, native scroll and edge-pull indicators.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SECTION NAVIGATOR                                                                    ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Full workspace, native scroll and edge-pull indicators.                                ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-section-navigator, .pg-section-navigator__header, .pg-section-navigator__title,  ║
+ * ║ .pg-section-navigator__counter, .pg-section-navigator__viewport                                     ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 .pg-section-navigator {
   display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;
   --pg-section-inset:var(--pg-space-4);

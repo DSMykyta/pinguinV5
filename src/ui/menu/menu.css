@@ -1,4 +1,14 @@
-/* Independent actions menu; never used to impersonate a Select. */
+/*
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — MENU                                                                                 ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Independent actions menu; never used to impersonate a Select.                          ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-menu, .pg-menu__trigger, .pg-menu__panel, .pg-menu__item, .pg-mini-button        ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 .pg-menu { position:relative; display:inline-flex; min-inline-size:0; }
 .pg-menu__trigger {
   display:inline-flex; align-items:center; justify-content:center;

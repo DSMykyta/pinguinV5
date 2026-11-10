@@ -1,11 +1,17 @@
 /**
- * PINGUIN NEXT — RICH TEXT EDITOR
- * Purpose: One document with two *mutually exclusive* editable modes:
- * WYSIWYG (contenteditable) and HTML source (textarea).
- * Dependencies: native DOM + independent UI adapters; zero npm dependencies.
- * API: createRichTextEditor({content, editable, toolbar, code, stats, onChange}).
- * Principle: HTML source is a draft until mode switch; sanitize on commit/export.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — RICH TEXT EDITOR                                                                     ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Purpose: One document with two *mutually exclusive* editable modes:                    ║
+ * ║ ЗАЛЕЖНОСТІ: ./html.js, ./history.js, ./commands.js, ./toolbar.js, ./mode.js                         ║
+ * ║ ПУБЛІЧНИЙ API: createRichTextEditor()                                                               ║
+ * ║ ПРИНЦИП: WYSIWYG (contenteditable) and HTML source (textarea). Dependencies: native DOM +           ║
+ * ║ independent UI adapters; zero npm dependencies. API: createRichTextEditor({content, editable,       ║
+ * ║ toolbar, code, stats, onChange}). Principle: HTML source is a draft until mode switch; sanitize on  ║
+ * ║ commit/export.                                                                                      ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { parseSafeHtml, serializeSafeHtml } from './html.js';
 import { createEditorHistory, captureSelection, restoreSelection } from './history.js';
 import { executeRichTextCommand, getEditorSelection } from './commands.js';

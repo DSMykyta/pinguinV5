@@ -1,4 +1,15 @@
-/* Switch semantics are native; CSS only draws the track and thumb. */
+/*
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SWITCH                                                                               ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Switch semantics are native; CSS only draws the track and thumb.                       ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-switch, .pg-switch__row, .pg-switch__copy, .pg-switch__label,                    ║
+ * ║ .pg-switch__description                                                                             ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 .pg-switch { display: grid; gap: 4px; min-inline-size: 0; }
 .pg-switch__row {
   display: flex; align-items: center; justify-content: space-between; gap: 16px;

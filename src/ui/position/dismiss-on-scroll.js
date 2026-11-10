@@ -1,12 +1,16 @@
 /**
- * Dismiss a popup when an external surface scrolls.
- *
- * User-initiated opening can itself finish a browser scroll-to-focus sequence.
- * Arm after two animation frames so those initial scroll events cannot
- * immediately cancel the freshly opened popup.
- *
- * The popup's own scroll is always allowed.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — DISMISS ON SCROLL                                                                    ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Dismiss a popup when an external surface scrolls.                                      ║
+ * ║ ЗАЛЕЖНОСТІ: Стандартні API платформи; зовнішніх імпортів немає.                                     ║
+ * ║ ПУБЛІЧНИЙ API: dismissOnOutsideScroll()                                                             ║
+ * ║ ПРИНЦИП: User-initiated opening can itself finish a browser scroll-to-focus sequence. Arm after two ║
+ * ║ animation frames so those initial scroll events cannot immediately cancel the freshly opened popup. ║
+ * ║ The popup's own scroll is always allowed.                                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 export function dismissOnOutsideScroll({ popup, isOpen, dismiss, signal }) {
   if (!(popup instanceof HTMLElement) || typeof isOpen !== 'function' ||
       typeof dismiss !== 'function') {

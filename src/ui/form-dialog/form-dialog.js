@@ -1,8 +1,14 @@
 /**
- * PINGUIN NEXT — FORM DIALOG
- * Composition over shared Dialog; validation, persistence and dirty state
- * are callbacks owned by the feature, never inferred from markup.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — FORM DIALOG                                                                          ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Composition over shared Dialog; validation, persistence and dirty state                ║
+ * ║ ЗАЛЕЖНОСТІ: ../dialog/dialog.js                                                                     ║
+ * ║ ПУБЛІЧНИЙ API: showFormDialog()                                                                     ║
+ * ║ ПРИНЦИП: are callbacks owned by the feature, never inferred from markup.                            ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { showDialog } from '../dialog/dialog.js';
 
 export function showFormDialog({

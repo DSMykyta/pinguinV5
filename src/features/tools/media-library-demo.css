@@ -1,4 +1,15 @@
-/* Media Library demo — real image-like previews, only sample-specific content. */
+/*
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — MEDIA LIBRARY DEMO                                                                   ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Media Library demo — real image-like previews, only sample-specific content.           ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-media-library__root, .pg-collection-view__table, .pg-media-library__card,        ║
+ * ║ .pg-media-library__image, .pg-media-library__caption                                                ║
+ * ║ ПРИНЦИП: Лише приклад; оформлення спільних компонентів не дублюється.                               ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 .pg-media-library__root {width:100%;height:100%;min-width:0;min-height:0;}
 .pg-media-library__root .pg-collection-view__table {min-width:520px;}
 .pg-media-library__card {

@@ -1,8 +1,14 @@
 /**
- * PINGUIN NEXT — LEGACY-INSPIRED SEGMENTED SWITCH
- * Native radios, one animated selection plate and per-instance state.
- * Variants: filled, outline, compact, fit; no global registry or synthetic clicks.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — LEGACY-INSPIRED SEGMENTED SWITCH                                                     ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Native radios, one animated selection plate and per-instance state.                    ║
+ * ║ ЗАЛЕЖНОСТІ: ../icon/icon.js                                                                         ║
+ * ║ ПУБЛІЧНИЙ API: createSegmentSwitch()                                                                ║
+ * ║ ПРИНЦИП: Variants: filled, outline, compact, fit; no global registry or synthetic clicks.           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { createIcon } from '../icon/icon.js';
 
 let sequence = 0;

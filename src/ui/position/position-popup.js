@@ -1,10 +1,16 @@
 /**
- * Position an already visible popover against its trigger.
- * For upward opening, use the actual rendered height AFTER max-height is set.
- * This avoids the large gap produced by subtracting an available-height limit.
- *
- * This helper owns geometry only; the calling component owns events and state.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — POSITION POPUP                                                                       ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Position an already visible popover against its trigger.                               ║
+ * ║ ЗАЛЕЖНОСТІ: Стандартні API платформи; зовнішніх імпортів немає.                                     ║
+ * ║ ПУБЛІЧНИЙ API: positionPopup()                                                                      ║
+ * ║ ПРИНЦИП: For upward opening, use the actual rendered height AFTER max-height is set. This avoids    ║
+ * ║ the large gap produced by subtracting an available-height limit. This helper owns geometry only;    ║
+ * ║ the calling component owns events and state.                                                        ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 export function positionPopup({
   anchor, popup, maxHeight = 320, matchWidth = true,
   minWidth = 170, maxWidth = 300, preferredWidth = null, align = 'start', gap = 4, edge = 8,

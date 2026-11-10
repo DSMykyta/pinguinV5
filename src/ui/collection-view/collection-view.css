@@ -1,4 +1,15 @@
-/* Shared dense native table + optional tiles, inside a feature's content area. */
+/*
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — COLLECTION VIEW                                                                      ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Shared dense native table + optional tiles, inside a feature's content area.           ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-collection-view, .pg-collection-view__table-scroll, .pg-collection-view__tiles,  ║
+ * ║ .pg-collection-view__empty, .pg-collection-view__table                                              ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 .pg-collection-view { display: flex; flex-direction: column; min-inline-size: 0; min-block-size: 0; width: 100%; height: 100%; }
 .pg-collection-view__table-scroll {
   flex: 1 1 auto; min-block-size: 0; min-inline-size: 0;

@@ -1,8 +1,15 @@
 /**
- * PINGUIN NEXT — EDITABLE COMBOBOX
- * Native text editing + WAI-ARIA listbox; selection has a stable value.
- * API: createCombobox({label,options?,loadOptions?,onChange?}).
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — EDITABLE COMBOBOX                                                                    ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Native text editing + WAI-ARIA listbox; selection has a stable value.                  ║
+ * ║ ЗАЛЕЖНОСТІ: ../field/field.js, ../position/position-popup.js, ../position/dismiss-on-scroll.js,     ║
+ * ║ ../position/ensure-option-visible.js                                                                ║
+ * ║ ПУБЛІЧНИЙ API: createCombobox()                                                                     ║
+ * ║ ПРИНЦИП: API: createCombobox({label,options?,loadOptions?,onChange?}).                              ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { createFieldFrame } from '../field/field.js';
 import { positionPopup } from '../position/position-popup.js';
 import { dismissOnOutsideScroll } from '../position/dismiss-on-scroll.js';

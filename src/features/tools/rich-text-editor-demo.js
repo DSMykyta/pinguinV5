@@ -1,7 +1,14 @@
 /**
- * PINGUIN NEXT — RICH TEXT EDITOR DEMO
- * Only the Text workspace knows about this editor; no Shell dependencies.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — RICH TEXT EDITOR DEMO                                                                ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Only the Text workspace knows about this editor; no Shell dependencies.                ║
+ * ║ ЗАЛЕЖНОСТІ: ../../ui/rich-text-editor/rich-text-editor.js                                           ║
+ * ║ ПУБЛІЧНИЙ API: createRichTextEditorDemo()                                                           ║
+ * ║ ПРИНЦИП: Лише приклад; оформлення спільних компонентів не дублюється.                               ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { createRichTextEditor } from '../../ui/rich-text-editor/rich-text-editor.js';
 
 export function createRichTextEditorDemo() {

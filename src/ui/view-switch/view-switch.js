@@ -1,7 +1,14 @@
 /**
- * A view-mode adapter for the shared legacy-inspired segmented switch.
- * Persistence stays with the caller / createStoredChoice.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — VIEW SWITCH ADAPTER                                                                  ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Адаптує режими таблиці й плиток до спільного сегментного перемикача.                   ║
+ * ║ ЗАЛЕЖНОСТІ: src/ui/segment-switch/segment-switch.js.                                                ║
+ * ║ ПУБЛІЧНИЙ API: createViewSwitch({ modes, value, onChange }).                                        ║
+ * ║ ПРИНЦИП: Анімація та вигляд належать segment-switch; стан і збереження — викликачу.                 ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { createSegmentSwitch } from '../segment-switch/segment-switch.js';
 
 const MODES = Object.freeze({

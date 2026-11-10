@@ -1,7 +1,14 @@
 /**
- * PINGUIN NEXT — outlined shared field regression tests.
- * All fixtures are live DOM components, not screenshots of mocks.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — E2E FIELD                                                                            ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: E2E: перевіряє field у браузері через Playwright.                                      ║
+ * ║ ЗАЛЕЖНОСТІ: @playwright/test                                                                        ║
+ * ║ ПУБЛІЧНИЙ API: npx playwright test tests/e2e/field.spec.js.                                         ║
+ * ║ ПРИНЦИП: Перевіряє спостережувану поведінку; production-компоненти не змінюються.                   ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {

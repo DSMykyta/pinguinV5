@@ -1,6 +1,14 @@
 /**
- * Functional Listbox preview. Data and selected values belong only here.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — LISTBOX DEMO                                                                         ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Functional Listbox preview. Data and selected values belong only here.                 ║
+ * ║ ЗАЛЕЖНОСТІ: ../../ui/listbox/listbox                                                                ║
+ * ║ ПУБЛІЧНИЙ API: createListboxDemo()                                                                  ║
+ * ║ ПРИНЦИП: Тільки демонстрація; вигляд і логіка спільного UI не дублюються.                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { createListbox } from '../../ui/listbox/listbox.js';
 
 const PLATFORMS = [

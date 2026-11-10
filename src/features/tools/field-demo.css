@@ -1,4 +1,15 @@
-/* Tools showcase only. Component styles are owned by src/ui/field. */
+/*
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — FIELD DEMO                                                                           ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Tools showcase only. Component styles are owned by src/ui/field.                       ║
+ * ║ ЗАЛЕЖНОСТІ: Токени src/styles/tokens.css; стилі спільних компонентів.                               ║
+ * ║ ПУБЛІЧНИЙ API: .pg-tools-field-demo, .pg-tools-field-demo__title, .pg-tools-field-demo__hint,       ║
+ * ║ .pg-tools-field-demo__grid                                                                          ║
+ * ║ ПРИНЦИП: Тільки демонстрація; вигляд і логіка спільного UI не дублюються.                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 .pg-tools-field-demo { max-inline-size: 780px; margin-block-start: var(--pg-space-10); }
 .pg-tools-field-demo__title { margin: 0; font-size: 15px; font-weight: 600; }
 .pg-tools-field-demo__hint {

@@ -1,4 +1,15 @@
-/* PINGUIN PAGINATION — quiet, modern navigation within the shared footer. */
+/*
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — PAGINATION                                                                           ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: PINGUIN PAGINATION — quiet, modern navigation within the shared footer.                ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-pagination, .pg-pagination__status, .pg-pagination__pages, .pg-fab,              ║
+ * ║ .pg-pagination__button                                                                              ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 /* Page-size FAB sits at the far right of the footer; the original aside FAB remains separate. */
 .pg-pagination {
   display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);

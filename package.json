@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "check:naming": "node scripts/check-conventions.mjs",
-    "check": "npm run check:naming && npm test && npm run build",
+    "check:headers": "node scripts/check-file-headers.mjs",
+    "check": "npm run check:naming && npm run check:headers && npm test && npm run build",
     "test": "node --test",
     "test:e2e": "playwright test"
   },

@@ -1,9 +1,15 @@
 /**
- * PINGUIN NEXT — UNIVERSAL PAGINATION
- * Compact page navigation; page-size choice uses an adjacent instance of the shared FAB.
- * Native buttons and version-independent page math, without a second launcher.
- * The caller decides where the element is mounted (e.g. the Shell footer slot).
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — UNIVERSAL PAGINATION                                                                 ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Compact page navigation; page-size choice uses an adjacent instance of the shared FAB. ║
+ * ║ ЗАЛЕЖНОСТІ: Стандартні API платформи; зовнішніх імпортів немає.                                     ║
+ * ║ ПУБЛІЧНИЙ API: DEFAULT_PAGE_SIZES(), getPageNumbers(), createPagination()                           ║
+ * ║ ПРИНЦИП: Native buttons and version-independent page math, without a second launcher. The caller    ║
+ * ║ decides where the element is mounted (e.g. the Shell footer slot).                                  ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 export const DEFAULT_PAGE_SIZES=Object.freeze([10,25,50,100,0]);
 
 export function getPageNumbers(total,page,maxVisible=7) {

@@ -1,4 +1,15 @@
-/* Number field's step controls; outlined shell shared by all editing fields. */
+/*
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — NUMBER FIELD                                                                         ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Number field's step controls; outlined shell shared by all editing fields.             ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-number-field, .pg-number-field__control, .pg-number-field__unit,                 ║
+ * ║ .pg-number-field__steppers, .pg-number-field__step                                                  ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 .pg-number-field { display: grid; gap: 6px; min-inline-size: 0; }
 .pg-number-field__control { font-variant-numeric: tabular-nums; }
 .pg-number-field__control::-webkit-inner-spin-button,

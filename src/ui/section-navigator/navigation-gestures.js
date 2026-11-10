@@ -1,10 +1,16 @@
 /**
- * PINGUIN NEXT — NAVIGATION GESTURES
- * ПРИЗНАЧЕННЯ: Розпізнає локальне продовження руху на межі viewport.
- * ЗАЛЕЖНОСТІ: pull-state та передані DOM-вузли / callbacks.
- * ПУБЛІЧНИЙ API: mountNavigationGestures(options) → { reset, destroy }.
- * ПРИНЦИП: Без редакторів, маршрутизації чи глобального input interception.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — NAVIGATION GESTURES                                                                  ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: ПРИЗНАЧЕННЯ: Розпізнає локальне продовження руху на межі viewport.                     ║
+ * ║ ЗАЛЕЖНОСТІ: ./pull-state.js                                                                         ║
+ * ║ ПУБЛІЧНИЙ API: mountNavigationGestures()                                                            ║
+ * ║ ПРИНЦИП: ЗАЛЕЖНОСТІ: pull-state та передані DOM-вузли / callbacks. ПУБЛІЧНИЙ API:                   ║
+ * ║ mountNavigationGestures(options) → { reset, destroy }. ПРИНЦИП: Без редакторів, маршрутизації чи    ║
+ * ║ глобального input interception.                                                                     ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { isAtBoundary, normalizeWheelDelta, getPullProgress } from './pull-state.js';
 
 const WHEEL_IDLE = 200;

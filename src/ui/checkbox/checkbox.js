@@ -1,8 +1,14 @@
 /**
- * PINGUIN NEXT — NATIVE CHECKBOX WITH MORPHING CIRCLE
- * Native input remains available to keyboard, assistive technology and forms.
- * Visual box changes from rounded square to circle on checked/mixed states.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — NATIVE CHECKBOX WITH MORPHING CIRCLE                                                 ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Native input remains available to keyboard, assistive technology and forms.            ║
+ * ║ ЗАЛЕЖНОСТІ: Стандартні API платформи; зовнішніх імпортів немає.                                     ║
+ * ║ ПУБЛІЧНИЙ API: createCheckbox()                                                                     ║
+ * ║ ПРИНЦИП: Visual box changes from rounded square to circle on checked/mixed states.                  ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 let nextCheckboxId = 0;
 
 export function createCheckbox({

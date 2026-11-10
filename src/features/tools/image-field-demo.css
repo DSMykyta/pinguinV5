@@ -1,4 +1,14 @@
-/* Gallery only. Image picker styles remain within shared UI component. */
+/*
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — IMAGE FIELD DEMO                                                                     ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Gallery only. Image picker styles remain within shared UI component.                   ║
+ * ║ ЗАЛЕЖНОСТІ: Токени src/styles/tokens.css; стилі спільних компонентів.                               ║
+ * ║ ПУБЛІЧНИЙ API: .pg-tools-image-demo                                                                 ║
+ * ║ ПРИНЦИП: Тільки демонстрація; вигляд і логіка спільного UI не дублюються.                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 .pg-tools-image-demo {max-inline-size:420px;margin-block-start:var(--pg-space-10);}
 .pg-tools-image-demo h3 {font-size:15px;margin:0 0 5px;}
 .pg-tools-image-demo>p {color:var(--pg-color-text-secondary);font-size:13px;margin:0 0 16px;}

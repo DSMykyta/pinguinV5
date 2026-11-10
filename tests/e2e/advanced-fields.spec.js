@@ -1,7 +1,14 @@
 /**
- * PINGUIN NEXT — INDEPENDENT ADVANCED CONTROLS
- * Real browser behavior, isolated test fixtures and form serialization.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — E2E ADVANCED FIELDS                                                                  ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: E2E: перевіряє advanced fields у браузері через Playwright.                            ║
+ * ║ ЗАЛЕЖНОСТІ: @playwright/test                                                                        ║
+ * ║ ПУБЛІЧНИЙ API: npx playwright test tests/e2e/advanced-fields.spec.js.                               ║
+ * ║ ПРИНЦИП: Перевіряє спостережувану поведінку; production-компоненти не змінюються.                   ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {

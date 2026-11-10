@@ -1,6 +1,14 @@
 /**
- * PINGUIN NEXT — HTML source recognition, independent of browser.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — HTML SOURCE RECOGNITION, INDEPENDENT OF BROWSER.                                     ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Реалізація paste із самостійним контрактом.                                            ║
+ * ║ ЗАЛЕЖНОСТІ: node:test, node:assert/strict, ./paste.js                                               ║
+ * ║ ПУБЛІЧНИЙ API: Набір тестів Node.js.                                                                ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { getPastedHtmlSource } from './paste.js';

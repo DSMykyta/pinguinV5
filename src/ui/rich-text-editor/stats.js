@@ -1,7 +1,14 @@
 /**
- * PINGUIN NEXT — RICH TEXT STATISTICS
- * Pure model + optional status projection; unrelated to toolbar or mirror.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — RICH TEXT STATISTICS                                                                 ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Pure model + optional status projection; unrelated to toolbar or mirror.               ║
+ * ║ ЗАЛЕЖНОСТІ: Стандартні API платформи; зовнішніх імпортів немає.                                     ║
+ * ║ ПУБЛІЧНИЙ API: getEditorTextStats(), mountEditorStats()                                             ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 export function getEditorTextStats(text) {
   const input = String(text ?? '');
   const wordCount = typeof Intl.Segmenter === 'function'

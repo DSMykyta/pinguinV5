@@ -1,4 +1,15 @@
-/* Native select: the outline and floating notch come from shared field.css. */
+/*
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SELECT                                                                               ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Native select: the outline and floating notch come from shared field.css.              ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-select, .pg-select__control, .pg-select__caret, .pg-select__field,               ║
+ * ║ .pg-select__support                                                                                 ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 .pg-select { display: grid; gap: 6px; min-inline-size: 0; }
 .pg-select__control { appearance: none; cursor: pointer; }
 .pg-select__control:disabled { cursor: not-allowed; }

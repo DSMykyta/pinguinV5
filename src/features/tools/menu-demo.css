@@ -1,4 +1,14 @@
-/* Preview layout only. */
+/*
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — MENU DEMO                                                                            ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Preview layout only.                                                                   ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-tools-menu-demo, .pg-tools-menu-demo__row, .pg-tools-menu-demo__status           ║
+ * ║ ПРИНЦИП: Лише приклад; оформлення спільних компонентів не дублюється.                               ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 .pg-tools-menu-demo {max-inline-size:780px;margin-block-start:var(--pg-space-10);}
 .pg-tools-menu-demo h3 {font-size:15px;margin:0 0 5px;}
 .pg-tools-menu-demo>p {color:var(--pg-color-text-secondary);font-size:13px;margin:0 0 16px;}

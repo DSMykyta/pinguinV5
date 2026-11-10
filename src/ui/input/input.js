@@ -1,8 +1,14 @@
 /**
- * PINGUIN NEXT — SHARED INPUT
- * All variants use one permanent-label frame; search only adds an icon.
- * Supports DOM adornments on either side of the editable region.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SHARED INPUT                                                                         ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: All variants use one permanent-label frame; search only adds an icon.                  ║
+ * ║ ЗАЛЕЖНОСТІ: ../icon/icon.js, ../field/field.js                                                      ║
+ * ║ ПУБЛІЧНИЙ API: createInput()                                                                        ║
+ * ║ ПРИНЦИП: Supports DOM adornments on either side of the editable region.                             ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { createIcon } from '../icon/icon.js';
 import { createFieldFrame } from '../field/field.js';
 

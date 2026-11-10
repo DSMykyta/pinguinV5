@@ -1,8 +1,16 @@
 /*
- * Selection controls use the existing RevealPanel entrance/exit only.
- * Absolute placement to the LEFT of the view switch reserves no flex width:
- * the switch, search and aside trigger never move on selection changes.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SELECTION ACTIONS                                                                    ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Selection controls use the existing RevealPanel entrance/exit only.                    ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-selection-actions, .pg-selection-actions__count, .pg-selection-actions__group,   ║
+ * ║ .pg-selection-actions__action                                                                       ║
+ * ║ ПРИНЦИП: Absolute placement to the LEFT of the view switch reserves no flex width: the switch,      ║
+ * ║ search and aside trigger never move on selection changes.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 .pg-selection-actions {
   position: absolute;
   inset-block-start: 0;

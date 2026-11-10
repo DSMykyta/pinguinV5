@@ -1,8 +1,14 @@
 /*
- * PINGUIN NEXT — persistent lower-right FAB / legacy-style speed dial.
- * Exactly the same corner button geometry and right inset as the top-right
- * shell context control. It is never a child of the hidden/inert aside panel.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — PERSISTENT LOWER-RIGHT FAB / LEGACY-STYLE SPEED DIAL.                                ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Exactly the same corner button geometry and right inset as the top-right               ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-fab, .pg-fab__trigger, .pg-fab__face, .pg-icon, .pg-fab__actions                 ║
+ * ║ ПРИНЦИП: shell context control. It is never a child of the hidden/inert aside panel.                ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 .pg-fab {
   position: fixed;
   right: 12px;

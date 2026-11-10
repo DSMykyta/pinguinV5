@@ -1,9 +1,16 @@
 /**
- * Google Material Symbols Rounded · 24px · locally embedded SVG paths.
- * Source: https://github.com/google/material-design-icons/tree/master/symbols/web
- * License: Apache-2.0 (https://github.com/google/material-design-icons/blob/master/LICENSE)
- * No runtime font download or external network requests.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — MATERIAL SYMBOLS                                                                     ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Google Material Symbols Rounded · 24px · locally embedded SVG paths.                   ║
+ * ║ ЗАЛЕЖНОСТІ: Стандартні API платформи; зовнішніх імпортів немає.                                     ║
+ * ║ ПУБЛІЧНИЙ API: MATERIAL_SYMBOLS()                                                                   ║
+ * ║ ПРИНЦИП: Source: https://github.com/google/material-design-icons/tree/master/symbols/web License:   ║
+ * ║ Apache-2.0 (https://github.com/google/material-design-icons/blob/master/LICENSE) No runtime font    ║
+ * ║ download or external network requests.                                                              ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 export const MATERIAL_SYMBOLS = Object.freeze({
   "house": "<path d=\"M240-200h120v-200q0-17 11.5-28.5T400-440h160q17 0 28.5 11.5T600-400v200h120v-360L480-740 240-560v360Zm-80 0v-360q0-19 8.5-36t23.5-28l240-180q21-16 48-16t48 16l240 180q15 11 23.5 28t8.5 36v360q0 33-23.5 56.5T720-120H560q-17 0-28.5-11.5T520-160v-200h-80v200q0 17-11.5 28.5T400-120H240q-33 0-56.5-23.5T160-200Zm320-270Z\"/>", // home
   "panel-left": "<path d=\"M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm440-80h120v-560H640v560Zm-80 0v-560H200v560h360Zm80 0h120-120Z\"/>", // dock_to_left

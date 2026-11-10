@@ -1,8 +1,14 @@
 /**
- * PINGUIN NEXT — EDITOR / HTML MODE SWITCH
- * Optional presentation adapter. Receives mode controls; never imports the engine,
- * toolbar, HTML parser or any feature. No global event handlers.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — EDITOR / HTML MODE SWITCH                                                            ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Optional presentation adapter. Receives mode controls; never imports the engine,       ║
+ * ║ ЗАЛЕЖНОСТІ: Стандартні API платформи; зовнішніх імпортів немає.                                     ║
+ * ║ ПУБЛІЧНИЙ API: mountEditorModeSwitch()                                                              ║
+ * ║ ПРИНЦИП: toolbar, HTML parser or any feature. No global event handlers.                             ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 export function mountEditorModeSwitch({ host, controls, editorId, sourceId }) {
   const element = document.createElement('div');
   element.className = 'pg-rich-text-editor__mode-switch';

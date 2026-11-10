@@ -1,9 +1,16 @@
 /**
- * PINGUIN NEXT — SHARED DATA COLLECTION
- * One dataset, sortable native table, optional tiles, circular row selection,
- * one legacy-inspired pagination service and existing Menu actions.
- * Data fetching, persistence and business actions belong to the caller.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SHARED DATA COLLECTION                                                               ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: One dataset, sortable native table, optional tiles, circular row selection,            ║
+ * ║ ЗАЛЕЖНОСТІ: ../view-switch/view-switch.js, ../checkbox/checkbox.js, ../menu/menu.js,                ║
+ * ║ ../button/button.js, ../icon/icon.js                                                                ║
+ * ║ ПУБЛІЧНИЙ API: createCollectionView()                                                               ║
+ * ║ ПРИНЦИП: one legacy-inspired pagination service and existing Menu actions. Data fetching,           ║
+ * ║ persistence and business actions belong to the caller.                                              ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { createViewSwitch } from '../view-switch/view-switch.js';
 import { createCheckbox } from '../checkbox/checkbox.js';
 import { createMenu } from '../menu/menu.js';

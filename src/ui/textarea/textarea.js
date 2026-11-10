@@ -1,7 +1,14 @@
 /**
- * PINGUIN NEXT — TEXTAREA
- * Native multiline editing, independent autogrow, shared outlined label.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — TEXTAREA                                                                             ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Native multiline editing, independent autogrow, shared outlined label.                 ║
+ * ║ ЗАЛЕЖНОСТІ: ../field/field.js, ../field/support.js                                                  ║
+ * ║ ПУБЛІЧНИЙ API: createTextarea()                                                                     ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { createFieldFrame } from '../field/field.js';
 import { createFieldSupport } from '../field/support.js';
 

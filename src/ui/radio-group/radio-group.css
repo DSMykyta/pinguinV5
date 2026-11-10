@@ -1,4 +1,15 @@
-/* Native fieldset avoids custom roving-tabindex and duplicate ARIA roles. */
+/*
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — RADIO GROUP                                                                          ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Native fieldset avoids custom roving-tabindex and duplicate ARIA roles.                ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-radio-group, .pg-radio-group__legend, .pg-radio-group__list,                     ║
+ * ║ .pg-radio-group__row, .pg-radio-group__control                                                      ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 .pg-radio-group {
   display: grid; gap: 10px; min-inline-size: 0; margin: 0; padding: 0;
   border: 0; color: var(--pg-color-text-primary);

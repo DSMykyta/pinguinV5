@@ -1,4 +1,14 @@
-/* Pinguin Input adds only variant-specific geometry on shared field.css. */
+/*
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — INPUT                                                                                ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Pinguin Input adds only variant-specific geometry on shared field.css.                 ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-input, .pg-input__label, .pg-input__leading-icon, .pg-icon, .pg-input--search    ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 .pg-input { display: grid; gap: 6px; inline-size: 100%; min-inline-size: 0; }
 .pg-input__label { color: var(--pg-color-text-secondary); }
 .pg-input__leading-icon {

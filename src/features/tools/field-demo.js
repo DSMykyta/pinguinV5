@@ -1,8 +1,15 @@
 /**
- * PINGUIN NEXT — SHARED FIELD GALLERY (TOOLS ONLY)
- * Real independent controls with the same outlined floating label.
- * No feature data, persistence or Shell changes.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SHARED FIELD GALLERY (TOOLS ONLY)                                                    ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Real independent controls with the same outlined floating label.                       ║
+ * ║ ЗАЛЕЖНОСТІ: ../../ui/input/input, ../../ui/select/select, ../../ui/combobox/combobox,               ║
+ * ║ ../../ui/tag-field/tag-field                                                                        ║
+ * ║ ПУБЛІЧНИЙ API: createFieldDemo()                                                                    ║
+ * ║ ПРИНЦИП: No feature data, persistence or Shell changes.                                             ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { createInput } from '../../ui/input/input.js';
 import { createSelect } from '../../ui/select/select.js';
 import { createCombobox } from '../../ui/combobox/combobox.js';

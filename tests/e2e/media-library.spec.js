@@ -1,7 +1,14 @@
 /**
- * PINGUIN NEXT — second independent CollectionView and image cells.
- * Tests data isolation, pagination, selection, FAB and tile actions across tabs.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — E2E MEDIA LIBRARY                                                                    ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: E2E: перевіряє media library у браузері через Playwright.                              ║
+ * ║ ЗАЛЕЖНОСТІ: @playwright/test                                                                        ║
+ * ║ ПУБЛІЧНИЙ API: npx playwright test tests/e2e/media-library.spec.js.                                 ║
+ * ║ ПРИНЦИП: Перевіряє спостережувану поведінку; production-компоненти не змінюються.                   ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { test, expect } from '@playwright/test';
 
 const tab = (page, name) => page.getByRole('tab', { name, exact: true });

@@ -1,7 +1,14 @@
 /**
- * Scroll only the option collection/popup, never the page or its ancestors.
- * scrollIntoView() can scroll unrelated ancestors and dismiss a popover.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — ENSURE OPTION VISIBLE                                                                ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Scroll only the option collection/popup, never the page or its ancestors.              ║
+ * ║ ЗАЛЕЖНОСТІ: Стандартні API платформи; зовнішніх імпортів немає.                                     ║
+ * ║ ПУБЛІЧНИЙ API: ensureOptionVisible()                                                                ║
+ * ║ ПРИНЦИП: scrollIntoView() can scroll unrelated ancestors and dismiss a popover.                     ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 export function ensureOptionVisible(popup, option) {
   if (!(popup instanceof HTMLElement) || !(option instanceof HTMLElement) ||
       !popup.contains(option)) return;

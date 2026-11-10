@@ -1,8 +1,16 @@
 /**
- * PINGUIN NEXT — MEDIA LIBRARY DEMO
- * Second independent collection for testing tabs, selection and pagination.
- * Lightweight self-contained SVG thumbnails; no remote assets or backend.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — MEDIA LIBRARY DEMO                                                                   ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Second independent collection for testing tabs, selection and pagination.              ║
+ * ║ ЗАЛЕЖНОСТІ: ../../ui/collection-view/collection-view.js, ../../ui/input/input.js,                   ║
+ * ║ ../../ui/select/select.js, ../../ui/dialog/dialog.js,                                               ║
+ * ║ ../../ui/selection-actions/selection-actions.js                                                     ║
+ * ║ ПУБЛІЧНИЙ API: createMediaLibraryDemo()                                                             ║
+ * ║ ПРИНЦИП: Lightweight self-contained SVG thumbnails; no remote assets or backend.                    ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { createCollectionView } from '../../ui/collection-view/collection-view.js';
 import { createInput } from '../../ui/input/input.js';
 import { createSelect } from '../../ui/select/select.js';

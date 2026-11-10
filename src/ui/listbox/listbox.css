@@ -1,4 +1,15 @@
-/* Multi-select listbox. Field outline/label come from shared field. */
+/*
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — LISTBOX                                                                              ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Multi-select listbox. Field outline/label come from shared field.                      ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-listbox, .pg-listbox__trigger, .pg-field__control, .pg-listbox__value,           ║
+ * ║ .pg-listbox__caret                                                                                  ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 .pg-listbox { display:grid; gap:6px; position:relative; min-inline-size:0; align-content:start; align-self:start; }
 .pg-listbox__trigger.pg-field__control {
   display:flex; align-items:center; text-align:start; font:inherit; font-size:14px;

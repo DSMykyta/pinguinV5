@@ -1,4 +1,15 @@
-/* PINGUIN NEXT — RICH TEXT EDITOR. Component-owned, token-only, one work surface. */
+/*
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — RICH TEXT EDITOR. COMPONENT-OWNED, TOKEN-ONLY, ONE WORK SURFACE.                     ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Стилі rich text editor з локальною відповідальністю.                                   ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-rich-text-editor, .pg-rich-text-editor__main, .pg-rich-text-editor__header,      ║
+ * ║ .pg-rich-text-editor__tools-host, .pg-rich-text-editor__mode-host                                   ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
 .pg-rich-text-editor { min-inline-size: 0; color: var(--pg-color-text-primary); }
 .pg-rich-text-editor__main {
   min-inline-size: 0; overflow: hidden; border: 1px solid var(--pg-color-border-strong);

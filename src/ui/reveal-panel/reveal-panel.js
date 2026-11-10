@@ -1,11 +1,17 @@
 /**
- * PINGUIN NEXT — REVEAL PANEL
- * Purpose: a reusable, interruptible entrance/exit for contextual UI surfaces.
- * Dependencies: HTMLElement, CSS transitions, semantic motion tokens.
- * Public API: createRevealPanel({element, direction, focusTarget, initialVisible})
- *   -> {element, setVisible, getState, destroy}.
- * The caller owns the panel's content; this module knows no tabs, Search, or Toast.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — REVEAL PANEL                                                                         ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Purpose: a reusable, interruptible entrance/exit for contextual UI surfaces.           ║
+ * ║ ЗАЛЕЖНОСТІ: Стандартні API платформи; зовнішніх імпортів немає.                                     ║
+ * ║ ПУБЛІЧНИЙ API: createRevealPanel()                                                                  ║
+ * ║ ПРИНЦИП: Dependencies: HTMLElement, CSS transitions, semantic motion tokens. Public API:            ║
+ * ║ createRevealPanel({element, direction, focusTarget, initialVisible}) -> {element, setVisible,       ║
+ * ║ getState, destroy}. The caller owns the panel's content; this module knows no tabs, Search, or      ║
+ * ║ Toast.                                                                                              ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 export function createRevealPanel({
   element, direction = 'top', focusTarget = null, initialVisible = false,
 } = {}) {

@@ -1,8 +1,14 @@
 /**
- * PINGUIN NEXT — TAG FIELD
- * Owns a collection of short text values, independently of feature data.
- * Public API: createTagField(options).
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — TAG FIELD                                                                            ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Owns a collection of short text values, independently of feature data.                 ║
+ * ║ ЗАЛЕЖНОСТІ: ../field/field.js                                                                       ║
+ * ║ ПУБЛІЧНИЙ API: createTagField()                                                                     ║
+ * ║ ПРИНЦИП: Public API: createTagField(options).                                                       ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { createFieldFrame } from '../field/field.js';
 let nextTagFieldId = 0;
 const normalize = value => String(value ?? '').trim().replace(/\s+/gu, ' ');

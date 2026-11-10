@@ -1,8 +1,14 @@
 /**
- * PINGUIN NEXT — RICH TEXT PASTE
- * One optional input behavior: clipboard HTML, HTML source copied as text,
- * and ordinary text all use the existing safe DOM parser. No global listeners.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — RICH TEXT PASTE                                                                      ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: One optional input behavior: clipboard HTML, HTML source copied as text,               ║
+ * ║ ЗАЛЕЖНОСТІ: ./html.js, ./commands.js                                                                ║
+ * ║ ПУБЛІЧНИЙ API: getPastedHtmlSource(), mountEditorPaste()                                            ║
+ * ║ ПРИНЦИП: and ordinary text all use the existing safe DOM parser. No global listeners.               ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 import { parseSafeHtml } from './html.js';
 import { getEditorSelection } from './commands.js';
 

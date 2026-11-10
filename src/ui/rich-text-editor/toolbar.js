@@ -1,7 +1,14 @@
 /**
- * PINGUIN NEXT — RICH TEXT TOOLBAR
- * Optional adapter; receives commands, never imports sibling views or Shell.
+ * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — RICH TEXT TOOLBAR                                                                    ║
+ * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Optional adapter; receives commands, never imports sibling views or Shell.             ║
+ * ║ ЗАЛЕЖНОСТІ: Стандартні API платформи; зовнішніх імпортів немає.                                     ║
+ * ║ ПУБЛІЧНИЙ API: mountEditorToolbar()                                                                 ║
+ * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
+ * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
+
 const ITEMS = [
   { id: 'bold', label: 'Жирний — Ctrl+B', text: 'B', kind: 'mark' },
   { id: 'italic', label: 'Курсив — Ctrl+I', text: 'I', kind: 'mark' },
