@@ -34,6 +34,9 @@ export function createCheckbox({
   input.value = String(value);
   if (name !== undefined) input.name = String(name);
 
+  // Shared 32px hit surface for every checkbox, regardless of the label text.
+  const hit = document.createElement('span');
+  hit.className = 'pg-checkbox__hit';
   const box = document.createElement('span');
   box.className = 'pg-checkbox__box';
   box.setAttribute('aria-hidden', 'true');
@@ -56,7 +59,8 @@ export function createCheckbox({
     input.setAttribute('aria-describedby', detail.id);
     copy.append(detail);
   }
-  row.append(input, box, copy);
+  hit.append(input, box);
+  row.append(hit, copy);
   element.append(row);
   const problem = document.createElement('span');
   problem.className = 'pg-checkbox__error';
