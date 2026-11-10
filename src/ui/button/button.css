@@ -447,6 +447,15 @@
   outline: 0;
 }
 .pg-button--list-item:disabled { opacity: .45; }
+.pg-button--list-item[role='menuitemcheckbox'] > .pg-icon {
+  inline-size: 16px; block-size: 16px;
+  flex: 0 0 16px; margin-inline-start: 8px;
+  color: var(--pg-color-accent); visibility: hidden;
+}
+.pg-button--list-item[role='menuitemcheckbox'][aria-checked='true'] > .pg-icon {
+  visibility: visible;
+}
+
 
 /* Compact actions inside selection chips keep their native button semantics. */
 /*

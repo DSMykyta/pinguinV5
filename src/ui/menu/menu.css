@@ -20,14 +20,6 @@
 .pg-menu[data-pg-align='end'] .pg-menu__panel {inset-inline-start:auto;inset-inline-end:0;}
 .pg-menu__panel[hidden] {display:none;}
 .pg-menu__panel:popover-open {inset:auto;margin:0;}
-.pg-menu__item[role='menuitemcheckbox'] > .pg-icon {
-  inline-size: 16px; block-size: 16px;
-  flex: 0 0 16px; margin-inline-start: 8px;
-  color: var(--pg-color-accent); visibility: hidden;
-}
-.pg-menu__item[role='menuitemcheckbox'][aria-checked='true'] > .pg-icon {
-  visibility: visible;
-}
 
 /* Menus size to the longest item; no horizontal scrollbar for action labels. */
 .pg-menu__panel { overflow-x:hidden; overflow-y:auto; }
