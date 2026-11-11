@@ -73,6 +73,17 @@ async function drag(page, distance) {
   await page.mouse.up();
 }
 
+test('section progress counter is absent globally while navigation remains usable', async ({ page }) => {
+  await mountFixture(page);
+  const navigator = page.locator('.pg-section-navigator');
+  await expect(navigator.locator('.pg-section-navigator__counter')).toHaveCount(0);
+  await expect(navigator.locator('.pg-section-navigator__title')).toHaveText('Основне');
+  await expect(navigator.locator('.pg-section-navigator__handle')).toHaveCount(2);
+  await page.getByRole('button', { name: 'Перейти до розділу «Фото»', exact: true }).click();
+  await expect(navigator.locator('.pg-section-navigator__title')).toHaveText('Фото');
+  await expect(navigator.locator('.pg-section-navigator__counter')).toHaveCount(0);
+});
+
 test('buttons and native keyboard preserve field DOM, values, scroll and focus', async ({ page }) => {
   await mountFixture(page);
   await page.getByRole('textbox', { name: 'Значення' }).fill('Мій товар');
