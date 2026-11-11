@@ -319,18 +319,11 @@ export function mountToasts() {
     const newlyVisible = [];
     while (visible.size < MAX_VISIBLE_TOASTS && queue.length) {
       const item = queue.shift();
-      const firstMount = !item.element;
-      if (firstMount) {
-        item.element = createToastElement(item);
-        host.prepend(item.element);
-        resizeObserver?.observe(item.element);
-      }
       visible.add(item);
       item.element.dataset.pgPending = 'false';
       item.element.inert = false;
       item.element.setAttribute('aria-hidden', 'false');
       newlyVisible.push(item);
-      if (firstMount) animateEntry(item);
     }
 
     refreshLayout();
@@ -376,20 +369,18 @@ export function mountToasts() {
       element: null, handle: null,
     };
     item.handle = Object.freeze({ dismiss: () => dismissItem(item) });
+
+    // Mount before publishing to the FIFO queue: refreshLayout() accesses
+    // every pending element, including the fourth and subsequent Toasts.
+    item.element = createToastElement(item);
+    item.element.dataset.pgPending = 'true';
+    item.element.inert = !expanded;
+    item.element.setAttribute('aria-hidden', String(!expanded));
+    host.prepend(item.element);
+    resizeObserver?.observe(item.element);
     queue.push(item);
     showWaiting();
-    if (queue.includes(item)) {
-      // A queued item is already part of the stack on hover; it does not
-      // consume an active slot or start its countdown until FIFO promotion.
-      item.element = createToastElement(item);
-      item.element.dataset.pgPending = 'true';
-      item.element.inert = !expanded;
-      item.element.setAttribute('aria-hidden', String(!expanded));
-      host.prepend(item.element);
-      resizeObserver?.observe(item.element);
-      refreshLayout();
-      animateEntry(item);
-    }
+    animateEntry(item);
     return item.handle;
   }
 
