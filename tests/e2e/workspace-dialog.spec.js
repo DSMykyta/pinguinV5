@@ -25,7 +25,7 @@ test('editor uses shared Section Navigator and retains the left sidebar as short
   const heading = navigator.locator('.pg-section-navigator__title');
   const nav = modal.locator('.pg-workspace-layout__nav-list');
   await expect(navigator).toHaveCount(1);
-  await expect(navigator).toHaveAttribute('data-pg-scroll-container', 'external');
+  await expect(navigator).toHaveAttribute('data-pg-scroll-container', 'local');
   await expect(heading).toHaveText('Основне');
   await expect(navigator.locator('.pg-section-navigator__handle')).toHaveCount(2);
   await expect(nav.locator('[aria-current="true"]')).toHaveText('Основне');
@@ -95,9 +95,9 @@ test('modal tooltips occupy the browser top layer and background hints cannot ap
 
 test('edge-wheel transitions stay local to the editor workspace', async ({ page }) => {
   const modal = await openEditor(page);
-  const canvas = modal.locator('.pg-workspace-layout__canvas');
   const navigator = modal.locator('.pg-section-navigator');
-  await canvas.evaluate(node => {
+  const viewport = navigator.locator('.pg-section-navigator__viewport');
+  await viewport.evaluate(node => {
     node.scrollTop = node.scrollHeight;
     for (let i = 0; i < 3; i++) {
       node.dispatchEvent(new WheelEvent('wheel', { deltaY: 85, cancelable: true, bubbles: true }));
