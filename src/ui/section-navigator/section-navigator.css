@@ -32,7 +32,7 @@
 .pg-section-navigator__viewport {
   grid-column:1;grid-row:2;
   min-block-size:0;min-inline-size:0;overflow:auto;overscroll-behavior-y:contain;overflow-anchor:none;
-  padding:var(--pg-space-3) var(--pg-section-inset) var(--pg-space-12);
+  padding:var(--pg-space-3) var(--pg-section-inset);
 }
 .pg-section-navigator__panel {min-inline-size:0;overflow-wrap:anywhere;}
 .pg-section-navigator__panel[hidden] {display:none;}
