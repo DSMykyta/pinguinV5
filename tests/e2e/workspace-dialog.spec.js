@@ -14,7 +14,7 @@ async function openEditor(page) {
   await page.goto('/tools');
   await page.getByRole('tab', { name: 'Макети даних' }).click();
   await page.getByRole('button', { name: 'Редагувати: Aero Pulse' }).click();
-  const modal = page.getByRole('dialog', { name: 'Редагування бренду' });
+  const modal = page.getByRole('dialog', { name: 'Редагувати «Aero Pulse»' });
   await expect(modal).toBeVisible();
   return modal;
 }
