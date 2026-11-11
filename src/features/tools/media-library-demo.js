@@ -126,7 +126,7 @@ export function createMediaLibraryDemo() {
     const input=createInput({label:'Назва зображення',value:row.name,required:true});
     try {
       await showFormDialog({
-        title:'Редагування зображення',content:input.element,
+        title:'Редагувати',entityName:row.name,content:input.element,
         confirmText:'Зберегти',cancelText:'Скасувати',
         validate:()=>{
           const valid=Boolean(input.getValue().trim());
