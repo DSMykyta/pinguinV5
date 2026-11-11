@@ -153,11 +153,20 @@
 }
 .pg-dialog--workspace .pg-dialog__body {
   box-sizing: border-box;
-  display: block;
-  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  block-size: 100%;
+  min-block-size: 0;
   max-height: none;
   padding: 28px clamp(20px, 4vw, 48px) 36px;
-  overflow: visible;
+  overflow: hidden;
+}
+/* The content host fills the canvas while SectionNavigator owns the
+ * sole scrollport between its always-visible top and bottom controls. */
+.pg-dialog--workspace .pg-dialog__body > :last-child {
+  flex: 1 1 auto;
+  min-block-size: 0;
+  min-inline-size: 0;
 }
 .pg-dialog--workspace .pg-dialog__body > [hidden] { display: none; }
 .pg-dialog__decision {
