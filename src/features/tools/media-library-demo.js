@@ -13,11 +13,10 @@
 
 import { createCollectionView } from '../../ui/collection-view/collection-view.js';
 import { createInput } from '../../ui/input/input.js';
-import { createSelect } from '../../ui/select/select.js';
 import { showConfirmDialog } from '../../ui/dialog/dialog.js';
 import { showFormDialog } from '../../ui/form-dialog/form-dialog.js';
 import { createSelectionActions } from '../../ui/selection-actions/selection-actions.js';
-import { DEFAULT_PAGE_SIZES } from '../../ui/pagination/pagination.js';
+import { createCollectionPageControls } from './collection-page-controls.js';
 
 const NAMES = Object.freeze([
   'Гірський ранок', 'Тепле узбережжя', 'Лінії міста', 'Зелені пагорби',
@@ -104,16 +103,8 @@ export function createMediaLibraryDemo() {
   let records=EXAMPLES.map(item=>({...item}));
   let copyId=0;
   const element=node('section','root');
-  const controls=node('div','aside-controls');
   const details=node('p','aside-detail','Локальна тестова медіатека.');
   details.setAttribute('role','status');
-  const sortBy=createSelect({
-    label:'Сортувати за',placeholder:null,value:'name',
-    options:COLUMNS.filter(col=>col.sortable!==false).map(col=>({label:col.label,value:col.key})),
-    onChange:key=>collection.setSort(key),
-  });
-  controls.append(sortBy.element,details);
-  const headerActions=node('div','header-actions');
   const selectedActions=createSelectionActions({
     single:[{value:'duplicate',label:'Дублювати'}],
     multiple:[{value:'delete',label:'Видалити',tone:'danger',appearance:'soft'}],
@@ -122,6 +113,14 @@ export function createMediaLibraryDemo() {
       details.textContent='Не вдалося виконати дію.';
     });},
   });
+  const pageControls=createCollectionPageControls({
+    storageKey:'pg:v1:tools-media-library:view',defaultMode:'tiles',
+    columns:COLUMNS,selectedActions,details,
+    searchPlaceholder:'Пошук зображень',
+    searchLabel:'Шукати в медіатеці',
+    allPageLabel:'Усі зображення',pageUnit:'зображень',
+  });
+  const {headerActions,asideControls:controls}=pageControls;
   const rename=async row=>{
     const input=createInput({label:'Назва зображення',value:row.name,required:true});
     try {
@@ -152,8 +151,8 @@ export function createMediaLibraryDemo() {
   const collection=createCollectionView({
     label:'Медіатека',rows:records,columns:COLUMNS,
     getRowId:row=>row.id,renderTile,
-    modes:['tiles','table'],initialMode:'tiles',
-    initialSort:{key:'name',direction:'asc'},
+    modes:['tiles','table'],initialMode:pageControls.initialMode,
+    initialSort:pageControls.initialSort,
     selectable:true,pageSize:10,
     onEditRow:row=>{void rename(row).catch(console.error);},
     rowActions:[
@@ -164,8 +163,9 @@ export function createMediaLibraryDemo() {
       if(action==='details')details.textContent=row.name+' · '+row.format+' · '+row.dimensions;
       else if(action==='duplicate')duplicate(row);
     },
-    onSortChange:state=>sortBy.setValue(state.key),
-    onSelectionChange:(ids,scope)=>selectedActions.setSelection(ids,scope),
+    onSortChange:pageControls.onSortChange,
+    onModeChange:pageControls.onModeChange,
+    onSelectionChange:pageControls.onSelectionChange,
   });
   async function selectedAction(action) {
     const ids=collection.getSelectedIds();
@@ -189,27 +189,17 @@ export function createMediaLibraryDemo() {
       details.textContent='Видалено локально: '+current.size;
     }
   }
-  headerActions.append(collection.headerActions,selectedActions.element);
+  pageControls.bind(collection);
   element.append(collection.element);
   return Object.freeze({
     element,headerActions,footerContent:collection.footerContent,
     getCollection:()=>collection,
     getAsideContext:()=>({title:'Медіатека',controls}),
-    getSearchContext:()=>({
-      placeholder:'Пошук зображень',label:'Шукати в медіатеці',
-      value:collection.getQuery(),onQuery:value=>collection.setQuery(value),
-    }),
-    getPageFabContext:()=>({
-      items:DEFAULT_PAGE_SIZES.map(value=>({
-        value:String(value),symbol:value===0?'∞':String(value),
-        label:value===0?'Усі зображення':value+' зображень',
-        selected:()=>collection.getPagination().pageSize===value,
-      })),
-      onSelect:value=>collection.setPageSize(Number(value)),
-    }),
+    getSearchContext:pageControls.getSearchContext,
+    getPageFabContext:pageControls.getPageFabContext,
     destroy() {
-      selectedActions.destroy();collection.destroy();sortBy.destroy();
-      controls.remove();headerActions.remove();element.remove();
+      selectedActions.destroy();collection.destroy();pageControls.destroy();
+      element.remove();
     },
   });
 }
