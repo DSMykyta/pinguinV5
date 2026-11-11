@@ -125,3 +125,48 @@ test('touch click expands and selects a submenu without hover', async ({ browser
     await context.close();
   }
 });
+
+
+test('hovering a sibling closes a previous submenu without changing root layout', async ({ page }) => {
+  await actions(page).locator('.pg-menu__trigger').click();
+  const before = await rootPanel(page).boundingBox();
+  await plugins(page).hover();
+  await expect(submenu(page)).toBeVisible();
+  await rootPanel(page).getByRole('menuitem', { name: 'Видалити' }).hover();
+  await expect(submenu(page)).toBeHidden();
+  const after = await rootPanel(page).boundingBox();
+  expect(after.width).toBe(before.width);
+  expect(after.height).toBe(before.height);
+  await expect(rootPanel(page)).toBeVisible();
+});
+
+test('disabled submenu trigger never opens and its siblings still work', async ({ page }) => {
+  await page.evaluate(async () => {
+    const { createMenu } = await import('/src/ui/menu/menu.js');
+    const menu = createMenu({
+      label: 'Вимкнені пункти',
+      items: [
+        { label: 'Недоступна група', disabled: true, items: [
+          { label: 'Не відкривати', value: 'blocked' },
+        ] },
+        { label: 'Доступна дія', value: 'allowed' },
+      ],
+      onSelect(value) { document.body.dataset.pgDisabledMenuResult = value; },
+    });
+    const host = document.createElement('div');
+    host.id = 'disabled-submenu-host';
+    host.append(menu.element);
+    document.body.append(host);
+    window.pgDisabledMenu = menu;
+  });
+  const host = page.locator('#disabled-submenu-host');
+  await host.locator('.pg-menu__trigger').click();
+  const disabled = host.getByRole('menuitem', { name: 'Недоступна група' });
+  await expect(disabled).toBeDisabled();
+  await disabled.hover({ force: true });
+  await expect(disabled).toHaveAttribute('aria-expanded', 'false');
+  await expect(host.locator('.pg-menu__subpanel')).toBeHidden();
+  await host.getByRole('menuitem', { name: 'Доступна дія' }).click();
+  await expect(page.locator('body')).toHaveAttribute('data-pg-disabled-menu-result', 'allowed');
+  await page.evaluate(() => window.pgDisabledMenu.destroy());
+});
