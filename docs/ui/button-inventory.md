@@ -11,6 +11,7 @@
 | `pg-fab__trigger`, `pg-fab__face` | Два FAB з `createAsideFab` | Icon/corner + існуюча **одна** FAB композиція | Зберегти pop-out, значення 10/25/... і анімацію |
 | `pg-fab__item` | FAB choices/links | Частина **спільного FAB** | Складений label + symbol, не звичайна кнопка |
 | `pg-menu__trigger` | Menu, колекція, Tools | `pg-button--outline`; у колекції `pg-mini-button` | Назва **структурної ролі**, не окремий skin |
+| `pg-button--nav-item` | Основний Sidebar + меню секцій Workspace | **Винесений існуючий стиль Sidebar**, один власник у `button.css` | Іконка й підпис разом зліва; hover/current і метрики однакові для route `a` та локальної `button`; стан навігації незалежний |
 | `pg-menu__item` | Список Menu | Спільний базовий button; меню володіє list-item layout | role menuitem/menuitemcheckbox, keyboard navigation |
 | `pg-dialog__button` primary/secondary/destructive | Confirm, Dialog, Form Dialog | `pg-button--primary/secondary/destructive` | Busy/confirm/dismiss належать Dialog |
 | `pg-dialog__close` | Dialog header | `createIconButton()` | Тільки розміщення у header |
@@ -36,7 +37,7 @@
 
 ## Чіткі межі
 
-1. **Візуальні сімейства, доступні для перевикористання:** icon (40), mini (32 круглий), corner, text (primary/secondary/outline/destructive/quiet), compact, pill, page, step, tool, list-item, chip-remove/chip-more, plain та square. Варіанти залишаються у **`src/ui/button/button.css`**; новий skin можливий тільки за реальної відмінності загального сценарію, не за назвою feature.
+1. **Візуальні сімейства, доступні для перевикористання:** icon (40), mini (32 круглий), corner, text (primary/secondary/outline/destructive/quiet), compact, pill, page, step, tool, list-item, nav-item, chip-remove/chip-more, plain та square. Варіанти залишаються у **`src/ui/button/button.css`**; новий skin можливий тільки за реальної відмінності загального сценарію, не за назвою feature.
 2. Ролі `pg-menu__trigger`, `pg-dialog__button`, `pg-pagination__button`, `pg-rich-text-editor__action` — не оформлення. Їх залишати для DOM, клавіатури, anchor/focus та локального компонування, **без повторення загального CSS**.
 3. **Справжні відмінності компонентів:** FAB — складена кнопка з відкриванням; Listbox — native-like поле та невеликі дії chip; Tabs/Segment — навігаційні та radio патерни. Тут допустима тільки поведінка й специфічна геометрія композиції, не копія базових hover/focus/disabled.
 4. Під час рев'ю шукати дублікати `border`, `border-radius`, `background`, `color`, `:hover`, `:focus-visible`, `:disabled` у CSS компонентів для звичайного button. Виправляти у спільному `button.css` або через наявний модифікатор, **не додавати ще один**.
