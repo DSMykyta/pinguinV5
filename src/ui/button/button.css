@@ -450,7 +450,7 @@
   cursor: pointer;
   transition: background-color var(--pg-duration-fast) ease;
 }
-.pg-button--nav-item:hover:not(:disabled) { background: var(--pg-color-hover); }
+.pg-button--nav-item:hover:where(:not(:disabled)) { background: var(--pg-color-hover); }
 .pg-button--nav-item:is([aria-current='page'], [aria-current='true']) {
   background: var(--pg-color-selected);
 }
