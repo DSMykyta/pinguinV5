@@ -152,8 +152,20 @@ export function createMenu({ label, id, items = [], align = 'start', disabled = 
         if (event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
         cancelGrace();
         const submenu = node.children.get(button);
-        if (submenu) openChild(node, submenu, false);
-        else if (node.activeChild) closeNode(node.activeChild);
+        if (node.activeChild && node.activeChild !== submenu) {
+          // A diagonal pointer path may briefly cross the next row while
+          // travelling into an open submenu. Delay sibling switching, not
+          // initial opening, and cancel when the pointer reaches the panel.
+          const previous = node.activeChild;
+          graceTimer = setTimeout(() => {
+            graceTimer = null;
+            if (!button.matches(':hover') || node.activeChild !== previous) return;
+            closeNode(previous);
+            if (submenu) openChild(node, submenu, false);
+          }, HOVER_GRACE);
+        } else if (submenu) {
+          openChild(node, submenu, false);
+        }
       }, { signal });
       if (entry.items) {
         button.addEventListener('pointerleave', event => {
@@ -315,7 +327,9 @@ export function createMenu({ label, id, items = [], align = 'start', disabled = 
   }, { signal });
   window.addEventListener('resize', position, { signal });
   const scrollDismiss = dismissOnOutsideScroll({
-    popup: root.panel, isOpen: () => openState, dismiss: () => close(), signal,
+    popup: root.panel, isOpen: () => openState, dismiss: () => close(),
+    containsTarget: target => allNodes.some(node => node.open && node.panel.contains(target)),
+    signal,
   });
 
   return Object.freeze({
