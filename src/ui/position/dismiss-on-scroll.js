@@ -11,7 +11,7 @@
  * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
-export function dismissOnOutsideScroll({ popup, isOpen, dismiss, signal }) {
+export function dismissOnOutsideScroll({ popup, isOpen, dismiss, containsTarget, signal }) {
   if (!(popup instanceof HTMLElement) || typeof isOpen !== 'function' ||
       typeof dismiss !== 'function') {
     throw new TypeError('Outside-scroll dismissal needs a popup and callbacks');
@@ -41,7 +41,7 @@ export function dismissOnOutsideScroll({ popup, isOpen, dismiss, signal }) {
   function onScroll(event) {
     if (!armed || !isOpen()) return;
     const target = event.target;
-    if (target instanceof Node && popup.contains(target)) return;
+    if (target instanceof Node && (popup.contains(target) || containsTarget?.(target))) return;
     dismiss();
   }
 
