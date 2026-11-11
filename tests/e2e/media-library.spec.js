@@ -132,7 +132,7 @@ test('tile checkbox, action menu, caption and image opening stay independent', a
 
   await hitArea.click();
   await expect(page.getByRole('dialog')).toBeVisible();
-  await expect(page.getByRole('dialog')).toContainText('Редагування зображення');
+  await expect(page.getByRole('dialog')).toContainText('Редагувати «');
   await page.getByRole('button', { name: 'Скасувати' }).click();
   await expect(media(page)).toHaveAttribute('data-pg-selected-count', '1');
 });
