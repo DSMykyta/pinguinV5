@@ -29,3 +29,16 @@
     white-space:normal;overflow-wrap:anywhere;
   }
 }
+
+/* Shared menu hierarchy: submenu panels reuse exactly the root panel skin and
+ * the shared popup positioning. Only hierarchy geometry belongs here. */
+.pg-menu__subpanel { z-index: 71; }
+.pg-menu__item[aria-haspopup='menu'] { display: flex; align-items: center; gap: 8px; }
+.pg-menu__sub-arrow {
+  flex: 0 0 16px; inline-size: 16px; block-size: 16px;
+  margin-inline-start: auto; color: var(--pg-color-text-muted);
+  transform: rotate(-90deg); pointer-events: none;
+}
+.pg-menu__item[data-pg-side='left'] > .pg-menu__sub-arrow {
+  transform: rotate(90deg);
+}
