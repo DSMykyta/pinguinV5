@@ -17,6 +17,7 @@ import { DEFAULT_PAGE_SIZES } from '../../ui/pagination/pagination.js';
 export function createCollectionPageControls({
   storageKey, defaultMode, columns, selectedActions, details,
   searchPlaceholder, searchLabel, allPageLabel, pageUnit,
+  initialSort = { key: 'name', direction: 'asc' },
 } = {}) {
   if (typeof storageKey !== 'string' || !['table', 'tiles'].includes(defaultMode) ||
     !Array.isArray(columns) || !columns.length ||
@@ -26,6 +27,11 @@ export function createCollectionPageControls({
       typeof value !== 'string' || !value.trim())) {
     throw new TypeError('Collection page controls require a mode, columns, selection and labels');
   }
+  const sortable = columns.filter(column => column.sortable !== false);
+  if (!initialSort || !sortable.some(column => column.key === initialSort.key) ||
+    !['asc', 'desc'].includes(initialSort.direction)) {
+    throw new TypeError('Collection page controls require a sortable initial column');
+  }
   let storage = null;
   try { storage = window.localStorage; } catch { /* Private browsing stays functional. */ }
   const preference = createStoredChoice({
@@ -34,15 +40,15 @@ export function createCollectionPageControls({
 
   let collection = null;
   const sortBy = createSelect({
-    label: 'Сортувати за', placeholder: null, value: 'name',
-    options: columns.filter(column => column.sortable !== false)
-      .map(column => ({ label: column.label, value: column.key })),
+    label: 'Сортувати за', placeholder: null, value: initialSort.key,
+    options: sortable.map(column => ({ label: column.label, value: column.key })),
     onChange: key => collection?.setSort(key, direction.getValue()),
   });
   const direction = createSegmentSwitch({
     label: 'Напрямок сортування', variant: 'outline', compact: true,
     options: [{ value: 'asc', label: 'А–Я' }, { value: 'desc', label: 'Я–А' }],
-    value: 'asc', onChange: value => collection?.setSort(sortBy.getValue(), value),
+    value: initialSort.direction,
+    onChange: value => collection?.setSort(sortBy.getValue(), value),
   });
 
   const headerActions = document.createElement('div');
@@ -59,7 +65,7 @@ export function createCollectionPageControls({
 
   return Object.freeze({
     initialMode: preference.getValue(),
-    initialSort: { key: 'name', direction: 'asc' },
+    initialSort: { ...initialSort },
     headerActions, asideControls,
     bind(instance) {
       if (collection) throw new Error('Collection page controls already bound');
