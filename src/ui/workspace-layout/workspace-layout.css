@@ -56,14 +56,7 @@
   display: flex; flex-direction: column; gap: 2px;
   flex: 1 1 auto; min-width: 0; min-height: 0; overflow-x: hidden; overflow-y: auto;
 }
-.pg-workspace-layout__nav-item {
-  display: flex; flex: 0 0 auto; min-height: 40px;
-  padding: 0 11px; gap: 12px; white-space: nowrap;
-}
-.pg-workspace-layout__nav-item .pg-icon { flex: 0 0 18px; inline-size: 18px; block-size: 18px; }
-.pg-workspace-layout__nav-item[aria-current='true'] {
-  background: var(--pg-color-selected);
-}
+/* Item appearance belongs to the shared pg-button--nav-item. */
 .pg-workspace-layout__nav-label {
   overflow: hidden; text-overflow: ellipsis;
   transition: opacity var(--pg-duration-fast) ease;
@@ -75,7 +68,7 @@
   opacity: 0; width: 0; pointer-events: none;
 }
 .pg-workspace-layout__canvas {
-  grid-area: canvas; min-width: 0; min-height: 0; overflow: auto;
+  grid-area: canvas; min-width: 0; min-height: 0; overflow: hidden;
   background: var(--pg-color-surface);
   border-radius: 18px 18px 0 0; overscroll-behavior: contain;
 }
