@@ -63,6 +63,5 @@
 .pg-tools-data-views__edit-content { min-width: 0; }
 .pg-tools-data-views__edit-section {
   display: grid; gap: 20px; min-width: 0;
-  max-width: 660px;
 }
 .pg-tools-data-views__edit-section[hidden] { display: none; }
