@@ -13,16 +13,15 @@
 .pg-section-navigator {
   display:grid;
   grid-template-columns:minmax(0,1fr) var(--pg-sidebar-compact-width);
-  grid-template-rows:auto minmax(0,1fr);
-  --pg-section-inset:var(--pg-space-4);
+  grid-template-rows:var(--pg-sidebar-compact-width) minmax(0,1fr);
   inline-size:100%;block-size:100%;min-inline-size:0;min-block-size:0;
   color:var(--pg-color-text-primary);
 }
 .pg-section-navigator__header {
-  grid-column:1;grid-row:1;
+  grid-column:1 / -1;grid-row:1;
   display:flex;align-items:center;justify-content:space-between;gap:var(--pg-space-3);
-  min-inline-size:0;
-  padding:var(--pg-space-4) var(--pg-section-inset) var(--pg-space-2);
+  min-inline-size:0;min-block-size:0;
+  padding:0 var(--pg-sidebar-compact-width) 0 0;
 }
 .pg-section-navigator__title {min-inline-size:0;margin:0;font-size:16px;font-weight:600;overflow-wrap:anywhere;}
 .pg-section-navigator__counter {color:var(--pg-color-text-muted);font-size:12px;font-variant-numeric:tabular-nums;}
@@ -30,9 +29,9 @@
   outline:2px solid var(--pg-color-focus);outline-offset:-2px;
 }
 .pg-section-navigator__viewport {
-  grid-column:1;grid-row:2;
+  grid-column:1 / -1;grid-row:2;
   min-block-size:0;min-inline-size:0;overflow:auto;overscroll-behavior-y:contain;overflow-anchor:none;
-  padding:var(--pg-space-3) var(--pg-section-inset);
+  padding:0;
 }
 .pg-section-navigator__panel {min-inline-size:0;overflow-wrap:anywhere;}
 .pg-section-navigator__panel[hidden] {display:none;}
@@ -42,13 +41,13 @@
   grid-column:2;
   z-index:5;display:flex;align-items:center;justify-content:flex-end;
   min-inline-size:0;pointer-events:none;
-  padding-inline-end:var(--pg-section-inset);
+  padding:0;
 }
 .pg-section-navigator__rail[data-pg-placement='top'] {
   grid-row:1;align-self:center;
 }
 .pg-section-navigator__rail[data-pg-placement='bottom'] {
-  grid-row:2;align-self:end;position:sticky;bottom:var(--pg-space-2);
+  grid-row:2;align-self:end;position:sticky;bottom:0;
 }
 .pg-section-navigator__handle {
   display:inline-flex;align-items:center;justify-content:flex-end;gap:8px;
@@ -87,7 +86,7 @@
 .pg-section-navigator[data-pg-scroll-container='external'] {
   /* Keep one native parent scrollport. The bottom arrow stays sticky in
    * the right-hand slot; a short section still fills its workspace. */
-  grid-template-rows:auto minmax(min-content,1fr);
+  grid-template-rows:var(--pg-sidebar-compact-width) minmax(min-content,1fr);
   block-size:auto;
   min-block-size:100%;
 }
