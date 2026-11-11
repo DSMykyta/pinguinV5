@@ -11,14 +11,12 @@
  */
 
 import { createCollectionView } from '../../ui/collection-view/collection-view.js';
-import { createStoredChoice } from '../../core/preferences.js';
 import { createSelect } from '../../ui/select/select.js';
+import { createCollectionPageControls } from './collection-page-controls.js';
 import { createInput } from '../../ui/input/input.js';
 import { showConfirmDialog } from '../../ui/dialog/dialog.js';
 import { showFormDialog } from '../../ui/form-dialog/form-dialog.js';
 import { createSelectionActions } from '../../ui/selection-actions/selection-actions.js';
-import { createSegmentSwitch } from '../../ui/segment-switch/segment-switch.js';
-import { DEFAULT_PAGE_SIZES } from '../../ui/pagination/pagination.js';
 
 const BRAND_NAMES = [
   'Pinguin', 'Nimbus', 'Kraken', 'Aurora', 'Vento', 'Solstice',
@@ -102,29 +100,11 @@ const COLUMNS = Object.freeze([
 ]);
 
 export function createDataViewsDemo() {
-  let storage = null;
-  try { storage = window.localStorage; } catch { /* Storage is optional. */ }
-  const preference=createStoredChoice({
-    storage,key:'pg:v1:tools-data-views:view',
-    choices:['table','tiles'],defaultValue:'table',
-  });
   const element=node('section','root');
   let records=EXAMPLE_BRANDS.map(item=>({...item}));
   let nextCopy=0;
-  const controls=node('div','aside-controls');
-  const sortBy=createSelect({
-    label:'Сортувати за',placeholder:null,value:'name',
-    options:COLUMNS.map(col=>({label:col.label,value:col.key})),
-    onChange:key=>collection.setSort(key,direction.getValue()),
-  });
-  const direction=createSegmentSwitch({
-    label:'Напрямок сортування',variant:'outline',compact:true,
-    options:[{value:'asc',label:'А–Я'},{value:'desc',label:'Я–А'}],
-    value:'asc',onChange:value=>collection.setSort(sortBy.getValue(),value),
-  });
   const details=node('div','aside-detail','Оберіть дію біля запису.');
   details.setAttribute('role','status');
-  controls.append(sortBy.element,direction.element,details);
 
   // The shared header strip observes collection selection; this demo alone
   // defines which actions are relevant and what they do to sample records.
@@ -142,8 +122,14 @@ export function createDataViewsDemo() {
       });
     },
   });
-  const headerActions=document.createElement('div');
-  headerActions.className='pg-tools-data-views__header-actions';
+  const pageControls=createCollectionPageControls({
+    storageKey:'pg:v1:tools-data-views:view',defaultMode:'table',
+    columns:COLUMNS,selectedActions,details,
+    searchPlaceholder:'Пошук у таблиці',
+    searchLabel:'Шукати у таблиці брендів',
+    allPageLabel:'Усі записи',pageUnit:'записів',
+  });
+  const {headerActions,asideControls:controls}=pageControls;
   async function editRecord(row) {
     // Local data remains the feature's responsibility. Shared Dialog owns all
     // corners, navigation, modal lifecycle, dirty checks and async action states.
@@ -247,8 +233,8 @@ export function createDataViewsDemo() {
   const collection=createCollectionView({
     label:'Приклад списку брендів',rows:records,columns:COLUMNS,
     getRowId:row=>row.id,renderTile,modes:['tiles','table'],
-    initialMode:preference.getValue(),
-    initialSort:{key:'name',direction:'asc'},
+    initialMode:pageControls.initialMode,
+    initialSort:pageControls.initialSort,
     selectable:true,pageSize:25,
     onEditRow:row=>{ void editRecord(row).catch(error=>console.error('Brand edit failed:',error)); },
     rowActions:[
@@ -256,11 +242,9 @@ export function createDataViewsDemo() {
       {value:'duplicate',label:'Дублювати'},
       {value:'archive',label:'Архівувати або відновити'},
     ],
-    onModeChange:mode=>preference.setValue(mode),
-    onSortChange:sort=>{
-      sortBy.setValue(sort.key);direction.setValue(sort.direction);
-    },
-    onSelectionChange:(ids,scope)=>selectedActions.setSelection(ids,scope),
+    onModeChange:pageControls.onModeChange,
+    onSortChange:pageControls.onSortChange,
+    onSelectionChange:pageControls.onSelectionChange,
     onRowAction:(action,row)=>{
       if(action==='details') {
         details.textContent=row.name+' · '+row.category+' · '+row.products+' товарів · '+row.status;
@@ -274,8 +258,8 @@ export function createDataViewsDemo() {
       }
     },
   });
-  // Reuse the existing view switch and the single Shell header slot.
-  headerActions.append(collection.headerActions,selectedActions.element);
+  // Both demo collections reuse one Shell-context adapter; their states stay isolated.
+  pageControls.bind(collection);
 
   async function applySelectedAction(action) {
     const ids=collection.getSelectedIds();
@@ -316,23 +300,12 @@ export function createDataViewsDemo() {
     element,headerActions,
     footerContent:collection.footerContent,
     getAsideContext:()=>({ title:'Макети даних', controls }),
-    getPageFabContext:()=>({
-      items:DEFAULT_PAGE_SIZES.map(value=>({
-        value:String(value),
-        label:value===0?'Усі записи':value+' записів',
-        symbol:value===0?'∞':String(value),
-        selected:()=>collection.getPagination().pageSize===value,
-      })),
-      onSelect:value=>collection.setPageSize(Number(value)),
-    }),
-    getSearchContext:()=>({
-      placeholder:'Пошук у таблиці',label:'Шукати у таблиці брендів',
-      value:collection.getQuery(),onQuery:query=>collection.setQuery(query),
-    }),
+    getPageFabContext:pageControls.getPageFabContext,
+    getSearchContext:pageControls.getSearchContext,
     getMode:collection.getMode,getCollection:()=>collection,
     destroy(){
-      selectedActions.destroy();collection.destroy();sortBy.destroy();direction.destroy();
-      headerActions.remove();element.remove();controls.remove();
+      selectedActions.destroy();collection.destroy();pageControls.destroy();
+      element.remove();
     },
   });
 }
