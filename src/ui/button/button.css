@@ -410,6 +410,46 @@
 .pg-button--tool:disabled { opacity: .4; }
 
 
+/* Shared route/section navigation appearance. Sidebar and local Workspace
+ * use one skin; their navigation targets and behaviors stay independent. */
+.pg-button--nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 42px;
+  gap: 12px;
+  overflow: hidden;
+  padding: 0 11px;
+  border: 0;
+  border-radius: var(--pg-radius-md);
+  background: transparent;
+  color: var(--pg-color-text-primary);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 450;
+  text-align: start;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--pg-duration-fast) ease;
+}
+.pg-button--nav-item:hover:not(:disabled) { background: var(--pg-color-hover); }
+.pg-button--nav-item:is([aria-current='page'], [aria-current='true']) {
+  background: var(--pg-color-selected);
+}
+.pg-button--nav-item .pg-icon {
+  flex: 0 0 18px;
+  inline-size: 18px;
+  block-size: 18px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pg-button--nav-item { transition: none; }
+}
+
 /* Shared light-on-surface menu rows; this family also suits action lists. */
 /*
  * ╔═══════════════════════════════════════════════════════════════════════════════════════════════════════╗
