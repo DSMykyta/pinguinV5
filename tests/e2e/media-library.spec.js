@@ -428,3 +428,72 @@ test('media bulk deletion reuses shared danger action and Confirm without demo-o
   await expect(status(page)).toHaveText('Показано 10 з 17');
   await expect(view).toHaveAttribute('data-pg-selected-count','0');
 });
+
+
+test('both collections share card chrome and fixed header slots, with isolated selection', async ({ page }) => {
+  await page.goto('/tools');
+  await tab(page, 'Макети даних').click();
+  await page.locator('.pg-view-switch [title="Плитки"]').click();
+  const brandCard = brands(page).locator('.pg-collection-view__card').first();
+  await expect(brandCard).toHaveClass(/pg-tools-data-views__card/);
+  await expect(page.locator('.pg-shell__page-actions .pg-collection-view__header-actions')).toHaveCount(1);
+  const brandStyle = await brandCard.evaluate(node => {
+    const style = getComputedStyle(node);
+    return {radius: style.borderRadius, border: style.borderTopWidth,
+      transition: style.transitionProperty};
+  });
+  await brandCard.locator('..').locator('.pg-checkbox__row').click();
+  await expect(brands(page)).toHaveAttribute('data-pg-selected-count', '1');
+
+  await tab(page, 'Медіатека').click();
+  const mediaCard = media(page).locator('.pg-collection-view__card').first();
+  await expect(mediaCard).toHaveClass(/pg-media-library__card/);
+  await expect(page.locator('.pg-shell__page-actions .pg-collection-view__header-actions')).toHaveCount(1);
+  const mediaStyle = await mediaCard.evaluate(node => {
+    const style = getComputedStyle(node);
+    return {radius: style.borderRadius, border: style.borderTopWidth,
+      transition: style.transitionProperty};
+  });
+  expect(mediaStyle).toEqual(brandStyle);
+  await expect(media(page)).toHaveAttribute('data-pg-selected-count', '0');
+  await tab(page, 'Макети даних').click();
+  await expect(brands(page)).toHaveAttribute('data-pg-selected-count', '1');
+});
+
+test('table/tile mode preferences persist separately across a reload', async ({ page }) => {
+  await page.goto('/tools');
+  await tab(page, 'Макети даних').click();
+  await page.locator('.pg-view-switch [title="Плитки"]').click();
+  await expect(brands(page)).toHaveAttribute('data-pg-view', 'tiles');
+  await tab(page, 'Медіатека').click();
+  await expect(media(page)).toHaveAttribute('data-pg-view', 'tiles');
+  await page.locator('.pg-view-switch [title="Таблиця"]').click();
+  await expect(media(page)).toHaveAttribute('data-pg-view', 'table');
+
+  await page.reload();
+  await tab(page, 'Макети даних').click();
+  await expect(brands(page)).toHaveAttribute('data-pg-view', 'tiles');
+  await tab(page, 'Медіатека').click();
+  await expect(media(page)).toHaveAttribute('data-pg-view', 'table');
+  await expect(page.locator('.pg-shell__page-actions .pg-view-switch')).toHaveCount(1);
+});
+
+test('media aside sorting and native table header use the same direction', async ({ page }) => {
+  await page.goto('/tools');
+  await tab(page, 'Медіатека').click();
+  await page.locator('.pg-view-switch [title="Таблиця"]').click();
+  const nameHeader = media(page).locator('thead th[data-pg-column="name"]');
+  await expect(nameHeader).toHaveAttribute('aria-sort', 'ascending');
+  await nameHeader.locator('button').click();
+  await expect(nameHeader).toHaveAttribute('aria-sort', 'descending');
+
+  await page.locator('[data-pg-action="aside-toggle"]').click();
+  const aside = page.locator('#pg-aside-panel');
+  const direction = aside.getByRole('radiogroup', { name: 'Напрямок сортування' });
+  await expect(direction).toBeVisible();
+  await expect(direction.getByRole('radio', { name: 'Я–А' })).toBeChecked();
+  await aside.locator('.pg-segment-switch__label[title="А–Я"]').click();
+  await expect(nameHeader).toHaveAttribute('aria-sort', 'ascending');
+  await tab(page, 'Макети даних').click();
+  await expect(page.locator('.pg-shell__page-actions .pg-view-switch')).toHaveCount(1);
+});
