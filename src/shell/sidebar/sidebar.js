@@ -32,7 +32,7 @@ function shouldInterceptNavigation(event) {
 function createSidebarLink(page, onNavigate) {
   const link = document.createElement('a');
   link.href = page.route;
-  link.className = 'pg-sidebar__link';
+  link.className = 'pg-sidebar__link pg-button--nav-item';
   link.setAttribute('aria-label', page.title);
   // Visible navigation labels must not repeat themselves in tooltips.
   link.dataset.pgTooltipCollapsed = page.title;
