@@ -410,8 +410,21 @@
 .pg-button--tool:disabled { opacity: .4; }
 
 
-/* Shared route/section navigation appearance. Sidebar and local Workspace
- * use one skin; their navigation targets and behaviors stay independent. */
+/* Existing Sidebar navigation appearance, extracted to one shared owner.
+ * Both the route Sidebar and local Workspace consume the SAME skin. */
+/*
+ * ╔═══════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SHARED NAVIGATION ITEM                                                                ║
+ * ╠═══════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ТИП: .pg-button--nav-item                                                                            ║
+ * ║ ПРИЗНАЧЕННЯ: Спільне оформлення пунктів головного Sidebar й локального Workspace.                    ║
+ * ║ НАВІЩО: Забрати стилі посилання з Sidebar і повторно використати їх без копії в редакторі.            ║
+ * ║ ДЕ: Sidebar routes, Workspace section navigation.                                                    ║
+ * ║ ГЕОМЕТРІЯ: 42px, 11px horizontal padding, 12px gap, 18px icon; збережено legacy work Sidebar.        ║
+ * ║ СТАНИ: Hover, aria-current=page/true, focus-visible, reduced motion.                                 ║
+ * ║ МЕЖА: Лише візуальне оформлення; маршрути, nav-state та поведінка належать компонентам.               ║
+ * ╚═══════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
 .pg-button--nav-item {
   display: flex;
   align-items: center;
