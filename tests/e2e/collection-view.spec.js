@@ -227,7 +227,7 @@ test('brand name is the only edit target; selecting text does not open the edito
 
   await page.evaluate(()=>window.getSelection()?.removeAllRanges());
   await name.click();
-  await expect(page.getByRole('dialog',{name:'Редагування бренду'})).toBeVisible();
+  await expect(page.getByRole('dialog',{name:/^Редагувати «.+»$/})).toBeVisible();
 });
 
 test('closing an editor never leaves an unchecked row checkbox visible from name focus',async({page})=>{
@@ -238,7 +238,7 @@ test('closing an editor never leaves an unchecked row checkbox visible from name
 
   await expect(collection).toHaveAttribute('data-pg-selected-count','0');
   await name.click();
-  const dialog=page.getByRole('dialog',{name:'Редагування бренду'});
+  const dialog=page.getByRole('dialog',{name:/^Редагувати «.+»$/});
   await expect(dialog).toBeVisible();
   await dialog.locator('[data-pg-action="dialog-dismiss"]').click();
   await expect(dialog).toHaveCount(0);
