@@ -62,7 +62,7 @@ test('repeated clicks on the demo button create separate visible Toasts and over
   await page.goto('/tools');
   const button = page.locator('[data-pg-action="toast-demo"]');
   const messages = page.locator('.pg-toast__message');
-  const toasts = page.locator('.pg-toast');
+  const toasts = page.locator('.pg-toast[data-pg-pending="false"]');
 
   for (let index = 0; index < 3; index++) await button.click();
   await expect(toasts).toHaveCount(3);
@@ -72,6 +72,7 @@ test('repeated clicks on the demo button create separate visible Toasts and over
 
   await button.click();
   await expect(toasts).toHaveCount(3);
+  await expect(page.locator('.pg-toast[data-pg-pending="true"]')).toHaveCount(1);
   await toasts.first().locator('[data-pg-action="toast-dismiss"]').click();
   await expect(toasts).toHaveCount(3);
 
