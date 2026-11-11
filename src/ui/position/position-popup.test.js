@@ -77,13 +77,14 @@ test('submenu flips left when right edge has no space', () => {
   assert.equal(pos.top, 75);
 });
 
-test('submenu clamps vertically and shrinks on narrow screens', () => {
+test('submenu stays readable and inside the viewport on narrow screens', () => {
   const pos = position({ left: 120, top: 345, right: 200, bottom: 385, width: 80 },
     190, 210, { placement: 'inline' }, { width: 320, height: 400 });
   assert.equal(pos.direction, 'right');
-  assert.equal(pos.width, 108);
-  assert.equal(pos.left, 204);
+  assert.equal(pos.width, 190);
+  assert.equal(pos.left, 122);
   assert.equal(pos.top, 182);
+  assert.ok(pos.left >= 8 && pos.left + pos.width <= 312);
 });
 
 test('unknown placement fails instead of silently using another geometry mode', () => {
