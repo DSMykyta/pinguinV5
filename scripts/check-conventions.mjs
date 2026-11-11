@@ -108,7 +108,7 @@ async function checkCss(path, label) {
       'pg-button', 'pg-button--primary', 'pg-button--secondary',
       'pg-button--outline', 'pg-button--destructive', 'pg-button--compact',
       'pg-button--pill', 'pg-button--page', 'pg-button--step',
-      'pg-button--tool', 'pg-button--list-item', 'pg-button--chip-remove',
+      'pg-button--tool', 'pg-button--list-item', 'pg-button--nav-item', 'pg-button--chip-remove',
       'pg-button--chip-more', 'pg-button--plain', 'pg-button--quiet',
       'pg-button--square',
     ]);
