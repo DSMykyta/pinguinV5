@@ -70,20 +70,24 @@ test('three visible notifications stack above one another; identical messages st
     showToast('Третє', { duration: 0 }); // waiting, not ignored
   });
 
-  const visible = page.locator('.pg-toast');
-  const messages = page.locator('.pg-toast__message');
+  const visible = page.locator('.pg-toast[data-pg-pending="false"]');
+  const messages = visible.locator('.pg-toast__message');
   await expect(visible).toHaveCount(3);
+  await expect(page.locator('.pg-toast[data-pg-pending="true"]')).toHaveCount(1);
   await expect(messages).toHaveText(['Друге', 'Перше', 'Перше']);
   await page.locator('.pg-toast__host').hover();
   await expect(page.locator('.pg-toast__host')).toHaveAttribute('data-pg-expanded', 'true');
-  await visible.evaluateAll(elements => Promise.all(elements.flatMap(
+  const expandedCards = page.locator('.pg-toast:not([data-pg-state="closing"])');
+  await expect(expandedCards).toHaveCount(4);
+  await expandedCards.evaluateAll(elements => Promise.all(elements.flatMap(
     element => element.getAnimations().map(a => a.finished.catch(() => {})))));
-  const boxes = await visible.evaluateAll(elements => elements.map(el => {
+  const boxes = await expandedCards.evaluateAll(elements => elements.map(el => {
     const b = el.getBoundingClientRect();
     return { top: b.top, bottom: b.bottom };
   }));
   expect(boxes[1].bottom).toBeLessThan(boxes[0].top);
   expect(boxes[2].bottom).toBeLessThan(boxes[1].top);
+  expect(boxes[3].bottom).toBeLessThan(boxes[2].top);
 
   await visible.first().locator('[data-pg-action="toast-dismiss"]').click();
   await expect(messages).toHaveText(['Третє', 'Перше', 'Перше']);
@@ -223,7 +227,8 @@ test('waiting queue stays bounded for regular items and preserves actions', asyn
   });
 
   await expect(page.locator('body')).toHaveAttribute('data-pg-toast-overflow-rejected', 'true');
-  await expect(page.locator('.pg-toast')).toHaveCount(3);
+  await expect(page.locator('.pg-toast[data-pg-pending="false"]')).toHaveCount(3);
+  await expect(page.locator('.pg-toast[data-pg-pending="true"]')).toHaveCount(9);
   // Older cards are intentionally inert while compact. Hover expands the
   // stack before interacting with their individual close controls.
   await page.locator('.pg-toast__host').hover();
@@ -279,6 +284,56 @@ test('compact stack expands on hover and returns without an abrupt layout jump',
   const folded = await elements.evaluateAll(all => all.map(el =>
     el.getBoundingClientRect().top));
   expect(Math.abs(folded[0] - folded[1])).toBeLessThan(24);
+});
+
+test('hover reveals every queued toast and collapse restores three active cards', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/tools');
+  await page.evaluate(async () => {
+    const { showToast } = await import('/src/ui/toast/toast.js');
+    for (let index = 0; index < 7; index++) {
+      showToast('Сповіщення ' + index, { duration: 0 });
+    }
+  });
+  const host = page.locator('.pg-toast__host');
+  const active = page.locator('.pg-toast[data-pg-pending="false"]');
+  const waiting = page.locator('.pg-toast[data-pg-pending="true"]:not([data-pg-state="closing"])');
+  await expect(active).toHaveCount(3);
+  await expect(waiting).toHaveCount(4);
+  await expect(waiting.first()).toHaveAttribute('aria-hidden', 'true');
+
+  await host.hover();
+  await expect(host).toHaveAttribute('data-pg-expanded', 'true');
+  await expect(page.locator('.pg-toast:not([data-pg-state="closing"])')).toHaveCount(7);
+  await expect(waiting.first()).toHaveAttribute('aria-hidden', 'false');
+  await expect(waiting.first()).not.toHaveAttribute('inert', '');
+  await waiting.first().locator('[data-pg-action="toast-dismiss"]').click();
+  await expect(waiting).toHaveCount(3);
+
+  await page.mouse.move(1000, 400);
+  await expect(host).toHaveAttribute('data-pg-expanded', 'false');
+  await expect(active).toHaveCount(3);
+  await expect(waiting.first()).toHaveAttribute('aria-hidden', 'true');
+});
+
+test('a viewport-height expanded stack can scroll to older queued messages', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 500 });
+  await page.goto('/tools');
+  await page.evaluate(async () => {
+    const { showToast } = await import('/src/ui/toast/toast.js');
+    for (let index = 0; index < 11; index++) {
+      showToast('Повідомлення ' + index, { duration: 0 });
+    }
+  });
+  const host = page.locator('.pg-toast__host');
+  await host.hover();
+  await expect(host).toHaveAttribute('data-pg-overflow', 'true');
+  const oldest = page.locator('.pg-toast:not([data-pg-state="closing"])').last();
+  const before = await oldest.evaluate(el => Number.parseFloat(
+    el.style.getPropertyValue('--pg-toast-offset')));
+  await host.dispatchEvent('wheel', { deltaY: -180, bubbles: true, cancelable: true });
+  await expect.poll(async () => oldest.evaluate(el => Number.parseFloat(
+    el.style.getPropertyValue('--pg-toast-offset')))).toBeLessThan(before);
 });
 
 test('closing Toast travels down before being removed; neighbours settle smoothly', async ({ page }) => {
