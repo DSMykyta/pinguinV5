@@ -15,11 +15,11 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/tools');
   await page.getByRole('tab', { name: 'Макети даних' }).click();
   await page.locator('#pg-tools-panel-data-views .pg-collection-view__editable-name').first().click();
-  await expect(page.getByRole('dialog', { name: 'Редагування бренду' })).toBeVisible();
+  await expect(page.getByRole('dialog', { name: /^Редагувати «.+»$/ })).toBeVisible();
 });
 
 test('workspace reuses navigator toggle and correctly stacks shared corner/mini actions', async ({ page }) => {
-  const dialog = page.getByRole('dialog', { name: 'Редагування бренду' });
+  const dialog = page.getByRole('dialog', { name: /^Редагувати «.+»$/ });
   const workspace = dialog.locator('.pg-workspace-layout');
   const menu = workspace.locator('.pg-workspace-layout__top-left [data-pg-action="workspace-nav-toggle"]');
   const close = workspace.locator('.pg-workspace-layout__top-right [data-pg-action="dialog-dismiss"]');
@@ -54,7 +54,7 @@ test('workspace reuses navigator toggle and correctly stacks shared corner/mini 
 });
 
 test('small save persists and stays open; checkmark saves and closes; clean close is allowed', async ({ page }) => {
-  const dialog = page.getByRole('dialog', { name: 'Редагування бренду' });
+  const dialog = page.getByRole('dialog', { name: /^Редагувати «.+»$/ });
   const input = dialog.getByRole('textbox', { name: 'Назва бренду' });
   await input.fill('Aardvark Test Brand');
   await dialog.locator('[data-pg-action="dialog-save"]').click();
@@ -69,7 +69,7 @@ test('small save persists and stays open; checkmark saves and closes; clean clos
 
   await page.locator('#pg-tools-panel-data-views .pg-collection-view__editable-name')
     .filter({ hasText: 'Aardvark Test Brand' }).click();
-  const reopened = page.getByRole('dialog', { name: 'Редагування бренду' });
+  const reopened = page.getByRole('dialog', { name: 'Редагувати «Aardvark Test Brand»' });
   await expect(reopened).toBeVisible();
   await reopened.getByRole('textbox', { name: 'Назва бренду' }).fill('Aardvark Updated Brand');
   await reopened.locator('[data-pg-action="dialog-confirm"]').click();
