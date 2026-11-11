@@ -149,7 +149,7 @@ export function createMenu({ label, id, items = [], align = 'start', disabled = 
       }, { signal });
 
       button.addEventListener('pointerenter', event => {
-        if (event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
+        if (entry.disabled || (event.pointerType !== 'mouse' && event.pointerType !== 'pen')) return;
         cancelGrace();
         const submenu = node.children.get(button);
         if (node.activeChild && node.activeChild !== submenu) {
