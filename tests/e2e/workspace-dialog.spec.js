@@ -172,3 +172,39 @@ test('workspace navigation uses the Sidebar skin and keeps both section controls
   await expect(bottom).toBeVisible();
   await expect(field).toBeAttached();
 });
+
+test('all workspace sections share the same flush edges and the title aligns with first navigation row', async ({ page }) => {
+  const modal = await openEditor(page);
+  const aligned = await modal.evaluate(root => {
+    const bounds = selector => {
+      const r = root.querySelector(selector).getBoundingClientRect();
+      return { left:r.left, right:r.right, top:r.top, bottom:r.bottom, centerY:r.top + r.height/2, width:r.width };
+    };
+    const body = root.querySelector('.pg-dialog__body');
+    const header = root.querySelector('.pg-section-navigator__header');
+    const viewport = root.querySelector('.pg-section-navigator__viewport');
+    const top = root.querySelector('[data-pg-placement="top"]');
+    const bottom = root.querySelector('[data-pg-placement="bottom"]');
+    return {
+      canvas:bounds('.pg-workspace-layout__canvas'),
+      navItem:bounds('.pg-workspace-layout__nav-item'),
+      title:bounds('.pg-section-navigator__title'),
+      field:bounds('.pg-tools-data-views__edit-section'),
+      viewport:bounds('.pg-section-navigator__viewport'),
+      top:top.getBoundingClientRect().width,
+      bottom:bottom.getBoundingClientRect().width,
+      bodyPadding:getComputedStyle(body).padding,
+      titlePadding:getComputedStyle(header).paddingLeft,
+      viewportPadding:getComputedStyle(viewport).paddingLeft,
+    };
+  });
+  expect(aligned.bodyPadding).toBe('0px');
+  expect(aligned.titlePadding).toBe('0px');
+  expect(aligned.viewportPadding).toBe('0px');
+  expect(Math.abs(aligned.title.left-aligned.field.left)).toBeLessThan(2);
+  expect(Math.abs(aligned.field.left-aligned.canvas.left)).toBeLessThan(2);
+  expect(Math.abs(aligned.viewport.right-aligned.canvas.right)).toBeLessThan(2);
+  expect(Math.abs(aligned.title.centerY-aligned.navItem.centerY)).toBeLessThan(3);
+  expect(aligned.top).toBeLessThanOrEqual(56);
+  expect(aligned.bottom).toBeLessThanOrEqual(56);
+});
