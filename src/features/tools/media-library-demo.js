@@ -85,6 +85,7 @@ function renderTableThumbnail(row) {
 
 function renderTile(row) {
   const card=node('article','card');
+  card.classList.add('pg-collection-view__card');
   const image=node('img','image');
   image.src=thumb(row);
   image.alt='Ілюстрація: '+row.name;
