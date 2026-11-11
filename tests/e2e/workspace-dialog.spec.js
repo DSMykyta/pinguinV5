@@ -50,11 +50,11 @@ test('four shared corner buttons remain anchored while sidebar collapses', async
   const actions = ['dialog-refresh', 'dialog-dismiss', 'dialog-delete', 'dialog-confirm'];
   for (const action of actions) {
     const button = modal.locator('[data-pg-action="' + action + '"]');
-    await expect(button).toHaveClass(/pg-icon-button--corner/);
+    await expect(button).toHaveClass(action === 'dialog-refresh' ? /pg-mini-button/ : /pg-icon-button--corner/);
     expect((await button.textContent()).trim()).toBe('');
   }
   await expect(layout).toHaveAttribute('data-pg-nav', 'expanded');
-  await modal.getByRole('button', { name: 'Згорнути навігацію' }).click();
+  await modal.getByRole('button', { name: 'Згорнути меню редактора' }).click();
   await expect(layout).toHaveAttribute('data-pg-nav', 'collapsed');
   await expect(modal.locator('.pg-section-navigator')).toHaveCount(1);
   const corners = await modal.evaluate(root => {
@@ -114,4 +114,60 @@ test('saving from the modal persists the test record without changing the global
   await modal.locator('[data-pg-action="dialog-confirm"]').click();
   await expect(modal).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Редагувати: Aero Pulse — змінено' })).toHaveCount(1);
+});
+
+test('workspace navigation uses the Sidebar skin and keeps both section controls pinned while content scrolls', async ({ page }) => {
+  const modal = await openEditor(page);
+  const layout = modal.locator('.pg-workspace-layout');
+  const canvas = layout.locator('.pg-workspace-layout__canvas');
+  const navigator = layout.locator('.pg-section-navigator');
+  const viewport = navigator.locator('.pg-section-navigator__viewport');
+  const top = navigator.locator('.pg-section-navigator__rail[data-pg-placement="top"]');
+  const bottom = navigator.locator('.pg-section-navigator__rail[data-pg-placement="bottom"]');
+  const field = modal.getByRole('textbox', { name: 'Назва бренду' });
+
+  await expect(layout.locator('.pg-workspace-layout__nav-item').first())
+    .toHaveClass(/pg-button--nav-item/);
+  await expect(page.locator('.pg-sidebar__link').first())
+    .toHaveClass(/pg-button--nav-item/);
+  await expect(navigator).toHaveAttribute('data-pg-scroll-container', 'local');
+
+  // Simulate a section longer than the viewport without coupling its content
+  // or scrolling mechanics to WorkspaceLayout.
+  await modal.locator('.pg-tools-data-views__edit-section').first().evaluate(section => {
+    const longContent = document.createElement('div');
+    longContent.style.blockSize = '2400px';
+    longContent.setAttribute('aria-hidden', 'true');
+    section.append(longContent);
+  });
+  const before = await modal.evaluate(root => {
+    const box = selector => root.querySelector(selector).getBoundingClientRect();
+    return {
+      top: box('.pg-section-navigator__rail[data-pg-placement="top"]').top,
+      bottom: box('.pg-section-navigator__rail[data-pg-placement="bottom"]').bottom,
+      canvas: box('.pg-workspace-layout__canvas'),
+      viewportWidth: box('.pg-section-navigator__viewport').width,
+      fieldWidth: box('input[autofocus]').width,
+    };
+  });
+
+  await viewport.evaluate(element => { element.scrollTop = element.scrollHeight; });
+  const after = await modal.evaluate(root => {
+    const scrollport = root.querySelector('.pg-section-navigator__viewport');
+    return {
+      scrollTop: scrollport.scrollTop,
+      top: root.querySelector('.pg-section-navigator__rail[data-pg-placement="top"]').getBoundingClientRect().top,
+      bottom: root.querySelector('.pg-section-navigator__rail[data-pg-placement="bottom"]').getBoundingClientRect().bottom,
+    };
+  });
+
+  expect(after.scrollTop).toBeGreaterThan(500);
+  expect(Math.abs(after.top - before.top)).toBeLessThan(1);
+  expect(Math.abs(after.bottom - before.bottom)).toBeLessThan(1);
+  expect(before.top).toBeGreaterThanOrEqual(before.canvas.top);
+  expect(before.bottom).toBeLessThanOrEqual(before.canvas.bottom);
+  expect(before.fieldWidth).toBeGreaterThan(before.viewportWidth * .8);
+  await expect(top).toBeVisible();
+  await expect(bottom).toBeVisible();
+  await expect(field).toBeAttached();
 });
