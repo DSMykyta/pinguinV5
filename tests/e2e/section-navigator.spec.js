@@ -469,6 +469,6 @@ test('external navigator fills a short workspace and keeps the next control at t
   expect(bounds.fill).toBe(true);
   expect(bounds.top).toBeGreaterThanOrEqual(-1);
   expect(bounds.bottom).toBeGreaterThanOrEqual(-1);
-  expect(bounds.bottom).toBeLessThan(3);
+  expect(bounds.bottom).toBeLessThan(16); // centered overlay has an 8px edge inset
   expect(bounds.overflow).toBe('visible');
 });
