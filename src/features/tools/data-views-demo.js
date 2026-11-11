@@ -177,7 +177,7 @@ export function createDataViewsDemo() {
     };
     try {
       await showFormDialog({
-        title:'Редагування бренду',
+        title:'Редагувати',entityName:row.name,
         layout:'workspace',content,sections,isDirty,
         validate:()=>{
           const name=nameField.getValue().trim();
