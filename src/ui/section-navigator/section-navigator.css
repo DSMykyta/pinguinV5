@@ -56,7 +56,12 @@
 }
 /* A gesture reveals only the applicable arrow. Keyboard focus is an
  * accessible, zero-gesture route to the same existing control. */
-.pg-section-navigator__handle[data-pg-visible='true'],
+.pg-section-navigator__handle[data-pg-visible='true'] {
+  opacity:1;
+  /* Wheel input under the transient marker must continue reaching the
+   * original content/scrollport; a visible cue is not a new hit target. */
+  pointer-events:none;
+}
 .pg-section-navigator__handle:focus-visible {
   opacity:1;pointer-events:auto;
 }
