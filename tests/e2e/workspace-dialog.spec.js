@@ -145,7 +145,8 @@ test('workspace navigation uses the Sidebar skin and keeps both section controls
     return {
       top: box('.pg-section-navigator__rail[data-pg-placement="top"]').top,
       bottom: box('.pg-section-navigator__rail[data-pg-placement="bottom"]').bottom,
-      canvas: box('.pg-workspace-layout__canvas'),
+      canvasTop: box('.pg-workspace-layout__canvas').top,
+      canvasBottom: box('.pg-workspace-layout__canvas').bottom,
       viewportWidth: box('.pg-section-navigator__viewport').width,
       fieldWidth: box('input[autofocus]').width,
     };
@@ -164,8 +165,8 @@ test('workspace navigation uses the Sidebar skin and keeps both section controls
   expect(after.scrollTop).toBeGreaterThan(500);
   expect(Math.abs(after.top - before.top)).toBeLessThan(1);
   expect(Math.abs(after.bottom - before.bottom)).toBeLessThan(1);
-  expect(before.top).toBeGreaterThanOrEqual(before.canvas.top);
-  expect(before.bottom).toBeLessThanOrEqual(before.canvas.bottom);
+  expect(before.top).toBeGreaterThanOrEqual(before.canvasTop);
+  expect(before.bottom).toBeLessThanOrEqual(before.canvasBottom);
   expect(before.fieldWidth).toBeGreaterThan(before.viewportWidth * .8);
   await expect(top).toBeVisible();
   await expect(bottom).toBeVisible();
