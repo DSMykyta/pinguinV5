@@ -21,19 +21,6 @@
 .pg-tools-data-views__status[data-pg-status='active'] {
   background: var(--pg-color-accent-soft); color: var(--pg-color-accent);
 }
-.pg-tools-data-views__card {
-  display: flex; flex-direction: column; min-width: 0;
-  overflow: hidden;
-  border: 1px solid var(--pg-color-border);
-  border-radius: var(--pg-radius-md);
-  background: var(--pg-color-surface);
-  transition: border-color var(--pg-duration-fast) ease,
-    box-shadow var(--pg-duration-fast) ease;
-}
-.pg-tools-data-views__card:hover {
-  border-color: var(--pg-color-border-strong);
-  box-shadow: 0 6px 22px var(--pg-color-shadow);
-}
 .pg-tools-data-views__tile-preview {
   display: grid; place-items: center;
   aspect-ratio: 1.35; min-inline-size: 0;
@@ -70,26 +57,7 @@
   font-size: 11px; font-variant-numeric: tabular-nums;
 }
 .pg-tools-data-views__tile-fact { white-space: nowrap; }
-@media (prefers-reduced-motion: reduce) {
-  .pg-tools-data-views__card { transition: none; }
-}
 
-/* Fixed-position host: only the view switch participates in the header flex row.
- * Contextual selection actions anchor outside its left edge, with no reflow. */
-.pg-tools-data-views__header-actions {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  flex: 0 0 auto;
-  gap: 0;
-}
-.pg-tools-data-views__aside-controls { display: grid; gap: 14px; min-inline-size: 0; }
-.pg-tools-data-views__aside-detail {
-  font-size: 12px;
-  color: var(--pg-color-text-secondary);
-  line-height: 1.5;
-  overflow-wrap: anywhere;
-}
 
 /* Only the example fields belong here; Workspace owns all layout geometry. */
 .pg-tools-data-views__edit-content { min-width: 0; }
