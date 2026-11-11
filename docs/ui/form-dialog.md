@@ -21,7 +21,7 @@ Status: implemented shared composition; reuses native `dialog` manager and never
 
 ## Current API
 
-`showFormDialog({title,content,validate,save,isDirty?,closeGuard?,leftAction?,confirmText?,cancelText?,confirmTone?,confirmAppearance?}) -> Promise<'confirm'|'cancel'>`.
+`showFormDialog({title,entityName?,content,validate,save,isDirty?,closeGuard?,leftAction?,confirmText?,cancelText?,confirmTone?,confirmAppearance?}) -> Promise<'confirm'|'cancel'>`.
 
 `validate` and `save` are independent async hooks. A feature can also provide `closeGuard` for extra checks; `isDirty` protects accidental Escape/backdrop/cancel.
 The optional left action receives an explicit callback. It is never inferred from form DOM.
@@ -29,3 +29,8 @@ The optional left action receives an explicit callback. It is never inferred fro
 ## Tests
 
 Old compact Dialog and Confirm unaffected; empty/invalid form cannot close; save pending blocks repeats; save failure leaves content and focus; guard stops Escape/backdrop; discard explicitly closes; cancel after clean form; overflow only body; mobile/reduced-motion/dark; cleanup after pending requests.
+
+
+### Заголовок конкретного запису — глобальний контракт 2026-11-11
+
+Редактори різних сутностей передають `title:'Редагувати'` та `entityName: row.name` (або аналогічне поле власного запису). Спільний FormDialog формує один accessible title: `Редагувати «Назва запису»`; native Dialog показує його в header та `aria-labelledby`. Параметр `entityName` опційний для інших діалогів. Порожнє або нестрокове значення заборонене. Жодної логіки конкретної сутності чи другого title component усередині FormDialog немає. Назва при відкритті походить з фактичного обраного запису, а не з локалізованої категорії або тестової заглушки.
