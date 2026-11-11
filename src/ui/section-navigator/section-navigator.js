@@ -83,6 +83,7 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
     const button = createNode('button', 'handle');
     button.type = 'button';
     button.dataset.pgDirection = direction;
+    button.dataset.pgVisible = 'false';
     button.setAttribute('aria-controls', viewport.id);
     const caption = createNode('span', 'caption');
     const symbol = createNode('span', 'symbol');
@@ -141,6 +142,9 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
     for (const [side, { button, ring }] of Object.entries(controls)) {
       const value = direction === side && adjacent(side)
         ? Math.min(1, Math.max(0, progress)) : 0;
+      // A single shared indicator appears only while pulling beyond a boundary.
+      // The existing buttons remain keyboard-reachable and reveal on focus.
+      button.dataset.pgVisible = String(value > 0);
       button.dataset.pgState = value >= 1 ? 'armed' : value > 0 ? 'pulling' : 'ready';
       ring.style.strokeDashoffset = String((100 * (1 - value)).toFixed(3));
     }
