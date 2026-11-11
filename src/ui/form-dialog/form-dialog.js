@@ -12,7 +12,7 @@
 import { showDialog } from '../dialog/dialog.js';
 
 export function showFormDialog({
-  title, content, validate, save, isDirty = () => false, closeGuard,
+  title, entityName, content, validate, save, isDirty = () => false, closeGuard,
   leftAction, confirmText = 'Зберегти', cancelText = 'Скасувати',
   confirmTone, confirmAppearance, layout = 'editor', sections = [], onRefresh, onDelete,
 } = {}) {
@@ -29,8 +29,12 @@ export function showFormDialog({
   if (closeGuard !== undefined && typeof closeGuard !== 'function') {
     throw new TypeError('Form dialog closeGuard must be a function');
   }
+  if (entityName !== undefined && (typeof entityName !== 'string' || !entityName.trim())) {
+    throw new TypeError('Form dialog entityName must be a non-empty string');
+  }
+  const dialogTitle = entityName === undefined ? title : title.trim() + ' «' + entityName.trim() + '»';
   return showDialog({
-    title, content, size: layout, sections, onRefresh, onDelete, isDirty,
+    title: dialogTitle, content, size: layout, sections, onRefresh, onDelete, isDirty,
     confirmText, cancelText, leftAction, confirmTone, confirmAppearance,
     validate, onConfirm: save,
     closeGuard: async context => {
