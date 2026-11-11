@@ -56,8 +56,7 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
   const title = createNode('h3', 'title');
   title.id = prefix + '-title';
   title.tabIndex = -1;
-  const counter = createNode('span', 'counter');
-  header.append(title, counter);
+  header.append(title);
   const viewport = createNode('div', 'viewport');
   viewport.id = prefix + '-viewport';
   viewport.tabIndex = 0;
@@ -123,7 +122,6 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
 
   function renderControls() {
     title.textContent = sections[currentIndex].label;
-    counter.textContent = (currentIndex + 1) + ' / ' + sections.length;
     for (const [direction, { button, caption }] of Object.entries(controls)) {
       const destination = adjacent(direction);
       button.disabled = busy || !destination;
