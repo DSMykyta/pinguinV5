@@ -11,13 +11,17 @@
  */
 
 .pg-section-navigator {
-  display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) var(--pg-sidebar-compact-width);
+  grid-template-rows:auto minmax(0,1fr);
   --pg-section-inset:var(--pg-space-4);
   inline-size:100%;block-size:100%;min-inline-size:0;min-block-size:0;
   color:var(--pg-color-text-primary);
 }
 .pg-section-navigator__header {
+  grid-column:1;grid-row:1;
   display:flex;align-items:center;justify-content:space-between;gap:var(--pg-space-3);
+  min-inline-size:0;
   padding:var(--pg-space-4) var(--pg-section-inset) var(--pg-space-2);
 }
 .pg-section-navigator__title {min-inline-size:0;margin:0;font-size:16px;font-weight:600;overflow-wrap:anywhere;}
@@ -26,19 +30,29 @@
   outline:2px solid var(--pg-color-focus);outline-offset:-2px;
 }
 .pg-section-navigator__viewport {
+  grid-column:1;grid-row:2;
   min-block-size:0;min-inline-size:0;overflow:auto;overscroll-behavior-y:contain;overflow-anchor:none;
-  padding:var(--pg-space-3) var(--pg-section-inset);
+  padding:var(--pg-space-3) var(--pg-section-inset) var(--pg-space-12);
 }
 .pg-section-navigator__panel {min-inline-size:0;overflow-wrap:anywhere;}
 .pg-section-navigator__panel[hidden] {display:none;}
+/* Both arrows own only compact right-edge slots. No full-width rails
+ * or extra grid rows may push a section title or form down. */
 .pg-section-navigator__rail {
-  position:sticky;z-index:5;display:flex;align-items:center;justify-content:flex-end;
-  min-block-size:38px;padding-inline:var(--pg-section-inset);pointer-events:none;
+  grid-column:2;
+  z-index:5;display:flex;align-items:center;justify-content:flex-end;
+  min-inline-size:0;pointer-events:none;
+  padding-inline-end:var(--pg-section-inset);
 }
-.pg-section-navigator__rail[data-pg-placement='top'] {top:0;align-self:start;}
-.pg-section-navigator__rail[data-pg-placement='bottom'] {bottom:0;align-self:end;}
+.pg-section-navigator__rail[data-pg-placement='top'] {
+  grid-row:1;align-self:center;
+}
+.pg-section-navigator__rail[data-pg-placement='bottom'] {
+  grid-row:2;align-self:end;position:sticky;bottom:var(--pg-space-2);
+}
 .pg-section-navigator__handle {
-  display:inline-flex;align-items:center;justify-content:flex-end;gap:8px;max-inline-size:100%;
+  display:inline-flex;align-items:center;justify-content:flex-end;gap:8px;
+  flex:0 0 auto;inline-size:max-content;max-inline-size:min(90vw, 300px);
   min-block-size:36px;padding:0;border:0;background:transparent;color:var(--pg-color-text-secondary);
   font:inherit;font-size:12px;cursor:default;touch-action:pan-x pinch-zoom;user-select:none;pointer-events:auto;
 }
@@ -71,10 +85,9 @@
   clip-path:inset(50%);white-space:nowrap;
 }
 .pg-section-navigator[data-pg-scroll-container='external'] {
-  /* A short section fills the available workspace, placing its next button
-   * on the bottom edge. A long section can grow and use the existing parent
-   * scrollport; sticky rails remain in that same scroll flow. */
-  grid-template-rows:auto auto minmax(min-content,1fr) auto;
+  /* Keep one native parent scrollport. The bottom arrow stays sticky in
+   * the right-hand slot; a short section still fills its workspace. */
+  grid-template-rows:auto minmax(min-content,1fr);
   block-size:auto;
   min-block-size:100%;
 }
