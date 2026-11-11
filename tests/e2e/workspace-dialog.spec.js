@@ -28,11 +28,15 @@ test('editor uses shared Section Navigator and retains the left sidebar as short
   await expect(navigator).toHaveAttribute('data-pg-scroll-container', 'local');
   await expect(heading).toHaveText('Основне');
   await expect(navigator.locator('.pg-section-navigator__handle')).toHaveCount(2);
+  await expect(navigator.locator('.pg-section-navigator__counter')).toHaveCount(0);
+  await expect(navigator.locator('[data-pg-direction="next"]')).toHaveAttribute('data-pg-visible', 'false');
   await expect(nav.locator('[aria-current="true"]')).toHaveText('Основне');
 
   const name = modal.getByRole('textbox', { name: 'Назва бренду' });
   await name.fill('Aero Pulse редакція');
-  await navigator.locator('[data-pg-direction="next"]').click();
+  const next = navigator.locator('[data-pg-direction="next"]');
+  await next.focus();
+  await next.press('Enter');
   await expect(heading).toHaveText('Канали продажу');
   await expect(navigator).toHaveAttribute('aria-busy', 'false');
   await expect(nav.locator('[aria-current="true"]')).toHaveText('Канали продажу');
@@ -170,6 +174,14 @@ test('workspace navigation uses the Sidebar skin and keeps both section controls
   expect(before.top).toBeGreaterThanOrEqual(before.canvasTop);
   expect(before.bottom).toBeLessThanOrEqual(before.canvasBottom);
   expect(before.fieldWidth).toBeGreaterThan(before.viewportWidth * .8);
+  const centered = await modal.evaluate(root => {
+    const canvas = root.querySelector('.pg-workspace-layout__canvas').getBoundingClientRect();
+    return ['top', 'bottom'].map(placement => {
+      const rail = root.querySelector('[data-pg-placement="' + placement + '"]').getBoundingClientRect();
+      return Math.abs(rail.x + rail.width / 2 - (canvas.x + canvas.width / 2));
+    });
+  });
+  expect(centered.every(offset => offset < 2)).toBe(true);
   await expect(top).toBeVisible();
   await expect(bottom).toBeVisible();
   await expect(field).toBeAttached();
