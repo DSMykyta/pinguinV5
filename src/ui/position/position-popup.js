@@ -33,17 +33,23 @@ export function positionPopup({
     const leftSpace = Math.max(0, rect.left - gap - edge);
     const openingLeft = right < desiredWidth && leftSpace > right;
     const available = openingLeft ? leftSpace : right;
-    const width = Math.min(widthLimit, desiredWidth, Math.max(0, available));
+    const fullWidth = Math.min(widthLimit, desiredWidth);
+    // On a phone, a parent menu can occupy almost the whole viewport:
+    // never shrink its child to an unreadable strip. Overlap the parent
+    // instead and clamp the popover to the screen like other shared popups.
+    const width = available >= Math.min(minWidth, fullWidth)
+      ? Math.min(fullWidth, available) : fullWidth;
+    const requestedLeft = openingLeft ? rect.left - gap - width : rect.right + gap;
+    const left = Math.max(edge, Math.min(requestedLeft, viewportWidth - width - edge));
     popup.style.position = 'fixed';
     popup.style.width = width + 'px';
     popup.style.minWidth = '0';
-    popup.style.left = (openingLeft ? rect.left - gap - width : rect.right + gap) + 'px';
+    popup.style.left = left + 'px';
     popup.style.maxHeight = Math.max(0, Math.min(maxHeight, viewportHeight - 2 * edge)) + 'px';
     const height = popup.getBoundingClientRect().height;
     const top = Math.max(edge, Math.min(rect.top, viewportHeight - edge - height));
     popup.style.top = top + 'px';
-    return { direction: openingLeft ? 'left' : 'right', top,
-      left: openingLeft ? rect.left - gap - width : rect.right + gap, width, height };
+    return { direction: openingLeft ? 'left' : 'right', top, left, width, height };
   }
   if (placement !== 'block') throw new TypeError('Unknown popup placement');
   const width = Math.min(widthLimit, desiredWidth);
