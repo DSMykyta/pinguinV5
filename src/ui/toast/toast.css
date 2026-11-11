@@ -25,6 +25,12 @@
   pointer-events: none;
 }
 
+/* Only a viewport-height overflow needs clipping; the regular stack keeps
+   its approved unrestricted downward dismissal animation. */
+.pg-toast__host[data-pg-expanded='true'][data-pg-overflow='true'] {
+  overflow: hidden;
+}
+
 .pg-toast {
   --pg-toast-offset: 0px;
   --pg-toast-exit-distance: 96px;
@@ -32,7 +38,7 @@
   position: absolute;
   bottom: 0;
   left: 0;
-  z-index: 3;
+  z-index: var(--pg-toast-stack-layer, 1);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -70,25 +76,22 @@
     scale(.975);
   transition: transform 300ms cubic-bezier(.2, .75, .25, 1);
   pointer-events: none;
-  z-index: 5;
+  z-index: 100;
+}
+
+/* Queued cards keep their DOM identity and position for transition, but
+   remain visually hidden and non-interactive until hover/focus expands all. */
+.pg-toast__host[data-pg-expanded='false'] .pg-toast[data-pg-pending='true']:not([data-pg-state='closing']) {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .pg-toast__host[data-pg-expanded='false'] .pg-toast[data-pg-depth='1'] {
   --pg-toast-scale: .975;
-  z-index: 2;
 }
 
 .pg-toast__host[data-pg-expanded='false'] .pg-toast[data-pg-depth='2'] {
   --pg-toast-scale: .95;
-  z-index: 1;
-}
-
-.pg-toast__host[data-pg-expanded='true'] .pg-toast[data-pg-depth='1'] {
-  z-index: 2;
-}
-
-.pg-toast__host[data-pg-expanded='true'] .pg-toast[data-pg-depth='2'] {
-  z-index: 1;
 }
 
 .pg-toast__icon {
