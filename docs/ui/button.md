@@ -61,3 +61,7 @@ Playwright: однакова геометрія 32×32px mini і спільно�
 **Тестування:** у Tools → Текст існує приклад `createButtonDemo` з двома порядками Icon+Text і з Loading для text та mini. Playwright перевіряє gap, розміри іконки, відсутність зсувів, aria-стани, заборону повторної дії, відновлення після помилки, keyboard/focus, reduced-motion.
 
 Джерела дослідження: [Radix Button](https://www.radix-ui.com/themes/docs/components/button), [Radix Spinner](https://www.radix-ui.com/themes/docs/components/spinner), [Chrome Modern Web Guidance — Spinner](https://developer.chrome.com/docs/modern-web-guidance/guides/ui-components/spinner), [WAI-ARIA Button](https://www.w3.org/WAI/ARIA/apg/patterns/button/).
+
+## Спільні пункти Sidebar і Workspace (2026-11-11)
+
+`pg-button--nav-item` — **наявне оформлення основного Sidebar, виділене в спільний owner**, без зміни візуального дизайну. Воно тепер однаково застосовується до глобального route link `a.pg-sidebar__link` і до локальної кнопки секції `button.pg-workspace-layout__nav-item`. Один CSS-опис відповідає за розмір 42px, відступи, іконку 18px, підсвічування hover/current і reduced motion. Навігаційні callbacks, Router та історія залишаються виключно в їхніх власників. Варіант внесено до перевірюваного реєстру після перевірки обох споживачів і зміни стилів без дублювання.
