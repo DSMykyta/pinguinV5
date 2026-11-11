@@ -67,7 +67,9 @@ test('four shared corner buttons remain anchored while sidebar collapses', async
       remove: box('dialog-delete'), save: box('dialog-confirm'),
     };
   });
-  expect(corners.refresh.left).toBeLessThan(corners.close.left);
+  // The mini refresh control is vertically stacked and centered under the corner close control.
+  expect(Math.abs((corners.refresh.left + corners.refresh.width / 2) -
+    (corners.close.left + corners.close.width / 2))).toBeLessThan(1);
   expect(corners.remove.left).toBeLessThan(corners.save.left);
   expect(corners.refresh.top).toBeLessThan(corners.remove.top);
   expect(corners.close.top).toBeLessThan(corners.save.top);
