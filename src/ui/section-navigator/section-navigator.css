@@ -11,54 +11,60 @@
  */
 
 .pg-section-navigator {
-  display:grid;
-  grid-template-columns:minmax(0,1fr) var(--pg-sidebar-compact-width);
+  position:relative;display:grid;
+  grid-template-columns:minmax(0,1fr);
   grid-template-rows:var(--pg-sidebar-compact-width) minmax(0,1fr);
   inline-size:100%;block-size:100%;min-inline-size:0;min-block-size:0;
   color:var(--pg-color-text-primary);
 }
 .pg-section-navigator__header {
-  grid-column:1 / -1;grid-row:1;
-  display:flex;align-items:center;justify-content:space-between;gap:var(--pg-space-3);
-  min-inline-size:0;min-block-size:0;
-  padding:0 var(--pg-sidebar-compact-width) 0 0;
+  grid-column:1;grid-row:1;
+  display:flex;align-items:center;min-inline-size:0;min-block-size:0;
+  padding:0;
 }
 .pg-section-navigator__title {min-inline-size:0;margin:0;font-size:16px;font-weight:600;overflow-wrap:anywhere;}
 .pg-section-navigator__title:focus-visible,.pg-section-navigator__viewport:focus-visible {
   outline:2px solid var(--pg-color-focus);outline-offset:-2px;
 }
 .pg-section-navigator__viewport {
-  grid-column:1 / -1;grid-row:2;
+  grid-column:1;grid-row:2;
   min-block-size:0;min-inline-size:0;overflow:auto;overscroll-behavior-y:contain;overflow-anchor:none;
   padding:0;
 }
 .pg-section-navigator__panel {min-inline-size:0;overflow-wrap:anywhere;}
 .pg-section-navigator__panel[hidden] {display:none;}
-/* Both arrows own only compact right-edge slots. No full-width rails
- * or extra grid rows may push a section title or form down. */
+/* A single centered indicator overlays each edge of THIS scroll workspace.
+ * No sidebar width, special modal offset or second scroll layer is involved. */
 .pg-section-navigator__rail {
-  grid-column:2;
-  z-index:5;display:flex;align-items:center;justify-content:flex-end;
-  min-inline-size:0;pointer-events:none;
-  padding:0;
+  grid-column:1;z-index:5;display:flex;align-items:center;justify-content:center;
+  justify-self:center;inline-size:36px;block-size:36px;
+  min-inline-size:0;pointer-events:none;padding:0;
 }
 .pg-section-navigator__rail[data-pg-placement='top'] {
-  grid-row:1;align-self:center;
+  grid-row:1;align-self:center;position:sticky;top:8px;
 }
 .pg-section-navigator__rail[data-pg-placement='bottom'] {
-  grid-row:2;align-self:end;position:sticky;bottom:0;
+  grid-row:2;align-self:end;position:sticky;bottom:8px;
 }
 .pg-section-navigator__handle {
-  display:inline-flex;align-items:center;justify-content:flex-end;gap:8px;
-  flex:0 0 auto;inline-size:max-content;max-inline-size:min(90vw, 300px);
-  min-block-size:36px;padding:0;border:0;background:transparent;color:var(--pg-color-text-secondary);
-  font:inherit;font-size:12px;cursor:default;touch-action:pan-x pinch-zoom;user-select:none;pointer-events:auto;
+  position:relative;display:inline-flex;align-items:center;justify-content:center;
+  flex:0 0 36px;inline-size:36px;block-size:36px;min-block-size:36px;
+  padding:0;border:0;background:transparent;color:var(--pg-color-text-secondary);
+  font:inherit;font-size:12px;cursor:default;touch-action:pan-x pinch-zoom;user-select:none;
+  opacity:0;pointer-events:none;
+  transition:opacity var(--pg-duration-fast) ease;
+}
+/* A gesture reveals only the applicable arrow. Keyboard focus is an
+ * accessible, zero-gesture route to the same existing control. */
+.pg-section-navigator__handle[data-pg-visible='true'],
+.pg-section-navigator__handle:focus-visible {
+  opacity:1;pointer-events:auto;
 }
 .pg-section-navigator__handle:active {cursor:default;}
 .pg-section-navigator__handle:focus-visible {
   outline:2px solid var(--pg-color-focus);outline-offset:2px;border-radius:var(--pg-radius-sm);
 }
-.pg-section-navigator__handle:disabled {color:var(--pg-color-text-muted);opacity:.38;cursor:default;}
+.pg-section-navigator__handle:disabled {color:var(--pg-color-text-muted);cursor:default;}
 .pg-section-navigator__handle:not(:disabled):hover,
 .pg-section-navigator__handle[data-pg-state='armed'] {color:var(--pg-color-accent);}
 .pg-section-navigator__symbol {
@@ -77,7 +83,14 @@
 }
 .pg-section-navigator__handle[data-pg-state='pulling'] .pg-section-navigator__ring-fill,
 .pg-section-navigator__handle[data-pg-state='armed'] .pg-section-navigator__ring-fill {transition:none;}
-.pg-section-navigator__caption {min-inline-size:0;overflow-wrap:anywhere;text-align:right;font-weight:500;}
+/* The label extends to the left; the arrow's center remains at 50% even
+ * for long section names and on narrow screens. */
+.pg-section-navigator__caption {
+  position:absolute;inset-inline-end:calc(100% + 8px);
+  inline-size:max-content;max-inline-size:min(200px, 40vw);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  text-align:right;font-weight:500;pointer-events:none;
+}
 .pg-section-navigator__status {
   position:absolute;inline-size:1px;block-size:1px;overflow:hidden;padding:0;border:0;
   clip-path:inset(50%);white-space:nowrap;
@@ -92,4 +105,7 @@
 .pg-section-navigator[data-pg-scroll-container='external'] .pg-section-navigator__viewport {
   overflow:visible;overscroll-behavior-y:auto;
 }
-@media(prefers-reduced-motion:reduce){.pg-section-navigator__ring-fill{transition:none;}}
+@media(prefers-reduced-motion:reduce){
+  .pg-section-navigator__ring-fill,
+  .pg-section-navigator__handle {transition:none;}
+}
