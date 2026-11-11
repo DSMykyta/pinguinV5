@@ -69,6 +69,7 @@ function renderStatus(brand) {
 
 function renderTile(brand) {
   const card = node('article', 'card');
+  card.classList.add('pg-collection-view__card');
   const picture = node('div', 'tile-preview');
   picture.setAttribute('role', 'img');
   picture.setAttribute('aria-label', 'Умовна заглушка зображення для ' + brand.name);
