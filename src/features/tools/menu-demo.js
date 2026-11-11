@@ -17,7 +17,7 @@ export function createMenuDemo() {
   const title=document.createElement('h3');
   title.textContent='Меню дій';
   const note=document.createElement('p');
-  note.textContent='Клавіатурна навігація, контекстні дії та елементи з відміткою.';
+  note.textContent='Наведіть на «Плагіни»: підменю розгорнеться праворуч. Клавіатура: → відкрити, ← повернутися, Escape закрити.';
   const row=document.createElement('div');
   row.className='pg-tools-menu-demo__row';
   const status=document.createElement('span');
@@ -26,6 +26,12 @@ export function createMenuDemo() {
   const actions=createMenu({label:'Дії',items:[
     {label:'Редагувати',value:'edit'},
     {label:'Дублювати',value:'duplicate'},
+    {label:'Плагіни',value:'plugins',items:[
+      {label:'Open Notion page',value:'notion-demo'},
+      {label:'Інші інструменти',value:'more',items:[
+        {label:'Приклад третього рівня',value:'third-level-demo'},
+      ]},
+    ]},
     {label:'Видалити',value:'delete',danger:true},
   ],onSelect:(value)=>{status.textContent='Обрана дія: '+value;status.dataset.pgMenuResult=value;}});
   const appearance=createMenu({label:'Вигляд',align:'end',items:[
