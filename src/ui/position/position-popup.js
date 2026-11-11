@@ -14,6 +14,7 @@
 export function positionPopup({
   anchor, popup, maxHeight = 320, matchWidth = true,
   minWidth = 170, maxWidth = 300, preferredWidth = null, align = 'start', gap = 4, edge = 8,
+  placement = 'block',
 } = {}) {
   if (!(anchor instanceof HTMLElement) || !(popup instanceof HTMLElement)) {
     throw new TypeError('Popup positioning requires anchor and popup elements');
@@ -25,6 +26,26 @@ export function positionPopup({
   const desiredWidth = matchWidth
     ? rect.width
     : Math.min(maxWidth, Math.max(minWidth, preferredWidth ?? rect.width));
+  // The existing block popup remains unchanged. Submenus request inline
+  // placement and reuse this same geometry owner, including viewport flip.
+  if (placement === 'inline') {
+    const right = Math.max(0, viewportWidth - rect.right - gap - edge);
+    const leftSpace = Math.max(0, rect.left - gap - edge);
+    const openingLeft = right < desiredWidth && leftSpace > right;
+    const available = openingLeft ? leftSpace : right;
+    const width = Math.min(widthLimit, desiredWidth, Math.max(0, available));
+    popup.style.position = 'fixed';
+    popup.style.width = width + 'px';
+    popup.style.minWidth = '0';
+    popup.style.left = (openingLeft ? rect.left - gap - width : rect.right + gap) + 'px';
+    popup.style.maxHeight = Math.max(0, Math.min(maxHeight, viewportHeight - 2 * edge)) + 'px';
+    const height = popup.getBoundingClientRect().height;
+    const top = Math.max(edge, Math.min(rect.top, viewportHeight - edge - height));
+    popup.style.top = top + 'px';
+    return { direction: openingLeft ? 'left' : 'right', top,
+      left: openingLeft ? rect.left - gap - width : rect.right + gap, width, height };
+  }
+  if (placement !== 'block') throw new TypeError('Unknown popup placement');
   const width = Math.min(widthLimit, desiredWidth);
   const requestedLeft = align === 'end' ? rect.right - width : rect.left;
   const left = Math.max(edge, Math.min(requestedLeft, viewportWidth - width - edge));
