@@ -91,6 +91,22 @@ test('section progress counter is absent globally while navigation remains usabl
   await expect(navigator.locator('.pg-section-navigator__counter')).toHaveCount(0);
 });
 
+test('keyboard focus reveals a hidden navigation arrow without a new control', async ({ page }) => {
+  await mountFixture(page);
+  const next = page.getByRole('button', { name: 'Перейти до розділу «Фото»' });
+  await expect(next).toHaveAttribute('data-pg-visible', 'false');
+  await expect(next).toHaveCSS('opacity', '0');
+  // A real Tab changes modality; focusing that same native control makes
+  // the focus ring and indicator visible without needing a wheel gesture.
+  await page.keyboard.press('Tab');
+  await next.focus();
+  await expect(next).toHaveCSS('opacity', '1');
+  await expect(next).toHaveCSS('pointer-events', 'auto');
+  await next.press('Enter');
+  await expect(heading(page)).toHaveText('Фото');
+  await expect(next).toHaveAttribute('data-pg-visible', 'false');
+});
+
 test('buttons and native keyboard preserve field DOM, values, scroll and focus', async ({ page }) => {
   await mountFixture(page);
   await page.getByRole('textbox', { name: 'Значення' }).fill('Мій товар');
@@ -374,6 +390,7 @@ test('navigator centers hidden edge indicators and reveals only the active pull'
   await expect.poll(progress).toBeLessThan(100);
   await expect(down).toHaveAttribute('data-pg-visible', 'true');
   await expect(up).toHaveAttribute('data-pg-visible', 'false');
+  await expect(down).toHaveCSS('pointer-events', 'none'); // Wheel remains on content.
   await scroller.evaluate(node => {
     node.dispatchEvent(new WheelEvent('wheel', { deltaY: 60, cancelable: true, bubbles: true }));
     node.dispatchEvent(new WheelEvent('wheel', { deltaY: 60, cancelable: true, bubbles: true }));
