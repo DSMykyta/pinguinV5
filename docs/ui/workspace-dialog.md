@@ -121,3 +121,11 @@
 - [MDN: CSS minmax](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/minmax) — grid із minmax(0, 1fr).
 
 **Реалізація:** `src/ui/dialog/dialog.js`, `src/ui/form-dialog/form-dialog.js`, `src/ui/workspace-layout/workspace-layout.js`, `src/ui/section-navigator/section-navigator.js`, `src/features/tools/data-views-demo.js`. Підказки над активним native Dialog належать спільному `src/ui/tooltip` і розміщуються у браузерному top layer як `popover=manual`; підказки фону скасовуються на `pg:modal-change`. Перевірки: `tests/e2e/workspace-dialog.spec.js` і чинні `dialog`, `form-dialog`, `section-navigator`, `tooltip` тести. Це локальний приклад, а не production-операції з Брендами.
+
+## Уточнення 2026-11-11: спільне меню, ширина полотна і постійні переходи
+
+- Пункти локального Workspace-меню мають ті самі іконки зліва, підписи поруч, відступи, hover/active і висоту, що й основний Sidebar. Спільний стиль належить `src/ui/button/button.css` (`pg-button--nav-item`), без окремого skin у Workspace і без імпорту глобального Sidebar.
+- Робочий canvas займає всю доступну площу між header/footer, nav/rail. Поля редактора заповнюють доступну ширину, а демонстраційна форма не використовує випадковий `max-width:660px`.
+- **Обидва елементи переходу завжди видимі**: попередній розділ зверху, наступний знизу canvas, навіть коли вміст секції довгий. Використовувати існуючий `SectionNavigator` у його внутрішньому режимі прокрутки (`header / topRail / scrollable viewport / bottomRail`). `Workspace` більше не викликає `setScrollContainer(canvas)`: canvas не прокручується, лише viewport між нерухомими рейками.
+- Висота проходить без обривів через `Workspace → canvas → Dialog body → feature content → SectionNavigator`; для вкладеного flex/grid потрібні `min-block-size:0`, без nested scrolling. Зберегти існуючі жести, кільця прогресу, анімацію й відновлення позиції.
+- Браузерна регресія повинна перевіряти нерухомість верхньої й нижньої рейок при прокручуванні дуже довгої секції, заповнення ширини, коротку секцію, згортання навігації та доступність керування.
