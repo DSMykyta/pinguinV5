@@ -5,7 +5,7 @@
  * ║ ПРИЗНАЧЕННЯ: Full workspace, native scroll and edge-pull indicators.                                ║
  * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
  * ║ ПУБЛІЧНИЙ API: .pg-section-navigator, .pg-section-navigator__header, .pg-section-navigator__title,  ║
- * ║ .pg-section-navigator__counter, .pg-section-navigator__viewport                                     ║
+ * ║ .pg-section-navigator__viewport, .pg-section-navigator__handle, .pg-section-navigator__ring        ║
  * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
  * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
@@ -24,7 +24,6 @@
   padding:0 var(--pg-sidebar-compact-width) 0 0;
 }
 .pg-section-navigator__title {min-inline-size:0;margin:0;font-size:16px;font-weight:600;overflow-wrap:anywhere;}
-.pg-section-navigator__counter {color:var(--pg-color-text-muted);font-size:12px;font-variant-numeric:tabular-nums;}
 .pg-section-navigator__title:focus-visible,.pg-section-navigator__viewport:focus-visible {
   outline:2px solid var(--pg-color-focus);outline-offset:-2px;
 }
