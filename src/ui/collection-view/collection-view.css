@@ -114,6 +114,33 @@
   position:relative;min-inline-size:0;
   /* The outer tile is the stable hover boundary; do not transform it. */
 }
+/* Shared card chrome; features render only content/preview/caption. */
+.pg-collection-view__card {
+  display: flex; flex-direction: column; min-inline-size: 0;
+  overflow: hidden;
+  border: 1px solid var(--pg-color-border);
+  border-radius: var(--pg-radius-md);
+  background: var(--pg-color-surface);
+  transition: border-color var(--pg-duration-fast) ease,
+    box-shadow var(--pg-duration-fast) ease;
+}
+.pg-collection-view__card:hover {
+  border-color: var(--pg-color-border-strong);
+  box-shadow: 0 6px 22px var(--pg-color-shadow);
+}
+/* Header selection actions must never push the persistent view switch. */
+.pg-collection-view__header-actions {
+  position: relative; display: inline-flex; align-items: center;
+  flex: 0 0 auto; gap: 0; min-inline-size: 0;
+}
+.pg-collection-view__aside-controls {
+  display: grid; gap: 14px; min-inline-size: 0;
+}
+.pg-collection-view__aside-detail {
+  margin: 0; font-size: 12px; line-height: 1.5;
+  color: var(--pg-color-text-secondary);
+  overflow-wrap: anywhere;
+}
 .pg-collection-view__tile-surface {
   position:relative;min-inline-size:0;
   transform-origin:center;
@@ -156,6 +183,7 @@
 }
 .pg-collection-view__tile-menu {margin-inline-start:auto;}
 @media (prefers-reduced-motion:reduce) {
+  .pg-collection-view__card { transition: none; }
   .pg-collection-view__tile-surface { transition:none; }
   .pg-collection-view__tile:is(:hover,
     :has(.pg-collection-view__tile-menu[data-pg-open='true'])) > .pg-collection-view__tile-surface {
