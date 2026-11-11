@@ -100,6 +100,7 @@ export function createMenu({ label, id, items = [], align = 'start', disabled = 
     const node = { panel, parent, parentButton, buttons: [], children: new Map(),
       activeChild: null, open: false };
     allNodes.push(node);
+    const hasSubmenus = nodeEntries.some(entry => entry.items);
 
     for (const entry of nodeEntries) {
       const button = document.createElement('button');
@@ -148,7 +149,7 @@ export function createMenu({ label, id, items = [], align = 'start', disabled = 
         onSelect?.(entry.value, { ...entry }, event);
       }, { signal });
 
-      button.addEventListener('pointerenter', event => {
+      if (hasSubmenus) button.addEventListener('pointerenter', event => {
         if (entry.disabled || (event.pointerType !== 'mouse' && event.pointerType !== 'pen')) return;
         cancelGrace();
         const submenu = node.children.get(button);
@@ -177,7 +178,7 @@ export function createMenu({ label, id, items = [], align = 'start', disabled = 
 
     // When a long parent menu scrolls, its anchored submenu must follow
     // the same row; hide it if that row is no longer in the scroll viewport.
-    panel.addEventListener('scroll', () => {
+    if (hasSubmenus) panel.addEventListener('scroll', () => {
       const child = node.activeChild;
       if (!child?.open) return;
       const anchor = child.parentButton.getBoundingClientRect();
