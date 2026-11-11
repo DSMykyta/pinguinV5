@@ -392,11 +392,18 @@ test('compact controls use ordinary cursor; short sections have no artificial bl
   await down.click();
   await expect(title).toHaveText('Опис');
   await expect(root).toHaveAttribute('aria-busy', 'false');
-  const textPanel = await root.locator('[data-pg-section="description"]').boundingBox();
+  const rootBox = await root.boundingBox();
   const downBounds = await down.boundingBox();
-  expect(downBounds.y - (textPanel.y + textPanel.height)).toBeLessThan(58);
-  expect(downBounds.y - (textPanel.y + textPanel.height)).toBeGreaterThanOrEqual(-2);
-  await expect(root).toHaveCSS('grid-template-rows', /.+/);
+  const headingBox = await title.boundingBox();
+  const topRail = await root.locator('[data-pg-placement="top"]').boundingBox();
+  const bottomRail = await root.locator('[data-pg-placement="bottom"]').boundingBox();
+  // The universal navigator has a narrow control column, not two 38px
+  // horizontal spacer rows. Its heading shares the content's left axis.
+  expect(topRail.width).toBeLessThanOrEqual(57);
+  expect(bottomRail.width).toBeLessThanOrEqual(57);
+  expect(Math.abs(topRail.y - headingBox.y)).toBeLessThan(22);
+  expect(Math.abs(rootBox.y + rootBox.height - (downBounds.y + downBounds.height))).toBeLessThan(24);
+  await expect(root).toHaveCSS('grid-template-columns', /.+/);
 });
 
 test('external navigator fills a short workspace and keeps the next control at the bottom', async ({ page }) => {
