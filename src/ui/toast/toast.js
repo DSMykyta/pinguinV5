@@ -59,6 +59,8 @@ export function mountToasts() {
   let focusWithin = false;
   let windowBlurred = false;
   let expanded = false;
+  let expandedScroll = 0;
+  let expandedOverflow = 0;
 
   const resizeObserver = typeof view.ResizeObserver === 'function'
     ? new view.ResizeObserver(() => refreshLayout()) : null;
@@ -112,33 +114,59 @@ export function mountToasts() {
    */
   function refreshLayout() {
     if (destroyed) return;
-    const ordered = Array.from(visible).reverse();
+    // The FIFO queue remains pending, but its cards can be inspected on
+    // hover/focus without changing the three active timers or their order.
+    const active = Array.from(visible);
+    const ordered = (expanded ? [...active, ...queue] : active).reverse();
     host.dataset.pgExpanded = String(expanded);
-    host.dataset.pgEmpty = String(ordered.length === 0);
-    host.tabIndex = ordered.length ? 0 : -1;
+    host.dataset.pgEmpty = String(active.length === 0 && queue.length === 0);
+    host.tabIndex = active.length || queue.length ? 0 : -1;
 
     const maximumHeight = Math.max(100, view.innerHeight - 40);
+    const heights = ordered.map(item => item.element.offsetHeight);
+    const fullHeight = heights.reduce((sum, height) => sum + height, 0)
+      + Math.max(0, ordered.length - 1) * EXPANDED_GAP;
+    expandedOverflow = expanded ? Math.max(0, fullHeight - maximumHeight) : 0;
+    expandedScroll = Math.min(expandedScroll, expandedOverflow);
+    host.dataset.pgOverflow = String(expandedOverflow > 0);
+
+    // Keep pending cards mounted for smooth expansion, but completely inert
+    // and inaccessible while the ordinary three-card stack is collapsed.
+    if (!expanded) {
+      for (const item of queue) {
+        item.element.dataset.pgDepth = 'pending';
+        item.element.style.setProperty('--pg-toast-offset', '0px');
+        item.element.style.setProperty('--pg-toast-stack-layer', '0');
+        item.element.inert = true;
+        item.element.setAttribute('aria-hidden', 'true');
+      }
+    }
+
     let expandedOffset = 0;
     let neededHeight = 0;
     for (let depth = 0; depth < ordered.length; depth += 1) {
       const item = ordered[depth];
-      const height = item.element.offsetHeight;
-      const wantedOffset = expanded ? expandedOffset : depth * COLLAPSED_PEEK;
-      const offset = Math.max(0, Math.min(wantedOffset, maximumHeight - height));
+      const height = heights[depth];
+      const offset = expanded
+        ? expandedOffset - expandedScroll
+        : Math.max(0, Math.min(depth * COLLAPSED_PEEK, maximumHeight - height));
       item.element.style.setProperty('--pg-toast-offset', offset + 'px');
+      item.element.style.setProperty('--pg-toast-stack-layer', String(ordered.length - depth));
       item.element.dataset.pgDepth = String(depth);
       item.element.inert = !expanded && depth > 0;
+      item.element.setAttribute('aria-hidden', 'false');
       neededHeight = Math.max(neededHeight, offset + height);
       expandedOffset += height + EXPANDED_GAP;
     }
     host.style.setProperty('--pg-toast-host-height',
-      Math.min(maximumHeight, Math.ceil(neededHeight)) + 'px');
+      Math.min(maximumHeight, Math.ceil(expanded ? fullHeight : neededHeight)) + 'px');
   }
 
   function syncInteraction() {
     const next = pointerInside || focusWithin;
     if (expanded === next) return;
     expanded = next;
+    if (!expanded) expandedScroll = 0;
     refreshLayout();
     for (const item of visible) {
       if (expanded) pauseTimer(item);
@@ -165,11 +193,20 @@ export function mountToasts() {
 
   function dismissItem(item) {
     if (destroyed || item.isClosing) return false;
-    if (!visible.has(item)) {
+    const wasVisible = visible.has(item);
+    if (!wasVisible) {
       const index = queue.indexOf(item);
       if (index < 0) return false;
       queue.splice(index, 1);
-      return true;
+      // Programmatic dismissal of an unseen queued item is immediate.
+      if (!expanded) {
+        resizeObserver?.unobserve(item.element);
+        item.element.remove();
+        refreshLayout();
+        return true;
+      }
+    } else {
+      visible.delete(item);
     }
 
     item.isClosing = true;
@@ -180,7 +217,6 @@ export function mountToasts() {
       item.announcementTimerId = null;
     }
     // Preserve this element's last --pg-toast-offset until it travels down.
-    visible.delete(item);
     exiting.add(item);
     // Travel beyond the bottom of the viewport regardless of the toast's
     // height or its position in the expanded stack. No fade-out/snap.
@@ -191,7 +227,7 @@ export function mountToasts() {
     item.element.inert = true;
 
     refreshLayout();
-    showWaiting();
+    if (wasVisible) showWaiting();
 
     const reduceMotion = view.matchMedia('(prefers-reduced-motion: reduce)').matches;
     item.exitTimerId = view.setTimeout(() => finishDismiss(item),
@@ -268,29 +304,39 @@ export function mountToasts() {
     return element;
   }
 
+  function animateEntry(item) {
+    view.requestAnimationFrame(() => {
+      view.requestAnimationFrame(() => {
+        if (!destroyed && !item.isClosing && (visible.has(item) || queue.includes(item))) {
+          item.element.dataset.pgState = 'visible';
+        }
+      });
+    });
+  }
+
   function showWaiting() {
     if (destroyed) return;
     const newlyVisible = [];
     while (visible.size < MAX_VISIBLE_TOASTS && queue.length) {
       const item = queue.shift();
-      item.element = createToastElement(item);
+      const firstMount = !item.element;
+      if (firstMount) {
+        item.element = createToastElement(item);
+        host.prepend(item.element);
+        resizeObserver?.observe(item.element);
+      }
       visible.add(item);
-      host.prepend(item.element);
-      resizeObserver?.observe(item.element);
+      item.element.dataset.pgPending = 'false';
+      item.element.inert = false;
+      item.element.setAttribute('aria-hidden', 'false');
       newlyVisible.push(item);
+      if (firstMount) animateEntry(item);
     }
 
     refreshLayout();
     for (const item of newlyVisible) {
       announce(item);
       resumeTimer(item);
-      view.requestAnimationFrame(() => {
-        view.requestAnimationFrame(() => {
-          if (!destroyed && visible.has(item) && !item.isClosing) {
-            item.element.dataset.pgState = 'visible';
-          }
-        });
-      });
     }
   }
 
@@ -332,6 +378,18 @@ export function mountToasts() {
     item.handle = Object.freeze({ dismiss: () => dismissItem(item) });
     queue.push(item);
     showWaiting();
+    if (queue.includes(item)) {
+      // A queued item is already part of the stack on hover; it does not
+      // consume an active slot or start its countdown until FIFO promotion.
+      item.element = createToastElement(item);
+      item.element.dataset.pgPending = 'true';
+      item.element.inert = !expanded;
+      item.element.setAttribute('aria-hidden', String(!expanded));
+      host.prepend(item.element);
+      resizeObserver?.observe(item.element);
+      refreshLayout();
+      animateEntry(item);
+    }
     return item.handle;
   }
 
@@ -360,6 +418,18 @@ export function mountToasts() {
     dismissItem(newest);
   }
 
+  function onHostWheel(event) {
+    if (!expanded || expandedOverflow <= 0) return;
+    // The newest cards stay at the bottom; scrolling up reveals older cards
+    // if the expanded list is taller than the available viewport.
+    const next = Math.max(0, Math.min(expandedOverflow, expandedScroll - event.deltaY));
+    if (next === expandedScroll) return;
+    event.preventDefault();
+    expandedScroll = next;
+    refreshLayout();
+  }
+
+  host.addEventListener('wheel', onHostWheel, { passive: false });
   host.addEventListener('mouseenter', () => {
     pointerInside = true;
     syncInteraction();
