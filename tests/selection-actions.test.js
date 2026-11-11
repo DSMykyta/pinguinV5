@@ -124,7 +124,7 @@ test('both mode groups reuse RevealPanel, never show a cross or count for one', 
 
 test('animated groups occupy one anchored region and do not move header controls', () => {
   const css = readFileSync(new URL('../src/ui/selection-actions/selection-actions.css', import.meta.url), 'utf8');
-  const hostCss = readFileSync(new URL('../src/features/tools/data-views-demo.css', import.meta.url), 'utf8');
+  const hostCss = readFileSync(new URL('../src/ui/collection-view/collection-view.css', import.meta.url), 'utf8');
   const group = css.match(/\.pg-selection-actions__group\s*\{([^}]+)\}/)?.[1] ?? '';
   const root = css.match(/\.pg-selection-actions\s*\{([^}]+)\}/)?.[1] ?? '';
   assert.match(root, /position:\s*absolute/);
@@ -135,5 +135,9 @@ test('animated groups occupy one anchored region and do not move header controls
   assert.match(group, /justify-content:\s*flex-end;/);
   assert.doesNotMatch(group, /width:\s*max-content/);
   assert.doesNotMatch(css, /transition\s*:\s*max-width|transform:\s*translateY/);
-  assert.match(hostCss, /\.pg-tools-data-views__header-actions\s*\{[^}]*position:\s*relative/);
+  assert.match(hostCss, /\.pg-collection-view__header-actions\s*\{[^}]*position:\s*relative/);
+  for (const path of ['data-views-demo.css', 'media-library-demo.css']) {
+    const featureCss = readFileSync(new URL('../src/features/tools/' + path, import.meta.url), 'utf8');
+    assert.doesNotMatch(featureCss, /__header-actions\s*\{|__card:hover\s*\{/);
+  }
 });
