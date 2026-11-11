@@ -115,13 +115,13 @@ export function createWorkspaceLayout({ title, body, status, sections = [] }) {
     });
     navigator.element.classList.add('pg-workspace-layout__navigator');
     host.append(navigator.element);
-    // Reuse the same outer scroll surface as the rest of this workspace.
-    navigator.setScrollContainer(canvas);
+    // The navigator's own viewport scrolls. Its existing top and bottom
+    // handles remain visible on the canvas edges at every section height.
   }
   for (const section of sections) {
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = 'pg-workspace-layout__nav-item pg-button pg-button--list-item';
+    button.className = 'pg-workspace-layout__nav-item pg-button--nav-item';
     button.setAttribute('aria-label', section.label);
     button.setAttribute('aria-controls', navigator.element.querySelector('.pg-section-navigator__viewport').id);
     button.append(createIcon(section.icon || 'layers'));
