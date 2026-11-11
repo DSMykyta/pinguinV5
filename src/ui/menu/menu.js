@@ -175,6 +175,17 @@ export function createMenu({ label, id, items = [], align = 'start', disabled = 
       }
     }
 
+    // When a long parent menu scrolls, its anchored submenu must follow
+    // the same row; hide it if that row is no longer in the scroll viewport.
+    panel.addEventListener('scroll', () => {
+      const child = node.activeChild;
+      if (!child?.open) return;
+      const anchor = child.parentButton.getBoundingClientRect();
+      const bounds = panel.getBoundingClientRect();
+      if (anchor.bottom <= bounds.top || anchor.top >= bounds.bottom) closeNode(child);
+      else positionNode(child);
+    }, { passive: true, signal });
+
     panel.addEventListener('keydown', event => {
       // Nested popup events bubble to the ancestor menu as well.
       if (event.target.closest('[role="menu"]') !== panel) return;
