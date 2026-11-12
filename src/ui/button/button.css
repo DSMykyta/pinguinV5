@@ -917,3 +917,69 @@
   }
 }
 
+
+/*
+ * ╔═══════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — GROUP BUTTON SKIN                                                                    ║
+ * ╠═══════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ТИП: .pg-button--group                                                                              ║
+ * ║ ПРИЗНАЧЕННЯ: Єдині кнопкові стани для Material 3 Button Group та локальних Tabs.                   ║
+ * ║ ЗАЛЕЖНОСТІ: src/ui/button-group/button-group.css (розміщення та форми).                             ║
+ * ║ ПУБЛІЧНИЙ API: ghost/tonal/filled через data-pg-appearance контейнера.                            ║
+ * ║ ПРИНЦИП: Колір і hover/pressed/selected лише тут; таби не дублюють button skin.                    ║
+ * ╚═══════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+.pg-button-group {
+  --pg-button-group-idle-bg: transparent;
+  --pg-button-group-idle-ink: var(--pg-color-text-secondary);
+  --pg-button-group-hover-bg: var(--pg-color-hover);
+  --pg-button-group-selected-bg: var(--pg-color-selected);
+  --pg-button-group-selected-ink: var(--pg-color-text-primary);
+}
+.pg-button-group[data-pg-appearance='tonal'] {
+  --pg-button-group-idle-bg: var(--pg-color-tab-idle);
+  --pg-button-group-hover-bg: var(--pg-color-hover);
+  --pg-button-group-selected-bg: var(--pg-color-tab-selected);
+  --pg-button-group-selected-ink: var(--pg-color-tab-ink);
+}
+.pg-button-group[data-pg-appearance='filled'] {
+  --pg-button-group-idle-bg: var(--pg-color-tab-idle);
+  --pg-button-group-hover-bg: var(--pg-color-tab-selected);
+  --pg-button-group-selected-bg: var(--pg-tone-main-solid);
+  --pg-button-group-selected-ink: var(--pg-tone-main-on-solid);
+}
+.pg-button--group {
+  background: var(--pg-button-group-idle-bg);
+  color: var(--pg-button-group-idle-ink);
+  font-size: 13px;
+  font-weight: 560;
+  border: 0;
+  white-space: nowrap;
+  transition: background-color var(--pg-duration-normal) var(--pg-ease),
+    color var(--pg-duration-normal) var(--pg-ease),
+    border-radius var(--pg-duration-layout) var(--pg-ease-layout),
+    transform var(--pg-duration-fast) var(--pg-ease),
+    filter var(--pg-duration-fast) var(--pg-ease);
+}
+.pg-button-group > .pg-button--group:hover:not(:disabled) {
+  background: var(--pg-button-group-hover-bg);
+  color: var(--pg-color-text-primary);
+}
+.pg-button-group > .pg-button--group:is(
+  [aria-selected='true'], [aria-pressed='true'], [data-pg-selected='true']
+) {
+  background: var(--pg-button-group-selected-bg);
+  color: var(--pg-button-group-selected-ink);
+}
+.pg-button-group > .pg-button--group:is(
+  [aria-selected='true'], [aria-pressed='true'], [data-pg-selected='true']
+):hover:not(:disabled) {
+  background: var(--pg-button-group-selected-bg);
+  filter: brightness(.97);
+}
+.pg-button-group > .pg-button--group:active:not(:disabled) {
+  filter: brightness(.92);
+}
+@media (prefers-reduced-motion: reduce) {
+  .pg-button--group { transition: none; }
+}
