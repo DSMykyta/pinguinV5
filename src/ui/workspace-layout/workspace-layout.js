@@ -111,6 +111,8 @@ export function createWorkspaceLayout({ title, body, status, sections = [] }) {
       items: sections.map(section => ({
         id: section.id, label: section.label, content: section.element,
       })),
+      // Same transitions and gestures, with a responsive duration for large forms.
+      motion: 'responsive',
       onChange: ({ toId }) => syncSelection(toId),
     });
     navigator.element.classList.add('pg-workspace-layout__navigator');
