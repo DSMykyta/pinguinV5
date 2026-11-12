@@ -18,6 +18,7 @@ import { createIcon } from '../icon/icon.js';
 import { createPagination } from '../pagination/pagination.js';
 
 const collator = new Intl.Collator('uk', { numeric:true, sensitivity:'base' });
+const DENSITIES = new Set(['compact', 'comfortable']);
 function compareValues(a,b) {
   if(a==null&&b==null)return 0;
   if(a==null)return 1;
@@ -46,8 +47,8 @@ function validateColumns(columns) {
 export function createCollectionView({
   label,rows=[],columns,getRowId=row=>row.id,renderTile,
   modes=['table'],initialMode='table',initialSort=null,
-  selectable=false,rowActions=[],pageSize=25,
-  onModeChange,onSortChange,onSelectionChange,onRowAction,onEditRow,
+  selectable=false,rowActions=[],pageSize=25,density='compact',
+  onModeChange,onSortChange,onSelectionChange,onRowAction,onEditRow,onDensityChange,
 }={}) {
   if(typeof label!=='string'||!label.trim())throw new TypeError('Collection label is required');
   if(typeof getRowId!=='function')throw new TypeError('getRowId must be a function');
@@ -61,6 +62,7 @@ export function createCollectionView({
       !['asc','desc'].includes(initialSort.direction)))throw new TypeError('Invalid initial sort');
   if(!Array.isArray(rowActions)||rowActions.some(item=>!item||
     typeof item.label!=='string'||typeof item.value!=='string'))throw new TypeError('Invalid row actions');
+  if(!DENSITIES.has(density))throw new RangeError('Unsupported collection density');
 
   const element=document.createElement('section');
   element.className='pg-collection-view';
@@ -68,6 +70,7 @@ export function createCollectionView({
   element.dataset.pgSelectable=String(Boolean(selectable));
   element.dataset.pgRowActions=String(rowActions.length>0);
   element.dataset.pgRowEdit=String(typeof onEditRow==='function');
+  element.dataset.pgDensity=density;
   const tableScroller=document.createElement('div');
   tableScroller.className='pg-collection-view__table-scroll pg-scrollbar';
   tableScroller.tabIndex=0;
@@ -98,6 +101,7 @@ export function createCollectionView({
   const rowControls=[];
   let dataset=[];
   let currentMode=initialMode;
+  let currentDensity=density;
   let sort=initialSort?{...initialSort}:null;
   let query='';
   let sortedCache=null;
@@ -510,6 +514,15 @@ export function createCollectionView({
     element.dataset.pgView=next;
     if(changed)renderData();
   }
+  function setDensity(next) {
+    if(!DENSITIES.has(next))throw new RangeError('Unsupported collection density');
+    if(next===currentDensity)return false;
+    currentDensity=next;
+    // CSS-only: no row render, no new data state, no focus or scroll reset.
+    element.dataset.pgDensity=next;
+    onDensityChange?.(next);
+    return true;
+  }
   function setDataState(next,message='') {
     if(!['ready','loading','error'].includes(next))
       throw new RangeError('Invalid collection data state');
@@ -525,6 +538,7 @@ export function createCollectionView({
   return Object.freeze({
     element,headerActions:switcher?.element??null,footerContent:pageControl.element,
     getMode:()=>currentMode,setMode,
+    getDensity:()=>currentDensity,setDensity,
     getRows:()=>[...sortedRows()],getVisibleRows,getSort:()=>sort?{...sort}:null,
     setSort,getQuery:()=>query,setQuery,getSelectedIds,getSelectionSummary,
     getDataState:()=>dataState,setDataState,clearSelection() {
