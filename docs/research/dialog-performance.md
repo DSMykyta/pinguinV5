@@ -46,3 +46,15 @@
 **Виправлення:** `src/ui/dialog/dialog.js` монтує допоміжний **візуальний елемент у межах того самого Dialog manager** тільки для `size='workspace'`; CSS `src/ui/dialog/dialog.css` розмиває лише 4 смуги (верх/низ 16px, боки під реальну ширину `min(1440px, 100dvw-32px)`). Нативний `::backdrop` залишає затверджений dim, але без важкого full-screen blur. На mobile 700px і менше Workspace займає весь viewport — смуги не рендеряться. Елемент гарантовано прибирається через `finish/destroy/catch`. Звичайні Dialog/Confirm продовжують використовувати blur(8px) на нативному `::backdrop` без змін.
 
 **Межі:** це **не** новий модальний компонент і не глобальний менеджер, не зміна форми, ширини або анімації секцій; Native focus trap, stack, close guard і дані без змін. `prefers-reduced-transparency` прибирає blur на смугах. Перевірити `dialog-performance.spec.js`, `workspace-dialog.spec.js` і Chrome Performance на реальному ПК після Pull.
+
+
+### Контрольний прогін після виправлення
+
+В окремому тимчасовому тестовому середовищі з актуального `work` (Chromium 158, viewport 1456×900):
+- **`npm run check` — пройшов**, включаючи перевірки коду, unit tests і production Vite build.
+- **16/16 цільових Playwright-тестів** із `dialog-performance.spec.js`, `workspace-dialog.spec.js`, `dialog.spec.js` — пройшли.
+- **9 переходів** між «Основне», «Канали продажу», «Налаштування»: `[320,302,297,282,303,283,287,301,293]` мс, **медіана 297 мс**.
+- Native `::backdrop` у Workspace: `backdrop-filter:none`; чотири реальні крайові смуги: `blur(8px)`; після close-guard і закриття DOM-вузли смуг видалено.
+- Заповнення поля `Назва бренду` в автоматизованому сценарії — 15 мс. Це не вимірювання користувацького FPS або INP на його Windows-пристрої.
+
+Широкий паралельний прогін **280** E2E-кейсів у невеликому 2-vCPU sandbox був перерваний після помилок в інших тестах (зокрема CollectionView, Field, RevealPanel); його **не вважати зеленим**. Окремі цільові 16 тестів пройшли. Для остаточної візуальної оцінки на Windows потрібен локальний браузер користувача після `Pull origin`.
