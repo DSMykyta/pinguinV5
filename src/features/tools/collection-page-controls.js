@@ -37,6 +37,10 @@ export function createCollectionPageControls({
   const preference = createStoredChoice({
     storage, key: storageKey, choices: ['table', 'tiles'], defaultValue: defaultMode,
   });
+  const densityPreference = createStoredChoice({
+    storage, key: storageKey + ':density',
+    choices: ['compact', 'comfortable'], defaultValue: 'compact',
+  });
 
   let collection = null;
   const sortBy = createSelect({
@@ -51,12 +55,30 @@ export function createCollectionPageControls({
     onChange: value => collection?.setSort(sortBy.getValue(), value),
   });
 
+  // This is an instance of the existing SegmentSwitch, never another mode
+  // in Shell or a second copy of collection selection/pagination state.
+  const densitySwitch = createSegmentSwitch({
+    label: 'Щільність відображення', variant: 'outline', compact: true,
+    options: [
+      { value: 'compact', label: 'Компактно' },
+      { value: 'comfortable', label: 'Комфортно' },
+    ],
+    value: densityPreference.getValue(),
+    onChange: next => collection?.setDensity(next),
+  });
+  const densityControl = document.createElement('div');
+  densityControl.className = 'pg-collection-view__density-control';
+  const densityLabel = document.createElement('span');
+  densityLabel.className = 'pg-collection-view__density-label';
+  densityLabel.textContent = 'Щільність';
+  densityControl.append(densityLabel, densitySwitch.element);
+
   const headerActions = document.createElement('div');
   headerActions.className = 'pg-collection-view__header-actions';
   const asideControls = document.createElement('div');
   asideControls.className = 'pg-collection-view__aside-controls';
   details.classList.add('pg-collection-view__aside-detail');
-  asideControls.append(sortBy.element, direction.element, details);
+  asideControls.append(sortBy.element, direction.element, densityControl, details);
 
   function bound() {
     if (!collection) throw new Error('Collection page controls must be bound before use');
@@ -65,6 +87,7 @@ export function createCollectionPageControls({
 
   return Object.freeze({
     initialMode: preference.getValue(),
+    initialDensity: densityPreference.getValue(),
     initialSort: { ...initialSort },
     headerActions, asideControls,
     bind(instance) {
@@ -76,6 +99,10 @@ export function createCollectionPageControls({
       headerActions.append(instance.headerActions, selectedActions.element);
     },
     onModeChange: next => preference.setValue(next),
+    onDensityChange: next => {
+      densitySwitch.setValue(next);
+      densityPreference.setValue(next);
+    },
     onSortChange: state => {
       sortBy.setValue(state.key);
       direction.setValue(state.direction);
@@ -97,6 +124,7 @@ export function createCollectionPageControls({
     destroy() {
       sortBy.destroy();
       direction.destroy();
+      densitySwitch.destroy();
       headerActions.remove();
       asideControls.remove();
       collection = null;
