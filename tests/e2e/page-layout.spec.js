@@ -125,8 +125,8 @@ test('previous accepted spacing and fixed right controls survive aside pinning',
   await expect(header).toHaveCSS('height', '60px');
   expect(mainStyle.top).toBe('0px');
   expect(parseFloat(mainStyle.left)).toBe(0);
-  expect(mainStyle.radius).toBe('18px');
-  expect(mainStyle.background).not.toBe('rgba(0, 0, 0, 0)');
+  expect(mainStyle.radius).toBe('0px');
+  expect(mainStyle.background).toBe('rgba(0, 0, 0, 0)');
   await expect(main.locator('#pg-tools-panel-data-views .pg-collection-view')).toBeVisible();
   await expect(page.locator('#pg-tools-panel-text .pg-page')).toBeHidden();
 
@@ -150,6 +150,27 @@ test('previous accepted spacing and fixed right controls survive aside pinning',
   const afterCollapse = await context.boundingBox();
   expect(Math.abs(afterCollapse.x - beforeContext.x)).toBeLessThan(1);
   expect(Math.abs(afterCollapse.y - beforeContext.y)).toBeLessThan(1);
+});
+
+test('main workspace stays transparent in dark theme across tabs', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.goto('/tools');
+
+  const theme = page.locator('[data-pg-action="theme-cycle"]');
+  await theme.click(); // system → light
+  await theme.click(); // light → dark
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+
+  const main = page.locator('.pg-shell__content');
+  for (const tab of ['Таблиці', 'Макети даних', 'Медіатека', 'Текст', 'Переходи']) {
+    await page.getByRole('tab', { name: tab, exact: true }).click();
+    await expect(main).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  }
+
+  await page.locator('[data-pg-action="aside-toggle"]').click();
+  await page.locator('[data-pg-action="aside-pin"]').click();
+  await expect(main).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
 });
 
 test('expanded sidebar labels do not repeat as tooltips', async ({ page }) => {
