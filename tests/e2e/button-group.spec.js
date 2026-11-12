@@ -22,6 +22,7 @@ test('tools tabs reuse a connected ghost button group without losing tab semanti
   await expect(group).toHaveClass(/pg-button-group/);
   await expect(group).toHaveAttribute('data-pg-variant', 'connected');
   await expect(group).toHaveAttribute('data-pg-appearance', 'ghost');
+  await expect(group).toHaveAttribute('data-pg-shape', 'square');
   await expect(first).toHaveAttribute('aria-selected', 'true');
 
   const metrics = await group.evaluate(node => {
@@ -43,10 +44,19 @@ test('tools tabs reuse a connected ghost button group without losing tab semanti
   expect(metrics.height).toBe(40);
   expect(metrics.distance).toBeCloseTo(2, 0);
   expect(metrics.middleInner).toBe('8px');
-  expect(metrics.lastOuter).toBe('9999px');
+  expect(metrics.lastOuter).toBe('8px');
   expect(metrics.idleBg).toBe('rgba(0, 0, 0, 0)');
   expect(metrics.selectedBg).not.toBe(metrics.idleBg);
   expect(metrics.firstOuter).toBe('9999px');
+
+  // Edge tabs never become capsules on hover. Only selected gets full rounding.
+  await last.hover();
+  await expect.poll(() => last.evaluate(button => getComputedStyle(button).borderTopRightRadius)).toBe('8px');
+  await last.click();
+  await expect.poll(() => last.evaluate(button => getComputedStyle(button).borderTopRightRadius)).toBe('9999px');
+  await first.hover();
+  await expect.poll(() => first.evaluate(button => getComputedStyle(button).borderTopLeftRadius)).toBe('8px');
+  await expect(first).toHaveAttribute('aria-selected', 'false');
 
   await text.click();
   await expect(text).toHaveAttribute('aria-selected', 'true');
