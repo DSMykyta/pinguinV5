@@ -35,6 +35,57 @@
   backdrop-filter: blur(8px);
 }
 
+/* Large Workspace fills the viewport except for thin outside margins.
+ * Full-screen backdrop-filter was measured at ~0.6–0.9s per section switch
+ * in software-rendered Chromium. Restrict blur to the actually visible strips.
+ * The native ::backdrop still provides its original color and modality. */
+.pg-dialog--workspace::backdrop {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.pg-dialog__blur-margins {
+  position: fixed;
+  inset: 0;
+  z-index: 9999; /* Still behind native dialog's browser-managed top layer. */
+  pointer-events: none;
+}
+.pg-dialog__blur-margins::before,
+.pg-dialog__blur-margins::after,
+.pg-dialog__blur-margin-side {
+  content: '';
+  display: block;
+  position: absolute;
+  pointer-events: none;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.pg-dialog__blur-margins::before {
+  inset: 0 0 auto;
+  block-size: 16px;
+}
+.pg-dialog__blur-margins::after {
+  inset: auto 0 0;
+  block-size: 16px;
+}
+.pg-dialog__blur-margin-side {
+  inset-block: 0;
+  inline-size: max(16px, calc((100dvw - 1440px) / 2));
+}
+.pg-dialog__blur-margin-side[data-pg-side='left'] { inset-inline-start: 0; }
+.pg-dialog__blur-margin-side[data-pg-side='right'] { inset-inline-end: 0; }
+@media (max-width: 700px) {
+  /* Mobile Workspace occupies the full viewport: no outside edge to blur. */
+  .pg-dialog__blur-margins { display: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .pg-dialog__blur-margins::before,
+  .pg-dialog__blur-margins::after,
+  .pg-dialog__blur-margin-side {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
 .pg-dialog[data-pg-state='visible'] {
   opacity: 1;
   transform: translateY(0) scale(1);
