@@ -302,7 +302,7 @@ test('Material floating toolbar and filled slider retain one field outline witho
   await visual.focus();
   await expect(main).toHaveCSS('border-color', idleBorder);
   await expect(mode).toHaveAttribute('data-pg-variant', 'filled');
-  await expect(trigger).toHaveClass(/pg-icon-button--disclosure/);
+  await expect(trigger).toHaveAttribute('data-pg-disclosure', 'true');
   const animation = await trigger.locator('svg').evaluate(icon => getComputedStyle(icon).transitionDuration);
   expect(animation).not.toBe('0s');
 
