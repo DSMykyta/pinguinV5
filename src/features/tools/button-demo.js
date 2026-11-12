@@ -18,7 +18,7 @@ export function createButtonDemo() {
   const title = document.createElement('h3');
   title.textContent = 'Спільні кнопки';
   const hint = document.createElement('p');
-  hint.textContent = 'Іконка до або після тексту; Loading рухається по бордеру, не по вмісту.';
+  hint.textContent = 'Іконка до або після тексту; Loading показує мінливі фігури в центрі тієї ж кнопки.';
   const row = document.createElement('div');
   row.className = 'pg-tools-button-demo__row';
   const status = document.createElement('p');
