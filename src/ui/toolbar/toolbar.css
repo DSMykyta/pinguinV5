@@ -1,0 +1,42 @@
+/*
+ * ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SHARED MATERIAL 3 TOOLBAR                                                           ║
+ * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Surface, rounded shape and item spacing of the reusable toolbar.                       ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css; child buttons keep their own skins and states.                   ║
+ * ║ ПУБЛІЧНИЙ API: .pg-toolbar[data-pg-variant][data-pg-density].                                       ║
+ * ║ ПРИНЦИП: No command logic or layout knowledge of individual editors/features.                      ║
+ * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
+.pg-toolbar {
+  display: inline-flex;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--pg-space-1);
+  inline-size: max-content;
+  max-inline-size: 100%;
+}
+.pg-toolbar[data-pg-variant='floating'] {
+  min-block-size: 56px;
+  padding: var(--pg-space-2);
+  border: 0;
+  border-radius: var(--pg-radius-full);
+  background: var(--pg-color-selected);
+}
+.pg-toolbar[data-pg-variant='floating'][data-pg-density='compact'] {
+  min-block-size: 40px;
+  padding: var(--pg-space-1) var(--pg-space-2);
+}
+.pg-toolbar[data-pg-variant='docked'] {
+  min-block-size: 56px;
+  padding: var(--pg-space-2) var(--pg-space-4);
+  border-radius: var(--pg-radius-md);
+  background: var(--pg-color-surface-soft);
+}
+.pg-toolbar[data-pg-variant='docked'][data-pg-density='compact'] {
+  min-block-size: 40px;
+  padding: var(--pg-space-1) var(--pg-space-2);
+}
