@@ -17,8 +17,8 @@ export function mountEditorModeSwitch({ host, controls, editorId, sourceId }) {
   const switcher = createSegmentSwitch({
     label: 'Режим текстового редактора',
     options: [
-      { value: 'editor', label: 'Редактор' },
-      { value: 'html', label: 'HTML' },
+      { value: 'editor', label: 'Редактор', icon: 'file-text', iconOnly: true },
+      { value: 'html', label: 'HTML', icon: 'code', iconOnly: true },
     ],
     value: controls.getMode(),
     variant: 'outline',
