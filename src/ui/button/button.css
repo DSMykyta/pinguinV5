@@ -896,8 +896,8 @@
 :is(.pg-button, .pg-icon-button)[data-pg-loading='true']::after {
   content: '';
   position: absolute;
-  inset-block-start: 50%;
-  inset-inline-start: 50%;
+  top: 50%;
+  left: 50%; /* Absolute centering works for both LTR and RTL buttons. */
   inline-size: 22px;
   block-size: 22px;
   z-index: 1;
