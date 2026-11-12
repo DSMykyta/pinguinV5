@@ -38,7 +38,7 @@
 }
 .pg-tools-data-views__tile-content {
   display: flex; flex-direction: column; gap: 7px;
-  padding: 12px; min-width: 0;
+  padding: var(--pg-collection-tile-content-padding, 12px); min-width: 0;
 }
 .pg-tools-data-views__tile-head { display: flex; align-items: start; flex-wrap: wrap; gap: 6px; }
 .pg-tools-data-views__tile-name {
