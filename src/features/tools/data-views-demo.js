@@ -236,6 +236,8 @@ export function createDataViewsDemo() {
     getRowId:row=>row.id,renderTile,modes:['tiles','table'],
     initialMode:pageControls.initialMode,
     initialSort:pageControls.initialSort,
+    density:pageControls.initialDensity,
+    onDensityChange:pageControls.onDensityChange,
     selectable:true,pageSize:25,
     onEditRow:row=>{ void editRecord(row).catch(error=>console.error('Brand edit failed:',error)); },
     rowActions:[
