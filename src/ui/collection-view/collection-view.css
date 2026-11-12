@@ -16,7 +16,8 @@
   overflow: auto;
   scrollbar-gutter: stable;
   border: 0; border-radius: 0;
-  background: var(--pg-color-surface);
+  /* The table scrollport is part of the page, not a second surface. */
+  background: transparent;
 }
 .pg-collection-view__table-scroll:focus-visible {
   outline: 2px solid var(--pg-color-focus); outline-offset: 2px;
@@ -51,7 +52,8 @@
 .pg-collection-view__table tbody td {
   height: 46px; padding: 8px 16px;
   border-bottom: 1px solid var(--pg-color-border);
-  background: var(--pg-color-surface);
+  /* Match the page while keeping sticky cells opaque during horizontal scroll. */
+  background: var(--pg-color-page);
   white-space: nowrap;
 }
 .pg-collection-view__table tbody tr:last-child td { border-block-end: 0; }
