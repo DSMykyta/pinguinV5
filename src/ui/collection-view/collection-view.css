@@ -20,6 +20,7 @@
   --pg-collection-tile-gap-narrow: 10px;
   --pg-collection-tile-padding: 18px;
   --pg-collection-tile-content-padding: 12px;
+  --pg-collection-preview-padding-block: 6px;
   --pg-collection-tile-min: 185px;
   --pg-collection-tile-min-narrow: 145px;
   display: flex; flex-direction: column; min-inline-size: 0; min-block-size: 0;
@@ -34,6 +35,7 @@
   --pg-collection-tile-gap-narrow: 16px;
   --pg-collection-tile-padding: 24px;
   --pg-collection-tile-content-padding: 16px;
+  --pg-collection-preview-padding-block: 10px;
   --pg-collection-tile-min: 210px;
   --pg-collection-tile-min-narrow: 165px;
 }
