@@ -2,6 +2,12 @@
 
 **Дата:** 2026-11-12. **Гілка:** `work`. **Тип:** порівняльний аудит і кандидатні рішення; жодної реалізації в цьому документі. Першоджерело дизайну: [m3.material.io](https://m3.material.io/).
 
+## Статус реалізації 2026-11-12
+
+- **Motion Physics — реалізовано:** [спільні spatial/effects токени](../ui/motion.md), сумісність старих тривалостей і анімацій FAB/Toast/RevealPanel. Реальний spring solver не додано: тут використано функціональну CSS-модель motion channels.
+- **Information Density — реалізовано:** [компактно/комфортно для CollectionView](../ui/collection-density.md); один SegmentSwitch у контекстному Aside, збереження окремо для двох колекцій. Не створює Main layout mode.
+- Додано Playwright-специфікації `tests/e2e/motion-system.spec.js` і `tests/e2e/collection-density.spec.js`. Наявність тестів у репозиторії не означає, що їхній браузерний прогін уже успішний.
+
 ## 1. Що перевірено
 
 Офіційний каталог M3 і сторінки Button groups, Toolbars, Split button, Loading indicator, Progress indicators, Chips, Lists, Menus, Side sheets, Search, Carousel, FAB menu, Motion physics, Interaction states та Density.
