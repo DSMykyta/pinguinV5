@@ -24,7 +24,7 @@
 .pg-shell__local-nav { display: flex; flex: 0 0 auto; align-items: center; min-width: 0; min-height: 54px; padding-inline: var(--pg-workspace-chrome-inset); overflow-x: auto; scrollbar-width: none; }
 .pg-shell__local-nav::-webkit-scrollbar { display: none; }
 .pg-shell__local-nav:empty { display: none; }
-.pg-shell__content { flex:1 1 auto;display:flex;flex-direction:column;min-height:0;min-width:0;overflow:hidden;padding:0;margin:0;background:var(--pg-color-surface);border-radius:0; }
+.pg-shell__content { flex:1 1 auto;display:flex;flex-direction:column;min-height:0;min-width:0;overflow:hidden;padding:0;margin:0;background:transparent;border-radius:0; }
 .pg-shell__footer {
   flex:0 0 var(--pg-sidebar-compact-width);
   display:flex;
