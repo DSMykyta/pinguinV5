@@ -41,5 +41,5 @@
   max-inline-size:112px;
 }
 .pg-media-library__root .pg-collection-view__table tbody td:has(.pg-media-library__table-thumb) {
-  padding-block:6px;
+  padding-block:var(--pg-collection-preview-padding-block, 6px);
 }
