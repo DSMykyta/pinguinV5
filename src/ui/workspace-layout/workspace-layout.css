@@ -20,7 +20,9 @@
   inline-size: 100%; block-size: 100%; min-inline-size: 0; min-block-size: 0;
   overflow: hidden;
   background: var(--pg-color-page);
-  transition: grid-template-columns var(--pg-duration-layout) var(--pg-ease-layout);
+  /* Grid width affects layout; shorten the period spent relaying out fields.
+   * Keep the existing sidebar width and responsive geometry. */
+  transition: grid-template-columns var(--pg-motion-spatial-fast-duration) var(--pg-motion-spatial-fast-ease);
 }
 .pg-workspace-layout[data-pg-nav='collapsed'] {
   --pg-workspace-nav-width: var(--pg-sidebar-compact-width);
