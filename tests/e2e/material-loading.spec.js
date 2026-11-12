@@ -39,8 +39,8 @@ test('loading replaces label with animated Material-inspired shape without movin
       ariaDisabled: button.getAttribute('aria-disabled'),
       width: shape.width,
       height: shape.height,
-      left: shape.left,
-      top: shape.top,
+      centered: Math.abs(parseFloat(shape.left) - during.width / 2) <= 2 &&
+        Math.abs(parseFloat(shape.top) - during.height / 2) <= 2,
       content: shape.content,
       clip: shape.clipPath,
       background: shape.backgroundColor,
@@ -73,8 +73,7 @@ test('loading replaces label with animated Material-inspired shape without movin
   expect(state.busy.ariaDisabled).toBe('true');
   expect(state.busy.width).toBe('22px');
   expect(state.busy.height).toBe('22px');
-  expect(state.busy.left).toBe('50%');
-  expect(state.busy.top).toBe('50%');
+  expect(state.busy.centered).toBe(true);
   expect(state.busy.content).toBe('""');
   expect(state.busy.clip).toMatch(/^polygon\(/);
   expect(state.busy.backgroundImage).toBe('none');
