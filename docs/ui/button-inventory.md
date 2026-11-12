@@ -4,6 +4,7 @@
 
 | Існуючий елемент / hook | Де використано | Канонічна візуальна основа | Особливість |
 | --- | --- | --- | --- |
+| `pg-button--group` + `pg-button-group` | Tabs у Shell; довільні групи дій | Спільний `pg-button--group` skin у `button.css`, геометрія в `button-group.css` | M3 connected/standard, ghost/tonal/filled, round/square; стан належить власнику |
 | `pg-icon-button` | Shell, Dialog, collection actions | `createIconButton`, базовий 40px | Іконка, aria-label, tooltip |
 | `pg-icon-button--corner` | Sidebar, Header, основний та footer FAB | Модифікатор спільного icon button | Особлива анімація кута; стан у Shell |
 | `pg-mini-button` | Edit, `⋯`, **pin Aside** | `createIconButton({variant:'mini'})` або модифікатор trigger Menu, 32px круглий | Візуал legacy `btn-icon`, pressed/open |
