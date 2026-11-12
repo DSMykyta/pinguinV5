@@ -86,3 +86,14 @@ The shared Dialog additionally supports an `editor` size, caller-owned DOM `cont
 - **Нижній лівий кут:** чинне `Видалити`, без перенесення. Запити `onRefresh`, `onDelete`, dirty confirmation, `closeGuard`, validation та busy захищаються спільним Dialog, без дублювання save/refresh.
 - Обидві Save-дії користуються **одним** асинхронним validation/persistence потоком. Feature-адаптер сам оновлює свій `baseline` тільки після успішного збереження без закриття, щоб `isDirty` не блокував наступне закриття помилково.
 - Суміжні маленькі кнопки позиціонуються лише сіткою `WorkspaceLayout`, з наявним `pg-mini-button`; немає нового skin, анімації, FAB чи окремого менеджера меню.
+
+
+## Продуктивність і відгук — 2026-11-12
+
+Виявлені фіксовані очікування та дорогі для компонування анімації, рішення й обмеження задокументовані в [аудиті](../research/dialog-performance.md).
+
+- Звичайний Dialog: 140 мс entrance/exit з м'якою transform-анімацією (раніше 190 мс).
+- Великий Workspace Dialog: 120 мс лише opacity (без трансформації всієї великої форми); схвалений `::backdrop blur(8px)` та native `showModal()` збережено.
+- Закриття через JS знімає вікно після відповідної тривалості й зберігає dirty-guard, чергу, повернення фокусу та Promise-результат.
+- Дитячі секції використовують **той самий** `SectionNavigator` із коротшим `motion:'responsive'`; звичайний Section Navigator не змінено.
+- Перевірки: `tests/e2e/dialog-performance.spec.js`. Синтаксична перевірка й статус build окремі від візуального профілю.
