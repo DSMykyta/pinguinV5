@@ -291,3 +291,38 @@ test('toolbar arrows navigate one enabled action group', async ({ page }) => {
   await italic.press('Home');
   await expect(bold).toBeFocused();
 });
+
+test('Material floating toolbar and filled slider retain one field outline without focus recolor', async ({ page }) => {
+  const { root, visual, htmlMode } = getEditor(page);
+  const main = root.locator('.pg-rich-text-editor__main');
+  const trigger = root.locator('[data-pg-action="toggle-formatting"]');
+  const mode = root.locator('.pg-rich-text-editor__mode-switch');
+  const idleBorder = await main.evaluate(node => getComputedStyle(node).borderColor);
+
+  await visual.focus();
+  await expect(main).toHaveCSS('border-color', idleBorder);
+  await expect(mode).toHaveAttribute('data-pg-variant', 'filled');
+  await expect(trigger).toHaveClass(/pg-icon-button--disclosure/);
+  const animation = await trigger.locator('svg').evaluate(icon => getComputedStyle(icon).transitionDuration);
+  expect(animation).not.toBe('0s');
+
+  await trigger.click();
+  const toolbar = root.getByRole('toolbar', { name: 'Форматування тексту' });
+  await expect(toolbar).toBeVisible();
+  await expect(toolbar).toHaveClass(/pg-toolbar/);
+  await expect(toolbar).toHaveAttribute('data-pg-variant', 'floating');
+  await expect(toolbar).toHaveAttribute('data-pg-density', 'compact');
+  await expect(toolbar).toHaveCSS('border-radius', /.+/);
+  await htmlMode.click();
+  await expect(main).toHaveCSS('border-color', idleBorder);
+});
+
+test('disclosure animation respects reduced motion', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const { root } = getEditor(page);
+  const trigger = root.locator('[data-pg-action="toggle-formatting"]');
+  const duration = await trigger.locator('svg').evaluate(icon => getComputedStyle(icon).transitionDuration);
+  expect(duration).toBe('0s');
+  await trigger.click();
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+});
