@@ -147,6 +147,8 @@
   --pg-motion-effects-normal-duration: 210ms;
   --pg-motion-effects-slow-duration: 300ms;
   --pg-motion-effects-ease: cubic-bezier(.2, .7, .2, 1);
+  /* Small transforms retain the old easing instead of gaining new bounce. */
+  --pg-motion-spatial-fast-ease: var(--pg-motion-effects-ease);
 
   /* Backward-compatible aliases: all existing transition values remain equal. */
   --pg-duration-fast: var(--pg-motion-effects-fast-duration);
