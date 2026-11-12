@@ -70,7 +70,7 @@
 ) {
   border-radius: var(--pg-radius-full);
 }
-.pg-button-group[data-pg-variant='connected'] > .pg-button--group:active {
+.pg-button-group[data-pg-variant='connected'] > .pg-button--group:active:not([aria-selected='true']):not([aria-pressed='true']):not([data-pg-selected='true']) {
   border-radius: 4px;
 }
 
