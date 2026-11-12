@@ -978,7 +978,7 @@
   transition: background-color var(--pg-motion-effects-normal-duration) var(--pg-motion-effects-ease),
     color var(--pg-motion-effects-normal-duration) var(--pg-motion-effects-ease),
     border-radius var(--pg-motion-spatial-normal-duration) var(--pg-motion-spatial-ease),
-    transform var(--pg-motion-spatial-fast-duration) var(--pg-motion-effects-ease),
+    transform var(--pg-motion-spatial-fast-duration) var(--pg-motion-spatial-fast-ease),
     filter var(--pg-motion-effects-fast-duration) var(--pg-motion-effects-ease);
 }
 .pg-button-group > .pg-button--group:hover:not(:disabled) {
