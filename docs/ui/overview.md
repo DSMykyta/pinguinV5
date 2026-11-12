@@ -48,6 +48,7 @@
 | Кнопки | `src/ui/button` | [Icon Button і Mini Button — контракт legacy `btn-icon`](button.md) |
 | Tooltip | `src/ui/tooltip` | Є, збережено корисну поведінку legacy |
 | Button Group | `src/ui/button-group` | [Material 3: connected/standard, ghost/tonal/filled, round/square](button-group.md) |
+| Toolbar | `src/ui/toolbar` | [Material 3 floating/docked surfaces, no duplicate button state](toolbar.md) |
 | Tabs | `src/ui/tabs` | [Локальні вкладки на спільному connected ghost Button Group](button-group.md) |
 | Page view | `src/ui/page` | Є |
 | Data row | `src/ui/data-row` | Є |
