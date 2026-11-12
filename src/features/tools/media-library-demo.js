@@ -154,6 +154,8 @@ export function createMediaLibraryDemo() {
     getRowId:row=>row.id,renderTile,
     modes:['tiles','table'],initialMode:pageControls.initialMode,
     initialSort:pageControls.initialSort,
+    density:pageControls.initialDensity,
+    onDensityChange:pageControls.onDensityChange,
     selectable:true,pageSize:10,
     onEditRow:row=>{void rename(row).catch(console.error);},
     rowActions:[
