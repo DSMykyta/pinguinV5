@@ -10,7 +10,7 @@ Material 3 розділяє рух на **spatial** (позиція, розмі�
 
 | Канал | Токени | Призначення |
 | --- | --- | --- |
-| Spatial | `--pg-motion-spatial-{fast,normal,slow}-duration`, `--pg-motion-spatial-ease` | translate/transform, зміни форми, розмірів, layout |
+| Spatial | `--pg-motion-spatial-{fast,normal,slow}-duration`, `--pg-motion-spatial-selection-duration` (280 ms), `--pg-motion-spatial-ease` | translate/transform, зміни форми, розмірів, layout |
 | Effects | `--pg-motion-effects-{fast,normal,slow}-duration`, `--pg-motion-effects-ease` | color, background, opacity, border color |
 
 Існуючі `--pg-duration-fast`, `--pg-duration-normal`, `--pg-ease`, `--pg-duration-layout`, `--pg-ease-layout` залишаються **alias** на нові токени з тими самими обчисленими значеннями. Це забезпечує backward compatibility без масової зміни 100+ CSS правил.
