@@ -22,8 +22,8 @@ function getEditor(page) {
     root,
     visual: root.getByRole('textbox', { name: 'Редактор тексту' }),
     code: root.getByRole('textbox', { name: 'HTML-код тексту' }),
-    editorMode: root.locator('.pg-rich-text-editor__mode-switch .pg-segment-switch__label').filter({hasText:/^Редактор$/}),
-    htmlMode: root.locator('.pg-rich-text-editor__mode-switch .pg-segment-switch__label').filter({hasText:/^HTML$/}),
+    editorMode: root.locator('.pg-rich-text-editor__mode-switch .pg-segment-switch__label').nth(0),
+    htmlMode: root.locator('.pg-rich-text-editor__mode-switch .pg-segment-switch__label').nth(1),
   };
 }
 
@@ -32,6 +32,7 @@ test('one working surface switches from WYSIWYG to editable HTML and back', asyn
   await expect(visual).toBeVisible();
   await expect(code).toBeHidden();
   await expect(root.locator('.pg-rich-text-editor__mirror')).toHaveCount(0);
+  await root.locator('[data-pg-action="toggle-formatting"]').click();
   await expect(root.getByRole('radio',{name:'Редактор',exact:true})).toBeChecked();
   await htmlMode.click();
   await expect(visual).toBeHidden();
@@ -85,6 +86,7 @@ test('HTML changes are undoable after returning to editor; WYSIWYG formatting wo
   await code.fill('<p>Нова версія</p>');
   await editorMode.click();
   await expect(visual).toContainText('Нова версія');
+  await root.locator('[data-pg-action="toggle-formatting"]').click();
   await root.getByRole('button', { name: /Скасувати/ }).click();
   await expect(visual).toContainText('Опис товару');
   await root.getByRole('button', { name: /Повторити/ }).click();
@@ -234,4 +236,58 @@ test('plain text with incomplete HTML stays literal in visual mode', async ({ pa
     element.dispatchEvent(new ClipboardEvent('paste', { clipboardData, bubbles: true, cancelable: true }));
   });
   await expect(visual).toContainText('незакритий <strong> тег');
+});
+
+test('icon switch and expandable formatting share one outer border', async ({ page }) => {
+  const { root, visual, code, htmlMode } = getEditor(page);
+  const trigger = root.locator('[data-pg-action="toggle-formatting"]');
+  const toolbar = root.getByRole('toolbar', { name: 'Форматування тексту' });
+
+  await expect(root.locator('.pg-rich-text-editor__mode-switch svg')).toHaveCount(2);
+  await expect(trigger.locator('svg')).toHaveCount(1);
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  await expect(root.locator('.pg-rich-text-editor__toolbar')).toBeHidden();
+  await expect(root.locator('.pg-rich-text-editor__header')).toHaveCSS('border-bottom-width', '0px');
+  await expect(root.locator('.pg-rich-text-editor__main')).toHaveCSS('border-top-width', '1px');
+  await expect(root.locator('.pg-rich-text-editor__stats')).toBeVisible();
+
+  await trigger.click();
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+  await expect(toolbar).toBeVisible();
+  await expect(toolbar.locator('button.pg-mini-button')).toHaveCount(12);
+  await expect(toolbar.locator('button svg')).toHaveCount(12);
+  await htmlMode.click();
+  await expect(code).toBeVisible();
+  await expect(toolbar.getByRole('button', { name: /Жирний/ })).toBeDisabled();
+  await trigger.click();
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  await expect(root.locator('.pg-rich-text-editor__toolbar')).toBeHidden();
+  await expect(visual).toBeHidden();
+  await expect(root.locator('.pg-rich-text-editor__stats')).toBeVisible();
+});
+
+test('compact expanded toolbar fits the editor on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const { root } = getEditor(page);
+  await root.locator('[data-pg-action="toggle-formatting"]').click();
+  await expect(root.getByRole('toolbar', { name: 'Форматування тексту' })).toBeVisible();
+  const widths = await root.evaluate(node => {
+    const editor = node.getBoundingClientRect();
+    const header = node.querySelector('.pg-rich-text-editor__header').getBoundingClientRect();
+    return { editor: editor.width, header: header.width, viewport: document.documentElement.clientWidth };
+  });
+  expect(widths.editor).toBeLessThanOrEqual(widths.viewport);
+  expect(widths.header).toBeLessThanOrEqual(widths.editor);
+});
+
+test('toolbar arrows navigate one enabled action group', async ({ page }) => {
+  const { root } = getEditor(page);
+  await root.locator('[data-pg-action="toggle-formatting"]').click();
+  const bold = root.locator('[data-pg-action="bold"]');
+  const italic = root.locator('[data-pg-action="italic"]');
+  await bold.focus();
+  await bold.press('ArrowRight');
+  await expect(italic).toBeFocused();
+  await italic.press('Home');
+  await expect(bold).toBeFocused();
 });
