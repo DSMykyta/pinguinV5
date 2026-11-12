@@ -110,7 +110,7 @@ async function checkCss(path, label) {
       'pg-button--pill', 'pg-button--page', 'pg-button--step',
       'pg-button--tool', 'pg-button--list-item', 'pg-button--nav-item', 'pg-button--chip-remove',
       'pg-button--chip-more', 'pg-button--plain', 'pg-button--quiet',
-      'pg-button--square',
+      'pg-button--square', 'pg-button--group',
     ]);
     const inSelectors = new Set(
       [...css.matchAll(/\.((?:pg-button|pg-icon-button)(?:--[a-z0-9-]+)?|pg-mini-button)(?=[\s.#:[{,])/g)]
@@ -193,6 +193,9 @@ async function checkCss(path, label) {
   }
 
   for (const [prefix, owner] of cssOwnerByPrefix) {
+    // Group owns only spatial geometry of existing pg-button--group controls;
+    // color/hover/selected skins remain in button.css.
+    if (label === 'src/ui/button-group/button-group.css' && prefix === 'pg-button') continue;
     if (label !== owner && new RegExp('\\.' + prefix + '(?:__|--|\\b)').test(css)) {
       errors.push(label + ': component .' + prefix + ' must be styled only in ' + owner);
     }
