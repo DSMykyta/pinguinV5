@@ -318,7 +318,7 @@
   .pg-collection-view__table tbody .pg-collection-view__row-menu { opacity: 0; }
   .pg-collection-view__table tbody tr:hover .pg-collection-view__row-menu,
   .pg-collection-view__table tbody .pg-collection-view__actions-cell:focus-within .pg-collection-view__row-menu,
-  .pg-collection-view__row-menu[data-pg-open='true'] { opacity: 1; }
+  .pg-collection-view__table tbody .pg-collection-view__row-menu[data-pg-open='true'] { opacity: 1; }
   .pg-collection-view__table tbody tr:not(:hover) .pg-collection-view__actions-cell:not(:focus-within) .pg-collection-view__row-menu:not([data-pg-open='true']) {
     pointer-events: none;
   }
