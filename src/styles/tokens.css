@@ -136,11 +136,23 @@
   --pg-compact-control-size: 32px;
   --pg-checkbox-box-size: 24px;
   --pg-header-height: 60px;
-  --pg-duration-fast: 150ms;
-  --pg-duration-normal: 210ms;
-  --pg-ease: cubic-bezier(.2, .7, .2, 1);
-  --pg-duration-layout: 340ms;
-  --pg-ease-layout: cubic-bezier(.22, 1, .36, 1);
+  /* M3-inspired motion channels: spatial movement vs. color/opacity effects.
+     Functional/standard timing keeps approved FAB, Toast, RevealPanel intact. */
+  --pg-motion-spatial-fast-duration: 150ms;
+  --pg-motion-spatial-normal-duration: 340ms;
+  --pg-motion-spatial-slow-duration: 420ms;
+  --pg-motion-spatial-ease: cubic-bezier(.22, 1, .36, 1);
+  --pg-motion-effects-fast-duration: 150ms;
+  --pg-motion-effects-normal-duration: 210ms;
+  --pg-motion-effects-slow-duration: 300ms;
+  --pg-motion-effects-ease: cubic-bezier(.2, .7, .2, 1);
+
+  /* Backward-compatible aliases: all existing transition values remain equal. */
+  --pg-duration-fast: var(--pg-motion-effects-fast-duration);
+  --pg-duration-normal: var(--pg-motion-effects-normal-duration);
+  --pg-ease: var(--pg-motion-effects-ease);
+  --pg-duration-layout: var(--pg-motion-spatial-normal-duration);
+  --pg-ease-layout: var(--pg-motion-spatial-ease);
 }
 
 @media (pointer: coarse) {
