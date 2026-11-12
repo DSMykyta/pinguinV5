@@ -353,6 +353,26 @@ test('sorted header and aside share one collection sorting state',async({page})=
   expect(counts).toEqual([...counts].sort((a,b)=>a-b));
 });
 
+test('open row action button stays visible after the pointer leaves its table row',async({page})=>{
+  const row=table(page).locator('tbody tr').first();
+  const action= row.getByRole('button',{name:/Дії:/});
+  const menuHost=row.locator('.pg-collection-view__row-menu');
+  await action.click();
+  await expect(menuHost).toHaveAttribute('data-pg-open','true');
+  // Menu popovers are in the browser top layer. Moving into one must not
+  // hide the trigger merely because the table row is no longer hovered.
+  await page.getByRole('menuitem',{name:'Архівувати або відновити'}).hover();
+  await page.evaluate(()=>document.activeElement?.blur());
+  await expect.poll(()=>row.evaluate(node=>node.matches(':hover'))).toBe(false);
+  await expect(menuHost).toHaveCSS('opacity','1');
+  await expect(action).toBeVisible();
+  await expect(action).toHaveAttribute('aria-expanded','true');
+  await page.keyboard.press('Escape');
+  await page.mouse.move(1,1);
+  await expect(menuHost).toHaveAttribute('data-pg-open','false');
+  await expect(menuHost).toHaveCSS('opacity','0');
+});
+
 test('row action menu is functional and uses one shared Menu implementation',async({page})=>{
   const before=await table(page).locator('tbody tr').count();
   expect(before).toBe(25);
