@@ -35,7 +35,7 @@ export function createTabs({ idPrefix, label, items, onChange, navHost = null })
 
   const nav = document.createElement('div');
   nav.className = 'pg-tabs__nav';
-  configureButtonGroup(nav, { variant: 'connected', appearance: 'ghost', shape: 'round', size: 's' });
+  configureButtonGroup(nav, { variant: 'connected', appearance: 'ghost', shape: 'square', size: 's' });
   nav.setAttribute('role', 'tablist');
   nav.setAttribute('aria-label', label);
 
