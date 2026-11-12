@@ -69,6 +69,11 @@
   --pg-color-dialog-danger: #bd4249;
   --pg-color-dialog-danger-text: #ffffff;
   --pg-color-input-error: #b1343b;
+  /* Material 3 slider: primary and secondary-container roles. */
+  --pg-color-slider-active: #65558f;
+  --pg-color-slider-inactive: #e8def8;
+  --pg-color-slider-disabled-handle: color-mix(in srgb, var(--pg-color-text-primary) 38%, transparent);
+  --pg-color-slider-disabled-track: color-mix(in srgb, var(--pg-color-text-primary) 12%, transparent);
 
   /* Semantic action colors: legacy base hues, accessible display pairs. */
   --pg-tone-main-base: #113855;
@@ -196,6 +201,8 @@
   --pg-color-dialog-danger: #c34b54;
   --pg-color-dialog-danger-text: #ffffff;
   --pg-color-input-error: #ff999f;
+  --pg-color-slider-active: #adc6ff;
+  --pg-color-slider-inactive: #3f4759;
 
   /* Soft backgrounds are translucent over the current dark surface. */
   --pg-tone-main-base: #7bbad4;

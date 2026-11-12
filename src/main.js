@@ -40,6 +40,7 @@ import './ui/number-field/number-field.css';
 import './ui/checkbox/checkbox.css';
 import './ui/radio-group/radio-group.css';
 import './ui/switch/switch.css';
+import './ui/slider/slider.css';
 import './shell/sidebar/sidebar.css';
 import './shell/aside/aside.css';
 import './shell/aside/fab.css';

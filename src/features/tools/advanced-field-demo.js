@@ -5,6 +5,7 @@
  * ║ ПРИЗНАЧЕННЯ: Isolated functional controls; no persistence and no Shell dependencies.                ║
  * ║ ЗАЛЕЖНОСТІ: ../../ui/textarea/textarea, ../../ui/number-field/number-field,                         ║
  * ║ ../../ui/checkbox/checkbox, ../../ui/switch/switch, ../../ui/radio-group/radio-group                ║
+ * ║ ../../ui/slider/slider                                                                           ║
  * ║ ПУБЛІЧНИЙ API: createAdvancedFieldDemo()                                                            ║
  * ║ ПРИНЦИП: Тільки демонстрація; вигляд і логіка спільного UI не дублюються.                           ║
  * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
@@ -15,6 +16,7 @@ import { createNumberField } from '../../ui/number-field/number-field.js';
 import { createCheckbox } from '../../ui/checkbox/checkbox.js';
 import { createSwitch } from '../../ui/switch/switch.js';
 import { createRadioGroup } from '../../ui/radio-group/radio-group.js';
+import { createSlider } from '../../ui/slider/slider.js';
 
 export function createAdvancedFieldDemo() {
   const element = document.createElement('section');
@@ -53,6 +55,15 @@ export function createAdvancedFieldDemo() {
         { label: 'HTML-таблиця', value: 'html' },
         { label: 'HTML із переносами', value: 'br' },
       ],
+    }),
+    createSlider({
+      label: 'Гучність', name: 'demo-volume', value: 50,
+      formatValue: value => `${value}%`,
+      description: 'Перетягніть ручку або скористайтеся стрілками клавіатури.',
+    }),
+    createSlider({
+      label: 'Яскравість — недоступно', name: 'demo-brightness', value: 70,
+      disabled: true, formatValue: value => `${value}%`,
     }),
   ];
   controls.forEach(control => grid.append(control.element));

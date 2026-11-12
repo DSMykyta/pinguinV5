@@ -68,6 +68,7 @@
 | Rich Text Editor | `src/ui/rich-text-editor` | [WYSIWYG ↔ редагований HTML, один документ, модульний toolbar і stats](rich-text-editor.md); [дослідження](../research/rich-text-editor.md) |
 | Textarea | `src/ui/textarea` | [Multiline native editor, auto-height and count](textarea.md) |
 | Number Field | `src/ui/number-field` | [Native numeric steps, units and validation](number-field.md) |
+| Slider | `src/ui/slider` | [Material 3: native range, розділена шкала, вертикальна ручка](slider.md) |
 | Checkbox | `src/ui/checkbox` | [Native two-state and mixed-state control](choice-controls.md) |
 | Switch | `src/ui/switch` | [Native on/off semantics, async rollback](choice-controls.md) |
 | Radio Group | `src/ui/radio-group` | [Native exclusive selection with fieldset/legend](choice-controls.md) |
