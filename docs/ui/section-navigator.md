@@ -186,3 +186,13 @@ Node-тести: нормалізація wheel, fractional / negative scrollTop
 Поточні обидва варіанти — `/tools → Переходи` та секції `Workspace Dialog` — використовують цю одну реалізацію. Попередні описи правої колонки, постійно видимих стрілок і фрази «ще не реалізовано» вище є **історією дослідження**, вони більше не описують чинну UI-геометрію.
 
 Регресії: `tests/e2e/section-navigator.spec.js`, `tests/e2e/workspace-dialog.spec.js`.
+
+
+## Профілі motion — 2026-11-12
+
+Один `createSectionNavigator({ ..., motion = 'standard' })` підтримує два **таймінги тієї самої** WAAPI-анімації:
+
+- `standard` (за замовчуванням) — 170 мс вихід + 270 мс вхід, наявний вигляд standalone і старі тести не змінено.
+- `responsive` — 80 мс вихід + 130 мс вхід, opt-in із `createWorkspaceLayout` для великих діалогів, щоб усунути ~230 мс фіксованого зайвого очікування.
+
+Клавіші, wheel/touch thresholds, активний заголовок, фокус, DOM-секції, жестове кільце `stroke-dashoffset`, `aria-busy`, interrupt/cancel та reduced motion залишаються ті самі. Див. [аудит](../research/dialog-performance.md).
