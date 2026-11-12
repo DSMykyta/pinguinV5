@@ -97,3 +97,8 @@ The shared Dialog additionally supports an `editor` size, caller-owned DOM `cont
 - Закриття через JS знімає вікно після відповідної тривалості й зберігає dirty-guard, чергу, повернення фокусу та Promise-результат.
 - Дитячі секції використовують **той самий** `SectionNavigator` із коротшим `motion:'responsive'`; звичайний Section Navigator не змінено.
 - Перевірки: `tests/e2e/dialog-performance.spec.js`. Синтаксична перевірка й статус build окремі від візуального профілю.
+
+
+## Усунення повноекранного GPU blur у Workspace — 2026-11-13
+
+Для великого Workspace, який закриває майже все вікно, нативний `::backdrop` зберігає затемнення, але **не розмиває невидиму площу позаду редактора**. Чотири малі `backdrop-filter:blur(8px)`-смуги всередині єдиного Dialog manager розмивають **лише реально видимі краї** навколо форми. Фактичні Chrome-замірювання наведені в [аудиті](../research/dialog-performance.md). Звичайні модальні вікна й Confirm не змінені. Додатковий візуальний шар не приймає події, прихований від accessibility tree, прибирається разом з діалогом, у мобільному full-screen Workspace не показується. Підтримано `prefers-reduced-transparency`.
