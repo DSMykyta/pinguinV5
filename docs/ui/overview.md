@@ -27,6 +27,10 @@
 
 [Єдина палітра tone × appearance](semantic-colors.md) повертає ролі `main`, `secondary`, `tertiary`, `danger`, `warning`, `success`, `info` з legacy. Вона не створює нові види кнопок: кольорові атрибути `data-pg-tone` / `data-pg-appearance` працюють через спільний `src/ui/button/button.css` з існуючими Button, Menu, Dialog та Selection Actions. Звичайні елементи без `tone` не перефарбовуються. Розміри й анімації належать їхнім наявним власникам.
 
+## Спільний Motion Physics
+
+[Два канали руху (spatial/effects)](motion.md) задані в `src/styles/tokens.css`; старі aliases збережено без зміни затверджених FAB, Toast і RevealPanel. Компоненти не створюють локальних анімацій заради нових режимів.
+
 ## Компонентний контракт
 
 Підключувані поведінки та lifecycle: [дослідження шармів legacy](../legacy-behavior-research.md). Насамперед перевикористовуємо готові компоненти й native browser APIs; поведінки отримують елемент та callbacks явно.
@@ -52,7 +56,7 @@
 | Tabs | `src/ui/tabs` | [Локальні вкладки на спільному connected ghost Button Group](button-group.md) |
 | Page view | `src/ui/page` | Є |
 | Data row | `src/ui/data-row` | Є |
-| Collection View | `src/ui/collection-view` | [Dense table and optional tiles](collection-view.md) |
+| Collection View | `src/ui/collection-view` | [Таблиця/плитки](collection-view.md) та [компактна/комфортна щільність](collection-density.md) |
 | View Switch | `src/ui/view-switch` | Contextual header mode control; [collection contract](collection-view.md) |
 | Toast | `src/ui/toast` | [Специфікація](toast.md), перший новий компонент |
 | Dialog / Confirm | `src/ui/dialog` | [Специфікація](dialog.md): native modal + blur |
