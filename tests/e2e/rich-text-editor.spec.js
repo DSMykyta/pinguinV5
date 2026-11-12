@@ -326,3 +326,45 @@ test('disclosure animation respects reduced motion', async ({ page }) => {
   await trigger.click();
   await expect(trigger).toHaveAttribute('aria-expanded', 'true');
 });
+
+test('showing and hiding the floating toolbar never moves the input, stats or frame', async ({ page }) => {
+  const { root, visual, htmlMode, code } = getEditor(page);
+  const toggle = root.locator('[data-pg-action="toggle-formatting"]');
+  const toolbar = root.getByRole('toolbar', { name: 'Форматування тексту' });
+
+  const geometry = () => root.evaluate(editor => {
+    const rect = selector => {
+      const box = editor.querySelector(selector).getBoundingClientRect();
+      return { top: box.top, height: box.height, left: box.left, width: box.width };
+    };
+    return {
+      header: rect('.pg-rich-text-editor__header'),
+      visual: rect('.pg-rich-text-editor__input'),
+      stats: rect('.pg-rich-text-editor__stats'),
+      main: rect('.pg-rich-text-editor__main'),
+    };
+  });
+
+  for (const width of [1100, 390]) {
+    await page.setViewportSize({ width, height: 850 });
+    const closed = await geometry();
+    await toggle.click();
+    await expect(toolbar).toBeVisible();
+    expect(await geometry()).toEqual(closed);
+    await toggle.click();
+    await expect(toolbar).toBeHidden();
+    expect(await geometry()).toEqual(closed);
+
+    await htmlMode.click();
+    const htmlClosed = await geometry();
+    await toggle.click();
+    await expect(toolbar).toBeVisible();
+    expect(await geometry()).toEqual(htmlClosed);
+    await toggle.click();
+    await expect(toolbar).toBeHidden();
+    expect(await geometry()).toEqual(htmlClosed);
+    await root.locator('.pg-rich-text-editor__mode-switch .pg-segment-switch__label').first().click();
+    await expect(visual).toBeVisible();
+    await expect(code).toBeHidden();
+  }
+});
