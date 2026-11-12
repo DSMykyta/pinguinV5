@@ -175,6 +175,19 @@ test('Themes, keyboard focus, reduced motion and forced colors remain usable', a
   for (const theme of ['light', 'dark']) {
     await page.evaluate(theme => { document.documentElement.dataset.theme = theme; }, theme);
     colors.push(await page.locator('.pg-slider__handle').first().evaluate(node => getComputedStyle(node).backgroundColor));
+    const palette = await page.locator('.pg-slider').first().evaluate(root => {
+      const style = getComputedStyle(root);
+      return {
+        active: style.getPropertyValue('--pg-color-accent').trim(),
+        inactive: style.getPropertyValue('--pg-color-accent-soft').trim(),
+        handle: getComputedStyle(root.querySelector('.pg-slider__handle')).backgroundColor,
+        track: getComputedStyle(root.querySelector('.pg-slider__inactive')).backgroundColor,
+      };
+    });
+    const normalize = color => color.startsWith('#')
+      ? `rgb(${color.slice(1).match(/../g).map(value => parseInt(value, 16)).join(', ')})` : color;
+    expect(palette.handle).toBe(normalize(palette.active));
+    expect(palette.track).toBe(normalize(palette.inactive));
     await page.locator('form').screenshot({ path: testInfo.outputPath('slider-' + theme + '.png') });
   }
   expect(colors[0]).not.toBe(colors[1]);
