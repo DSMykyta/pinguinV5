@@ -18,7 +18,7 @@
 }
 .pg-media-library__caption {
   display:flex;flex-direction:column;min-width:0;
-  gap:4px;padding:12px;
+  gap:4px;padding:var(--pg-collection-tile-content-padding, 12px);
 }
 .pg-media-library__name {
   font-size:13px;font-weight:600;line-height:1.4;
