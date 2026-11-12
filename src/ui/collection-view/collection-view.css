@@ -10,7 +10,31 @@
  * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
-.pg-collection-view { display: flex; flex-direction: column; min-inline-size: 0; min-block-size: 0; width: 100%; height: 100%; container-type: inline-size; }
+/* Density is strictly collection-local. Default compact repeats approved geometry. */
+.pg-collection-view {
+  --pg-collection-row-height: 46px;
+  --pg-collection-row-padding-block: 8px;
+  --pg-collection-cell-padding-inline: 16px;
+  --pg-collection-mobile-cell-padding-inline: 12px;
+  --pg-collection-tile-gap: 14px;
+  --pg-collection-tile-gap-narrow: 10px;
+  --pg-collection-tile-padding: 18px;
+  --pg-collection-tile-min: 185px;
+  --pg-collection-tile-min-narrow: 145px;
+  display: flex; flex-direction: column; min-inline-size: 0; min-block-size: 0;
+  width: 100%; height: 100%; container-type: inline-size;
+}
+.pg-collection-view[data-pg-density='comfortable'] {
+  --pg-collection-row-height: 56px;
+  --pg-collection-row-padding-block: 12px;
+  --pg-collection-cell-padding-inline: 20px;
+  --pg-collection-mobile-cell-padding-inline: 16px;
+  --pg-collection-tile-gap: 20px;
+  --pg-collection-tile-gap-narrow: 16px;
+  --pg-collection-tile-padding: 24px;
+  --pg-collection-tile-min: 210px;
+  --pg-collection-tile-min-narrow: 165px;
+}
 .pg-collection-view__table-scroll {
   flex: 1 1 auto; min-block-size: 0; min-inline-size: 0;
   overflow: auto;
@@ -40,7 +64,7 @@
 }
 .pg-collection-view__table thead th {
   position: sticky; top: 0; z-index: 2;
-  height: 46px; padding: 0 16px;
+  height: var(--pg-collection-row-height); padding: 0 var(--pg-collection-cell-padding-inline);
   border-block-end: 1px solid var(--pg-color-border-strong);
   background: var(--pg-color-surface-soft);
   color: var(--pg-color-text-secondary);
@@ -50,7 +74,8 @@
 .pg-collection-view__table thead th[data-pg-align='end'],
 .pg-collection-view__table tbody td[data-pg-align='end'] { text-align: end; font-variant-numeric: tabular-nums; }
 .pg-collection-view__table tbody td {
-  height: 46px; padding: 8px 16px;
+  height: var(--pg-collection-row-height);
+  padding: var(--pg-collection-row-padding-block) var(--pg-collection-cell-padding-inline);
   border-bottom: 1px solid var(--pg-color-border);
   /* Match the page while keeping sticky cells opaque during horizontal scroll. */
   background: var(--pg-color-page);
@@ -108,9 +133,9 @@
 .pg-collection-view__sort-mark > .pg-icon { inline-size:16px;block-size:16px; }
 .pg-collection-view__tiles {
   flex: 1 1 auto; min-block-size: 0; overflow: auto;
-  display: grid; grid-template-columns: repeat(auto-fill,minmax(min(185px,100%),1fr));
-  gap: 14px; align-content: start; align-items: start; min-inline-size: 0;
-  padding: 18px;
+  display: grid; grid-template-columns: repeat(auto-fill,minmax(min(var(--pg-collection-tile-min),100%),1fr));
+  gap: var(--pg-collection-tile-gap); align-content: start; align-items: start; min-inline-size: 0;
+  padding: var(--pg-collection-tile-padding);
 }
 .pg-collection-view__tile {
   position:relative;min-inline-size:0;
@@ -137,6 +162,14 @@
 }
 .pg-collection-view__aside-controls {
   display: grid; gap: 14px; min-inline-size: 0;
+}
+/* Aside hosts the existing SegmentSwitch for per-collection density. */
+.pg-collection-view__density-control {
+  display: grid; gap: var(--pg-space-2); min-inline-size: 0;
+}
+.pg-collection-view__density-label {
+  color: var(--pg-color-text-secondary);
+  font-size: 12px; font-weight: 540; line-height: 1.35;
 }
 .pg-collection-view__aside-detail {
   margin: 0; font-size: 12px; line-height: 1.5;
@@ -198,8 +231,13 @@
 }
 @container (max-width: 640px) {
   .pg-collection-view__table { min-width: 980px; }
-  .pg-collection-view__table thead th, .pg-collection-view__table tbody td { padding-inline: 12px; }
-  .pg-collection-view__tiles { gap: 10px; grid-template-columns: repeat(auto-fill,minmax(min(145px,100%),1fr)); }
+  .pg-collection-view__table thead th, .pg-collection-view__table tbody td {
+    padding-inline: var(--pg-collection-mobile-cell-padding-inline);
+  }
+  .pg-collection-view__tiles {
+    gap: var(--pg-collection-tile-gap-narrow);
+    grid-template-columns: repeat(auto-fill,minmax(min(var(--pg-collection-tile-min-narrow),100%),1fr));
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .pg-collection-view__table-scroll { scroll-behavior: auto; }
