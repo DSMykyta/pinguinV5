@@ -10,6 +10,7 @@
  */
 
 import { createIcon } from '../icon/icon.js';
+import { configureButtonGroup } from '../button-group/button-group.js';
 
 /**
  * Each item: { id, label, icon, content: HTMLElement }.
@@ -34,6 +35,7 @@ export function createTabs({ idPrefix, label, items, onChange, navHost = null })
 
   const nav = document.createElement('div');
   nav.className = 'pg-tabs__nav';
+  configureButtonGroup(nav, { variant: 'connected', appearance: 'ghost', shape: 'round', size: 's' });
   nav.setAttribute('role', 'tablist');
   nav.setAttribute('aria-label', label);
 
@@ -46,7 +48,7 @@ export function createTabs({ idPrefix, label, items, onChange, navHost = null })
   for (const item of items) {
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = 'pg-tabs__tab';
+    button.className = 'pg-tabs__tab pg-button pg-button--group';
     button.id = idPrefix + '-tab-' + item.id;
     button.setAttribute('role', 'tab');
     button.setAttribute('aria-controls', idPrefix + '-panel-' + item.id);
