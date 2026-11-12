@@ -30,10 +30,22 @@ export function setButtonLoading(button, loading) {
 
   if (loading) {
     if (loadingState.has(button)) return button;
+    // Snapshot the normal foreground before hiding the label for the centered
+    // morphing shape. The computed color already respects tone, hover and theme.
+    const ink = button.ownerDocument.defaultView.getComputedStyle(button).color;
+    const inlineInk = button.style.getPropertyValue('--pg-button-loading-ink');
+    const inlineInkPriority = button.style.getPropertyPriority('--pg-button-loading-ink');
+    const accessibleLabel = button.getAttribute('aria-label');
+    const fallbackName = button.textContent?.trim();
     loadingState.set(button, {
       busy: button.getAttribute('aria-busy'),
       disabled: button.getAttribute('aria-disabled'),
+      label: accessibleLabel,
+      inlineInk,
+      inlineInkPriority,
     });
+    if (!accessibleLabel && fallbackName) button.setAttribute('aria-label', fallbackName);
+    button.style.setProperty('--pg-button-loading-ink', ink);
     button.dataset.pgLoading = 'true';
     button.setAttribute('aria-busy', 'true');
     button.setAttribute('aria-disabled', 'true');
@@ -49,6 +61,13 @@ export function setButtonLoading(button, loading) {
   else button.setAttribute('aria-busy', previous.busy);
   if (previous.disabled == null) button.removeAttribute('aria-disabled');
   else button.setAttribute('aria-disabled', previous.disabled);
+  if (previous.label == null) button.removeAttribute('aria-label');
+  else button.setAttribute('aria-label', previous.label);
+  if (previous.inlineInk) {
+    button.style.setProperty('--pg-button-loading-ink', previous.inlineInk, previous.inlineInkPriority);
+  } else {
+    button.style.removeProperty('--pg-button-loading-ink');
+  }
   loadingState.delete(button);
   return button;
 }
