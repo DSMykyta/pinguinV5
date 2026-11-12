@@ -47,7 +47,8 @@
 | Іконки | `src/ui/icon` | [Google Material Symbols Rounded, локальні SVG](icons.md) |
 | Кнопки | `src/ui/button` | [Icon Button і Mini Button — контракт legacy `btn-icon`](button.md) |
 | Tooltip | `src/ui/tooltip` | Є, збережено корисну поведінку legacy |
-| Tabs | `src/ui/tabs` | Є |
+| Button Group | `src/ui/button-group` | [Material 3: connected/standard, ghost/tonal/filled, round/square](button-group.md) |
+| Tabs | `src/ui/tabs` | [Локальні вкладки на спільному connected ghost Button Group](button-group.md) |
 | Page view | `src/ui/page` | Є |
 | Data row | `src/ui/data-row` | Є |
 | Collection View | `src/ui/collection-view` | [Dense table and optional tiles](collection-view.md) |
