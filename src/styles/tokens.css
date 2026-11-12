@@ -140,6 +140,7 @@
      Functional/standard timing keeps approved FAB, Toast, RevealPanel intact. */
   --pg-motion-spatial-fast-duration: 150ms;
   --pg-motion-spatial-normal-duration: 340ms;
+  --pg-motion-spatial-selection-duration: 280ms;
   --pg-motion-spatial-slow-duration: 420ms;
   --pg-motion-spatial-ease: cubic-bezier(.22, 1, .36, 1);
   --pg-motion-effects-fast-duration: 150ms;
