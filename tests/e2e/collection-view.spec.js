@@ -40,6 +40,28 @@ test('table is the workspace, no special fill mode or duplicate page headings',a
   await expect(page.locator('.pg-shell__context-button')).toHaveCount(1);
 });
 
+test('dark table rows blend with page while header, hover and selection remain distinct',async({page})=>{
+  await page.evaluate(()=>document.documentElement.setAttribute('data-theme','dark'));
+  const scroller=root(page).locator('.pg-collection-view__table-scroll');
+  const firstRow=table(page).locator('tbody tr').first();
+  const cell=firstRow.locator('td[data-pg-column="name"]');
+  const pageBackground=await page.locator('.pg-shell').evaluate(node=>getComputedStyle(node).backgroundColor);
+  const headerBackground=await table(page).locator('thead th').nth(1)
+    .evaluate(node=>getComputedStyle(node).backgroundColor);
+
+  await expect(scroller).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
+  await expect(cell).toHaveCSS('background-color',pageBackground);
+  expect(headerBackground).not.toBe(pageBackground);
+
+  await cell.hover();
+  const hoverBackground=await cell.evaluate(node=>getComputedStyle(node).backgroundColor);
+  expect(hoverBackground).not.toBe(pageBackground);
+  await firstRow.locator('.pg-checkbox__row').click();
+  await page.mouse.move(1,1);
+  const selectedBackground=await cell.evaluate(node=>getComputedStyle(node).backgroundColor);
+  expect(selectedBackground).not.toBe(pageBackground);
+});
+
 test('table rounds only its header and last row; the shared workspace stays square',async({page})=>{
   const main=page.locator('.pg-shell__content');
   const scroller=root(page).locator('.pg-collection-view__table-scroll');
