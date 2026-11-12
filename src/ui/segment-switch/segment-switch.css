@@ -40,7 +40,7 @@
   background: var(--pg-color-surface);
   box-shadow: 0 1px 4px var(--pg-color-shadow);
   transform: translateX(calc(var(--pg-switch-index, 0) * (100% + var(--pg-switch-gap))));
-  transition: transform 280ms var(--pg-ease-layout);
+  transition: transform var(--pg-motion-spatial-selection-duration) var(--pg-motion-spatial-ease);
   pointer-events: none;
 }
 .pg-segment-switch__radio {
@@ -57,7 +57,7 @@
   color: var(--pg-color-text-secondary);
   font-size: 12px; font-weight: 560;
   line-height: 1.3; white-space: nowrap; cursor: pointer;
-  transition: color var(--pg-duration-fast) ease;
+  transition: color var(--pg-motion-effects-fast-duration) ease;
 }
 .pg-segment-switch__label .pg-icon { inline-size: 17px; block-size: 17px; }
 .pg-segment-switch[data-pg-compact='true'] .pg-segment-switch__label {
