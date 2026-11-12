@@ -48,7 +48,8 @@ export function mountEditorToolbar({ host, triggerHost, controls, root }) {
     variant: 'mini',
     onClick: () => setExpanded(!expanded),
   });
-  trigger.classList.add('pg-rich-text-editor__toolbar-toggle', 'pg-icon-button--disclosure');
+  trigger.classList.add('pg-rich-text-editor__toolbar-toggle');
+  trigger.dataset.pgDisclosure = 'true';
   trigger.setAttribute('aria-controls', toolbar.id);
   trigger.setAttribute('aria-expanded', 'false');
   const reveal = createRevealPanel({
