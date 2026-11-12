@@ -217,3 +217,10 @@ Acceptance: `.pg-shell__content` has computed radius `0px` for table, tiles and 
 **Перевірки:** `tests/selection-actions.test.js`, `tests/e2e/media-library.spec.js`, `tests/e2e/collection-view.spec.js`. Тести захищають однакові card styles, header anchoring, окреме збереження режимів і синхронізацію напрямку сортування.
 
 **Межа:** helper знаходиться в `src/features/tools`, тому не переносить демо-дані та Shell-контексти в універсальний `src/ui/collection-view`. Універсальний компонент залишається незалежним від типу записів та місця монтування.
+
+
+## Щільність CollectionView — 2026-11-12
+
+Згідно з [окремим контрактом](collection-density.md), `createCollectionView({density='compact',onDensityChange})` тепер має `getDensity()`/`setDensity()`. Зміна `data-pg-density` застосовує CSS variables до таблиці й плиток без `renderData()` та без нового режиму Main. `compact` повторює затверджений вигляд, `comfortable` збільшує міжряддя й відступи. Виробничі checkbox/Menu та 44px sticky колонки не змінені.
+
+У «Макетах даних» і «Медіатеці» один адаптер `createCollectionPageControls()` розміщує існуючий `createSegmentSwitch` у Aside, а `createStoredChoice` зберігає щільність незалежно від `view`. Стан сорт/пошук/вибір/пагінація не змінюється. Тести: `tests/e2e/collection-density.spec.js`.
