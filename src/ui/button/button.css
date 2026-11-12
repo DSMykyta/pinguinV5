@@ -704,6 +704,18 @@
   block-size: 16px;
 }
 
+/* Reusable disclosure: the same project motion tokens for every expanding mini IconButton. */
+.pg-icon-button--disclosure > .pg-icon {
+  transform-origin: center;
+  transition: transform var(--pg-duration-layout) var(--pg-ease-layout);
+}
+.pg-icon-button--disclosure[aria-expanded='true'] > .pg-icon {
+  transform: rotate(90deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .pg-icon-button--disclosure > .pg-icon { transition: none; }
+}
+
 /* Legacy btn-icon: 20% accent tint, accent icon and understated shadow. */
 .pg-mini-button:not(:disabled):is(:hover, :focus-visible),
 .pg-menu__trigger.pg-mini-button:not(:disabled):is(:hover, :focus-visible),
