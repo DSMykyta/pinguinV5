@@ -221,3 +221,11 @@
   }
   .pg-dialog--workspace .pg-dialog__body { padding: 0; }
 }
+
+/* Workspace opacity override is declared after the shared reduced-motion rule.
+ * Keep this final override to ensure all modal sizes respect OS preferences. */
+@media (prefers-reduced-motion: reduce) {
+  .pg-dialog--workspace {
+    transition: none;
+  }
+}
