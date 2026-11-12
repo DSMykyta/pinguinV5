@@ -12,7 +12,8 @@
 import { createIconButton, setButtonColor, setButtonLoading } from '../button/button.js';
 import { createWorkspaceLayout } from '../workspace-layout/workspace-layout.js';
 
-const EXIT_DURATION = 190;
+const EXIT_DURATION = 140;
+const WORKSPACE_EXIT_DURATION = 120;
 let manager = null;
 
 function validate(options) {
@@ -100,7 +101,10 @@ export function mountDialogs() {
     item.result = result;
     item.element.dataset.pgState = 'closing';
     const reduced = view.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    item.timerId = view.setTimeout(() => finish(item), reduced ? 0 : EXIT_DURATION);
+    item.timerId = view.setTimeout(
+      () => finish(item),
+      reduced ? 0 : item.options.size === 'workspace' ? WORKSPACE_EXIT_DURATION : EXIT_DURATION,
+    );
   }
 
   function setBusy(item, busy, source = item.busySource) {
