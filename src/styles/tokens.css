@@ -68,6 +68,11 @@
   --pg-color-dialog-action-text: #ffffff;
   --pg-color-dialog-danger: #bd4249;
   --pg-color-dialog-danger-text: #ffffff;
+  /* Branded animated gradient: fixed readable ink and veil across theme palettes. */
+  --pg-color-gradient-text: #ffffff;
+  --pg-color-gradient-veil-strong: rgb(5 12 26 / 0.64);
+  --pg-color-gradient-veil-soft: rgb(5 12 26 / 0.28);
+  --pg-color-gradient-title-shadow: rgb(3 9 21 / 0.56);
   --pg-color-input-error: #b1343b;
 
   /* Semantic action colors: legacy base hues, accessible display pairs. */
