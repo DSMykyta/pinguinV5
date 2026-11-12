@@ -65,3 +65,16 @@ Playwright: однакова геометрія 32×32px mini і спільно�
 ## Спільні пункти Sidebar і Workspace (2026-11-11)
 
 `pg-button--nav-item` — **наявне оформлення основного Sidebar, виділене в спільний owner**, без зміни візуального дизайну. Воно тепер однаково застосовується до глобального route link `a.pg-sidebar__link` і до локальної кнопки секції `button.pg-workspace-layout__nav-item`. Один CSS-опис відповідає за розмір 42px, відступи, іконку 18px, підсвічування hover/current і reduced motion. Навігаційні callbacks, Router та історія залишаються виключно в їхніх власників. Варіант внесено до перевірюваного реєстру після перевірки обох споживачів і зміни стилів без дублювання.
+
+
+## Material 3 Expressive Loading — оновлення 2026-11-12
+
+**Нова пряма вимога:** раніше індикатор обертався **навколо border**; тепер активний стан очікування показує **змінні фігури всередині кнопки**, центровані по її площі. Це [Material 3 Loading Indicator](https://m3.material.io/components/loading-indicator/guidelines) для коротких невизначених операцій, а не determinate [Progress Indicator](https://m3.material.io/components/progress-indicators/guidelines). Попередні описи border-orbit в цьому документі є історичними — застосовувати саме новий контракт.
+
+- **Один чинний механізм:** лише `setButtonLoading(button, true|false)` та `withButtonLoading(button, task)` у `src/ui/button/button.js`; без другого компонента, overlay-сервісу або нової кнопки. Псевдоелемент `::after` у `src/ui/button/button.css` замінює конічний обвід на Material-inspired морфінг із **семи округлих фігур**, розташованих **посередині кнопки**. Фігури й обертання працюють незалежними CSS-анімаціями; розмір для текстової/звичайної іконкової кнопки 22 px, для mini 18 px.
+- **У loading:** збережені всі геометричні параметри, original DOM, callbacks, focus, click guard, `aria-busy`, `aria-disabled`, вихідні inline styles та `aria-label`; текст/іконка лише візуально приховані на час запиту, без видалення з DOM; псевдоелемент не отримує події. Доступна назва кнопки підтримується і для кнопок, у яких до loading немає окремого `aria-label`.
+- **Кольори:** форма бере **обчислений foreground тієї самої кнопки перед переходом**; це забезпечує контраст у primary, destructive, custom semantic tones і dark mode. Ніяких нових хардкодів кольору/палети. Стиль не змінює hover/selected FAB чи інших механізмів.
+- **Reduced motion:** одна статична, центрована фігура, без циклічного morph/rotate; після завершення відновлюються первинні DOM, видимість, accessible name та стиль. Немає відсотків, бо коротке очікування є indeterminate.
+- **Незмінний Section Navigator:** `stroke-dashoffset` його SVG кільця — точний **визначений прогрес жесту** біля краю робочої області, отже до нового кнопкового loading його не прив'язувати; навігацію й радіус кільця не чіпати.
+
+**Тестування:** `tests/e2e/material-loading.spec.js`: форма всередині, жодного border-orbit, колір primary/outline/dark, стабільна геометрія й DOM, повторні кліки та клавіатура, aria й відновлення, reduced-motion. Цей документ не засвідчує проходження браузерних тестів без фактичного запуску.
