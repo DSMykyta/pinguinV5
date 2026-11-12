@@ -3,7 +3,7 @@
  * ║ PINGUIN NEXT — RICH TEXT TOOLBAR                                                                    ║
  * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Компактні контекстні інструменти форматування з керованим розкриттям.                  ║
- * ║ ЗАЛЕЖНОСТІ: ../button/button.js, ../reveal-panel/reveal-panel.js.                                   ║
+ * ║ ЗАЛЕЖНОСТІ: ../button/button.js, ../reveal-panel/reveal-panel.js, ../toolbar/toolbar.js.                                   ║
  * ║ ПУБЛІЧНИЙ API: mountEditorToolbar()                                                                 ║
  * ║ ПРИНЦИП: Спільні компоненти та анімації; незалежний від mode, stats, features і Shell.              ║
  * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
@@ -11,6 +11,7 @@
 
 import { createIconButton } from '../button/button.js';
 import { createRevealPanel } from '../reveal-panel/reveal-panel.js';
+import { configureToolbar } from '../toolbar/toolbar.js';
 
 const ITEMS = Object.freeze([
   { id: 'bold', label: 'Жирний — Ctrl+B', icon: 'format-bold', kind: 'mark' },
@@ -34,6 +35,7 @@ export function mountEditorToolbar({ host, triggerHost, controls, root }) {
   const toolbar = document.createElement('div');
   toolbar.id = 'pg-rich-text-toolbar-' + (++sequence);
   toolbar.className = 'pg-rich-text-editor__toolbar';
+  configureToolbar(toolbar, { variant: 'floating', density: 'compact' });
   toolbar.setAttribute('role', 'toolbar');
   toolbar.setAttribute('aria-label', 'Форматування тексту');
 
@@ -46,7 +48,7 @@ export function mountEditorToolbar({ host, triggerHost, controls, root }) {
     variant: 'mini',
     onClick: () => setExpanded(!expanded),
   });
-  trigger.classList.add('pg-rich-text-editor__toolbar-toggle');
+  trigger.classList.add('pg-rich-text-editor__toolbar-toggle', 'pg-icon-button--disclosure');
   trigger.setAttribute('aria-controls', toolbar.id);
   trigger.setAttribute('aria-expanded', 'false');
   const reveal = createRevealPanel({
