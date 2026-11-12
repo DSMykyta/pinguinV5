@@ -1,0 +1,100 @@
+/*
+ * ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — BUTTON GROUP GEOMETRY                                                               ║
+ * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Material 3 Expressive sizes, gaps and connected/standard shape morph.                 ║
+ * ║ ЗАЛЕЖНОСТІ: Спільні .pg-button--group зі src/ui/button/button.css і геометричні токени.              ║
+ * ║ ПУБЛІЧНИЙ API: .pg-button-group + data-pg-variant/shape/size; children .pg-button--group.            ║
+ * ║ ПРИНЦИП: Тільки layout/shape; усі button skins, кольори та стани — у button.css.                     ║
+ * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
+.pg-button-group {
+  --pg-button-group-height: 40px;
+  --pg-button-group-gap: 2px;
+  --pg-button-group-padding: 16px;
+  --pg-button-group-inner-radius: 8px;
+  display: inline-flex;
+  align-items: stretch;
+  gap: var(--pg-button-group-gap);
+  inline-size: max-content;
+  max-inline-size: none;
+  min-block-size: var(--pg-button-group-height);
+  margin: 0;
+}
+
+.pg-button-group[data-pg-size='xs'] {
+  --pg-button-group-height: 32px;
+  --pg-button-group-padding: 12px;
+  --pg-button-group-inner-radius: 4px;
+}
+.pg-button-group[data-pg-size='m'] {
+  --pg-button-group-height: 56px;
+  --pg-button-group-padding: 20px;
+}
+.pg-button-group[data-pg-size='l'] {
+  --pg-button-group-height: 96px;
+  --pg-button-group-padding: 28px;
+  --pg-button-group-inner-radius: 16px;
+}
+.pg-button-group[data-pg-size='xl'] {
+  --pg-button-group-height: 136px;
+  --pg-button-group-padding: 36px;
+  --pg-button-group-inner-radius: 20px;
+}
+
+.pg-button-group[data-pg-variant='standard'] { --pg-button-group-gap: 12px; }
+.pg-button-group[data-pg-variant='standard'][data-pg-size='xs'] { --pg-button-group-gap: 18px; }
+.pg-button-group[data-pg-variant='standard']:is([data-pg-size='m'], [data-pg-size='l'], [data-pg-size='xl']) {
+  --pg-button-group-gap: 8px;
+}
+
+.pg-button-group > .pg-button--group {
+  flex: 0 0 auto;
+  min-block-size: var(--pg-button-group-height);
+  padding-inline: var(--pg-button-group-padding);
+  border-radius: var(--pg-button-group-inner-radius);
+}
+
+.pg-button-group[data-pg-variant='connected'] > .pg-button--group { min-inline-size: 48px; }
+.pg-button-group[data-pg-variant='connected'][data-pg-shape='round'] > .pg-button--group:first-child {
+  border-start-start-radius: var(--pg-radius-full);
+  border-end-start-radius: var(--pg-radius-full);
+}
+.pg-button-group[data-pg-variant='connected'][data-pg-shape='round'] > .pg-button--group:last-child {
+  border-start-end-radius: var(--pg-radius-full);
+  border-end-end-radius: var(--pg-radius-full);
+}
+.pg-button-group[data-pg-variant='connected'] > .pg-button--group:is(
+  [aria-selected='true'], [aria-pressed='true'], [data-pg-selected='true']
+) {
+  border-radius: var(--pg-radius-full);
+}
+.pg-button-group[data-pg-variant='connected'] > .pg-button--group:active {
+  border-radius: 4px;
+}
+
+.pg-button-group[data-pg-variant='standard'][data-pg-shape='round'] > .pg-button--group {
+  border-radius: var(--pg-radius-full);
+}
+.pg-button-group[data-pg-variant='standard'][data-pg-shape='square'] > .pg-button--group {
+  border-radius: var(--pg-button-group-inner-radius);
+}
+.pg-button-group[data-pg-variant='standard'][data-pg-shape='square'] > .pg-button--group:is(
+  [aria-selected='true'], [aria-pressed='true'], [data-pg-selected='true']
+) {
+  border-radius: var(--pg-radius-full);
+}
+.pg-button-group[data-pg-variant='standard'][data-pg-shape='round'] > .pg-button--group:is(
+  [aria-selected='true'], [aria-pressed='true'], [data-pg-selected='true']
+) {
+  border-radius: var(--pg-radius-md);
+}
+/* Only standard groups alter the pressed button footprint. No layout reflow for tabs. */
+.pg-button-group[data-pg-variant='standard'] > .pg-button--group:active {
+  transform: scaleX(1.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pg-button-group > .pg-button--group { transition: none; transform: none !important; }
+}
