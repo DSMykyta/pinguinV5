@@ -974,11 +974,12 @@
   font-weight: 560;
   border: 0;
   white-space: nowrap;
-  transition: background-color var(--pg-duration-normal) var(--pg-ease),
-    color var(--pg-duration-normal) var(--pg-ease),
-    border-radius var(--pg-duration-layout) var(--pg-ease-layout),
-    transform var(--pg-duration-fast) var(--pg-ease),
-    filter var(--pg-duration-fast) var(--pg-ease);
+  /* M3 channels: surface/ink are effects, radius and transform are spatial. */
+  transition: background-color var(--pg-motion-effects-normal-duration) var(--pg-motion-effects-ease),
+    color var(--pg-motion-effects-normal-duration) var(--pg-motion-effects-ease),
+    border-radius var(--pg-motion-spatial-normal-duration) var(--pg-motion-spatial-ease),
+    transform var(--pg-motion-spatial-fast-duration) var(--pg-motion-effects-ease),
+    filter var(--pg-motion-effects-fast-duration) var(--pg-motion-effects-ease);
 }
 .pg-button-group > .pg-button--group:hover:not(:disabled) {
   background: var(--pg-button-group-hover-bg);
