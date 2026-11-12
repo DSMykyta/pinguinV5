@@ -25,6 +25,7 @@
   border: 0;
   border-radius: var(--pg-radius-full);
   background: var(--pg-color-selected);
+  box-shadow: 0 2px 8px var(--pg-color-shadow);
 }
 .pg-toolbar[data-pg-variant='floating'][data-pg-density='compact'] {
   min-block-size: 40px;
