@@ -21,7 +21,7 @@ export function mountEditorModeSwitch({ host, controls, editorId, sourceId }) {
       { value: 'html', label: 'HTML', icon: 'code', iconOnly: true },
     ],
     value: controls.getMode(),
-    variant: 'outline',
+    variant: 'filled',
     compact: true,
     fit: true,
     onChange: mode => controls.setMode(mode),
