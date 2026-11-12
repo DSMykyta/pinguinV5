@@ -16,10 +16,25 @@ import { mountNavigationGestures } from './navigation-gestures.js';
 
 let nextNavigatorId = 0;
 
-export function createSectionNavigator({ label, items, initialId, wheel = true, canNavigate, onChange, onError } = {}) {
+/* Two timings for the same animation, not two navigator implementations.
+ * Workspaces contain larger forms and should respond much faster than the
+ * standalone Section Navigator demo, whose approved timing stays unchanged. */
+const MOTION_TIMINGS = Object.freeze({
+  standard: Object.freeze({ exit: 170, enter: 270 }),
+  responsive: Object.freeze({ exit: 80, enter: 130 }),
+});
+
+export function createSectionNavigator({
+  label, items, initialId, wheel = true, canNavigate, onChange, onError,
+  motion = 'standard',
+} = {}) {
   if (typeof label !== 'string' || !label.trim() || !Array.isArray(items) || !items.length) {
     throw new TypeError('Section navigator requires a label and non-empty items');
   }
+  if (!Object.hasOwn(MOTION_TIMINGS, motion)) {
+    throw new TypeError('Unknown Section Navigator motion profile');
+  }
+  const timing = MOTION_TIMINGS[motion];
   const sections = items.map(item => ({ ...item }));
   const ids = new Set(sections.map(item => item.id));
   const contents = new Set(sections.map(item => item.content));
@@ -162,7 +177,7 @@ export function createSectionNavigator({ label, items, initialId, wheel = true, 
       ? { opacity: 0, transform: 'translate3d(0, ' + (-movement * 20) + 'px, 0)' }
       : { opacity: 1, transform: 'translate3d(0, 0, 0)' };
     const animation = panel.animate([from, to], {
-      duration: exit ? 170 : 270,
+      duration: exit ? timing.exit : timing.enter,
       easing: 'cubic-bezier(.22, 1, .36, 1)',
       fill: 'both',
     });
