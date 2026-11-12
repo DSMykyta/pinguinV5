@@ -40,7 +40,10 @@ export function createRichTextEditor({
   toolsHost.className = 'pg-rich-text-editor__tools-host';
   const modeHost = document.createElement('div');
   modeHost.className = 'pg-rich-text-editor__mode-host';
-  header.append(toolsHost, modeHost);
+  const triggerHost = document.createElement('div');
+  triggerHost.className = 'pg-rich-text-editor__toolbar-toggle-host';
+  if (code) header.append(modeHost);
+  if (toolbar) header.append(triggerHost, toolsHost);
 
   const input = document.createElement('div');
   input.className = 'pg-rich-text-editor__input';
@@ -200,7 +203,7 @@ export function createRichTextEditor({
   source.addEventListener('input', () => { if (!destroyed) emit(); }, { signal: aborter.signal });
 
   const views = [mountEditorPaste({ input, isEditable: () => isEditable, onInput: handleInput })];
-  if (toolbar) views.push(mountEditorToolbar({ host: toolsHost, controls, root: input }));
+  if (toolbar) views.push(mountEditorToolbar({ host: toolsHost, triggerHost, controls, root: input }));
   if (code) views.push(mountEditorModeSwitch({ host: modeHost, controls, editorId: input.id, sourceId: source.id }));
   if (stats) views.push(mountEditorStats({ host: statusHost, controls }));
   if (!toolbar && !code) header.remove();
