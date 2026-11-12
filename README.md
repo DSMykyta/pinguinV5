@@ -23,6 +23,8 @@
 - [База спільного UI](docs/ui/overview.md)
 - [Slider — геометрія й взаємодія Material 3](docs/ui/slider.md)
 - [Button Group — геометрія, форми та інтеграція Tabs](docs/ui/button-group.md)
+- [Motion Physics — єдині просторові/ефектні токени](docs/ui/motion.md)
+- [Collection Density — компактний і комфортний режим](docs/ui/collection-density.md)
 - [Rotating Placeholder — HTML opt-in, локальна історія і нативне autocomplete](docs/ui/rotating-placeholder.md)
 - [Текстовий редактор: API й готові можливості](docs/ui/rich-text-editor.md)
 - [Дослідження легасі та сучасних редакторів](docs/research/rich-text-editor.md)
