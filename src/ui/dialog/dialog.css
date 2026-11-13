@@ -118,6 +118,36 @@ body:has(> .pg-dialog[open]) #app *::after {
   padding: 0;
 }
 
+/* Generic edge-to-edge presentation of the SAME Dialog: native showModal,
+ * backdrop, Escape, focus restoration and close control are unchanged.
+ * Only the content reaches the rounded outer edge; no header/footer chrome. */
+.pg-dialog[data-pg-presentation='edge-to-edge'] {
+  block-size: min(420px, calc(100dvh - 32px));
+}
+.pg-dialog[data-pg-presentation='edge-to-edge'] .pg-dialog__panel {
+  position: relative;
+  block-size: 100%;
+  max-block-size: 100%;
+}
+.pg-dialog[data-pg-presentation='edge-to-edge'] .pg-dialog__body {
+  block-size: 100%;
+  padding: 0;
+  overflow: hidden;
+}
+.pg-dialog[data-pg-presentation='edge-to-edge'] .pg-dialog__body > :first-child {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: 0;
+  border-radius: 0;
+}
+.pg-dialog[data-pg-presentation='edge-to-edge'] .pg-dialog__close {
+  position: absolute;
+  inset-block-start: 12px;
+  inset-inline-end: 12px;
+  z-index: 2;
+}
+
 .pg-dialog--editor { width: min(1100px, 90vw); max-width: 90vw; height: min(90dvh, 900px); max-height: 90dvh; }
 
 .pg-dialog__body { flex: 1 1 auto; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 0 24px 10px; }
