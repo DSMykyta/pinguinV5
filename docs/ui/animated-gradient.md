@@ -60,3 +60,7 @@ gradient.setPreset('storm');
 `tests/e2e/animated-gradient.spec.js` перевіряє: два радіальні градієнти, відсутність Canvas/noise, три пресети, циклічний CSS-transform, reduced-motion, паузу за Dialog та загальну модальну механіку.
 
 Не називати браузерні тести виконаними без реального запуску.
+
+## Опційний Sparkles
+
+Демонстрація додає незалежний декор `createSparkles({ visible: false })` поверх того самого градієнта й перемикач «Іскри» через чинний `createSwitch`. Сам компонент `AnimatedGradient` не імпортує Sparkles і зберігає API та renderer без змін. Деталі: [Sparkles](sparkles.md).

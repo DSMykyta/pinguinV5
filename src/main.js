@@ -26,6 +26,7 @@ import './ui/reveal-panel/reveal-panel.css';
 import './ui/toolbar/toolbar.css';
 import './ui/dialog/dialog.css';
 import './ui/animated-gradient/animated-gradient.css';
+import './ui/sparkles/sparkles.css';
 import './ui/workspace-layout/workspace-layout.css';
 import './ui/section-navigator/section-navigator.css';
 import './ui/field/field.css';

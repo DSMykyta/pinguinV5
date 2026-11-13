@@ -13,6 +13,8 @@ import { createIconButton } from '../../ui/button/button.js';
 import { createButtonGroup } from '../../ui/button-group/button-group.js';
 import { showDialog } from '../../ui/dialog/dialog.js';
 import { createAnimatedGradient } from '../../ui/animated-gradient/animated-gradient.js';
+import { createSparkles } from '../../ui/sparkles/sparkles.js';
+import { createSwitch } from '../../ui/switch/switch.js';
 
 const PRESETS = Object.freeze([
   { id: 'light', label: 'Переміщення' },
@@ -36,6 +38,9 @@ export function createAnimatedGradientDemo() {
     variant: 'corner',
     onClick: () => {
       const gradient = createAnimatedGradient({ text: 'pinguinV6', preset: 'dawn' });
+      // Composition belongs to the demo; neither UI primitive imports the other.
+      const sparkles = createSparkles({ visible: false });
+      gradient.append(sparkles.element);
       const switcher = createButtonGroup({
         label: 'Тип руху градієнта',
         items: PRESETS,
@@ -48,15 +53,28 @@ export function createAnimatedGradientDemo() {
         onChange: value => gradient.setPreset(value),
       });
       switcher.element.classList.add('pg-tools-gradient-preview__switch');
+      const sparklesSwitch = createSwitch({
+        label: 'Іскри',
+        checked: false,
+        onChange: value => sparkles.setVisible(value),
+      });
+      sparklesSwitch.element.classList.add('pg-tools-gradient-preview__sparkles');
+      const controls = document.createElement('div');
+      controls.className = 'pg-tools-gradient-preview__controls';
+      controls.append(sparklesSwitch.element, switcher.element);
       const preview = document.createElement('div');
       preview.className = 'pg-tools-gradient-preview';
-      preview.append(gradient, switcher.element);
+      preview.append(gradient, controls);
       // The shared Dialog manages focus, Escape, close and backdrop.
       void showDialog({
         title: 'Анімований градієнт',
         presentation: 'edge-to-edge',
         content: preview,
-      }).finally(() => switcher.destroy());
+      }).finally(() => {
+        switcher.destroy();
+        sparklesSwitch.destroy();
+        sparkles.destroy();
+      });
     },
   });
 

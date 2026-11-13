@@ -87,6 +87,10 @@
   /* Gradient has only the three semantic tone colors and a readable title shadow. */
   --pg-color-gradient-text: #ffffff;
   --pg-color-gradient-title-shadow: rgb(8 8 12 / 0.62);
+  /* Tiny CSS sparkles from the three-layer radial-gradient reference. */
+  --pg-color-sparkles-neutral: #ffffff;
+  --pg-color-sparkles-warm: #ffd6a5;
+  --pg-color-sparkles-cool: #a0c4ff;
   --pg-color-input-error: #b1343b;
 
   /* Semantic action colors: legacy base hues, accessible display pairs. */
