@@ -65,7 +65,7 @@ test('pinguinV6 gradient fills shared Dialog with primary and two radial spots, 
   expect(style.tertiary).toBeTruthy();
   expect(style.backgroundImage).toBe('none');
   expect(style.blur).toBe('blur(60px)');
-  expect(style.animationName).toBe('pg-gradient-color-drift');
+  expect(style.animationName).toBe('pg-gradient-pulse');
   expect(style.animationDirection).toBe('alternate');
   expect(style.animationIterationCount).toBe('infinite');
   expect(style.animationPlayState).toBe('running');
@@ -82,12 +82,12 @@ test('pinguinV6 gradient fills shared Dialog with primary and two radial spots, 
   await expect(trigger).toBeFocused();
 });
 
-test('Light, Storm and Dawn reuse the same background element with distinct placement and speeds', async ({ page }) => {
+test('Motion controls select real translate, rotate and pulse effects on the same background', async ({ page }) => {
   const { modal, gradient } = await openGradient(page);
-  const group = modal.getByRole('group', { name: 'Тип градієнта' });
+  const group = modal.getByRole('group', { name: 'Тип руху градієнта' });
   await expect(group.getByRole('button')).toHaveCount(3);
   const results = [];
-  for (const [name, preset] of [['Dawn', 'dawn'], ['Light', 'light'], ['Storm', 'storm']]) {
+  for (const [name, preset] of [['Пульсація', 'dawn'], ['Переміщення', 'light'], ['Обертання', 'storm']]) {
     await group.getByRole('button', { name }).click();
     await expect(group.getByRole('button', { name })).toHaveAttribute('aria-pressed', 'true');
     await expect(gradient).toHaveAttribute('data-pg-preset', preset);
@@ -96,6 +96,7 @@ test('Light, Storm and Dawn reuse the same background element with distinct plac
       const layer = getComputedStyle(node, '::before');
       return {
         duration: layer.animationDuration,
+        animation: layer.animationName,
         spotX: css.getPropertyValue('--pg-gradient-secondary-x').trim(),
         spotY: css.getPropertyValue('--pg-gradient-tertiary-y').trim(),
         base: css.backgroundColor,
@@ -103,6 +104,9 @@ test('Light, Storm and Dawn reuse the same background element with distinct plac
     }));
   }
   expect(new Set(results.map(item => item.duration)).size).toBe(3);
+  expect(results.map(item => item.animation)).toEqual([
+    'pg-gradient-pulse', 'pg-gradient-translate', 'pg-gradient-rotate',
+  ]);
   expect(new Set(results.map(item => item.spotX)).size).toBe(3);
   expect(results.every(item => item.base === results[0].base)).toBe(true);
   await expect(gradient.locator('canvas, svg')).toHaveCount(0);
