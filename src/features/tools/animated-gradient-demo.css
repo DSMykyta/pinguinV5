@@ -2,10 +2,10 @@
  * ╔════════════════════════════════════════════════════════════════════════════════════╗
  * ║ PINGUIN NEXT — ANIMATED GRADIENT DEMO LAYOUT                                      ║
  * ╠════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Розташування підпису й тестової кнопки у «Таблицях».                  ║
- * ║ ЗАЛЕЖНОСТІ: Спільні spacing і text design tokens.                                 ║
- * ║ ПУБЛІЧНИЙ API: pg-tools-animated-gradient-demo, __label.                         ║
- * ║ ПРИНЦИП: Жодного стилю кнопок, Dialog або палітри у feature CSS.                  ║
+ * ║ ПРИЗНАЧЕННЯ: Demo trigger і 3 наявні Button Group кнопки поверх полотна.           ║
+ * ║ ЗАЛЕЖНОСТІ: Shared Button Group, Dialog, Animated Gradient and spacing tokens.     ║
+ * ║ ПУБЛІЧНИЙ API: pg-tools-gradient-preview and __switch.                             ║
+ * ║ ПРИНЦИП: Лише геометрія; не дублювати стилі Button, Dialog або кольори.            ║
  * ╚════════════════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -21,4 +21,37 @@
 .pg-tools-animated-gradient-demo__label {
   color: var(--pg-color-text-secondary);
   font-size: 13px;
+}
+
+.pg-tools-gradient-preview {
+  position: relative;
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: hidden;
+}
+
+.pg-tools-gradient-preview > .pg-animated-gradient {
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: 0;
+  border-radius: 0;
+}
+
+.pg-tools-gradient-preview__switch {
+  position: absolute;
+  z-index: 2;
+  inset-inline-start: 50%;
+  inset-block-end: 20px;
+  transform: translateX(-50%);
+  max-inline-size: calc(100% - 24px);
+  padding: 4px;
+  border-radius: var(--pg-radius-full);
+  background: var(--pg-color-surface);
+  box-shadow: 0 2px 14px var(--pg-color-shadow);
+}
+
+@media (max-width: 480px) {
+  .pg-tools-gradient-preview__switch { inset-block-end: 16px; }
 }
