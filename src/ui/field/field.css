@@ -213,8 +213,7 @@
 }
 
 :where(.pg-input:not(.pg-input--search), .pg-select, .pg-combobox, .pg-listbox,
-  .pg-tag-field, .pg-number-field, .pg-textarea):
-  has(> :last-child [id$='-description']:not([hidden])) {
+  .pg-tag-field, .pg-number-field, .pg-textarea):has(> :last-child [id$='-description']:not([hidden])) {
   --pg-field-feedback-space: 39px;
 }
 
