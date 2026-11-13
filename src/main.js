@@ -25,6 +25,7 @@ import './ui/toast/toast.css';
 import './ui/reveal-panel/reveal-panel.css';
 import './ui/toolbar/toolbar.css';
 import './ui/dialog/dialog.css';
+import './ui/cloud-gradient/cloud-gradient.css';
 import './ui/workspace-layout/workspace-layout.css';
 import './ui/section-navigator/section-navigator.css';
 import './ui/field/field.css';
