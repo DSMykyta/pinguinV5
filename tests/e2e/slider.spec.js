@@ -179,7 +179,7 @@ test('Themes, keyboard focus, reduced motion and forced colors remain usable', a
     const palette = await page.locator('.pg-slider').first().evaluate(root => {
       const style = getComputedStyle(root);
       return {
-        active: style.getPropertyValue('--pg-color-progress-active').trim(),
+        active: style.getPropertyValue('--pg-color-accent').trim(),
         handle: getComputedStyle(root.querySelector('.pg-slider__handle')).backgroundColor,
         track: getComputedStyle(root.querySelector('.pg-slider__inactive')).backgroundColor,
       };
