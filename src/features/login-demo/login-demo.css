@@ -2,9 +2,9 @@
  * ╔════════════════════════════════════════════════════════════════════════════════════╗
  * ║ PINGUIN NEXT — LOGIN DEMO LAYOUT                                                  ║
  * ╠════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Центрована форма з окремою рухомою підкладкою.                     ║
+ * ║ ПРИЗНАЧЕННЯ: Центрована форма без декоративних шарів.                          ║
  * ║ ЗАЛЕЖНОСТІ: Стандартні Shell/Field/Button і CSS-токени.                        ║
- * ║ ПУБЛІЧНИЙ API: .pg-login-demo, __scene, __cloud, __form, __submit, __status.     ║
+ * ║ ПУБЛІЧНИЙ API: .pg-login-demo, __scene, __form, __submit, __status.             ║
  * ║ ПРИНЦИП: Тільки компонування без нових скінів Input/Button.                    ║
  * ╚════════════════════════════════════════════════════════════════════════════════════╝
  */
@@ -27,15 +27,6 @@
   width: min(100%, 740px);
   min-height: min(520px, calc(100dvh - 200px));
   padding: var(--pg-space-8);
-}
-.pg-login-demo__cloud {
-  position: absolute;
-  z-index: -1;
-  top: 50%;
-  left: 50%;
-  width: 130%;
-  height: 120%;
-  transform: translate(-50%, -50%);
 }
 .pg-login-demo__form {
   position: relative;
