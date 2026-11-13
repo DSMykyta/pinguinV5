@@ -2,8 +2,8 @@
  * ╔════════════════════════════════════════════════════════════════════════════════════╗
  * ║ PINGUIN NEXT — LOGIN DEMO                                                          ║
  * ╠════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Два спільні поля та кнопка над tertiary CloudGradient.             ║
- * ║ ЗАЛЕЖНОСТІ: createInput(), createCloudGradient(), існуючий Button CSS.         ║
+ * ║ ПРИЗНАЧЕННЯ: Демонстраційна форма входу без декоративної підкладки.            ║
+ * ║ ЗАЛЕЖНОСТІ: createInput() та стандартний Button CSS.                           ║
  * ║ ПУБЛІЧНИЙ API: mount(host).                                                    ║
  * ║ ПРИНЦИП: Локальна валідація, жодного збереження або передачі пароля.             ║
  * ╚════════════════════════════════════════════════════════════════════════════════════╝
@@ -11,7 +11,6 @@
 
 import { createInput } from '../../ui/input/input.js';
 import { createPasswordInput } from '../../ui/input/password-input.js';
-import { createCloudGradient } from '../../ui/cloud-gradient/cloud-gradient.js';
 import './login-demo.css';
 
 export function mount(host) {
@@ -20,8 +19,6 @@ export function mount(host) {
   page.dataset.pgModule = 'login-demo';
   const scene = document.createElement('div');
   scene.className = 'pg-login-demo__scene';
-  const cloud = createCloudGradient({ tone: 'tertiary' });
-  cloud.element.classList.add('pg-login-demo__cloud');
 
   const form = document.createElement('form');
   form.className = 'pg-login-demo__form';
@@ -69,14 +66,12 @@ export function mount(host) {
   }, { signal: events.signal });
 
   form.append(login.element, password.element, button, status);
-  scene.append(cloud.element, form);
+  scene.append(form);
   page.append(scene);
   host.replaceChildren(page);
-  cloud.mount();
 
   return () => {
     events.abort();
-    cloud.destroy();
     login.destroy();
     password.destroy();
     host.replaceChildren();
