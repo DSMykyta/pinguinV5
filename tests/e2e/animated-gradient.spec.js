@@ -21,9 +21,28 @@ test('Tables shows a smooth three-tone field, without stripes, geometric blobs o
 
   const dialog = page.getByRole('dialog');
   await expect(dialog).toBeVisible();
+  await expect(dialog).toHaveAttribute('data-pg-presentation', 'edge-to-edge');
+  await expect(dialog).toHaveAttribute('aria-label', 'Анімований градієнт');
+  await expect(dialog.locator('.pg-dialog__header, .pg-dialog__footer, .pg-dialog__title')).toHaveCount(0);
+  await expect(dialog.locator('button')).toHaveCount(1);
+  const close = dialog.getByRole('button', { name: 'Закрити діалог' });
+  await expect(close).toBeVisible();
+  await expect(close).toBeFocused();
+
   const gradient = dialog.locator('.pg-animated-gradient');
-  await expect(gradient.locator('.pg-animated-gradient__title')).toHaveText('pinguin V6');
+  await expect(gradient.locator('.pg-animated-gradient__title')).toHaveCount(0);
   await expect(gradient.locator('.pg-animated-gradient__glow')).toHaveCount(6);
+  const coverage = await dialog.evaluate(node => {
+    const parent = node.getBoundingClientRect();
+    const content = node.querySelector('.pg-animated-gradient').getBoundingClientRect();
+    return {
+      width: Math.abs(parent.width - content.width),
+      height: Math.abs(parent.height - content.height),
+      top: Math.abs(parent.top - content.top),
+      left: Math.abs(parent.left - content.left),
+    };
+  });
+  for (const gap of Object.values(coverage)) expect(gap).toBeLessThanOrEqual(2);
   await expect(gradient.locator('svg, .pg-animated-gradient__grain')).toHaveCount(0);
 
   const geometry = await gradient.evaluate(el => {
@@ -86,7 +105,7 @@ test('Reduced motion keeps the continuous colors while disabling decorative moti
   const bounds = await dialog.boundingBox();
   expect(bounds.x).toBeGreaterThanOrEqual(0);
   expect(bounds.x + bounds.width).toBeLessThanOrEqual(391);
-  await dialog.locator('[data-pg-action="dialog-confirm"]').click();
+  await dialog.locator('[data-pg-action="dialog-dismiss"]').click();
   await expect(dialog).toHaveCount(0);
 });
 
@@ -116,7 +135,7 @@ test('Dialog pauses the animated color fields behind it and restores them on clo
   });
   expect(focusGuard).toBe(true);
 
-  await dialog.locator('[data-pg-action="dialog-confirm"]').click();
+  await dialog.locator('[data-pg-action="dialog-dismiss"]').click();
   await expect(dialog).toHaveCount(0);
   await expect(backgroundGlow).toHaveCSS('animation-play-state', 'running');
 });
