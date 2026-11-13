@@ -77,6 +77,7 @@
 | Slider | `src/ui/slider` | [Material 3: native range, розділена шкала, вертикальна ручка](slider.md) |
 | Wave Progress | `src/ui/wave-progress` | [Безшовна 20px CSS-маска, визначений/невизначений прогрес](wave-progress.md); демо у «Таблицях» |
 | Password Input | `src/ui/input/password-input.js` | [Глобальне парольне поле](password-input.md) з reveal toggle, autofill та тихою доступною валідацією |
+| CloudGradient | `src/ui/cloud-gradient` | [Оригінальна WebGL-хмарка для `/login-demo`](cloud-gradient.md); експеримент Aurora у `trash/` |
 | Thinking Progress — «Думання» | `src/ui/thinking-progress` | [Тонкий безперервний градієнт із м’якими краями](thinking-progress.md); демо у «Таблицях» |
 | Checkbox | `src/ui/checkbox` | [Native two-state and mixed-state control](choice-controls.md) |
 | Switch | `src/ui/switch` | [Native on/off semantics, async rollback](choice-controls.md) |
