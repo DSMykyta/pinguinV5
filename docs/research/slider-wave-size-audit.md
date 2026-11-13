@@ -27,7 +27,7 @@
 - Shared size: `--pg-compact-control-size`, `--pg-space-1`, `--pg-space-4`, `--pg-space-12`.
 - Slider role: `--pg-slider-hit-size`, `--pg-slider-handle-height`, `--pg-slider-handle-width`, `--pg-slider-handle-pressed-width`, `--pg-slider-track-active-height`, `--pg-slider-track-inactive-height`, `--pg-slider-handle-gap`, `--pg-slider-dot-size`.
 - Wave role: `--pg-wave-period`, `--pg-wave-height`, `--pg-wave-container-height`, `--pg-wave-rest-height`, `--pg-wave-gap`, `--pg-wave-duration`, `--pg-wave-indeterminate-duration`.
-- Wave progress paint: `--pg-color-progress-active`, `--pg-color-progress-inactive` (головна тональність). Slider interactive paint: `--pg-color-accent`, `--pg-color-accent-soft` (зелений вибір як Checkbox/Radio/Switch).
+- Wave progress paint: `--pg-color-progress-active`, `--pg-color-progress-inactive` — alias до `--pg-color-accent`, `--pg-color-accent-soft`; Slider та інші інтерактивні елементи використовують ті самі зелені відтінки.
 - SVG data URI містить безрозмірний `viewBox` і числові координати кривої; вони **не є CSS pixel-значеннями**. Реальні pixel sizes керуються тільки токенами (период/маска/швидкість).
 - `step` в `createSlider` (наприклад 1 або 0.5) є **кроком даних нативного input**, а не дизайнерським геометричним кроком. Його не слід замінювати CSS var.
 
@@ -38,7 +38,7 @@
 ## Приймання
 
 1. 32px видима ручка, 16px active, 10px inactive, 48px нативний hit target. Горизонтальні зазори 6px без зсуву геометрії на 0, 50, 100% та pressed.
-2. Wave має власну синю семантичну палітру прогресу, а Slider — зелену інтерактивну палітру. Підписи й відсотки використовують спільні текстові токени в обох темах.
+2. Wave і Slider мають однакову зелену палітру активної та неактивної частин у світлій і темній темах. Підписи й відсотки використовують спільні текстові токени.
 3. У `slider.css` та `wave-progress.css` **жодних локальних геометричних px-літералів**, лише `var(--pg-...)`/обчислення від токенів. Єдине джерело чисел — `tokens.css`.
 4. Покриття Playwright, screen mobile, RTL, pointer, keyboard, forced colors та reduced motion. Існуючий `setButtonLoading` не змінений.
 
