@@ -40,7 +40,9 @@ test('one working surface switches from WYSIWYG to editable HTML and back', asyn
   await expect(code).toBeEditable();
   await expect(code).toBeFocused();
   await expect(code).toHaveValue(/<h2>Опис товару<\/h2>/);
-  await expect(root.getByRole('button', { name: /Жирний/ })).toBeDisabled();
+  await expect(root.locator('[data-pg-action="bold"]')).toBeDisabled();
+  await expect(root.locator('[data-pg-action="toggle-formatting"]')).toBeHidden();
+  await expect(root.locator('.pg-rich-text-editor__toolbar')).toBeHidden();
   await code.fill('<h1>Новий заголовок</h1><p>Опис <strong>оновлено</strong></p>');
   await editorMode.click();
   // Tooltip intentionally removes native title attributes on first hover.
@@ -50,6 +52,7 @@ test('one working surface switches from WYSIWYG to editable HTML and back', asyn
   await expect(visual).toBeVisible();
   await expect(visual.locator('h1')).toHaveText('Новий заголовок');
   await expect(visual.locator('strong')).toHaveText('оновлено');
+  await root.locator('[data-pg-action="toggle-formatting"]').click();
   await expect(root.getByRole('button', { name: /Жирний/ })).toBeEnabled();
   await htmlMode.click();
   await expect(code).toHaveValue('<h1>Новий заголовок</h1><p>Опис <strong>оновлено</strong></p>');
@@ -258,10 +261,10 @@ test('icon switch and expandable formatting share one outer border', async ({ pa
   await expect(toolbar.locator('button svg')).toHaveCount(12);
   await htmlMode.click();
   await expect(code).toBeVisible();
-  await expect(toolbar.getByRole('button', { name: /Жирний/ })).toBeDisabled();
-  await trigger.click();
+  await expect(trigger).toBeHidden();
+  await expect(toolbar).toBeHidden();
+  await expect(root.locator('[data-pg-action="bold"]')).toBeDisabled();
   await expect(trigger).toHaveAttribute('aria-expanded', 'false');
-  await expect(root.locator('.pg-rich-text-editor__toolbar')).toBeHidden();
   await expect(visual).toBeHidden();
   await expect(root.locator('.pg-rich-text-editor__stats')).toBeVisible();
 });
@@ -278,6 +281,17 @@ test('compact expanded toolbar fits the editor on mobile', async ({ page }) => {
   });
   expect(widths.editor).toBeLessThanOrEqual(widths.viewport);
   expect(widths.header).toBeLessThanOrEqual(widths.editor);
+  const layout = await root.evaluate(node => {
+    const bounds = selector => node.querySelector(selector).getBoundingClientRect();
+    const mode = bounds('.pg-rich-text-editor__mode-host');
+    const tools = bounds('.pg-rich-text-editor__tools-host');
+    const arrow = bounds('.pg-rich-text-editor__toolbar-toggle-host');
+    return { modeRight: mode.right, toolsLeft: tools.left, toolsRight: tools.right,
+      arrowLeft: arrow.left, sameRow: Math.abs((tools.top + tools.bottom) / 2 - (arrow.top + arrow.bottom) / 2) < 2 };
+  });
+  expect(layout.modeRight).toBeLessThanOrEqual(layout.toolsLeft);
+  expect(layout.toolsRight).toBeLessThanOrEqual(layout.arrowLeft);
+  expect(layout.sameRow).toBe(true);
 });
 
 test('toolbar arrows navigate one enabled action group', async ({ page }) => {
@@ -314,7 +328,10 @@ test('Material floating toolbar and filled slider retain one field outline witho
   await expect(toolbar).toHaveAttribute('data-pg-density', 'compact');
   await expect(toolbar).toHaveCSS('border-radius', /.+/);
   await htmlMode.click();
-  await expect(main).toHaveCSS('border-color', idleBorder);
+  await expect(main).not.toHaveCSS('border-color', idleBorder);
+  await expect(main).toHaveCSS('background-color', 'rgb(30, 32, 37)');
+  await expect(root.locator('.pg-rich-text-editor__source')).toHaveCSS('font-family', /monospace/);
+  await expect(trigger).toBeHidden();
 });
 
 test('disclosure animation respects reduced motion', async ({ page }) => {
@@ -356,14 +373,12 @@ test('showing and hiding the floating toolbar never moves the input, stats or fr
     expect(await geometry()).toEqual(closed);
 
     await htmlMode.click();
-    const htmlClosed = await geometry();
-    await toggle.click();
-    await expect(toolbar).toBeVisible();
-    expect(await geometry()).toEqual(htmlClosed);
-    await toggle.click();
+    await expect(toggle).toBeHidden();
     await expect(toolbar).toBeHidden();
-    expect(await geometry()).toEqual(htmlClosed);
+    const htmlClosed = await geometry();
+    expect((await geometry()).main).toEqual(htmlClosed.main);
     await root.locator('.pg-rich-text-editor__mode-switch .pg-segment-switch__label').first().click();
+    await expect(toggle).toBeVisible();
     await expect(visual).toBeVisible();
     await expect(code).toBeHidden();
   }
