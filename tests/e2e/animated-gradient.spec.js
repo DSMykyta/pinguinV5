@@ -2,77 +2,87 @@
  * ╔════════════════════════════════════════════════════════════════════════════════════╗
  * ║ PINGUIN NEXT — ANIMATED GRADIENT E2E                                               ║
  * ╠════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Перевіряє кнопку у «Таблицях», рух і доступність Dialog.              ║
+ * ║ ПРИЗНАЧЕННЯ: Перевіряє суцільний колір без смуг, контурів і зайвих шарів.           ║
  * ║ ЗАЛЕЖНОСТІ: Playwright, shared Dialog, tools/animated-gradient-demo.             ║
  * ║ ПУБЛІЧНИЙ API: tests/e2e/animated-gradient.spec.js.                               ║
- * ║ ПРИНЦИП: Перевірка реальної інтеграції без тестової підміни модалки.               ║
+ * ║ ПРИНЦИП: Тільки один існуючий компонент, 6 полів і рідна модальна механіка.        ║
  * ╚════════════════════════════════════════════════════════════════════════════════════╝
  */
 
 import { test, expect } from '@playwright/test';
 
-test('Tables opens the shared dialog with a branded animated gradient', async ({ page }) => {
+test('Tables shows a smooth three-tone field, without stripes, geometric blobs or SVG noise', async ({ page }) => {
   await page.goto('/tools');
   const tables = page.locator('#pg-tools-panel-tables');
   const trigger = tables.locator('[data-pg-action="animated-gradient-demo"]');
   await expect(trigger).toBeVisible();
   await expect(page.locator('#pg-tools-panel-text [data-pg-action="animated-gradient-demo"]')).toHaveCount(0);
-
   await trigger.click();
+
   const dialog = page.getByRole('dialog');
   await expect(dialog).toBeVisible();
   const gradient = dialog.locator('.pg-animated-gradient');
   await expect(gradient.locator('.pg-animated-gradient__title')).toHaveText('pinguin V6');
-  await expect(gradient.locator('.pg-animated-gradient__glow')).toHaveCount(3);
-  await expect(gradient.locator('.pg-animated-gradient__grain')).toHaveAttribute('aria-hidden', 'true');
-  await expect(gradient.locator('.pg-animated-gradient__glow--main')).toHaveCSS('animation-name', 'pg-gradient-main-flow');
-  const themeTone = await gradient.evaluate(el => ({
-    main: getComputedStyle(el).getPropertyValue('--pg-tone-main-base').trim(),
-    secondary: getComputedStyle(el).getPropertyValue('--pg-tone-secondary-base').trim(),
-    tertiary: getComputedStyle(el).getPropertyValue('--pg-tone-tertiary-base').trim(),
-  }));
-  expect(themeTone.main).toBeTruthy();
-  expect(themeTone.secondary).toBeTruthy();
-  expect(themeTone.tertiary).toBeTruthy();
+  await expect(gradient.locator('.pg-animated-gradient__glow')).toHaveCount(6);
+  await expect(gradient.locator('svg, .pg-animated-gradient__grain')).toHaveCount(0);
 
-  // Three same-size morphing spots have color centers at ~1/6, 1/2, 5/6.
-  const balance = await gradient.evaluate(surface => {
-    const width = surface.getBoundingClientRect().width;
-    const colors = ['main', 'secondary', 'tertiary'];
-    return colors.map(tone => {
-      const glow = surface.querySelector('.pg-animated-gradient__glow--' + tone);
+  const geometry = await gradient.evaluate(el => {
+    const surfaceStyle = getComputedStyle(el);
+    const box = el.getBoundingClientRect();
+    const tones = ['main', 'secondary', 'tertiary'];
+    const fields = tones.flatMap(tone => [...el.querySelectorAll('.pg-animated-gradient__glow--' + tone)].map(glow => {
       const style = getComputedStyle(glow);
       return {
-        center: (parseFloat(style.left) + parseFloat(style.width) / 2) / width,
-        width: parseFloat(style.width) / width,
-        ink: style.getPropertyValue('--pg-gradient-blob-color').trim(),
-        semantic: getComputedStyle(surface).getPropertyValue('--pg-tone-' + tone + '-base').trim(),
-        blur: style.filter,
+        tone, field: glow.dataset.pgField,
+        x: Math.round(parseFloat(style.left) / box.width * 100),
+        y: Math.round(parseFloat(style.top) / box.height * 100),
+        width: parseFloat(style.width) / box.width,
+        filter: style.filter,
+        clip: style.clipPath,
+        radius: style.borderRadius,
+        image: style.backgroundImage,
         animation: style.animationName,
+        ink: style.getPropertyValue('--pg-gradient-field-color').trim(),
+        semantic: surfaceStyle.getPropertyValue('--pg-tone-' + tone + '-base').trim(),
       };
-    });
+    }));
+    return { backgroundImage: surfaceStyle.backgroundImage, fields };
   });
-  expect(balance.map(item => Math.round(item.center * 100))).toEqual([17, 50, 83]);
-  for (const item of balance) {
-    expect(item.width).toBeCloseTo(0.56, 1);
-    expect(item.ink).toBe(item.semantic);
-    expect(item.blur).toBe('blur(24px)');
-    expect(item.animation).toMatch(/^pg-gradient-/);
+
+  expect(geometry.backgroundImage).toBe('none'); // No horizontal/vertical stripe layer.
+  expect(geometry.fields.map(field => field.tone)).toEqual([
+    'main', 'main', 'secondary', 'secondary', 'tertiary', 'tertiary',
+  ]);
+  expect(geometry.fields.map(field => field.field)).toEqual(['a','b','a','b','a','b']);
+  for (const field of geometry.fields) {
+    expect(field.width).toBeCloseTo(1.15, 1);
+    expect(field.ink).toBe(field.semantic);
+    expect(field.filter).toBe('none');
+    expect(field.clip).toBe('none');
+    expect(field.radius).toBe('0px');
+    expect(field.image).toContain('radial-gradient');
+    expect(field.animation).toMatch(/^pg-gradient-cloud-drift-[ab]$/);
   }
+  // Scattered in both dimensions, not arranged as three bands.
+  expect(new Set(geometry.fields.map(field => field.x)).size).toBeGreaterThan(3);
+  expect(new Set(geometry.fields.map(field => field.y)).size).toBeGreaterThan(3);
 
   await page.keyboard.press('Escape');
   await expect(dialog).toHaveCount(0);
   await expect(trigger).toBeFocused();
 });
 
-test('Reduced motion stops background and grain while dialog remains usable on mobile', async ({ page }) => {
+test('Reduced motion keeps the continuous colors while disabling decorative motion', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/tools');
   await page.locator('[data-pg-action="animated-gradient-demo"]').click();
   const dialog = page.getByRole('dialog');
-  await expect(dialog.locator('.pg-animated-gradient__glow--main')).toHaveCSS('animation-name', 'none');
-  await expect(dialog.locator('.pg-animated-gradient__grain')).toHaveCSS('animation-name', 'none');
+  const fields = dialog.locator('.pg-animated-gradient__glow');
+  await expect(fields).toHaveCount(6);
+  for (const field of await fields.all()) await expect(field).toHaveCSS('animation-name', 'none');
+  const surface = dialog.locator('.pg-animated-gradient');
+  await expect(surface).toHaveCSS('background-image', 'none');
   const bounds = await dialog.boundingBox();
   expect(bounds.x).toBeGreaterThanOrEqual(0);
   expect(bounds.x + bounds.width).toBeLessThanOrEqual(391);
@@ -80,32 +90,29 @@ test('Reduced motion stops background and grain while dialog remains usable on m
   await expect(dialog).toHaveCount(0);
 });
 
-test('open Dialog pauses Shell animations and background placeholder rotation, then restores them', async ({ page }) => {
+test('Dialog pauses the animated color fields behind it and restores them on close', async ({ page }) => {
   await page.goto('/tools');
   await page.getByRole('tab', { name: 'Таблиці' }).click();
 
-  // A real, independent instance in the Shell: no production test-mode hooks.
   await page.evaluate(async () => {
     const { createAnimatedGradient } = await import('/src/ui/animated-gradient/animated-gradient.js');
     document.querySelector('#pg-tools-panel-tables')
       .append(createAnimatedGradient({ text: 'background' }));
   });
   const background = page.locator('#pg-tools-panel-tables > .pg-animated-gradient');
-  const backgroundGlow = background.locator('.pg-animated-gradient__glow--main');
+  const backgroundGlow = background.locator('.pg-animated-gradient__glow--main').first();
   await expect(backgroundGlow).toHaveCSS('animation-play-state', 'running');
 
   await page.locator('[data-pg-action="animated-gradient-demo"]').click();
   const dialog = page.getByRole('dialog', { name: 'Анімований градієнт' });
   await expect(dialog).toBeVisible();
   await expect(backgroundGlow).toHaveCSS('animation-play-state', 'paused');
-  await expect(background.locator('.pg-animated-gradient__grain')).toHaveCSS('animation-play-state', 'paused');
-  await expect(dialog.locator('.pg-animated-gradient__glow--main')).toHaveCSS('animation-play-state', 'running');
+  await expect(dialog.locator('.pg-animated-gradient__glow--main').first()).toHaveCSS('animation-play-state', 'running');
 
   const focusGuard = await page.evaluate(() => {
-    const dialog = document.querySelector('dialog.pg-dialog[open]');
-    const behind = document.querySelector('#app button');
-    behind.focus();
-    return dialog.contains(document.activeElement);
+    const modal = document.querySelector('dialog.pg-dialog[open]');
+    document.querySelector('#app button').focus();
+    return modal.contains(document.activeElement);
   });
   expect(focusGuard).toBe(true);
 
