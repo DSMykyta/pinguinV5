@@ -2,17 +2,17 @@
  * ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
  * ║ PINGUIN NEXT — ANIMATED GRADIENT                                                              ║
  * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Primary surface + soft moving secondary/tertiary radial gradients.                 ║
+ * ║ ПРИЗНАЧЕННЯ: Primary surface + two INDEPENDENT moving secondary/tertiary radial gradients.                 ║
  * ║ ЗАЛЕЖНОСТІ: Existing semantic CSS tone tokens and shared gradient CSS.                          ║
  * ║ ПУБЛІЧНИЙ API: createAnimatedGradient({ text, preset }), getPreset/setPreset.                    ║
- * ║ ПРИНЦИП: One oversized pseudo-element, CSS transform only; no canvas, timers or noise.          ║
+ * ║ ПРИНЦИП: Two oversized pseudolayers with separate CSS transform loops; no canvas, timers or noise.          ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
 const PRESETS = new Set(['light', 'storm', 'dawn']);
 
 /** One lightweight visual component shared by every consumer, including Dialog. */
-export function createAnimatedGradient({ text = 'pinguinV6', preset = 'dawn' } = {}) {
+export function createAnimatedGradient({ text = 'pinguinV6', preset = 'light' } = {}) {
   if (text !== null && (typeof text !== 'string' || !text.trim())) {
     throw new TypeError('AnimatedGradient text must be null or a non-empty string');
   }
