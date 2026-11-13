@@ -89,7 +89,7 @@ test('Reduced motion and mobile preserve visible progress without animating', as
 });
 
 
-test('Wave and Slider keep independent semantic colors but share typography and central size tokens in both themes', async ({ page }) => {
+test('Wave and Slider share green colors, typography and central size tokens in both themes', async ({ page }) => {
   await page.goto('/tools');
   const demo = page.locator('.pg-tools-wave-demo');
   for (const theme of ['light', 'dark']) {
@@ -119,9 +119,9 @@ test('Wave and Slider keep independent semantic colors but share typography and 
         compactSize: tokens.getPropertyValue('--pg-compact-control-size').trim(),
       };
     });
-    expect(sizes.waveActive).not.toBe(sizes.sliderActive);
+    expect(sizes.waveActive).toBe(sizes.sliderActive);
     expect(sizes.handleColor).toBe(sizes.sliderActive);
-    expect(sizes.waveRest).not.toBe(sizes.sliderRest);
+    expect(sizes.waveRest).toBe(sizes.sliderRest);
     expect(sizes.waveLabel).toEqual(sizes.sliderLabel);
     expect(sizes.waveValue).toEqual(sizes.sliderValue);
     expect(sizes.handleHeight).toBe(sizes.compactSize);
