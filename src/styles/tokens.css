@@ -168,7 +168,16 @@
   --pg-slider-dot-size: var(--pg-space-1);
   --pg-slider-outline-size: var(--pg-slider-handle-pressed-width);
   --pg-slider-outline-offset: 3px;
-  --pg-slider-label-size: 13px;
+  --pg-slider-pressed-scale: .5;
+
+  /* One text hierarchy for loading indicators and their Slider controls. */
+  --pg-progress-heading-size: 15px;
+  --pg-progress-label-size: 13px;
+  --pg-progress-body-size: 13px;
+  --pg-progress-label-weight: 400;
+  --pg-progress-value-weight: 600;
+  --pg-progress-demo-max-width: 560px;
+  --pg-slider-label-size: var(--pg-progress-label-size);
   --pg-slider-description-size: 12px;
 
   /* Seamless CSS mask: 20px is one complete SVG tile/animation period. */
