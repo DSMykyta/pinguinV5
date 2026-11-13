@@ -57,8 +57,10 @@
 .pg-rich-text-editor__input { caret-color: var(--pg-color-focus); }
 .pg-rich-text-editor__source {
   font: 13px/1.65 ui-monospace, SFMono-Regular, Consolas, monospace;
-  resize: vertical; tab-size: 2;
-  overflow-x: auto; white-space: pre-wrap;
+  /* Both modes expand naturally with their document. No drag handle or inner scrolling. */
+  field-sizing: content;
+  resize: none; tab-size: 2;
+  overflow-x: auto; overflow-y: hidden; white-space: pre-wrap;
 }
 .pg-rich-text-editor__input[hidden], .pg-rich-text-editor__source[hidden] { display: none; }
 .pg-rich-text-editor__input[contenteditable='false'], .pg-rich-text-editor__source[readonly] {

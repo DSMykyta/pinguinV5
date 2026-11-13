@@ -155,6 +155,56 @@ test('editor and source use same full-width workspace on mobile', async ({ page 
   expect(dimensions.source).toBeLessThanOrEqual(dimensions.root);
 });
 
+test('editor and HTML source use the same intrinsic-height field without a resize handle', async ({ page }) => {
+  const { root, visual, code, editorMode, htmlMode } = getEditor(page);
+  const getGeometry = () => root.evaluate(node => {
+    const visual = node.querySelector('.pg-rich-text-editor__input');
+    const source = node.querySelector('.pg-rich-text-editor__source');
+    const active = node.dataset.pgMode === 'html' ? source : visual;
+    return {
+      height: active.getBoundingClientRect().height,
+      scrollHeight: active.scrollHeight,
+      resize: getComputedStyle(source).resize,
+      overflowY: getComputedStyle(source).overflowY,
+    };
+  });
+
+  const initialEditor = await getGeometry();
+  await htmlMode.click();
+  const initialCode = await getGeometry();
+  expect(initialCode.resize).toBe('none');
+  expect(initialCode.overflowY).toBe('hidden');
+  expect(initialCode.height).toBeCloseTo(initialEditor.height, 0);
+
+  const longHTML = Array.from({ length: 60 }, (_, index) =>
+    '<p>Рядок ' + index + ': багато тексту для перевірки висоти.</p>').join('\n');
+  await code.fill(longHTML);
+  await expect.poll(async () => (await getGeometry()).height).toBeGreaterThan(initialCode.height + 100);
+  const largeSource = await getGeometry();
+  expect(largeSource.height).toBeGreaterThanOrEqual(largeSource.scrollHeight - 2);
+
+  await editorMode.click();
+  const largeEditor = await getGeometry();
+  expect(largeEditor.height).toBeGreaterThan(initialEditor.height + 100);
+  await htmlMode.click();
+  await code.fill('<p>Коротко</p>');
+  await expect.poll(async () => (await getGeometry()).height).toBeLessThan(largeSource.height - 100);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await code.fill(longHTML);
+  await expect.poll(async () => (await getGeometry()).height).toBeGreaterThan(initialCode.height + 100);
+  expect((await getGeometry()).resize).toBe('none');
+});
+
+test('floating formatting toolbar has no clipped corner shadow', async ({ page }) => {
+  const { root } = getEditor(page);
+  await root.locator('[data-pg-action="toggle-formatting"]').click();
+  const toolbar = root.getByRole('toolbar', { name: 'Форматування тексту' });
+  await expect(toolbar).toBeVisible();
+  await expect(toolbar).toHaveCSS('box-shadow', 'none');
+  await expect(toolbar).toHaveAttribute('data-pg-variant', 'floating');
+});
+
 test('plain WYSIWYG typing and keyboard undo remain available', async ({ page }) => {
   const { visual, htmlMode, code } = getEditor(page);
   await visual.click();

@@ -84,6 +84,26 @@ export function createRichTextEditor({
   let isEditable = Boolean(editable);
   let mode = 'editor';
 
+  // Native field-sizing matches the self-growing contenteditable field.
+  // Only browsers without it need a small textarea height fallback.
+  const nativeSourceSizing = typeof CSS !== 'undefined' && CSS.supports?.('field-sizing', 'content');
+  function resizeSource() {
+    if (destroyed || source.hidden || nativeSourceSizing) return;
+    source.style.height = 'auto';
+    source.style.height = source.scrollHeight + 'px';
+  }
+  let lastSourceWidth = 0;
+  const sourceSizeObserver = !nativeSourceSizing && typeof ResizeObserver !== 'undefined'
+    ? new ResizeObserver(([entry]) => {
+        const width = entry?.contentRect.width;
+        if (width !== lastSourceWidth) {
+          lastSourceWidth = width;
+          resizeSource();
+        }
+      })
+    : null;
+  sourceSizeObserver?.observe(main);
+
   function sanitizeSource(value) {
     const holder = input.ownerDocument.createElement('div');
     holder.append(parseSafeHtml(value));
@@ -125,6 +145,7 @@ export function createRichTextEditor({
       source.hidden = false;
       mode = 'html';
       element.dataset.pgMode = 'html';
+      resizeSource();
       source.focus();
     } else {
       // The HTML textarea owns the draft until the user returns to WYSIWYG.
@@ -202,7 +223,7 @@ export function createRichTextEditor({
 
   // Source editing is native plaintext: keep in-progress HTML and caret untouched.
   // Commit and sanitize only when returning to the rendered editor or exporting.
-  source.addEventListener('input', () => { if (!destroyed) emit(); }, { signal: aborter.signal });
+  source.addEventListener('input', () => { if (!destroyed) { resizeSource(); emit(); } }, { signal: aborter.signal });
 
   const views = [
     mountEditorPaste({ input, isEditable: () => isEditable, onInput: handleInput }),
@@ -223,6 +244,7 @@ export function createRichTextEditor({
       const safe = sanitizeSource(html);
       input.replaceChildren(parseSafeHtml(safe));
       source.value = safe;
+      resizeSource();
       history.record();
       emit();
     },
@@ -238,6 +260,7 @@ export function createRichTextEditor({
     clear() {
       if (destroyed) return;
       source.value = '';
+      resizeSource();
       input.replaceChildren();
       history.record();
       emit();
@@ -246,6 +269,7 @@ export function createRichTextEditor({
       if (destroyed) return;
       destroyed = true;
       aborter.abort();
+      sourceSizeObserver?.disconnect();
       for (const view of views) view.dispose();
       subscribers.clear();
       element.remove();
