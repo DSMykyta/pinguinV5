@@ -83,6 +83,13 @@
   mix-blend-mode: overlay;
 }
 
+/* Legacy Light is a pale secondary tint; readable foreground must be dark
+ * in light theme and light in dark theme. Both come from the existing main tone. */
+.pg-animated-gradient[data-pg-preset='light'] .pg-animated-gradient__title {
+  color: var(--pg-tone-main-base);
+  text-shadow: none;
+}
+
 .pg-animated-gradient__title {
   position: relative;
   z-index: 1;
