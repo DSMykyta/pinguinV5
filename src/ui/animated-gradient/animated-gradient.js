@@ -11,8 +11,10 @@
 
 /** Return an autonomous gradient surface; Dialog/Shell are only consumers. */
 export function createAnimatedGradient({ text = 'pinguin V6' } = {}) {
-  if (typeof text !== 'string' || !text.trim()) {
-    throw new TypeError('AnimatedGradient text must be a non-empty string');
+  // null intentionally renders a color-only surface, useful in content-first
+  // dialogs and backgrounds; omitted text retains the existing default.
+  if (text !== null && (typeof text !== 'string' || !text.trim())) {
+    throw new TypeError('AnimatedGradient text must be null or a non-empty string');
   }
 
   const surface = document.createElement('section');
@@ -31,9 +33,11 @@ export function createAnimatedGradient({ text = 'pinguin V6' } = {}) {
     }
   }
 
-  const title = document.createElement('p');
-  title.className = 'pg-animated-gradient__title';
-  title.textContent = text;
-  surface.append(title);
+  if (text !== null) {
+    const title = document.createElement('p');
+    title.className = 'pg-animated-gradient__title';
+    title.textContent = text;
+    surface.append(title);
+  }
   return surface;
 }
