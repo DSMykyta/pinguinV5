@@ -74,10 +74,8 @@
   --pg-color-dialog-action-text: #ffffff;
   --pg-color-dialog-danger: #bd4249;
   --pg-color-dialog-danger-text: #ffffff;
-  /* Only text-center needs a neutral scrim: never blue-tint the whole gradient. */
+  /* Gradient has only the three semantic tone colors and a readable title shadow. */
   --pg-color-gradient-text: #ffffff;
-  --pg-color-gradient-veil-strong: rgb(12 12 16 / 0.48);
-  --pg-color-gradient-veil-soft: rgb(12 12 16 / 0.12);
   --pg-color-gradient-title-shadow: rgb(8 8 12 / 0.62);
   --pg-color-input-error: #b1343b;
 
