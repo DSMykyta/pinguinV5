@@ -79,8 +79,10 @@ test('seven shared Field owners retain input/label/next-field coordinates across
   const errors = page.locator('#pg-feedback-test [id$="-error"]:visible');
   await expect(errors).toHaveCount(8);
   for (let i = 0; i < 8; i++) {
-    const inputOrTrigger = page.locator('#pg-feedback-test > div').nth(i)
-      .locator('.pg-field__control').first();
+    const owner = page.locator('#pg-feedback-test > div').nth(i);
+    // TagField's native input lives inside its composite Field surface.
+    const inputOrTrigger = i === 4 ? owner.locator('.pg-tag-field__input')
+      : owner.locator('.pg-field__control').first();
     await expect(inputOrTrigger).toHaveAttribute('aria-invalid', 'true');
   }
   await page.evaluate(() => {
