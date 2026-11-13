@@ -2,7 +2,7 @@
  * ╔════════════════════════════════════════════════════════════════════════════════════╗
  * ║ PINGUIN NEXT — ANIMATED GRADIENT DEMO LAYOUT                                      ║
  * ╠════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Demo trigger і 3 наявні Button Group кнопки поверх полотна.           ║
+ * ║ ПРИЗНАЧЕННЯ: Розміщує demo trigger, Button Group і Switch поверх полотна.          ║
  * ║ ЗАЛЕЖНОСТІ: Shared Button Group, Dialog, Animated Gradient and spacing tokens.     ║
  * ║ ПУБЛІЧНИЙ API: pg-tools-gradient-preview and __switch.                             ║
  * ║ ПРИНЦИП: Лише геометрія; не дублювати стилі Button, Dialog або кольори.            ║

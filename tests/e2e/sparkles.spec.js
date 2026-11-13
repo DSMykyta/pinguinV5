@@ -44,7 +44,9 @@ test('three tiny radial-gradient grids are toggled by the existing switch', asyn
   });
   expect(css.images.match(/radial-gradient\(/g)).toHaveLength(3);
   expect(css.sizes).toBe('60px 60px, 90px 90px, 140px 140px');
-  expect(css.positions).toBe('0px 0px, 30px 40px, 70px 20px');
+  // Animated background-position changes on every frame: check layer count,
+  // not an arbitrary timestamp. Exact loop endpoints are tested below.
+  expect(css.positions.split(',')).toHaveLength(3);
   expect(css.duration).toBe('12s');
   expect(css.timing).toBe('linear');
   expect(css.iteration).toBe('infinite');

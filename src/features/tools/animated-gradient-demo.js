@@ -3,7 +3,7 @@
  * ║ PINGUIN NEXT — ANIMATED GRADIENT DEMO                                             ║
  * ╠════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Три типи руху одного живого градієнта у спільному Dialog.        ║
- * ║ ЗАЛЕЖНОСТІ: Existing Button, Button Group, Dialog, AnimatedGradient.               ║
+ * ║ ЗАЛЕЖНОСТІ: Existing Button, ButtonGroup, Dialog, Gradient, Sparkles, Switch.      ║
  * ║ ПУБЛІЧНИЙ API: createAnimatedGradientDemo().                                       ║
  * ║ ПРИНЦИП: Demo складає наявні UI, жодного унікального modal/button skin.           ║
  * ╚════════════════════════════════════════════════════════════════════════════════════╝
