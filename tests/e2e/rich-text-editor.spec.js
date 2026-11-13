@@ -552,7 +552,8 @@ test('glass header stays stationary as long text passes beneath it', async ({ pa
   });
   expect(before.position).toBe('relative');
   expect(before.backdrop).toContain('blur(');
-  expect(before.background).toMatch(/rgba\(/);
+  // CSS color-mix may serialize its transparency as rgba() or color(srgb / alpha).
+  expect(before.background).toMatch(/(?:rgba\(|color\(srgb[^)]*\/)/);
   expect(before.mainBottom).toBeCloseTo(before.panelBottom, 0);
   await visual.evaluate(node => { node.scrollTop = 360; });
   const after = await root.evaluate(node => ({
@@ -569,9 +570,10 @@ test('glass header stays stationary as long text passes beneath it', async ({ pa
     const header = node.querySelector('.pg-rich-text-editor__header');
     const style = getComputedStyle(header);
     return { top: header.getBoundingClientRect().top, backdrop: style.backdropFilter,
-      surface: style.getPropertyValue('--pg-rich-editor-header-surface').trim() };
+      surface: style.getPropertyValue('--pg-rich-editor-header-surface').trim(),
+      expected: getComputedStyle(document.documentElement).getPropertyValue('--pg-color-code-surface').trim() };
   });
   expect(htmlHeader.top).toBeCloseTo(before.top, 0);
   expect(htmlHeader.backdrop).toContain('blur(');
-  expect(htmlHeader.surface).toBe('var(--pg-color-code-surface)');
+  expect(htmlHeader.surface).toBe(htmlHeader.expected);
 });
