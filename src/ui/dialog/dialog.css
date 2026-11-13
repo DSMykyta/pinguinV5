@@ -135,7 +135,7 @@ body:has(> .pg-dialog[open]) #app *::after {
   overflow: hidden;
 }
 .pg-dialog[data-pg-presentation='edge-to-edge'] .pg-dialog__body > :first-child {
-  display: block;
+  /* Preserve the consumer's grid/flex/canvas display semantics. */
   inline-size: 100%;
   block-size: 100%;
   min-block-size: 0;
