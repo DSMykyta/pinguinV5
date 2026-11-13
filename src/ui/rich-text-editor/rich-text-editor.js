@@ -43,7 +43,8 @@ export function createRichTextEditor({
   const triggerHost = document.createElement('div');
   triggerHost.className = 'pg-rich-text-editor__toolbar-toggle-host';
   if (code) header.append(modeHost);
-  if (toolbar) header.append(toolsHost, triggerHost);
+  // Keep the disclosure directly beside the mode switch; actions reveal to its right.
+  if (toolbar) header.append(triggerHost, toolsHost);
 
   const input = document.createElement('div');
   input.className = 'pg-rich-text-editor__input';
