@@ -115,13 +115,13 @@
   --pg-tone-warning-on-soft: #815000;
   --pg-tone-warning-solid: #8e5800;
   --pg-tone-warning-on-solid: #ffffff;
-  /* --pg-tone-success-base: #10b981; */
-  --pg-tone-success-base: #2b81b0;
+  /* Temporary blue preview: --pg-tone-success-base: #2b81b0; */
+  --pg-tone-success-base: #10b981;
   --pg-tone-success-soft: color-mix(in srgb, var(--pg-tone-success-base) 10%, transparent);
-  /* --pg-tone-success-on-soft: #006b4a; */
-  --pg-tone-success-on-soft: #164f76;
-  /* --pg-tone-success-solid: #08714c; */
-  --pg-tone-success-solid: #175d86;
+  /* Temporary blue preview: --pg-tone-success-on-soft: #164f76; */
+  --pg-tone-success-on-soft: #006b4a;
+  /* Temporary blue preview: --pg-tone-success-solid: #175d86; */
+  --pg-tone-success-solid: #08714c;
   --pg-tone-success-on-solid: #ffffff;
   --pg-tone-info-base: #3b82f6;
   --pg-tone-info-soft: color-mix(in srgb, var(--pg-tone-info-base) 10%, transparent);
@@ -323,11 +323,11 @@
   --pg-tone-warning-on-soft: #ffe09b;
   --pg-tone-warning-solid: var(--pg-tone-warning-base);
   --pg-tone-warning-on-solid: #000000;
-  /* --pg-tone-success-base: #34d399; */
-  --pg-tone-success-base: #7bbad4;
+  /* Temporary blue preview: --pg-tone-success-base: #7bbad4; */
+  --pg-tone-success-base: #34d399;
   --pg-tone-success-soft: color-mix(in srgb, var(--pg-tone-success-base) 11%, transparent);
-  /* --pg-tone-success-on-soft: #8deac3; */
-  --pg-tone-success-on-soft: #a9d8e8;
+  /* Temporary blue preview: --pg-tone-success-on-soft: #a9d8e8; */
+  --pg-tone-success-on-soft: #8deac3;
   --pg-tone-success-solid: var(--pg-tone-success-base);
   --pg-tone-success-on-solid: #000000;
   --pg-tone-info-base: #60a5fa;

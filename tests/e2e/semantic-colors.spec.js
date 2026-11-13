@@ -16,6 +16,40 @@ test.beforeEach(async ({ page }) => {
   await page.getByRole('tab', { name: 'Макети даних' }).click();
 });
 
+test('only Active badges use the shared success/soft tint in both themes', async ({ page }) => {
+  const badges = page.locator('#pg-tools-panel-data-views .pg-collection-view__table .pg-tools-data-views__status');
+  const active = badges.filter({ hasText: 'Активний' }).first();
+  const draft = badges.filter({ hasText: 'Чернетка' }).first();
+  await expect(active).toHaveAttribute('data-pg-status', 'active');
+  await expect(draft).toHaveAttribute('data-pg-status', 'draft');
+
+  const readColors = () => page.evaluate(() => {
+    const active = document.querySelector('#pg-tools-panel-data-views .pg-collection-view__table [data-pg-status="active"]');
+    const draft = document.querySelector('#pg-tools-panel-data-views .pg-collection-view__table [data-pg-status="draft"]');
+    const sample = document.createElement('span');
+    sample.style.background = 'var(--pg-tone-success-soft)';
+    sample.style.color = 'var(--pg-tone-success-on-soft)';
+    document.body.append(sample);
+    const pick = el => {
+      const style = getComputedStyle(el);
+      return { background: style.backgroundColor, color: style.color };
+    };
+    const colors = { active: pick(active), draft: pick(draft), expected: pick(sample) };
+    sample.remove();
+    return colors;
+  });
+
+  for (const theme of ['light', 'dark']) {
+    await page.evaluate(theme => {
+      if (theme === 'light') document.documentElement.removeAttribute('data-theme');
+      else document.documentElement.setAttribute('data-theme', 'dark');
+    }, theme);
+    const { active: colors, draft: neutral, expected } = await readColors();
+    expect(colors).toEqual(expected);
+    expect(neutral).not.toEqual(expected);
+  }
+});
+
 test('bulk selection reuses soft warning, success and danger, and danger confirm is solid', async ({ page }) => {
   const table = page.locator('#pg-tools-panel-data-views .pg-collection-view__table');
   const rows = table.locator('tbody tr');
