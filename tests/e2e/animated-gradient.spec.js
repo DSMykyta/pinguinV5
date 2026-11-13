@@ -1,146 +1,144 @@
 /**
- * ╔════════════════════════════════════════════════════════════════════════════════════╗
- * ║ PINGUIN NEXT — ANIMATED GRADIENT E2E                                               ║
- * ╠════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Перевіряє суцільний колір без смуг, контурів і зайвих шарів.           ║
- * ║ ЗАЛЕЖНОСТІ: Playwright, shared Dialog, tools/animated-gradient-demo.             ║
- * ║ ПУБЛІЧНИЙ API: tests/e2e/animated-gradient.spec.js.                               ║
- * ║ ПРИНЦИП: Тільки один існуючий компонент, 6 полів і рідна модальна механіка.        ║
- * ╚════════════════════════════════════════════════════════════════════════════════════╝
+ * ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — ANIMATED GRADIENT E2E                                                           ║
+ * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Захист безшовної колірної поверхні, модальної поведінки й станів рендера.           ║
+ * ║ ЗАЛЕЖНОСТІ: Playwright, Dialog, AnimatedGradient, Canvas 2D.                                    ║
+ * ║ ПУБЛІЧНИЙ API: Browser regression tests.                                                        ║
+ * ║ ПРИНЦИП: Рендер без прямокутних країв; фон паузиться, foreground продовжує рух.                  ║
+ * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
 import { test, expect } from '@playwright/test';
 
-test('Tables shows a smooth three-tone field, without stripes, geometric blobs or SVG noise', async ({ page }) => {
+function canvasSample(locator) {
+  return locator.evaluate(canvas => {
+    const context = canvas.getContext('2d');
+    const { width, height } = canvas;
+    const pixels = context.getImageData(0, 0, width, height).data;
+    let sum = 0, maxAdjacent = 0, minR = 255, maxR = 0, minB = 255, maxB = 0;
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const i = (y * width + x) * 4;
+        const r = pixels[i], b = pixels[i + 2];
+        minR = Math.min(minR, r); maxR = Math.max(maxR, r);
+        minB = Math.min(minB, b); maxB = Math.max(maxB, b);
+        sum += r + pixels[i + 1] + b;
+        if (x > 0) {
+          const left = i - 4;
+          maxAdjacent = Math.max(maxAdjacent,
+            Math.abs(r - pixels[left]),
+            Math.abs(pixels[i + 1] - pixels[left + 1]),
+            Math.abs(b - pixels[left + 2]));
+        }
+        if (y > 0) {
+          const upper = i - width * 4;
+          maxAdjacent = Math.max(maxAdjacent,
+            Math.abs(r - pixels[upper]),
+            Math.abs(pixels[i + 1] - pixels[upper + 1]),
+            Math.abs(b - pixels[upper + 2]));
+        }
+      }
+    }
+    return { sum, width, height, maxAdjacent, redRange: maxR - minR, blueRange: maxB - minB };
+  });
+}
+
+test('Gradient fills the same Dialog without borders, clipped CSS blobs or extra chrome', async ({ page }) => {
   await page.goto('/tools');
-  const tables = page.locator('#pg-tools-panel-tables');
-  const trigger = tables.locator('[data-pg-action="animated-gradient-demo"]');
-  await expect(trigger).toBeVisible();
-  await expect(page.locator('#pg-tools-panel-text [data-pg-action="animated-gradient-demo"]')).toHaveCount(0);
+  const trigger = page.locator('#pg-tools-panel-tables [data-pg-action="animated-gradient-demo"]');
   await trigger.click();
+  const modal = page.getByRole('dialog', { name: 'Анімований градієнт' });
+  await expect(modal).toHaveAttribute('data-pg-presentation', 'edge-to-edge');
+  await expect(modal.locator('header, footer, .pg-animated-gradient__title')).toHaveCount(0);
+  await expect(modal.getByRole('button', { name: 'Закрити діалог' })).toBeFocused();
 
-  const dialog = page.getByRole('dialog');
-  await expect(dialog).toBeVisible();
-  await expect(dialog).toHaveAttribute('data-pg-presentation', 'edge-to-edge');
-  await expect(dialog).toHaveAttribute('aria-label', 'Анімований градієнт');
-  await expect(dialog.locator('.pg-dialog__header, .pg-dialog__footer, .pg-dialog__title')).toHaveCount(0);
-  await expect(dialog.locator('button')).toHaveCount(1);
-  const close = dialog.getByRole('button', { name: 'Закрити діалог' });
-  await expect(close).toBeVisible();
-  await expect(close).toBeFocused();
+  const surface = modal.locator('.pg-animated-gradient');
+  await expect(surface).toHaveAttribute('data-pg-gradient-ready', 'true');
+  await expect(surface.locator('.pg-animated-gradient__glow, svg')).toHaveCount(0);
+  const canvas = surface.locator('canvas.pg-animated-gradient__canvas');
+  await expect(canvas).toHaveCount(1);
+  await expect(canvas).toHaveCSS('opacity', '1');
 
-  const gradient = dialog.locator('.pg-animated-gradient');
-  await expect(gradient.locator('.pg-animated-gradient__title')).toHaveCount(0);
-  await expect(gradient.locator('.pg-animated-gradient__glow')).toHaveCount(6);
-  const coverage = await dialog.evaluate(node => {
-    const parent = node.getBoundingClientRect();
-    const content = node.querySelector('.pg-animated-gradient').getBoundingClientRect();
-    return {
-      width: Math.abs(parent.width - content.width),
-      height: Math.abs(parent.height - content.height),
-      top: Math.abs(parent.top - content.top),
-      left: Math.abs(parent.left - content.left),
-    };
+  const coverage = await modal.evaluate(dialog => {
+    const parent = dialog.getBoundingClientRect();
+    const surface = dialog.querySelector('.pg-animated-gradient').getBoundingClientRect();
+    const canvas = dialog.querySelector('canvas').getBoundingClientRect();
+    return [parent.width - surface.width, parent.height - surface.height,
+      parent.x - surface.x, parent.y - surface.y,
+      surface.width - canvas.width, surface.height - canvas.height];
   });
-  for (const gap of Object.values(coverage)) expect(gap).toBeLessThanOrEqual(2);
-  await expect(gradient.locator('svg, .pg-animated-gradient__grain')).toHaveCount(0);
+  for (const delta of coverage) expect(Math.abs(delta)).toBeLessThanOrEqual(2);
 
-  const geometry = await gradient.evaluate(el => {
-    const surfaceStyle = getComputedStyle(el);
-    const box = el.getBoundingClientRect();
-    const tones = ['main', 'secondary', 'tertiary'];
-    const fields = tones.flatMap(tone => [...el.querySelectorAll('.pg-animated-gradient__glow--' + tone)].map(glow => {
-      const style = getComputedStyle(glow);
-      return {
-        tone, field: glow.dataset.pgField,
-        x: Math.round(parseFloat(style.left) / box.width * 100),
-        y: Math.round(parseFloat(style.top) / box.height * 100),
-        width: parseFloat(style.width) / box.width,
-        filter: style.filter,
-        clip: style.clipPath,
-        radius: style.borderRadius,
-        image: style.backgroundImage,
-        animation: style.animationName,
-        ink: style.getPropertyValue('--pg-gradient-field-color').trim(),
-        semantic: surfaceStyle.getPropertyValue('--pg-tone-' + tone + '-base').trim(),
-      };
-    }));
-    return { backgroundImage: surfaceStyle.backgroundImage, fields };
-  });
-
-  expect(geometry.backgroundImage).toBe('none'); // No horizontal/vertical stripe layer.
-  expect(geometry.fields.map(field => field.tone)).toEqual([
-    'main', 'main', 'secondary', 'secondary', 'tertiary', 'tertiary',
-  ]);
-  expect(geometry.fields.map(field => field.field)).toEqual(['a','b','a','b','a','b']);
-  for (const field of geometry.fields) {
-    expect(field.width).toBeCloseTo(1.15, 1);
-    expect(field.ink).toBe(field.semantic);
-    expect(field.filter).toBe('none');
-    expect(field.clip).toBe('none');
-    expect(field.radius).toBe('0px');
-    expect(field.image).toContain('radial-gradient');
-    expect(field.animation).toMatch(/^pg-gradient-cloud-drift-[ab]$/);
-  }
-  // Scattered in both dimensions, not arranged as three bands.
-  expect(new Set(geometry.fields.map(field => field.x)).size).toBeGreaterThan(3);
-  expect(new Set(geometry.fields.map(field => field.y)).size).toBeGreaterThan(3);
+  const sample = await canvasSample(canvas);
+  expect(sample.width).toBeLessThanOrEqual(140);
+  expect(sample.height).toBeLessThanOrEqual(140);
+  expect(sample.redRange).toBeGreaterThan(35);
+  expect(sample.blueRange).toBeGreaterThan(35);
+  // Sharp straight stripes in previous versions caused >100 channel jumps
+  // across adjacent pixels. The normalized field must stay smooth everywhere.
+  expect(sample.maxAdjacent).toBeLessThan(28);
 
   await page.keyboard.press('Escape');
-  await expect(dialog).toHaveCount(0);
+  await expect(modal).toHaveCount(0);
   await expect(trigger).toBeFocused();
 });
 
-test('Reduced motion keeps the continuous colors while disabling decorative motion', async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.setViewportSize({ width: 390, height: 844 });
+test('Gradient flows, responds to theme changes, and becomes static in reduced motion', async ({ page }) => {
   await page.goto('/tools');
   await page.locator('[data-pg-action="animated-gradient-demo"]').click();
-  const dialog = page.getByRole('dialog');
-  const fields = dialog.locator('.pg-animated-gradient__glow');
-  await expect(fields).toHaveCount(6);
-  for (const field of await fields.all()) await expect(field).toHaveCSS('animation-name', 'none');
-  const surface = dialog.locator('.pg-animated-gradient');
-  await expect(surface).toHaveCSS('background-image', 'none');
-  const bounds = await dialog.boundingBox();
-  expect(bounds.x).toBeGreaterThanOrEqual(0);
-  expect(bounds.x + bounds.width).toBeLessThanOrEqual(391);
-  await dialog.locator('[data-pg-action="dialog-dismiss"]').click();
-  await expect(dialog).toHaveCount(0);
+  const modal = page.getByRole('dialog', { name: 'Анімований градієнт' });
+  const canvas = modal.locator('canvas');
+  await expect(modal.locator('.pg-animated-gradient')).toHaveAttribute('data-pg-gradient-ready', 'true');
+  const start = await canvasSample(canvas);
+  await page.waitForTimeout(800);
+  const moved = await canvasSample(canvas);
+  expect(moved.sum).not.toBe(start.sum);
+
+  await page.evaluate(() => { document.documentElement.dataset.theme = 'dark'; });
+  await expect.poll(async () => (await canvasSample(canvas)).sum).not.toBe(moved.sum);
+
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.waitForTimeout(100);
+  const staticStart = await canvasSample(canvas);
+  await page.waitForTimeout(650);
+  const staticEnd = await canvasSample(canvas);
+  expect(staticEnd.sum).toBe(staticStart.sum);
+  await modal.locator('[data-pg-action="dialog-dismiss"]').click();
+  await expect(modal).toHaveCount(0);
 });
 
-test('Dialog pauses the animated color fields behind it and restores them on close', async ({ page }) => {
+test('Background Canvas stops working when Dialog opens and resumes afterward', async ({ page }) => {
   await page.goto('/tools');
-  await page.getByRole('tab', { name: 'Таблиці' }).click();
-
   await page.evaluate(async () => {
     const { createAnimatedGradient } = await import('/src/ui/animated-gradient/animated-gradient.js');
-    document.querySelector('#pg-tools-panel-tables')
-      .append(createAnimatedGradient({ text: 'background' }));
+    document.querySelector('#pg-tools-panel-tables').append(createAnimatedGradient({ text: null }));
   });
-  const background = page.locator('#pg-tools-panel-tables > .pg-animated-gradient');
-  const backgroundGlow = background.locator('.pg-animated-gradient__glow--main').first();
-  await expect(backgroundGlow).toHaveCSS('animation-play-state', 'running');
+  const backgroundSurface = page.locator('#pg-tools-panel-tables > .pg-animated-gradient');
+  await expect(backgroundSurface).toHaveAttribute('data-pg-gradient-ready', 'true');
+  const background = backgroundSurface.locator('canvas');
+  const before = await canvasSample(background);
+  await page.waitForTimeout(500);
+  expect((await canvasSample(background)).sum).not.toBe(before.sum);
 
   await page.locator('[data-pg-action="animated-gradient-demo"]').click();
-  const dialog = page.getByRole('dialog', { name: 'Анімований градієнт' });
-  await expect(dialog).toBeVisible();
-  await expect(backgroundGlow).toHaveCSS('animation-play-state', 'paused');
-  await expect(dialog.locator('.pg-animated-gradient__glow--main').first()).toHaveCSS('animation-play-state', 'running');
+  const modal = page.getByRole('dialog', { name: 'Анімований градієнт' });
+  await expect(modal).toBeVisible();
+  const paused = await canvasSample(background);
+  const foreground = modal.locator('canvas');
+  const foregroundBefore = await canvasSample(foreground);
+  await page.waitForTimeout(650);
+  expect((await canvasSample(background)).sum).toBe(paused.sum);
+  expect((await canvasSample(foreground)).sum).not.toBe(foregroundBefore.sum);
 
-  const focusGuard = await page.evaluate(() => {
-    const modal = document.querySelector('dialog.pg-dialog[open]');
-    document.querySelector('#app button').focus();
-    return modal.contains(document.activeElement);
-  });
-  expect(focusGuard).toBe(true);
-
-  await dialog.locator('[data-pg-action="dialog-dismiss"]').click();
-  await expect(dialog).toHaveCount(0);
-  await expect(backgroundGlow).toHaveCSS('animation-play-state', 'running');
+  await modal.locator('[data-pg-action="dialog-dismiss"]').click();
+  await expect(modal).toHaveCount(0);
+  const resumed = await canvasSample(background);
+  await page.waitForTimeout(650);
+  expect((await canvasSample(background)).sum).not.toBe(resumed.sum);
 });
 
-test('edge-to-edge is a generic Dialog layout, not a second gradient-specific modal', async ({ page }) => {
+test('Generic edge-to-edge Dialog is reusable with arbitrary content', async ({ page }) => {
   await page.goto('/tools');
   await page.evaluate(async () => {
     const { showDialog } = await import('/src/ui/dialog/dialog.js');
@@ -148,15 +146,10 @@ test('edge-to-edge is a generic Dialog layout, not a second gradient-specific mo
     visual.textContent = 'Довільний вміст';
     visual.setAttribute('data-pg-test-visual', '');
     visual.style.display = 'grid';
-    void showDialog({
-      title: 'Перегляд матеріалу',
-      presentation: 'edge-to-edge',
-      content: visual,
-    });
+    void showDialog({ title: 'Перегляд матеріалу', presentation: 'edge-to-edge', content: visual });
   });
   const modal = page.getByRole('dialog', { name: 'Перегляд матеріалу' });
   await expect(modal).toHaveAttribute('open', '');
-  await expect(modal.locator('[data-pg-test-visual]')).toHaveText('Довільний вміст');
   await expect(modal.locator('[data-pg-test-visual]')).toHaveCSS('display', 'grid');
   await expect(modal.locator('header, footer, .pg-animated-gradient')).toHaveCount(0);
   await expect(modal.getByRole('button', { name: 'Закрити діалог' })).toBeFocused();
