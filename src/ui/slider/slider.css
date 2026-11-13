@@ -72,8 +72,8 @@
 .pg-slider__inactive::after {
   content: '';
   position: absolute;
-  inset-inline-end: var(--pg-slider-handle-gap);
-  inset-block-start: calc((var(--pg-slider-track-inactive-height) - var(--pg-slider-dot-size)) / 2);
+  inset-inline-end: var(--pg-progress-dot-inset);
+  inset-block-start: var(--pg-progress-dot-inset);
   inline-size: var(--pg-slider-dot-size);
   block-size: var(--pg-slider-dot-size);
   border-radius: var(--pg-radius-full);
@@ -140,6 +140,10 @@
     var(--pg-slider-track-inner-radius)
     var(--pg-slider-track-inner-radius)
     var(--pg-slider-track-inactive-outer-radius);
+}
+/* The completed track gets its rounded outer end in both LTR and RTL. */
+.pg-slider[data-pg-edge='end'] .pg-slider__active {
+  border-radius: var(--pg-slider-track-active-outer-radius);
 }
 @media (prefers-reduced-motion: reduce) {
   .pg-slider__handle { transition: none; }

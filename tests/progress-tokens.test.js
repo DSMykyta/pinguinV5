@@ -44,6 +44,11 @@ test('visible Slider handle matches shared Checkbox/Mini control, not native hit
   assert.equal(valueOf('--pg-space-4'), '16px');
   assert.equal(valueOf('--pg-slider-track-inactive-height'), 'var(--pg-track-compact-height)');
   assert.equal(valueOf('--pg-track-compact-height'), '10px');
+  assert.equal(valueOf('--pg-wave-rest-height'), 'var(--pg-track-compact-height)');
+  assert.equal(valueOf('--pg-progress-dot-size'), 'var(--pg-space-1)');
+  assert.equal(valueOf('--pg-slider-dot-size'), 'var(--pg-progress-dot-size)');
+  assert.equal(valueOf('--pg-wave-dot-size'), 'var(--pg-progress-dot-size)');
+  assert.equal(valueOf('--pg-progress-dot-inset'), 'calc((var(--pg-track-compact-height) - var(--pg-progress-dot-size)) / 2)');
 });
 
 test('progress ink, tracks, wave mask period and text hierarchy share the same design tokens', () => {
@@ -62,4 +67,8 @@ test('progress ink, tracks, wave mask period and text hierarchy share the same d
   assert.match(demo, /font-size: var\(--pg-progress-label-size\)/);
   assert.match(wave, /mask-size: var\(--pg-wave-period\) 100%/);
   assert.match(wave, /mask-position: var\(--pg-wave-period\) 0/);
+  assert.match(wave, /inset-inline-end: var\(--pg-progress-dot-inset\)/);
+  assert.match(slider, /inset-inline-end: var\(--pg-progress-dot-inset\)/);
+  assert.match(wave, /\[data-pg-state='complete'\] \.pg-wave-progress__wave/);
+  assert.match(slider, /\[data-pg-edge='end'\] \.pg-slider__active/);
 });

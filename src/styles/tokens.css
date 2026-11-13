@@ -178,7 +178,9 @@
   --pg-slider-track-active-outer-radius: calc(var(--pg-slider-track-active-height) / 2);
   --pg-slider-track-inactive-outer-radius: calc(var(--pg-slider-track-inactive-height) / 2);
   --pg-slider-track-inner-radius: calc(var(--pg-slider-handle-width) / 2);
-  --pg-slider-dot-size: var(--pg-space-1);
+  --pg-progress-dot-size: var(--pg-space-1);
+  --pg-progress-dot-inset: calc((var(--pg-track-compact-height) - var(--pg-progress-dot-size)) / 2);
+  --pg-slider-dot-size: var(--pg-progress-dot-size);
   --pg-slider-outline-size: var(--pg-slider-handle-pressed-width);
   --pg-slider-outline-offset: 3px;
   --pg-slider-pressed-scale: .5;
@@ -197,8 +199,8 @@
   --pg-wave-period: var(--pg-space-5);
   --pg-wave-container-height: var(--pg-space-3);
   --pg-wave-height: var(--pg-track-compact-height);
-  --pg-wave-rest-height: var(--pg-space-1);
-  --pg-wave-dot-size: var(--pg-space-1);
+  --pg-wave-rest-height: var(--pg-track-compact-height);
+  --pg-wave-dot-size: var(--pg-progress-dot-size);
   --pg-wave-gap: var(--pg-space-1);
   --pg-wave-duration: 600ms;
   --pg-wave-indeterminate-duration: 2400ms;

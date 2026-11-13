@@ -15,8 +15,9 @@
 
 - `src/ui/wave-progress/wave-progress.js` — незалежна поведінка; `wave-progress.css` — єдиний власник геометрії, маски й анімації `.pg-wave-progress*`.
 - Висота хвилі 10 px; період маски 20 px, 4 px stroke, кутова крива `M0 5 Q5 0 10 5 T20 5`. Зсув `mask-position: 0→20px` лінійний за 0.6s; повний цикл стикується без стрибка.
-- Відступ активної хвилі від пасивної доріжки 4 px; остання 4 px заввишки, з правою крапкою 4 px.
+- Відступ активної хвилі від пасивної доріжки 4 px; незаповнена доріжка має ті ж 10 px, що й неактивна частина Slider. Крапка 4 px центрована у торці доріжки: відступи зверху, знизу і справа по 3 px.
 - Ширина активної хвилі визначається `--pg-wave-progress-width` (лише від `setValue`), а не власним таймером.
+- При `value: 100` хвиляста маска та її анімація вимикаються: видно суцільну пряму смугу з округлими краями, без пасивної доріжки й крапки.
 - У `indeterminate` режимі хвиля змінює ширину без числової претензії на прогрес; активний mask-малюнок продовжує течію.
 - Мобільна ширина, light/dark і `prefers-reduced-motion`; fallback у forced-colors. Не змінювати стиль спільних Button, Slider, Shell, Toast, Dialog.
 - Немає окремого SVG DOM або залежностей; повторюване зображення використовується як маска з CSS data URL.
@@ -30,4 +31,4 @@
 
 ## Вирівнювання із Slider (оновлення 2026-11-13)
 
-Wave Progress використовує семантичні токени `--pg-color-progress-active` та `--pg-color-progress-inactive`, які є alias до зелених `--pg-color-accent` та `--pg-color-accent-soft`. Slider, Checkbox, Radio та Switch використовують цю ж палітру в обох темах. Механіка і геометрія Wave залишаються незалежними від Slider. Для підписів та чисел мають спільну пару текстових ролей `--pg-color-text-secondary` / `--pg-color-text-primary`, а також `--pg-progress-label-size` та `--pg-progress-value-weight`. Геометрія Wave: період 20px через `--pg-wave-period`, висота хвилі 10px через `--pg-wave-height`, доріжка/крапка/проміжок 4px через окремі alias-токени, частота руху через motion-токен. У CSS компонента числові значення довжин замінені на `var(...)`, крім безрозмірних координат path всередині SVG data URI. Спільну 32px висоту Checkbox/Mini використовує ручка **Slider**; сам Wave має залишатися тонким індикатором. [Аудит розмірів](../research/slider-wave-size-audit.md).
+Wave Progress використовує семантичні токени `--pg-color-progress-active` та `--pg-color-progress-inactive`, які є alias до зелених `--pg-color-accent` та `--pg-color-accent-soft`. Slider, Checkbox, Radio та Switch використовують цю ж палітру в обох темах. Механіка і геометрія Wave залишаються незалежними від Slider. Для підписів та чисел мають спільну пару текстових ролей `--pg-color-text-secondary` / `--pg-color-text-primary`, а також `--pg-progress-label-size` та `--pg-progress-value-weight`. Геометрія Wave: період 20px через `--pg-wave-period`, висота хвилі 10px через `--pg-wave-height`, доріжка 10px і крапка/проміжок 4px через окремі alias-токени, частота руху через motion-токен. У CSS компонента числові значення довжин замінені на `var(...)`, крім безрозмірних координат path всередині SVG data URI. Спільну 32px висоту Checkbox/Mini використовує ручка **Slider**; сам Wave має залишатися тонким індикатором. [Аудит розмірів](../research/slider-wave-size-audit.md).

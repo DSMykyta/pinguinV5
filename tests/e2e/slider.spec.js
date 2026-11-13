@@ -88,7 +88,7 @@ test('Track and handle follow shared 32px controls, asymmetric 16/10px tracks an
     const style = getComputedStyle(node, '::after');
     return [style.width, style.height, style.insetInlineEnd];
   });
-  expect(dot).toEqual(['4px', '4px', '6px']);
+  expect(dot).toEqual(['4px', '4px', '3px']);
   for (const value of [0, 1, 99, 100]) {
     await page.locator('form').evaluate((form, value) => form.testSliders.first.setValue(value), value);
     const current = await geometry(page);
@@ -97,7 +97,15 @@ test('Track and handle follow shared 32px controls, asymmetric 16/10px tracks an
     expect(current.handle.x).toBeGreaterThanOrEqual(current.rail.x - 2);
     expect(current.handle.right).toBeLessThanOrEqual(current.rail.right + 2);
     if (value === 0) expect(current.active.width).toBe(0);
-    if (value === 100) expect(current.inactive.width).toBe(0);
+    if (value === 100) {
+      expect(current.inactive.width).toBe(0);
+      await expect(page.locator('.pg-slider').first()).toHaveAttribute('data-pg-edge', 'end');
+      const rounded = await page.locator('.pg-slider__active').first().evaluate(node => {
+        const css = getComputedStyle(node);
+        return [css.borderTopLeftRadius, css.borderTopRightRadius];
+      });
+      expect(rounded).toEqual(['8px', '8px']);
+    }
   }
 });
 

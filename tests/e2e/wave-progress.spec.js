@@ -35,6 +35,23 @@ test('Tables shows the seamless wave and two accessible loading states', async (
   expect(computed.animation).toContain('pg-wave-progress-flow');
   await expect(known.locator('svg')).toHaveCount(0);
 
+  const sharedRail = await demo.evaluate(root => {
+    const waveRest = root.querySelector('.pg-wave-progress__rest');
+    const sliderRest = root.querySelector('.pg-slider__inactive');
+    const waveDot = getComputedStyle(waveRest, '::after');
+    const sliderDot = getComputedStyle(sliderRest, '::after');
+    return {
+      waveHeight: getComputedStyle(waveRest).height,
+      sliderHeight: getComputedStyle(sliderRest).height,
+      waveDot: [waveDot.width, waveDot.insetBlockStart, waveDot.insetInlineEnd],
+      sliderDot: [sliderDot.width, sliderDot.insetBlockStart, sliderDot.insetInlineEnd],
+    };
+  });
+  expect(sharedRail.waveHeight).toBe('10px');
+  expect(sharedRail.waveHeight).toBe(sharedRail.sliderHeight);
+  expect(sharedRail.waveDot).toEqual(['4px', '3px', '3px']);
+  expect(sharedRail.waveDot).toEqual(sharedRail.sliderDot);
+
   await page.getByRole('tab', { name: 'Елементи' }).click();
   await expect(demo).toBeHidden();
   await page.getByRole('tab', { name: 'Таблиці' }).click();
@@ -58,6 +75,11 @@ test('Slider changes percentage and the correct empty/complete track geometry', 
   await expect(progress).toHaveAttribute('data-pg-state', 'complete');
   await expect(progress.locator('.pg-wave-progress__rest')).toHaveCSS('display', 'none');
   await expect(demo.locator('.pg-tools-wave-demo__percent')).toHaveText('100%');
+  const completeWave = await progress.locator('.pg-wave-progress__wave').evaluate(node => {
+    const css = getComputedStyle(node);
+    return { mask: css.maskImage, animation: css.animationName, height: css.height, radius: css.borderTopRightRadius };
+  });
+  expect(completeWave).toEqual({ mask: 'none', animation: 'none', height: '10px', radius: '9999px' });
 });
 
 test('Replay animates progress through the same component API', async ({ page }) => {

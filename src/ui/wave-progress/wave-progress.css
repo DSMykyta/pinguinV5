@@ -46,8 +46,8 @@
 .pg-wave-progress__rest::after {
   content: '';
   position: absolute;
-  inset-inline-end: 0;
-  inset-block-start: 0;
+  inset-inline-end: var(--pg-progress-dot-inset);
+  inset-block-start: var(--pg-progress-dot-inset);
   inline-size: var(--pg-wave-dot-size);
   block-size: var(--pg-wave-dot-size);
   border-radius: var(--pg-radius-full);
@@ -55,6 +55,14 @@
 }
 .pg-wave-progress[data-pg-state='empty'] .pg-wave-progress__wave { display: none; }
 .pg-wave-progress[data-pg-state='complete'] .pg-wave-progress__rest { display: none; }
+/* A finished determinate load is a solid, straight track, not a waveform. */
+.pg-wave-progress[data-pg-state='complete'] .pg-wave-progress__wave {
+  block-size: var(--pg-wave-rest-height);
+  border-radius: var(--pg-radius-full);
+  -webkit-mask-image: none;
+  mask-image: none;
+  animation: none;
+}
 .pg-wave-progress[data-pg-state='indeterminate'] .pg-wave-progress__wave {
   animation: pg-wave-progress-flow var(--pg-wave-duration) linear infinite,
     pg-wave-progress-unknown var(--pg-wave-indeterminate-duration) ease-in-out infinite alternate;

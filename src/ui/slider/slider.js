@@ -83,6 +83,7 @@ export function createSlider({
     rail.style.setProperty('--pg-slider-position', ((current - min) / (max - min) * 100) + '%');
     output.value = formatted;
     input.setAttribute('aria-valuetext', formatted);
+    element.dataset.pgEdge = current <= min ? 'start' : current >= max ? 'end' : 'middle';
     element.dataset.pgState = input.disabled ? 'disabled' : 'ready';
   }
   function release() {
