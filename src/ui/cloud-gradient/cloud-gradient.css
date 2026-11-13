@@ -35,3 +35,26 @@
 .pg-cloud-gradient[data-pg-renderer='fallback'] .pg-cloud-gradient__canvas {
   visibility: hidden;
 }
+
+
+/* The same CloudGradient component in Aurora mode: semantic main base,
+ * soft secondary/tertiary regions and NO extra blur, video or noise.
+ * This is also the static fallback when WebGL or reduced GPU support is absent. */
+.pg-cloud-gradient[data-pg-variant='aurora'] {
+  background: var(--pg-tone-main-base);
+}
+
+.pg-cloud-gradient[data-pg-variant='aurora'][data-pg-renderer='fallback'] {
+  background:
+    radial-gradient(
+      ellipse 95% 78% at 20% 90%,
+      var(--pg-tone-secondary-base) 0%,
+      transparent 78%
+    ),
+    radial-gradient(
+      ellipse 90% 75% at 84% 18%,
+      var(--pg-tone-tertiary-base) 0%,
+      transparent 80%
+    ),
+    var(--pg-tone-main-base);
+}
