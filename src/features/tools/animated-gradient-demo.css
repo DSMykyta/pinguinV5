@@ -45,6 +45,23 @@
   z-index: 1;
 }
 
+/* Same edge-to-edge Dialog, with the shared CloudGradient behind its title. */
+.pg-tools-gradient-preview > .pg-tools-gradient-preview__aurora {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.pg-tools-gradient-preview__aurora-title {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
 .pg-tools-gradient-preview__controls {
   position: absolute;
   z-index: 2;
