@@ -47,6 +47,8 @@ test('visible Slider handle matches shared Checkbox/Mini control, not native hit
 });
 
 test('progress ink, tracks, wave mask period and text hierarchy share the same design tokens', () => {
+  assert.equal(valueOf('--pg-color-progress-active'), 'var(--pg-color-accent)');
+  assert.equal(valueOf('--pg-color-progress-inactive'), 'var(--pg-color-accent-soft)');
   for (const [css, active, inactive] of [
     [slider, '--pg-color-accent', '--pg-color-accent-soft'],
     [wave, '--pg-color-progress-active', '--pg-color-progress-inactive'],
