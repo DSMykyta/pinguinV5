@@ -325,11 +325,16 @@ export function mountShell(host) {
       pageSearchEntries = entries;
       refreshSearch();
     },
-    onRouteChange() {
+    onRouteChange(page) {
+      // Route metadata controls visibility, not component placement or skin.
+      headerActions.hidden = page?.shellControls?.headerActions === false;
+      asideFab.element.hidden = page?.shellControls?.quickActions === false;
       setFooterContent(null);
       desiredHeaderActions = null;
-      desiredSearchContext = null;
+      // A new route has no search until its feature explicitly requests one.
+      desiredSearchContext = false;
       scheduleContextTools();
+      search.setContext(false);
       search.close();
       asideFab.close();
       pageFab.close();

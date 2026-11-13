@@ -15,5 +15,7 @@ export const manifest = Object.freeze({
   route: '/login-demo',
   type: 'tool',
   navigation: { icon: 'panel-right', order: 20 },
+  // Keep the normal Shell, hide only irrelevant form-page actions.
+  shellControls: { headerActions: false, quickActions: false },
   load: () => import('./index.js'),
 });

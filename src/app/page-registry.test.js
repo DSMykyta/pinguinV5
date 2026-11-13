@@ -41,6 +41,8 @@ test('registry resolves real pages and excludes unshipped features', () => {
   assert.equal(pageRegistry.resolve('/table-generator'), null);
   assert.equal(pageRegistry.resolve('/tools')?.id, 'tools');
   assert.equal(pageRegistry.resolve('/login-demo')?.id, 'login-demo');
+  assert.deepEqual(pageRegistry.resolve('/login-demo')?.shellControls,
+    { headerActions: false, quickActions: false });
   assert.deepEqual(pageRegistry.getNavigation().map(page => page.id), ['tools', 'login-demo']);
 });
 
@@ -49,6 +51,20 @@ test('registry rejects invalid and duplicate manifests', () => {
   assert.throws(() => createPageRegistry([testPage('tool', '/tool', { type: 'unknown' })]), /Invalid page type/);
   assert.throws(() => createPageRegistry([testPage('tool', '/tool'), testPage('tool', '/another')]), /Duplicate/);
   assert.throws(() => createPageRegistry([testPage('tool-a', '/tool'), testPage('tool-b', '/tool')]), /Duplicate/);
+});
+
+test('optional Shell controls accept only declared boolean capabilities', () => {
+  assert.equal(createPageRegistry([testPage('default', '/default')])
+    .resolve('/default').shellControls, undefined);
+  assert.throws(() => createPageRegistry([
+    testPage('bad', '/bad', { shellControls: { quickActions: 'false' } }),
+  ]), /Invalid Shell control/);
+  assert.throws(() => createPageRegistry([
+    testPage('bad', '/bad', { shellControls: { other: false } }),
+  ]), /Invalid Shell control/);
+  assert.throws(() => createPageRegistry([
+    testPage('bad', '/bad', { shellControls: false }),
+  ]), /Shell controls must be an object/);
 });
 
 test('navigation ordering is deliberate and never materializes hidden pages', () => {

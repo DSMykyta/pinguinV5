@@ -93,6 +93,39 @@ test('reduced motion stops shader and mobile keeps form in viewport', async ({ p
   expect(box.x + box.width).toBeLessThanOrEqual(390);
 });
 
+test('login route hides unused Shell actions and restores them on tools', async ({ page }) => {
+  await page.goto('/login-demo');
+  const headerActions = page.locator('.pg-shell__header-actions');
+  const search = page.locator('.pg-search');
+  const contextButton = page.locator('[data-pg-action="aside-toggle"]');
+  const quickFab = page.locator('.pg-fab[data-pg-fab-position="corner"]');
+  await expect(page.getByRole('form', { name: 'Демонстрація входу' })).toBeVisible();
+  await expect(headerActions).toBeHidden();
+  await expect(contextButton).toBeHidden();
+  await expect(search).toBeHidden();
+  await expect(quickFab).toBeHidden();
+  await page.keyboard.press('Control+k');
+  await expect(search.locator('input')).not.toBeFocused();
+
+  await page.getByRole('navigation', { name: 'Інструменти' })
+    .getByRole('link', { name: 'Інструменти' }).click();
+  await expect(page).toHaveURL(/\/tools$/);
+  await expect(headerActions).toBeVisible();
+  await expect(contextButton).toBeVisible();
+  await expect(quickFab).toBeVisible();
+  await expect(search).toBeHidden();
+
+  await page.getByRole('tab', { name: 'Макети даних' }).click();
+  await expect(search).toBeVisible();
+
+  await page.getByRole('navigation', { name: 'Інструменти' })
+    .getByRole('link', { name: 'Демо входу' }).click();
+  await expect(page).toHaveURL(/\/login-demo$/);
+  await expect(headerActions).toBeHidden();
+  await expect(quickFab).toBeHidden();
+  await expect(search).toBeHidden();
+});
+
 test('navigating away disposes canvas and preserves universal shell', async ({ page }) => {
   await page.goto('/login-demo');
   await page.getByRole('navigation', { name: 'Інструменти' })

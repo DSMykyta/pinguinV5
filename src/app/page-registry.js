@@ -32,6 +32,17 @@ function validatePage(page) {
   if (!isPageType(page.type)) throw new TypeError('Invalid page type: ' + page.type);
   if (!page.title || typeof page.title !== 'string') throw new TypeError('Page title is required');
   if (typeof page.load !== 'function') throw new TypeError('Page load() function is required');
+  if (page.shellControls != null) {
+    const controls = page.shellControls;
+    if (typeof controls !== 'object' || Array.isArray(controls)) {
+      throw new TypeError('Shell controls must be an object');
+    }
+    for (const [name, enabled] of Object.entries(controls)) {
+      if (!['headerActions', 'quickActions'].includes(name) || typeof enabled !== 'boolean') {
+        throw new TypeError('Invalid Shell control: ' + name);
+      }
+    }
+  }
   if (page.navigation != null) {
     if (typeof page.navigation !== 'object' || !page.navigation.icon) {
       throw new TypeError('Navigation must include an icon');

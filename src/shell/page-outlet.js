@@ -24,7 +24,7 @@ export function createPageOutlet({ content, pageName, sidebar, localNavigation, 
     activePageCleanup = null;
     localNavigation.replaceChildren();
 
-    onRouteChange();
+    onRouteChange(page);
     onAsideContext(null);
 
     sidebar.setActiveRoute(page?.route ?? null);
