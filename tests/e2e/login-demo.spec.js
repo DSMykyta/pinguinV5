@@ -52,6 +52,36 @@ test('demo action validates inputs without pretending to authenticate', async ({
   await expect(page).toHaveURL(/\/login-demo$/);
 });
 
+test('validation messages do not move or resize inputs and submit', async ({ page }) => {
+  await page.goto('/login-demo');
+  const fields = page.locator('.pg-login-demo__form > .pg-input');
+  const submit = page.getByRole('button', { name: 'Увійти' });
+  const items = page.locator('.pg-login-demo__form > .pg-input, .pg-login-demo__submit');
+  const positions = async () => items.evaluateAll(nodes => nodes.map(node => {
+    const rect = node.getBoundingClientRect();
+    return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+  }));
+  const baseline = await positions();
+  const unchanged = async () => {
+    const next = await positions();
+    next.forEach((rect, index) => {
+      for (const key of ['x', 'y', 'width', 'height']) {
+        expect(Math.abs(rect[key] - baseline[index][key])).toBeLessThan(1);
+      }
+    });
+  };
+
+  await submit.click();
+  await expect(fields.locator('.pg-input__error:visible')).toHaveCount(2);
+  await unchanged();
+  await page.getByLabel('Логін').fill('demo');
+  await expect(fields.locator('.pg-input__error:visible')).toHaveCount(1);
+  await unchanged();
+  await page.getByLabel('Логін').fill('');
+  await expect(fields.locator('.pg-input__error:visible')).toHaveCount(1);
+  await unchanged();
+});
+
 test('reduced motion stops shader and mobile keeps form in viewport', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.setViewportSize({ width: 390, height: 844 });
