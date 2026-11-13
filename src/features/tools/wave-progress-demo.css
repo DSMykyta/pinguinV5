@@ -40,5 +40,5 @@
   font-variant-numeric: tabular-nums;
   font-weight: 600;
 }
-.pg-tools-wave-demo > .pg-slider { margin-block: var(--pg-space-5) var(--pg-space-3); }
-.pg-tools-wave-demo > .pg-button { margin-block-end: var(--pg-space-6); }
+.pg-tools-wave-demo__slider { margin-block: var(--pg-space-5) var(--pg-space-3); }
+.pg-tools-wave-demo__actions { margin-block-end: var(--pg-space-6); }
