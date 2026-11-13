@@ -15,7 +15,7 @@
   min-inline-size: 0; overflow: hidden; border: 1px solid var(--pg-color-border-strong);
   background: var(--pg-color-surface); border-radius: var(--pg-radius-md);
 }
-/* The toolbar is inline, to the LEFT of its disclosure arrow; never under it. */
+/* The disclosure stays beside the mode switch; formatting reveals to its RIGHT. */
 .pg-rich-text-editor__header {
   position: relative;
   display: flex; flex-wrap: nowrap; align-items: center; justify-content: flex-start;
