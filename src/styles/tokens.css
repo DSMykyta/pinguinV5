@@ -36,11 +36,11 @@
   --pg-color-tab-selected: #e9ecef;
   --pg-color-tab-ink: #113855;
   /* --pg-color-focus: #397f6c; */
-  --pg-color-focus: var(--pg-tone-main-base);
+  --pg-color-focus: #184965;
   /* --pg-color-accent: #326e5c; */
-  --pg-color-accent: var(--pg-tone-main-base);
+  --pg-color-accent: #113855;
   /* --pg-color-accent-soft: #e7f0eb; */
-  --pg-color-accent-soft: var(--pg-tone-main-soft);
+  --pg-color-accent-soft: #e7edf0;
   /* Opaque, contrast-safe native text selection (legacy palette). */
   --pg-color-selection-bg: #113855;
   --pg-color-selection-text: #ffffff;
@@ -238,11 +238,11 @@
   --pg-color-tab-selected: #3a444c;
   --pg-color-tab-ink: #d1e7f4;
   /* --pg-color-focus: #79c1ab; */
-  --pg-color-focus: var(--pg-tone-main-base);
+  --pg-color-focus: #5ea9c7;
   /* --pg-color-accent: #96d2b8; */
-  --pg-color-accent: var(--pg-tone-main-base);
+  --pg-color-accent: #7bbad4;
   /* --pg-color-accent-soft: #2c443c; */
-  --pg-color-accent-soft: var(--pg-tone-main-soft);
+  --pg-color-accent-soft: #2c3b44;
   --pg-color-selection-bg: #7bbad4;
   --pg-color-selection-text: #000000;
   --pg-color-mark: #3d594a;
