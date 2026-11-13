@@ -94,7 +94,7 @@
   --pg-slider-half-handle: var(--pg-slider-handle-pressed-half-width);
 }
 .pg-slider[data-pg-pressed='true'] .pg-slider__handle,
-.pg-slider__control:has(.pg-slider__input:focus-visible) .pg-slider__handle { transform: scaleX(.5); }
+.pg-slider__control:has(.pg-slider__input:focus-visible) .pg-slider__handle { transform: scaleX(var(--pg-slider-pressed-scale)); }
 .pg-slider__control:has(.pg-slider__input:focus-visible) .pg-slider__handle { transition: none; }
 .pg-slider__input {
   appearance: none; -webkit-appearance: none;
