@@ -1,0 +1,97 @@
+/*
+ * ╔════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — ANIMATED GRADIENT DEMO LAYOUT                                      ║
+ * ╠════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Розміщує demo trigger, Button Group і Switch поверх полотна.          ║
+ * ║ ЗАЛЕЖНОСТІ: Shared Button Group, Dialog, Animated Gradient and spacing tokens.     ║
+ * ║ ПУБЛІЧНИЙ API: pg-tools-gradient-preview and __switch.                             ║
+ * ║ ПРИНЦИП: Лише геометрія; не дублювати стилі Button, Dialog або кольори.            ║
+ * ╚════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
+.pg-tools-animated-gradient-demo {
+  display: flex;
+  align-items: center;
+  gap: var(--pg-space-2);
+  margin-block-start: var(--pg-space-4);
+  width: max-content;
+  max-width: 100%;
+}
+
+.pg-tools-animated-gradient-demo__label {
+  color: var(--pg-color-text-secondary);
+  font-size: 13px;
+}
+
+.pg-tools-gradient-preview {
+  position: relative;
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: hidden;
+}
+
+.pg-tools-gradient-preview > .pg-animated-gradient {
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: 0;
+  border-radius: 0;
+}
+
+/* Composition-only layering: the independent Sparkles overlay remains
+ * visible above both radial pseudos, but below the pinguinV6 title. */
+.pg-tools-gradient-preview .pg-animated-gradient > .pg-sparkles {
+  z-index: 1;
+}
+
+/* Same edge-to-edge Dialog, with the shared CloudGradient behind its title. */
+.pg-tools-gradient-preview > .pg-tools-gradient-preview__aurora {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.pg-tools-gradient-preview__aurora-title {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.pg-tools-gradient-preview__controls {
+  position: absolute;
+  z-index: 2;
+  inset-inline-start: 50%;
+  inset-block-end: 20px;
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  gap: var(--pg-space-2);
+  inline-size: max-content;
+  max-inline-size: calc(100% - 24px);
+}
+
+.pg-tools-gradient-preview__switch {
+  max-inline-size: 100%;
+  padding: 4px;
+  border-radius: var(--pg-radius-full);
+  background: var(--pg-color-surface);
+  box-shadow: 0 2px 14px var(--pg-color-shadow);
+}
+
+.pg-tools-gradient-preview__sparkles {
+  inline-size: 176px;
+  max-inline-size: 100%;
+  padding-inline: var(--pg-space-3);
+  border-radius: var(--pg-radius-full);
+  background: var(--pg-color-surface);
+  box-shadow: 0 2px 14px var(--pg-color-shadow);
+}
+
+@media (max-width: 480px) {
+  .pg-tools-gradient-preview__controls { inset-block-end: 16px; }
+}
