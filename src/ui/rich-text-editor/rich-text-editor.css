@@ -135,9 +135,24 @@
   position: relative;
   inset-block-start: auto;
   --pg-rich-editor-header-surface: var(--pg-color-surface);
-  background: color-mix(in srgb, var(--pg-rich-editor-header-surface) 70%, transparent);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
+  /* The translucent blur belongs to the fading overlay, not this hard-edged box. */
+  background: transparent;
+}
+.pg-rich-text-editor[data-pg-layout='contained'] .pg-rich-text-editor__header::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  inset-block-end: -22px;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: var(--pg-radius-md) var(--pg-radius-md) 0 0;
+  background: color-mix(in srgb, var(--pg-rich-editor-header-surface) 36%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  /* Both tint and backdrop blur dissolve instead of ending at a straight edge. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 35%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 35%, transparent 100%);
 }
 .pg-rich-text-editor[data-pg-layout='contained'][data-pg-mode='html'] .pg-rich-text-editor__header {
   --pg-rich-editor-header-surface: var(--pg-color-code-surface);
