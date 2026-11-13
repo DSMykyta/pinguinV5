@@ -38,8 +38,9 @@
 }
 .pg-tools-wave-demo__percent {
   color: var(--pg-color-text-primary);
+  font-size: var(--pg-progress-label-size);
   font-variant-numeric: tabular-nums;
-  font-weight: 600;
+  font-weight: var(--pg-progress-value-weight);
 }
 .pg-tools-wave-demo__slider { margin-block: var(--pg-space-5) var(--pg-space-3); }
 .pg-tools-wave-demo__actions { margin-block-end: var(--pg-space-6); }
