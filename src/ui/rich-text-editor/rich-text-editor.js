@@ -19,6 +19,7 @@ import { mountEditorToolbar } from './toolbar.js';
 import { mountEditorModeSwitch } from './mode.js';
 import { mountEditorStats } from './stats.js';
 import { mountEditorPaste } from './paste.js';
+import { mountEditorCopy } from './copy.js';
 
 let nextId = 0;
 
@@ -203,7 +204,10 @@ export function createRichTextEditor({
   // Commit and sanitize only when returning to the rendered editor or exporting.
   source.addEventListener('input', () => { if (!destroyed) emit(); }, { signal: aborter.signal });
 
-  const views = [mountEditorPaste({ input, isEditable: () => isEditable, onInput: handleInput })];
+  const views = [
+    mountEditorPaste({ input, isEditable: () => isEditable, onInput: handleInput }),
+    mountEditorCopy({ input }),
+  ];
   if (toolbar) views.push(mountEditorToolbar({ host: toolsHost, triggerHost, controls, root: input }));
   if (code) views.push(mountEditorModeSwitch({ host: modeHost, controls, editorId: input.id, sourceId: source.id }));
   if (stats) views.push(mountEditorStats({ host: statusHost, controls }));

@@ -12,12 +12,18 @@
 
 .pg-rich-text-editor { min-inline-size: 0; color: var(--pg-color-text-primary); }
 .pg-rich-text-editor__main {
-  min-inline-size: 0; overflow: hidden; border: 1px solid var(--pg-color-border-strong);
+  /* Clip, unlike hidden, does not create a scrollport that defeats sticky. */
+  min-inline-size: 0; overflow: clip; border: 1px solid var(--pg-color-border-strong);
   background: var(--pg-color-surface); border-radius: var(--pg-radius-md);
 }
 /* The disclosure stays beside the mode switch; formatting reveals to its RIGHT. */
 .pg-rich-text-editor__header {
-  position: relative;
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 3;
+  /* Covers the scrolled document in both visual and dark HTML modes. */
+  background: inherit;
+  border-radius: var(--pg-radius-md) var(--pg-radius-md) 0 0;
   display: flex; flex-wrap: nowrap; align-items: center; justify-content: flex-start;
   /* Reserve toolbar height so the document/stats do not jump on disclosure. */
   min-block-size: calc(40px + var(--pg-space-2));

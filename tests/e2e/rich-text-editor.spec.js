@@ -393,3 +393,99 @@ test('showing and hiding the floating toolbar never moves the input, stats or fr
     await expect(code).toBeHidden();
   }
 });
+
+
+test('copying a visual selection writes HTML markup into plain and rich clipboard formats', async ({ page }) => {
+  const { visual } = getEditor(page);
+  const copied = await visual.evaluate(node => {
+    const selection = node.ownerDocument.getSelection();
+    const range = node.ownerDocument.createRange();
+    range.selectNodeContents(node);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    const data = new DataTransfer();
+    const event = new ClipboardEvent('copy', { bubbles: true, cancelable: true, clipboardData: data });
+    node.dispatchEvent(event);
+    return { plain: data.getData('text/plain'), html: data.getData('text/html'), prevented: event.defaultPrevented };
+  });
+  expect(copied.prevented).toBe(true);
+  expect(copied.plain).toBe(copied.html);
+  expect(copied.plain).toContain('<h2>Опис товару</h2>');
+  expect(copied.plain).toContain('<strong>Жирний</strong>');
+  expect(copied.plain).toContain('<em>Курсив</em>');
+});
+
+test('copying part of a formatted line preserves enclosing paragraph and inline tags', async ({ page }) => {
+  const { visual } = getEditor(page);
+  const copied = await visual.evaluate(node => {
+    const text = node.querySelector('strong').firstChild;
+    const range = node.ownerDocument.createRange();
+    range.setStart(text, 0);
+    range.setEnd(text, 3);
+    const selection = node.ownerDocument.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+    const data = new DataTransfer();
+    node.dispatchEvent(new ClipboardEvent('copy', { bubbles: true, cancelable: true, clipboardData: data }));
+    return data.getData('text/plain');
+  });
+  expect(copied).toBe('<p><strong>Жир</strong></p>');
+});
+
+test('source mode keeps native copy and selections outside editor are ignored', async ({ page }) => {
+  const { visual, code, htmlMode } = getEditor(page);
+  const outside = await visual.evaluate(node => {
+    const selection = document.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(node.closest('.pg-tools-rich-text-editor-demo').querySelector('h3'));
+    selection.removeAllRanges();
+    selection.addRange(range);
+    const data = new DataTransfer();
+    const event = new ClipboardEvent('copy', { bubbles: true, cancelable: true, clipboardData: data });
+    node.dispatchEvent(event);
+    return event.defaultPrevented;
+  });
+  expect(outside).toBe(false);
+  await htmlMode.click();
+  const native = await code.evaluate(node => {
+    node.select();
+    const data = new DataTransfer();
+    const event = new ClipboardEvent('copy', { bubbles: true, cancelable: true, clipboardData: data });
+    node.dispatchEvent(event);
+    return event.defaultPrevented;
+  });
+  expect(native).toBe(false);
+});
+
+test('formatting header sticks inside the scrollable tab while editing a long document', async ({ page }) => {
+  await page.setViewportSize({ width: 1080, height: 600 });
+  const { root } = getEditor(page);
+  const positions = await root.evaluate(rootNode => {
+    const input = rootNode.querySelector('.pg-rich-text-editor__input');
+    const header = rootNode.querySelector('.pg-rich-text-editor__header');
+    const panel = rootNode.closest('.pg-tabs__panel');
+    input.insertAdjacentHTML('beforeend', '<p>Довгий текст для прокрутки.</p>'.repeat(90));
+    const initial = header.getBoundingClientRect();
+    const scroller = panel.getBoundingClientRect();
+    panel.scrollTop = initial.top - scroller.top + panel.scrollTop + 45;
+    const stuck = header.getBoundingClientRect();
+    panel.scrollTop += 120;
+    const stuckAgain = header.getBoundingClientRect();
+    return {
+      position: getComputedStyle(header).position,
+      clipping: getComputedStyle(rootNode.querySelector('.pg-rich-text-editor__main')).overflowY,
+      scrollTop: panel.scrollTop,
+      scrollContainerTop: scroller.top,
+      stuckTop: stuck.top,
+      stuckAgainTop: stuckAgain.top,
+      headerBottom: stuck.bottom,
+      textTop: input.getBoundingClientRect().top,
+    };
+  });
+  expect(positions.position).toBe('sticky');
+  expect(positions.clipping).toBe('clip');
+  expect(positions.scrollTop).toBeGreaterThan(0);
+  expect(Math.abs(positions.stuckTop - positions.scrollContainerTop)).toBeLessThan(3);
+  expect(Math.abs(positions.stuckAgainTop - positions.stuckTop)).toBeLessThan(2);
+  expect(positions.headerBottom).toBeGreaterThan(positions.textTop);
+});
