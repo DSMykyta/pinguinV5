@@ -139,3 +139,27 @@ test('Dialog pauses the animated color fields behind it and restores them on clo
   await expect(dialog).toHaveCount(0);
   await expect(backgroundGlow).toHaveCSS('animation-play-state', 'running');
 });
+
+test('edge-to-edge is a generic Dialog layout, not a second gradient-specific modal', async ({ page }) => {
+  await page.goto('/tools');
+  await page.evaluate(async () => {
+    const { showDialog } = await import('/src/ui/dialog/dialog.js');
+    const visual = document.createElement('div');
+    visual.textContent = 'Довільний вміст';
+    visual.setAttribute('data-pg-test-visual', '');
+    visual.style.display = 'grid';
+    void showDialog({
+      title: 'Перегляд матеріалу',
+      presentation: 'edge-to-edge',
+      content: visual,
+    });
+  });
+  const modal = page.getByRole('dialog', { name: 'Перегляд матеріалу' });
+  await expect(modal).toHaveAttribute('open', '');
+  await expect(modal.locator('[data-pg-test-visual]')).toHaveText('Довільний вміст');
+  await expect(modal.locator('[data-pg-test-visual]')).toHaveCSS('display', 'grid');
+  await expect(modal.locator('header, footer, .pg-animated-gradient')).toHaveCount(0);
+  await expect(modal.getByRole('button', { name: 'Закрити діалог' })).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(modal).toHaveCount(0);
+});
