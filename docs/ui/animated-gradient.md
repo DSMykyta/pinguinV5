@@ -51,3 +51,7 @@ gradient.setPreset('storm');
 `tests/e2e/animated-gradient.spec.js` перевіряє два незалежні radial gradients, збільшений запас, зміну transform в часі, різні режими, reduced-motion, modal pause/return, відсутність Canvas/noise.
 
 **Візуальна локальна проба:** ізольований Chromium (три режими, ~440×420), кадри з інтервалом 1,8 с. У тесті понад 92% вибірково перевірених пікселів **кожного** режиму змінили RGB більше ніж на 15 одиниць хоча б в одному каналі. Це підтверджує помітність переміщення на еталонній пробі, але не означає проходження повного E2E/production build.
+
+## Окремий Suno-подібний CloudGradient
+
+На нову пряму вимогу додано [CloudGradient](cloud-gradient.md) — глобальний WebGL renderer одного semantic tone. Існуючий AnimatedGradient залишається CSS-ефектом з двома окремими рухомими псевдошарами, з тим самим API й режимами. [Дослідження Suno](../research/suno-canvas-gradient.md).

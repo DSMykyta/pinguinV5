@@ -76,6 +76,7 @@
 | Number Field | `src/ui/number-field` | [Native numeric steps, units and validation](number-field.md) |
 | Slider | `src/ui/slider` | [Material 3: native range, розділена шкала, вертикальна ручка](slider.md) |
 | Wave Progress | `src/ui/wave-progress` | [Безшовна 20px CSS-маска, визначений/невизначений прогрес](wave-progress.md); демо у «Таблицях» |
+| CloudGradient | src/ui/cloud-gradient | [Suno-подібна WebGL-хмара](cloud-gradient.md), [дослідження](../research/suno-canvas-gradient.md), демо /login-demo |
 | Thinking Progress — «Думання» | `src/ui/thinking-progress` | [Тонкий безперервний градієнт із м’якими краями](thinking-progress.md); демо у «Таблицях» |
 | Checkbox | `src/ui/checkbox` | [Native two-state and mixed-state control](choice-controls.md) |
 | Switch | `src/ui/switch` | [Native on/off semantics, async rollback](choice-controls.md) |
