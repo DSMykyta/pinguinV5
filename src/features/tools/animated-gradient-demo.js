@@ -13,6 +13,7 @@ import { createIconButton } from '../../ui/button/button.js';
 import { createButtonGroup } from '../../ui/button-group/button-group.js';
 import { showDialog } from '../../ui/dialog/dialog.js';
 import { createAnimatedGradient } from '../../ui/animated-gradient/animated-gradient.js';
+import { createCloudGradient } from '../../ui/cloud-gradient/cloud-gradient.js';
 import { createSparkles } from '../../ui/sparkles/sparkles.js';
 import { createSwitch } from '../../ui/switch/switch.js';
 
@@ -78,6 +79,42 @@ export function createAnimatedGradientDemo() {
     },
   });
 
-  section.append(label, trigger);
+  // A second preview reuses the SAME CloudGradient already used by login-demo.
+  // Keep the three established CSS movement modes and their dialog untouched.
+  const auroraTrigger = document.createElement('button');
+  auroraTrigger.type = 'button';
+  auroraTrigger.className = 'pg-button pg-button--primary';
+  auroraTrigger.dataset.pgAction = 'aurora-gradient-demo';
+  auroraTrigger.textContent = 'Aurora';
+  auroraTrigger.setAttribute('aria-label', 'Відкрити триколірну Aurora');
+
+  auroraTrigger.addEventListener('click', () => {
+    const cloud = createCloudGradient({ variant: 'aurora' });
+    const preview = document.createElement('div');
+    preview.className = 'pg-tools-gradient-preview';
+    cloud.element.classList.add('pg-tools-gradient-preview__aurora');
+
+    // Reuse the existing AnimatedGradient typography; never render the CSS
+    // animation underneath WebGL and never create a second modal system.
+    const titleArea = document.createElement('div');
+    titleArea.className = 'pg-tools-gradient-preview__aurora-title';
+    const title = document.createElement('p');
+    title.className = 'pg-animated-gradient__title';
+    title.textContent = 'pinguinV6';
+    titleArea.append(title);
+    preview.append(cloud.element, titleArea);
+
+    const closed = showDialog({
+      title: 'Aurora — триколірний градієнт',
+      presentation: 'edge-to-edge',
+      content: preview,
+    });
+    // showDialog inserts the content synchronously for this user-initiated
+    // demo. WebGL is created ONLY after insertion, then released on close.
+    cloud.mount();
+    void closed.finally(() => cloud.destroy());
+  });
+
+  section.append(label, trigger, auroraTrigger);
   return section;
 }
