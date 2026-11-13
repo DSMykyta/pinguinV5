@@ -33,7 +33,7 @@ export function createRichTextEditor({
   element.dataset.pgMode = 'editor';
 
   const main = document.createElement('div');
-  main.className = 'pg-rich-text-editor__main';
+  main.className = 'pg-rich-text-editor__main pg-code-surface';
   const header = document.createElement('div');
   header.className = 'pg-rich-text-editor__header';
   const toolsHost = document.createElement('div');
@@ -43,7 +43,7 @@ export function createRichTextEditor({
   const triggerHost = document.createElement('div');
   triggerHost.className = 'pg-rich-text-editor__toolbar-toggle-host';
   if (code) header.append(modeHost);
-  if (toolbar) header.append(triggerHost, toolsHost);
+  if (toolbar) header.append(toolsHost, triggerHost);
 
   const input = document.createElement('div');
   input.className = 'pg-rich-text-editor__input';
@@ -56,7 +56,7 @@ export function createRichTextEditor({
   input.append(parseSafeHtml(content));
 
   const source = document.createElement('textarea');
-  source.className = 'pg-rich-text-editor__source';
+  source.className = 'pg-rich-text-editor__source pg-code-surface__input';
   source.id = input.id + '-html';
   source.setAttribute('aria-label', 'HTML-код тексту');
   source.setAttribute('spellcheck', 'false');
