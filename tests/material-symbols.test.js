@@ -27,6 +27,7 @@ test('Material Symbols registry contains the existing public aliases', () => {
     'format-bold', 'format-italic', 'format-underlined', 'format-paragraph',
     'format-h1', 'format-h2', 'format-h3', 'format-list-bulleted',
     'format-list-numbered', 'format-quote', 'undo', 'redo', 'chevron-right',
+    'visibility', 'visibility-off',
   ];
   assert.equal(Object.keys(MATERIAL_SYMBOLS).length, required.length);
   for (const name of required) {

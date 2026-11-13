@@ -17,6 +17,8 @@ test('login demo uses two shared inputs, a shared button and tertiary canvas beh
   const form = page.getByRole('form', { name: 'Демонстрація входу' });
   await expect(form.locator('.pg-input')).toHaveCount(2);
   await expect(form.locator('input[type="password"]')).toHaveCount(1);
+  await expect(form.getByRole('button', { name: 'Показати пароль' })).toHaveCount(1);
+  await expect(form.locator('.pg-input__support--sr-only')).toHaveCount(2);
   await expect(form.getByRole('button', { name: 'Увійти' })).toHaveClass(/pg-button--primary/);
   await expect(form.getByLabel('Логін')).toHaveAttribute('autocomplete', 'username');
   await expect(form.getByLabel('Пароль')).toHaveAttribute('autocomplete', 'current-password');
@@ -47,8 +49,9 @@ test('demo action validates inputs without pretending to authenticate', async ({
   await expect(password).toBeFocused();
   await password.fill('example-only');
   await password.press('Enter');
-  await expect(page.getByRole('status')).toHaveText(
+  await expect(page.locator('.pg-login-demo__status')).toHaveText(
     'Демонстрація: форму заповнено. Справжній вхід не виконується.');
+  await expect(page.locator('.pg-login-demo__status')).toHaveCSS('clip-path', 'inset(50%)');
   await expect(page).toHaveURL(/\/login-demo$/);
 });
 
@@ -72,14 +75,35 @@ test('validation messages do not move or resize inputs and submit', async ({ pag
   };
 
   await submit.click();
-  await expect(fields.locator('.pg-input__error:visible')).toHaveCount(2);
+  await expect(fields.locator('.pg-input__error:not([hidden])')).toHaveCount(2);
+  for (const message of await fields.locator('.pg-input__support--sr-only').all()) {
+    await expect(message).toHaveCSS('clip-path', 'inset(50%)');
+  }
   await unchanged();
   await page.getByLabel('Логін').fill('demo');
-  await expect(fields.locator('.pg-input__error:visible')).toHaveCount(1);
+  await expect(fields.locator('.pg-input__error:not([hidden])')).toHaveCount(1);
   await unchanged();
   await page.getByLabel('Логін').fill('');
-  await expect(fields.locator('.pg-input__error:visible')).toHaveCount(1);
+  await expect(fields.locator('.pg-input__error:not([hidden])')).toHaveCount(1);
   await unchanged();
+});
+
+test('password visibility can be toggled without changing the form or submitting', async ({ page }) => {
+  await page.goto('/login-demo');
+  const form = page.getByRole('form', { name: 'Демонстрація входу' });
+  const password = form.getByLabel('Пароль');
+  const toggle = form.getByRole('button', { name: 'Показати пароль' });
+  await password.fill('a passphrase example');
+  const bounds = await form.boundingBox();
+  await toggle.click();
+  await expect(password).toHaveAttribute('type', 'text');
+  await expect(password).toHaveValue('a passphrase example');
+  await expect(form.getByRole('button', { name: 'Приховати пароль' })).toBeVisible();
+  await expect(page.locator('.pg-login-demo__status')).toBeHidden();
+  await form.getByRole('button', { name: 'Приховати пароль' }).click();
+  await expect(password).toHaveAttribute('type', 'password');
+  await expect(password).toHaveValue('a passphrase example');
+  expect(Math.abs((await form.boundingBox()).height - bounds.height)).toBeLessThan(1);
 });
 
 test('reduced motion stops shader and mobile keeps form in viewport', async ({ page }) => {
