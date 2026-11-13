@@ -26,7 +26,7 @@
 
 - Shared size: `--pg-compact-control-size`, `--pg-space-1`, `--pg-space-4`, `--pg-space-12`.
 - Slider role: `--pg-slider-hit-size`, `--pg-slider-handle-height`, `--pg-slider-handle-width`, `--pg-slider-handle-pressed-width`, `--pg-slider-track-active-height`, `--pg-slider-track-inactive-height`, `--pg-slider-handle-gap`, `--pg-slider-dot-size`.
-- Wave role: `--pg-wave-period`, `--pg-wave-height`, `--pg-wave-container-height`, `--pg-wave-rest-height`, `--pg-wave-gap`, `--pg-wave-cycle-duration`, `--pg-wave-indeterminate-duration`.
+- Wave role: `--pg-wave-period`, `--pg-wave-height`, `--pg-wave-container-height`, `--pg-wave-rest-height`, `--pg-wave-gap`, `--pg-wave-duration`, `--pg-wave-indeterminate-duration`.
 - Shared semantic paint: `--pg-color-progress-active`, `--pg-color-progress-inactive`, які розв'язуються через чинну головну тональність/поверхню у light/dark.
 - SVG data URI містить безрозмірний `viewBox` і числові координати кривої; вони **не є CSS pixel-значеннями**. Реальні pixel sizes керуються тільки токенами (период/маска/швидкість).
 - `step` в `createSlider` (наприклад 1 або 0.5) є **кроком даних нативного input**, а не дизайнерським геометричним кроком. Його не слід замінювати CSS var.
@@ -38,6 +38,6 @@
 ## Приймання
 
 1. 32px видима ручка, 16px active, 10px inactive, 48px нативний hit target. Горизонтальні зазори 6px без зсуву геометрії на 0, 50, 100% та pressed.
-2. Wave та Slider мають той самий computed active/inactive колір і колір тексту відсотка, у світлій і темній темах.
+2. Wave та Slider мають той самий computed active/inactive колір, а їхні підписи й відсотки — спільні текстові токени в обох темах.
 3. У `slider.css` та `wave-progress.css` **жодних локальних геометричних px-літералів**, лише `var(--pg-...)`/обчислення від токенів. Єдине джерело чисел — `tokens.css`.
 4. Покриття Playwright, screen mobile, RTL, pointer, keyboard, forced colors та reduced motion. Існуючий `setButtonLoading` не змінений.
