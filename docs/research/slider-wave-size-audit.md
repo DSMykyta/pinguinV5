@@ -41,3 +41,34 @@
 2. Wave та Slider мають той самий computed active/inactive колір, а їхні підписи й відсотки — спільні текстові токени в обох темах.
 3. У `slider.css` та `wave-progress.css` **жодних локальних геометричних px-літералів**, лише `var(--pg-...)`/обчислення від токенів. Єдине джерело чисел — `tokens.css`.
 4. Покриття Playwright, screen mobile, RTL, pointer, keyboard, forced colors та reduced motion. Існуючий `setButtonLoading` не змінений.
+
+
+## Повна інвентаризація CSS у src/ (після інтеграції)
+
+Метод: Git tree `work` → усі 59 файлів `src/**/*.css` → підрахунок збігів /(?:\\d+(?:\\.\\d+)?)px\\b/ після видалення CSS-коментарів. Це **інвентаризація літералів**, а не вимірювання computed geometry чи автоматичний дозвіл на заміну.
+
+- У всіх 59 CSS-файлах знайдено **896** входжень `px`.
+- Із них **30** знаходяться у `src/styles/tokens.css`, де фактичні числові значення токенів є коректними.
+- **866** входжень залишаються поза центральним файлом токенів. Вони охоплюють також межі media query, бордери, shadows, іконки та інші непов'язані геометричні величини.
+- `src/ui/slider/slider.css`: **0** буквальних `px` у правилах (всі розміри зі спільних токенів).
+- `src/ui/wave-progress/wave-progress.css`: **0**.
+- `src/features/tools/wave-progress-demo.css`: **0**.
+- Для цих трьох файлів додано `tests/progress-tokens.test.js`, що забороняє повернення локальних `px`.
+
+Найбільше буквальних CSS-пікселів поза токенами:
+
+| CSS-модуль | Кількість |
+| --- | ---: |
+| `src/ui/button/button.css` | 94 |
+| `src/ui/dialog/dialog.css` | 69 |
+| `src/ui/collection-view/collection-view.css` | 68 |
+| `src/shell/aside/aside.css` | 40 |
+| `src/ui/field/field.css` | 37 |
+| `src/shell/aside/fab.css` | 33 |
+| `src/ui/listbox/listbox.css` | 30 |
+| `src/ui/checkbox/checkbox.css` | 27 |
+| `src/ui/toast/toast.css` | 27 |
+
+**Безпечний принцип для решти проєкту:** (1) окремо класифікувати margin/padding, control geometry, border, typography, decorative effects та media breakpoints; (2) віднайти канонічну роль або ввести рольовий токен у `tokens.css`; (3) замінювати тільки семантично тотожні числа в owner CSS; (4) перевіряти computed geometry та інтеракції до/після. Не перетворювати, наприклад, `1px` border та `1px` зсув тексту на один глобальний токен тільки тому, що число рівне.
+
+Ця задача виконала переведення на токени саме **Slider, Wave Progress і їхній демо-макет**. Перебудова інших 56 CSS-модулів без окремого контролю геометрії змінить працюючі інтерфейси; глобальна інвентаризація не означає, що вони вже мігровані.
