@@ -102,3 +102,12 @@ The shared Dialog additionally supports an `editor` size, caller-owned DOM `cont
 ## Усунення повноекранного GPU blur у Workspace — 2026-11-13
 
 Для великого Workspace, який закриває майже все вікно, нативний `::backdrop` зберігає затемнення, але **не розмиває невидиму площу позаду редактора**. Чотири малі `backdrop-filter:blur(8px)`-смуги всередині єдиного Dialog manager розмивають **лише реально видимі краї** навколо форми. Фактичні Chrome-замірювання наведені в [аудиті](../research/dialog-performance.md). Звичайні модальні вікна й Confirm не змінені. Додатковий візуальний шар не приймає події, прихований від accessibility tree, прибирається разом з діалогом, у мобільному full-screen Workspace не показується. Підтримано `prefers-reduced-transparency`.
+
+
+## Призупинення фонового руху при відкритому Dialog — 2026-11-13
+
+Нативний `showModal()` уже робить решту документа `inert` для користувацької взаємодії (кліки, tab focus, pointer). **Додатково** `src/ui/dialog/dialog.css` паузить `animation-play-state` на `#app` та його descendants, поки в body присутній відкритий `dialog.pg-dialog`. Після закриття браузер відновлює таймлайн анімацій; жодних ручних копій стану чи другого modal manager.
+
+Для JS-анімації текстових підказок `src/main.js` використовує **вже існуючий** `pg:modal-change` з Dialog manager та **вже існуючий** `setRotatingPlaceholdersPaused()` з Input. При відкритті невидимий scheduler зупиняється, при закритті відновлюється. Активний Dialog є сусідом `#app` в `document.body`, тому внутрішні анімації, форми, збереження, перевірки, Promise-обробники й дії Dialog **не заморожуються**. Інші мережеві задачі та критичні таймери програми свідомо не зупиняються: це могло б зіпсувати дані. Немає blanket `display:none`, layout reset, блокування worker, чи другого focus trap.
+
+Перевірка `tests/e2e/animated-gradient.spec.js`: background gradient paused, foreground dialog gradient running, native focus guard активний, стан повертається після закриття.
