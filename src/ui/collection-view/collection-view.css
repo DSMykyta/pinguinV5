@@ -140,9 +140,8 @@
 .pg-collection-view__column-name { overflow:hidden;text-overflow:ellipsis;min-inline-size:0; }
 .pg-collection-view__sort-mark { flex:0 0 16px;opacity:0; }
 .pg-collection-view__table th:is(:hover,:focus-within,[aria-sort]) .pg-collection-view__sort-mark { opacity:1; }
-/* The existing cell padding is the indicator gutter for filterable columns.
- * Their action slot is reserved once, without shortening the title twice. */
-.pg-collection-view__table th[data-pg-filterable='true'] .pg-collection-view__sort-mark { position:absolute;inset-inline-start:-18px; }
+/* All sortable columns use the same in-flow leading indicator, including
+ * filterable headers. Reserve its width even while hidden to avoid jumps. */
 .pg-collection-view__filter-trigger { opacity:0; }
 .pg-collection-view__table th:is(:hover,:focus-within,[data-pg-filtered='true'],[data-pg-filter-open='true']) .pg-collection-view__filter-trigger { opacity:1; }
 .pg-collection-view__filter-panel { font-size:13px;white-space:normal; }
