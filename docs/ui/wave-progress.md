@@ -27,3 +27,7 @@
 - `src/features/tools/wave-progress-demo.css` задає тільки композиційні відступи демо; зовнішня кнопка оформлюється чинним `pg-button`.
 - `tests/e2e/wave-progress.spec.js`: вкладка, зміна 61→0→100, числовий ARIA-стан, безшовна 20px маска, indeterminate, reduced-motion, cleanup, mobile.
 - Перед твердженням про готовність виконати `npm run check` і релевантний Playwright E2E; збірка не дорівнює браузерній перевірці.
+
+## Вирівнювання із Slider (оновлення 2026-11-13)
+
+Обидва компоненти використовують `--pg-color-progress-active` та `--pg-color-progress-inactive` у світлій і темній темах. Геометрія Wave: період 20px через `--pg-wave-period`, висота хвилі 10px через `--pg-wave-height`, доріжка/крапка/проміжок 4px через окремі alias-токени, частота руху через motion-токен. У CSS компонента числові значення довжин замінені на `var(...)`, крім безрозмірних координат path всередині SVG data URI. Спільну 32px висоту Checkbox/Mini використовує ручка **Slider**; сам Wave має залишатися тонким індикатором. [Аудит розмірів](../research/slider-wave-size-audit.md).
