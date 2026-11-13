@@ -18,6 +18,7 @@
   --pg-gradient-blur: 60px;
   --pg-gradient-opacity: 1;
   --pg-gradient-duration: 5s;
+  --pg-gradient-motion: pg-gradient-pulse;
   position: relative;
   isolation: isolate;
   display: grid;
@@ -53,7 +54,7 @@
   opacity: var(--pg-gradient-opacity);
   transform-origin: center;
   will-change: transform;
-  animation: pg-gradient-color-drift var(--pg-gradient-duration) ease-in-out infinite alternate;
+  animation: var(--pg-gradient-motion) var(--pg-gradient-duration) ease-in-out infinite alternate;
 }
 
 /* All three demos use primary as their BASE and exactly two colored spots.
@@ -67,6 +68,7 @@
   --pg-gradient-blur: 68px;
   --pg-gradient-opacity: .82;
   --pg-gradient-duration: 7s;
+  --pg-gradient-motion: pg-gradient-translate;
 }
 
 .pg-animated-gradient[data-pg-preset='storm'] {
@@ -78,6 +80,7 @@
   --pg-gradient-blur: 52px;
   --pg-gradient-opacity: 1;
   --pg-gradient-duration: 3.5s;
+  --pg-gradient-motion: pg-gradient-rotate;
 }
 
 .pg-animated-gradient[data-pg-preset='dawn'] {
@@ -89,12 +92,24 @@
   --pg-gradient-blur: 60px;
   --pg-gradient-opacity: 1;
   --pg-gradient-duration: 5s;
+  --pg-gradient-motion: pg-gradient-pulse;
 }
 
-/* Alternating endpoints make an unbroken, reversible infinite drift. */
-@keyframes pg-gradient-color-drift {
-  from { transform: translate3d(-5%, 3%, 0) rotate(-8deg) scale(1.04); }
-  to { transform: translate3d(8%, -7%, 0) rotate(25deg) scale(1.20); }
+/* Three genuinely different effects in one shared color-field renderer.
+ * Alternate reverses each trajectory without a jump at the turnaround. */
+@keyframes pg-gradient-translate {
+  from { transform: translate3d(-10%, 8%, 0) scale(1.10); }
+  to { transform: translate3d(11%, -9%, 0) scale(1.10); }
+}
+
+@keyframes pg-gradient-rotate {
+  from { transform: rotate(-25deg) scale(1.15); }
+  to { transform: rotate(32deg) scale(1.15); }
+}
+
+@keyframes pg-gradient-pulse {
+  from { transform: scale(.95); }
+  to { transform: scale(1.25); }
 }
 
 .pg-animated-gradient__title {
