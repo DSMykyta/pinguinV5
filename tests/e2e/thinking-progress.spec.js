@@ -120,6 +120,7 @@ test('reduced motion keeps the gradient visible and forced colors provides a vis
 
 test('separate instances and destroy leave the original demo intact', async ({ page }) => {
   await page.goto('/tools');
+  await expect(page.getByRole('progressbar', { name: 'Думання', exact: true })).toBeVisible();
   const result = await page.evaluate(async () => {
     const { createThinkingProgress } = await import('/src/ui/thinking-progress/thinking-progress.js');
     const original = document.querySelector('.pg-thinking-progress');
