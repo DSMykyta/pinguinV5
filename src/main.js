@@ -46,6 +46,7 @@ import './ui/radio-group/radio-group.css';
 import './ui/switch/switch.css';
 import './ui/slider/slider.css';
 import './ui/wave-progress/wave-progress.css';
+import './ui/thinking-progress/thinking-progress.css';
 import './shell/sidebar/sidebar.css';
 import './shell/aside/aside.css';
 import './shell/aside/fab.css';

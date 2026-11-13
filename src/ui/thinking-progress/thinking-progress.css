@@ -1,0 +1,59 @@
+/*
+ * ╔════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — THINKING PROGRESS STYLES                                           ║
+ * ╠════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Безшовний рух градієнта під нерухомою маскою м’яких країв.           ║
+ * ║ ЗАЛЕЖНОСТІ: Центральні tone, spacing, radius і thinking-progress токени.          ║
+ * ║ ПУБЛІЧНИЙ API: .pg-thinking-progress та .pg-thinking-progress__flow.              ║
+ * ║ ПРИНЦИП: Лише власний індикатор; CSS transform, без JS-анімації та layout.        ║
+ * ╚════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
+.pg-thinking-progress {
+  display: block;
+  inline-size: 100%;
+  min-inline-size: 0;
+  block-size: var(--pg-thinking-progress-height);
+  overflow: hidden;
+  border-radius: var(--pg-radius-full);
+  /* Only alpha matters: use existing theme ink instead of a literal mask color. */
+  -webkit-mask-image: linear-gradient(90deg, transparent,
+    var(--pg-color-text-primary) 15%, var(--pg-color-text-primary) 85%, transparent);
+  mask-image: linear-gradient(90deg, transparent,
+    var(--pg-color-text-primary) 15%, var(--pg-color-text-primary) 85%, transparent);
+}
+
+.pg-thinking-progress__flow {
+  display: block;
+  inline-size: 300%;
+  block-size: 100%;
+  background-image: linear-gradient(90deg,
+    var(--pg-tone-main-base),
+    var(--pg-tone-secondary-base),
+    var(--pg-tone-tertiary-base),
+    var(--pg-tone-main-base));
+  /* Three identical periods; moving exactly one period joins the loop cleanly. */
+  background-size: calc(100% / 3) 100%;
+  background-repeat: repeat-x;
+  animation: pg-thinking-progress-flow var(--pg-thinking-progress-duration) linear infinite;
+}
+
+@keyframes pg-thinking-progress-flow {
+  to { transform: translate3d(calc(-100% / 3), 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pg-thinking-progress__flow { animation: none; }
+}
+
+@media (forced-colors: active) {
+  .pg-thinking-progress {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .pg-thinking-progress__flow {
+    background: CanvasText;
+    animation: none;
+    forced-color-adjust: none;
+  }
+}

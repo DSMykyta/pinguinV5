@@ -1,0 +1,28 @@
+/*
+ * ╔════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — THINKING PROGRESS DEMO LAYOUT                                      ║
+ * ╠════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Підписи та розташування демо «Думання».                              ║
+ * ║ ЗАЛЕЖНОСТІ: Спільні progress typography, demo width і spacing токени.             ║
+ * ║ ПУБЛІЧНИЙ API: .pg-tools-thinking-progress-demo та BEM-елементи.                  ║
+ * ║ ПРИНЦИП: Не змінює індикатор, кнопки, вкладки або геометрію Shell.               ║
+ * ╚════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
+.pg-tools-thinking-progress-demo {
+  box-sizing: border-box;
+  inline-size: min(100%, var(--pg-progress-demo-max-width));
+  min-inline-size: 0;
+  margin-block-start: var(--pg-space-10);
+}
+.pg-tools-thinking-progress-demo h3 {
+  margin: 0;
+  color: var(--pg-color-text-primary);
+  font-size: var(--pg-progress-heading-size);
+  font-weight: var(--pg-progress-value-weight);
+}
+.pg-tools-thinking-progress-demo__description {
+  margin: var(--pg-space-2) 0 var(--pg-space-6);
+  color: var(--pg-color-text-secondary);
+  font-size: var(--pg-progress-body-size);
+}

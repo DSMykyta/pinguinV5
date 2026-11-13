@@ -187,6 +187,9 @@
   --pg-wave-gap: var(--pg-space-1);
   --pg-wave-duration: 600ms;
   --pg-wave-indeterminate-duration: 2400ms;
+  /* Thin indeterminate flow shares the existing brand tone palette. */
+  --pg-thinking-progress-height: var(--pg-space-1);
+  --pg-thinking-progress-duration: 2s;
   /* M3-inspired motion channels: spatial movement vs. color/opacity effects.
      Functional/standard timing keeps approved FAB, Toast, RevealPanel intact. */
   --pg-motion-spatial-fast-duration: 150ms;
