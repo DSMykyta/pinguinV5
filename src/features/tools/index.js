@@ -14,7 +14,6 @@ import { createPageView } from '../../ui/page/page.js';
 import { createToastDemo } from './toast-demo.js';
 import { createWaveProgressDemo } from './wave-progress-demo.js';
 import { createThinkingProgressDemo } from './thinking-progress-demo.js';
-import { createAnimatedGradientDemo } from './animated-gradient-demo.js';
 import { createRichTextEditorDemo } from './rich-text-editor-demo.js';
 import { createDialogDemo } from './dialog-demo.js';
 import { createInputDemo } from './input-demo.js';
@@ -30,7 +29,6 @@ import { createSectionNavigatorDemo } from './section-navigator-demo.js';
 import './toast-demo.css';
 import './wave-progress-demo.css';
 import './thinking-progress-demo.css';
-import './animated-gradient-demo.css';
 import './rich-text-editor-demo.css';
 import './dialog-demo.css';
 import './input-demo.css';
@@ -94,7 +92,7 @@ export function mount(host, { setAsideContext, setSearchEntries, setSearchContex
   const tablePage = createPageView({ title: 'Таблиці' });
   const waveProgressDemo = createWaveProgressDemo();
   const thinkingProgressDemo = createThinkingProgressDemo();
-  tablePage.body.append(createToastDemo(), createAnimatedGradientDemo(), waveProgressDemo.element,
+  tablePage.body.append(createToastDemo(), waveProgressDemo.element,
     thinkingProgressDemo.element);
   // The table itself is the page surface; there is no duplicate title or card.
   const dataViewsDemo = createDataViewsDemo();
