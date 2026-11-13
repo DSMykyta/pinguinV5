@@ -63,6 +63,19 @@ function validate(options) {
   }
   const size = options.size ?? 'standard';
   if (!['standard', 'editor', 'workspace'].includes(size)) throw new TypeError('Invalid dialog size');
+  // Edge-to-edge is a reusable PRESENTATION of the same native Dialog.
+  // It has no header/footer action bar: content fills the panel and the
+  // existing close button floats above it.
+  const presentation = options.presentation ?? 'default';
+  if (!['default', 'edge-to-edge'].includes(presentation)) {
+    throw new TypeError('Invalid Dialog presentation');
+  }
+  if (presentation === 'edge-to-edge' && (size !== 'standard' || content === null ||
+      message.trim() || options.leftAction || options.cancelText != null ||
+      options.closeGuard || options.onConfirm || options.validate || options.destructive ||
+      options.confirmTone != null || options.confirmAppearance != null)) {
+    throw new TypeError('Edge-to-edge Dialog requires content without form or footer actions');
+  }
   const sections = options.sections ?? [];
   if (size === 'workspace' && !Array.isArray(sections)) throw new TypeError('Workspace sections must be an array');
   const leftAction = options.leftAction ?? null;
@@ -81,7 +94,7 @@ function validate(options) {
     throw new TypeError('Dialog confirmation appearance requires confirmTone');
   }
   return {
-    title: options.title, message, content, confirmText, cancelText, size, leftAction,
+    title: options.title, message, content, confirmText, cancelText, size, presentation, leftAction,
     confirmTone, confirmAppearance,
     validate: options.validate, onConfirm: options.onConfirm, closeGuard: options.closeGuard,
     onRefresh: options.onRefresh, onDelete: options.onDelete, isDirty: options.isDirty,
@@ -341,7 +354,13 @@ export function mountDialogs() {
       d.className = 'pg-dialog' + (item.options.size === 'workspace'
         ? ' pg-dialog--workspace' : item.options.size === 'editor' ? ' pg-dialog--editor' : '');
       d.dataset.pgState = 'entering';
-      d.setAttribute('aria-labelledby', 'pg-dialog-title');
+      if (item.options.presentation === 'edge-to-edge') {
+        d.dataset.pgPresentation = 'edge-to-edge';
+        // Title is still an accessible name, without a visible heading.
+        d.setAttribute('aria-label', item.options.title);
+      } else {
+        d.setAttribute('aria-labelledby', 'pg-dialog-title');
+      }
       if (item.options.message) d.setAttribute('aria-describedby', 'pg-dialog-message');
       item.element = d;
 
@@ -421,6 +440,11 @@ export function mountDialogs() {
         panel.classList.add('pg-dialog__panel--workspace');
         panel.append(workspace.element);
         item.workspace = workspace;
+        d.append(panel);
+      } else if (item.options.presentation === 'edge-to-edge') {
+        // Same Dialog and shared close button; no extra wrapper or actions.
+        item.actionButtons = [closeButton];
+        panel.append(body, closeButton);
         d.append(panel);
       } else {
       const footer = doc.createElement('footer');
@@ -526,9 +550,10 @@ export function mountDialogs() {
       }
       d.showModal();
       doc.dispatchEvent(new Event('pg:modal-change'));
-      (item.options.size === 'editor' || item.options.size === 'workspace'
-        ? (item.options.content?.querySelector('[autofocus]') || title)
-        : (cancelButton ?? item.confirmButton)).focus({ preventScroll: true });
+      (item.options.presentation === 'edge-to-edge' ? closeButton
+        : (item.options.size === 'editor' || item.options.size === 'workspace'
+          ? (item.options.content?.querySelector('[autofocus]') || title)
+          : (cancelButton ?? item.confirmButton))).focus({ preventScroll: true });
       view.requestAnimationFrame(() => {
         if (!destroyed && active === item && !item.closing) {
           d.dataset.pgState = 'visible';
