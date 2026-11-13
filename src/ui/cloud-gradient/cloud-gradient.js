@@ -73,7 +73,7 @@ const AURORA_FRAGMENT = [
   ' color=mix(color,tertiaryColor,warm);',
   ' gl_FragColor=vec4(color,1.0);',
   '}',
-].join('\\n');
+].join('\n');
 
 function parseHex(value) {
   const match = /^#([0-9a-f]{6})$/i.exec(String(value).trim());
