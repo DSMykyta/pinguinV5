@@ -39,6 +39,12 @@
   border-radius: 0;
 }
 
+/* Composition-only layering: the independent Sparkles overlay remains
+ * visible above both radial pseudos, but below the pinguinV6 title. */
+.pg-tools-gradient-preview .pg-animated-gradient > .pg-sparkles {
+  z-index: 1;
+}
+
 .pg-tools-gradient-preview__controls {
   position: absolute;
   z-index: 2;
