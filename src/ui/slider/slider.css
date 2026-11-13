@@ -17,12 +17,12 @@
 .pg-slider__label {
   color: var(--pg-color-text-secondary);
   font-size: var(--pg-slider-label-size);
-  font-weight: 400;
+  font-weight: var(--pg-progress-label-weight);
 }
 .pg-slider__value {
   color: var(--pg-color-text-primary);
   font-size: var(--pg-slider-label-size);
-  font-weight: 600;
+  font-weight: var(--pg-progress-value-weight);
   font-variant-numeric: tabular-nums;
 }
 .pg-slider__description {
