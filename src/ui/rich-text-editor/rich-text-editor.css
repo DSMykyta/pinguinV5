@@ -15,7 +15,7 @@
   min-inline-size: 0; overflow: hidden; border: 1px solid var(--pg-color-border-strong);
   background: var(--pg-color-surface); border-radius: var(--pg-radius-md);
 }
-/* The floating toolbar overlays the editor instead of changing header/input geometry. */
+/* The toolbar is inline, to the LEFT of its disclosure arrow; never under it. */
 .pg-rich-text-editor__header {
   position: relative;
   display: flex; flex-wrap: nowrap; align-items: center; justify-content: flex-start;
@@ -24,12 +24,20 @@
 .pg-rich-text-editor__mode-host,
 .pg-rich-text-editor__toolbar-toggle-host { flex: 0 0 auto; }
 .pg-rich-text-editor__tools-host {
-  position: absolute;
+  position: relative;
   z-index: 2;
-  inset-block-start: calc(100% + var(--pg-space-1));
-  inset-inline-start: var(--pg-space-3);
-  inline-size: max-content;
-  max-inline-size: calc(100% - 2 * var(--pg-space-3));
+  flex: 0 1 auto;
+  min-inline-size: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+.pg-rich-text-editor__tools-host::-webkit-scrollbar { display: none; }
+.pg-rich-text-editor__tools-host[hidden],
+.pg-rich-text-editor__toolbar-toggle-host[hidden] { display: none; }
+.pg-rich-text-editor__toolbar {
+  flex-wrap: nowrap;
+  max-inline-size: none;
 }
 .pg-rich-text-editor__mode-switch { max-inline-size: 100%; }
 .pg-rich-text-editor__input, .pg-rich-text-editor__source {
