@@ -2,8 +2,8 @@
  * ╔════════════════════════════════════════════════════════════════════════════════════╗
  * ║ PINGUIN NEXT — ANIMATED GRADIENT DEMO                                             ║
  * ╠════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Три типи руху одного живого градієнта у спільному Dialog.        ║
- * ║ ЗАЛЕЖНОСТІ: Existing Button, ButtonGroup, Dialog, Gradient, Sparkles, Switch.      ║
+ * ║ ПРИЗНАЧЕННЯ: CSS-градієнт і Aurora WebGL в одному спільному Dialog.            ║
+ * ║ ЗАЛЕЖНОСТІ: Button, ButtonGroup, Dialog, AnimatedGradient, CloudGradient.          ║
  * ║ ПУБЛІЧНИЙ API: createAnimatedGradientDemo().                                       ║
  * ║ ПРИНЦИП: Demo складає наявні UI, жодного унікального modal/button skin.           ║
  * ╚════════════════════════════════════════════════════════════════════════════════════╝
