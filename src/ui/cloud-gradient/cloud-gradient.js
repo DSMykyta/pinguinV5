@@ -2,14 +2,18 @@
  * ╔════════════════════════════════════════════════════════════════════════════════════╗
  * ║ PINGUIN NEXT — CLOUD GRADIENT                                                      ║
  * ╠════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Анімована WebGL-хмара одного семантичного кольору.                   ║
+ * ║ ПРИЗНАЧЕННЯ: WebGL-хмара або легкий триколірний Aurora-режим.                      ║
  * ║ ЗАЛЕЖНОСТІ: WebGL 1, DOM observers, системна тема через CSS --pg-* tokens.        ║
- * ║ ПУБЛІЧНИЙ API: createCloudGradient({ tone }) -> { element, mount, destroy }.       ║
+ * ║ ПУБЛІЧНИЙ API: createCloudGradient({ tone, variant }) -> { element, mount, destroy }.║
  * ║ ПРИНЦИП: Незалежний renderer; не дублює CSS AnimatedGradient чи форму.            ║
  * ╚════════════════════════════════════════════════════════════════════════════════════╝
  */
 
 const TONES = new Set(['main', 'secondary', 'tertiary']);
+const VARIANTS = new Set(['cloud', 'aurora']);
+const AURORA_MAX_FPS = 30;
+const AURORA_MAX_WIDTH = 768;
+const AURORA_MAX_HEIGHT = 480;
 const VERTEX = [
   'attribute vec2 position;',
   'void main(){gl_Position=vec4(position,0.0,1.0);}',
@@ -42,6 +46,35 @@ const FRAGMENT = [
   '}',
 ].join('\n');
 
+// Aurora deforms the BOUNDARIES between the three semantic tones.
+// No extra texture, grain, blur or JS pixel loop. The original cloud shader
+// above is intentionally unchanged for the login demo.
+const AURORA_FRAGMENT = [
+  'precision highp float;',
+  'uniform float time;',
+  'uniform vec2 resolution;',
+  'uniform vec3 backgroundColor;',
+  'uniform vec3 glowColor;',
+  'uniform vec3 tertiaryColor;',
+  'void main(){',
+  ' vec2 uv=gl_FragCoord.xy/resolution;',
+  ' vec2 p=(uv-0.5)*2.0;',
+  ' float t=time*0.37;',
+  ' float warpA=sin(p.x*2.4+t*0.83+0.6*cos(p.y*1.8-t*0.45));',
+  ' float warpB=sin(p.x*4.8-t*0.49+sin(p.y*2.1+t*0.63));',
+  ' float warpC=sin(p.y*3.2+p.x*1.4-t*0.58);',
+  ' float ribbon=p.y+0.39*warpA+0.18*warpB+0.12*warpC;',
+  ' float warm=smoothstep(-0.42,0.56,ribbon+0.15*sin(p.x*1.6+t*0.52));',
+  ' float cool=1.0-smoothstep(-0.78,0.22,ribbon-0.15*cos(p.x*1.9-t*0.46));',
+  ' float dark=1.0-smoothstep(0.12,0.52,abs(ribbon+0.12*sin(p.x*2.9-t)));',
+  ' cool=clamp(cool*0.96-dark*0.25,0.0,1.0);',
+  ' warm=clamp(warm*0.90-dark*0.21,0.0,1.0);',
+  ' vec3 color=mix(backgroundColor,glowColor,cool);',
+  ' color=mix(color,tertiaryColor,warm);',
+  ' gl_FragColor=vec4(color,1.0);',
+  '}',
+].join('\\n');
+
 function parseHex(value) {
   const match = /^#([0-9a-f]{6})$/i.exec(String(value).trim());
   if (!match) return null;
@@ -59,7 +92,7 @@ function makeShader(gl, type, source) {
   throw new Error('WebGL compilation failed: ' + message);
 }
 
-function createRenderer(canvas) {
+function createRenderer(canvas, variant) {
   let gl;
   try {
     gl = canvas.getContext('webgl', {
@@ -71,7 +104,8 @@ function createRenderer(canvas) {
   let vertex = null, fragment = null, program = null, buffer = null;
   try {
     vertex = makeShader(gl, gl.VERTEX_SHADER, VERTEX);
-    fragment = makeShader(gl, gl.FRAGMENT_SHADER, FRAGMENT);
+    fragment = makeShader(gl, gl.FRAGMENT_SHADER,
+      variant === 'aurora' ? AURORA_FRAGMENT : FRAGMENT);
     program = gl.createProgram();
     if (!program) throw new Error('WebGL program allocation failed');
     gl.attachShader(program, vertex);
@@ -94,17 +128,21 @@ function createRenderer(canvas) {
     const resolution = gl.getUniformLocation(program, 'resolution');
     const background = gl.getUniformLocation(program, 'backgroundColor');
     const glow = gl.getUniformLocation(program, 'glowColor');
-    if ([time, resolution, background, glow].some(value => value === null)) {
+    const tertiary = variant === 'aurora'
+      ? gl.getUniformLocation(program, 'tertiaryColor') : null;
+    if ([time, resolution, background, glow].some(value => value === null) ||
+        (variant === 'aurora' && tertiary === null)) {
       throw new Error('WebGL uniform unavailable');
     }
     return {
-      paint(width, height, seconds, baseRgb, glowRgb) {
+      paint(width, height, seconds, baseRgb, glowRgb, tertiaryRgb) {
         gl.viewport(0, 0, width, height);
         gl.useProgram(program);
         gl.uniform1f(time, seconds);
         gl.uniform2f(resolution, width, height);
         gl.uniform3fv(background, baseRgb);
         gl.uniform3fv(glow, glowRgb);
+        if (tertiary !== null) gl.uniform3fv(tertiary, tertiaryRgb);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       },
       destroy() {
@@ -125,12 +163,14 @@ function createRenderer(canvas) {
   }
 }
 
-export function createCloudGradient({ tone = 'tertiary' } = {}) {
+export function createCloudGradient({ tone = 'tertiary', variant = 'cloud' } = {}) {
   if (!TONES.has(tone)) throw new RangeError('Unknown CloudGradient tone');
+  if (!VARIANTS.has(variant)) throw new RangeError('Unknown CloudGradient variant');
   const element = document.createElement('div');
   element.className = 'pg-cloud-gradient';
   element.setAttribute('aria-hidden', 'true');
   element.dataset.pgRenderer = 'fallback';
+  element.dataset.pgVariant = variant;
   element.dataset.pgMotion = 'paused';
   element.style.setProperty('--pg-cloud-gradient-glow',
     'var(--pg-tone-' + tone + '-base)');
@@ -143,37 +183,59 @@ export function createCloudGradient({ tone = 'tertiary' } = {}) {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   let renderer = null;
   let resizeObserver = null, visibilityObserver = null, themeObserver = null;
-  let mounted = false, destroyed = false, visible = true;
+  let mounted = false, destroyed = false, visible = true, blockedByDialog = false;
   let frame = 0, previousTime = null, elapsed = 0;
-  let background = null, glow = null;
+  let framesRendered = 0;
+  let background = null, glow = null, tertiary = null;
 
   function readTheme() {
     const styles = getComputedStyle(element);
-    background = parseHex(styles.getPropertyValue('--pg-color-page'));
-    glow = parseHex(styles.getPropertyValue('--pg-tone-' + tone + '-base'));
+    background = parseHex(styles.getPropertyValue(variant === 'aurora'
+      ? '--pg-tone-main-base' : '--pg-color-page'));
+    glow = parseHex(styles.getPropertyValue(variant === 'aurora'
+      ? '--pg-tone-secondary-base' : '--pg-tone-' + tone + '-base'));
+    tertiary = variant === 'aurora'
+      ? parseHex(styles.getPropertyValue('--pg-tone-tertiary-base')) : null;
   }
 
   function paint() {
     if (!renderer || !background || !glow) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    const width = Math.max(1, Math.round(element.clientWidth * dpr));
-    const height = Math.max(1, Math.round(element.clientHeight * dpr));
+    // Aurora is a small preview, not a full-resolution GPU wallpaper.
+    // The original Cloud variant retains its existing DPR behavior.
+    const cssWidth = element.clientWidth;
+    const cssHeight = element.clientHeight;
+    const dpr = variant === 'aurora'
+      ? Math.min(window.devicePixelRatio || 1, 0.75,
+        AURORA_MAX_WIDTH / Math.max(1, cssWidth),
+        AURORA_MAX_HEIGHT / Math.max(1, cssHeight))
+      : Math.min(window.devicePixelRatio || 1, 1.5);
+    const width = Math.max(1, Math.round(cssWidth * dpr));
+    const height = Math.max(1, Math.round(cssHeight * dpr));
     if (canvas.width !== width || canvas.height !== height) {
       canvas.width = width;
       canvas.height = height;
     }
-    renderer.paint(width, height, elapsed, background, glow);
+    renderer.paint(width, height, elapsed, background, glow, tertiary);
+    framesRendered++;
   }
 
   function shouldRun() {
     return mounted && !!renderer && visible && !document.hidden &&
-      !reduced.matches && element.isConnected;
+      !reduced.matches && !blockedByDialog && element.isConnected;
   }
 
   function tick(now) {
     frame = 0;
     if (!shouldRun()) { syncMotion(); return; }
-    if (previousTime !== null) elapsed += Math.min(64, now - previousTime) / 1000;
+    // Only Aurora limits draw calls to 30 Hz. Cloud stays visually identical
+    // to the existing login experience.
+    const delta = previousTime === null ? 0 : now - previousTime;
+    if (variant === 'aurora' && previousTime !== null &&
+        delta < 1000 / AURORA_MAX_FPS - 1) {
+      frame = window.requestAnimationFrame(tick);
+      return;
+    }
+    if (previousTime !== null) elapsed += Math.min(80, delta) / 1000;
     previousTime = now;
     paint();
     frame = window.requestAnimationFrame(tick);
@@ -191,9 +253,15 @@ export function createCloudGradient({ tone = 'tertiary' } = {}) {
     }
   }
 
+  function onModalChange() {
+    const activeModal = document.querySelector('.pg-dialog[open]');
+    blockedByDialog = Boolean(activeModal && !activeModal.contains(element));
+    syncMotion();
+  }
+
   function rebuildRenderer() {
     renderer?.destroy();
-    renderer = createRenderer(canvas);
+    renderer = createRenderer(canvas, variant);
     element.dataset.pgRenderer = renderer ? 'webgl' : 'fallback';
     readTheme();
     paint();
@@ -216,6 +284,8 @@ export function createCloudGradient({ tone = 'tertiary' } = {}) {
     reduced.addEventListener('change', syncMotion, { signal: controller.signal });
     document.addEventListener('visibilitychange', syncMotion,
       { signal: controller.signal });
+    document.addEventListener('pg:modal-change', onModalChange,
+      { signal: controller.signal });
     if (typeof ResizeObserver === 'function') {
       resizeObserver = new ResizeObserver(paint);
       resizeObserver.observe(element);
@@ -234,6 +304,7 @@ export function createCloudGradient({ tone = 'tertiary' } = {}) {
       });
     }
     rebuildRenderer();
+    onModalChange();
   }
 
   function destroy() {
@@ -250,5 +321,14 @@ export function createCloudGradient({ tone = 'tertiary' } = {}) {
     element.remove();
   }
 
-  return Object.freeze({ element, mount, destroy });
+  return Object.freeze({
+    element, mount, destroy,
+    getStats() {
+      return Object.freeze({
+        variant, framesRendered, width: canvas.width, height: canvas.height,
+        running: element.dataset.pgMotion === 'running',
+        renderer: element.dataset.pgRenderer,
+      });
+    },
+  });
 }
