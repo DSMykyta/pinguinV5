@@ -35,6 +35,18 @@
   backdrop-filter: blur(8px);
 }
 
+/* The native modal blocks input beneath it. Pause CSS keyframes throughout
+ * the background Shell while a dialog is open: no behind-the-modal morphing,
+ * glow or other endless paint work. Dialog content is a body sibling of #app,
+ * so its own animation (e.g. the live gradient preview) is unaffected.
+ * Do not freeze async persistence, timers, or the main UI's layout state. */
+body:has(> .pg-dialog[open]) #app,
+body:has(> .pg-dialog[open]) #app *,
+body:has(> .pg-dialog[open]) #app *::before,
+body:has(> .pg-dialog[open]) #app *::after {
+  animation-play-state: paused !important;
+}
+
 /* Large Workspace fills the viewport except for thin outside margins.
  * Full-screen backdrop-filter was measured at ~0.6–0.9s per section switch
  * in software-rendered Chromium. Restrict blur to the actually visible strips.
