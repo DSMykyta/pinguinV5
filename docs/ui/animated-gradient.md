@@ -1,46 +1,50 @@
-# Animated Gradient — три рухливі legacy-пресети
+# Animated Gradient — primary + дві рухливі кольорові плями
 
-**Гілка:** `work` · **Оновлено:** 2026-11-13.
+**Гілка:** `work`. **Оновлено:** 2026-11-13. **Референс:** передані користувачем скріншоти техніки двох `radial-gradient` у спільному `::before`, який рухається через `translate/rotate/scale`.
 
-## API
-
-Єдиний компонент і DOM API збережено:
+## Єдиний API
 
 ```js
 const gradient = createAnimatedGradient({
-  text: 'pinguinV6',  // null = без напису
-  preset: 'dawn',     // light | storm | dawn
+  text: 'pinguinV6',  // null = без тексту
+  preset: 'dawn',     // 'light' | 'storm' | 'dawn'
 });
-gradient.getPreset();     // 'dawn'
+gradient.getPreset();
 gradient.setPreset('storm');
 ```
 
-Складові: `src/ui/animated-gradient/animated-gradient.js`, `color-field.js`, `animated-gradient.css`. Жодного нового Dialog, глобального AnimationManager або бібліотеки.
+Компонент — `src/ui/animated-gradient/animated-gradient.js`, стилі — `animated-gradient.css`. Демо складає існуючі `ButtonGroup` та `Dialog(presentation:'edge-to-edge')`. **Жодного другого Dialog, нового кнопкового компонента або спеціального менеджера анімацій.**
 
-## Колір: рецепти саме з legacy
+## Колір і шари
 
-[Оригінал](https://github.com/DSMykyta/pinguinV5/blob/legacy/css/root.css) `--gradient-light / --gradient-storm / --gradient-dawn`, 6 stop-ів для світлої й темної теми.
+1. На корені `.pg-animated-gradient` — **суцільний `background: var(--pg-tone-main-base)`**. Це роль **primary/main** у поточній палітрі, одна для всіх трьох пресетів.
+2. Єдиний псевдоелемент `::before` (`position:absolute; inset:-20%`) містить **рівно два** `radial-gradient(circle at ...)`:
+   - `var(--pg-tone-secondary-base)` → transparent: другий колір;
+   - `var(--pg-tone-tertiary-base)` → transparent: третій колір.
+3. Псевдоелемент має `filter:blur(...)` (за замовчуванням 60px), тому плями **без контурів, швів та геометричних форм**. Шуму, grain Canvas, додаткових DOM-глоу чи окремих бекграундів немає.
+4. `@keyframes pg-gradient-color-drift` рухає **тільки один** готовий розмитий шар через `transform:translate3d(...) rotate(...) scale(...)`, `animation-direction:alternate`, `infinite`. Пікселі не перераховуються в JS, CSS `background-position` не анімується.
 
-- **Light:** шість ступенів `secondary` з домішкою білого (у dark — чорного), як у legacy.
-- **Storm:** три затемнення `main` → суміш `main/secondary` → два висвітлення `secondary` (dark — затемнення), як у legacy.
-- **Dawn:** два `secondary/white` → `secondary/tertiary` → `tertiary/black` (dark — відповідні темні stop-и), як у legacy.
-- Від **legacy збережено колірні формули шести stop-ів**, але замість старих вертикальних смуг кольори розподілені по шести плавних 2D-центрах. Кольори з `--pg-tone-main-base`, `--pg-tone-secondary-base`, `--pg-tone-tertiary-base`; змінюються із темою сайту. Назва `pinguinV6` лишається читабельною на Light.
+## Light / Storm / Dawn
 
-## Рух і витрати
+Кнопки з попереднього демо залишилися. **Новий запит змінив їхню колірну модель:** усі три тепер мають той самий `main` фон і дві плями `secondary/tertiary`. Пресети відрізняються **розташуванням, радіусом, розмиттям, насиченістю та швидкістю руху**, а не старими шестиступеневими колірними рецептами `legacy`:
 
-1. При mount, зміні пресета/теми чи resize внутрішній `color-field.js` **одноразово** малює два Canvas-полотна із різною органічною композицією, за 6 legacy-stop-ами кожного пресета. Роздільність полотен обмежена **192–300 px** для кожної осі. `putImageData` не викликається щокадру.
-2. Два цілісні **непрозорі** полотна збільшені до 164% площі й центровані з запасом 32% по всіх краях. Вони рухаються тільки за допомогою CSS `transform:translate3d/scale` на циклах **26 с** і **34 с**; друге плавно проявляється/згасає за **21 с**. Усі keyframes мають однакові значення на 0% та 100%: немає стрибка на повторенні й немає прямокутних країв усередині вікна.
-3. Шум посилений: **статичний зернистий Canvas** 192×192, створений один раз при відкритті, `opacity:.38` + `mix-blend-mode:overlay`. Жодних анімованих SVG-фільтрів, grain RAF або важкого `blur()` на великій площі.
-4. `prefers-reduced-motion` залишає обидві статичні композиції, без циклічної анімації. `IntersectionObserver` і `visibilitychange` призупиняють анімацію при приховуванні, `pg:modal-change` — коли градієнт за активним Dialog. Від'єднання елемента прибирає спостерігачі й слухачі.
+| Пресет | Розташування | Blur | Рух |
+| --- | --- | ---: | ---: |
+| `light` | Блакитний зліва вгорі, помаранчевий справа знизу, ширші плями | 68px | 19с |
+| `storm` | Блакитний зліва внизу, помаранчевий справа вгорі, контрастніші плями | 52px | 11с |
+| `dawn` | Блакитний 30%/40%, помаранчевий 70%/60% як у референсі | 60px | 14с |
 
-**Продуктивність:** у нормальному стані **немає JS animation loop**; браузер має шанс виконувати `transform`/`opacity` на compositor. Це не гарантує конкретних FPS на пристрої користувача; GPU texture memory вища за одну текстуру.
+Назви залишені для сумісності перемикача та його логіки. Оригінальні рецепти `legacy` збережені тільки в [дослідженні](../research/animated-gradient.md), а не як дубльований renderer.
 
-## Демонстрація
+## Продуктивність та доступність
 
-`src/features/tools/animated-gradient-demo.js` використовує `showDialog({presentation:'edge-to-edge'})` і **наявний** `createButtonGroup` (`Light`, `Storm`, `Dawn`) із `onChange -> gradient.setPreset()`. Напис **pinguinV6**, три кнопки внизу поверх полотна, стандартна кнопка закриття зверху. Геометрія кнопок у `src/features/tools/animated-gradient-demo.css`, їхні hover/selected/кольори — виключно у спільному `Button` і `ButtonGroup`.
+- Один **CSS-псевдошар** замість двох Canvas і grain. `transform` може оброблятися compositor браузера, але `filter:blur` під час підготовки шару та GPU-пам'ять усе одно мають вартість; точні FPS без тесту на пристрої користувача не обіцяємо.
+- `prefers-reduced-motion` зупиняє рух, зберігаючи обидві плями.
+- Коли відкритий Dialog, існуючі загальні CSS-правила призупиняють анімації на `#app`, але градієнт **всередині активного Dialog** рухається.
+- Зміна теми автоматично використовує чинні `--pg-tone-*-base`, без JS MutationObserver; API `setPreset` лише змінює `data-pg-preset`.
 
-## Перевірка
+## Перевірки
 
-`tests/e2e/animated-gradient.spec.js`: три пресети, distinct Canvas pixels, відсутність швів, CSS-loop 0%=100%, незмінні пікселі в часі (лише `transform` рухається), посилений grain, dark mode, reduced motion, background pause, native Dialog і Escape.
+`tests/e2e/animated-gradient.spec.js` перевіряє: два радіальні градієнти, відсутність Canvas/noise, три пресети, циклічний CSS-transform, reduced-motion, паузу за Dialog та загальну модальну механіку.
 
-Дослідження способів: [legacy та compositor](../research/animated-gradient.md).
+Не називати браузерні тести виконаними без реального запуску.
