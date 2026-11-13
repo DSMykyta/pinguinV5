@@ -111,6 +111,11 @@ export function mountEditorToolbar({ host, triggerHost, controls, root }) {
     reveal.setVisible(expanded);
   }
   function sync() {
+    const inEditor = controls.getMode() === 'editor';
+    if (!inEditor && expanded) setExpanded(false);
+    // The code surface only retains the text/code mode switch.
+    triggerHost.hidden = !inEditor;
+    host.hidden = !inEditor;
     for (const { button, item } of buttons) {
       button.disabled = !controls.isEditable() ||
         ((item.id === 'undo' || item.id === 'redo') && !controls.can(item.id));
