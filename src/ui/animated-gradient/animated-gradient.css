@@ -130,7 +130,8 @@
 
 .pg-animated-gradient__title {
   position: relative;
-  z-index: 1;
+  /* Readable above both color layers and any optional decorative overlay. */
+  z-index: 2;
   margin: 0;
   color: var(--pg-color-gradient-text);
   padding: var(--pg-space-4);
