@@ -1,11 +1,11 @@
 /*
  * ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
- * ║ PINGUIN NEXT — ANIMATED GRADIENT STYLES                                                        ║
+ * ║ PINGUIN NEXT — LOOPING LEGACY GRADIENT TEXTURES                                                 ║
  * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Один суцільний градієнт, без CSS-плям із прямокутними швами.                        ║
- * ║ ЗАЛЕЖНОСТІ: Спільні semantic tone-токени; color-field.js володіє пікселями.                     ║
- * ║ ПУБЛІЧНИЙ API: pg-animated-gradient, __canvas, __title.                                        ║
- * ║ ПРИНЦИП: Жодних blur/filter/оверлеїв; один Canvas масштабований на всю площу.                    ║
+ * ║ ПРИЗНАЧЕННЯ: Безшовне повільне перетікання двох готових полотен Light/Storm/Dawn.                ║
+ * ║ ЗАЛЕЖНОСТІ: color-field.js, existing --pg-* tokens.                                             ║
+ * ║ ПУБЛІЧНИЙ API: .pg-animated-gradient, __canvas--a/b, __grain, __title.                           ║
+ * ║ ПРИНЦИП: 2x transform + opacity; жодних FPS-таймерів і clip/filter на шарах.                     ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -17,32 +17,70 @@
   box-sizing: border-box;
   inline-size: 100%;
   min-block-size: 280px;
-  padding: var(--pg-space-5);
   overflow: hidden;
   border-radius: var(--pg-radius-lg);
-  /* Visible immediately if Canvas is unavailable or still initializing. */
   background: color-mix(
     in srgb,
     var(--pg-tone-main-base) 33.333%,
-    color-mix(in srgb, var(--pg-tone-secondary-base) 50%, var(--pg-tone-tertiary-base))
+    color-mix(in srgb, var(--pg-tone-secondary-base), var(--pg-tone-tertiary-base))
   );
 }
 
 .pg-animated-gradient__canvas {
   position: absolute;
-  inset: 0;
-  inline-size: 100%;
-  block-size: 100%;
+  /* The 32% overscan on ALL four edges absorbs every transform. */
+  inset: -32%;
+  inline-size: 164%;
+  block-size: 164%;
   display: block;
   opacity: 0;
   pointer-events: none;
-  /* Browser interpolation makes the capped low-resolution painter seamless. */
   image-rendering: auto;
-  transition: opacity var(--pg-motion-effects-fast-duration) var(--pg-motion-effects-ease);
+  transform-origin: center;
 }
 
-.pg-animated-gradient[data-pg-gradient-ready='true'] .pg-animated-gradient__canvas {
+.pg-animated-gradient[data-pg-gradient-ready='true'] .pg-animated-gradient__canvas--a {
   opacity: 1;
+  animation: pg-gradient-slow-drift-a 26s ease-in-out infinite;
+}
+
+.pg-animated-gradient[data-pg-gradient-ready='true'] .pg-animated-gradient__canvas--b {
+  opacity: .4;
+  animation: pg-gradient-slow-drift-b 34s ease-in-out infinite,
+    pg-gradient-soft-blend 21s ease-in-out infinite;
+}
+
+/* Every cycle returns EXACTLY to its starting transform / alpha,
+   while multiple dissimilar periods avoid a synchronized reset. */
+@keyframes pg-gradient-slow-drift-a {
+  0%, 100% { transform: translate3d(-4%, 3%, 0) scale(1.025); }
+  28% { transform: translate3d(7%, -6%, 0) scale(1.07); }
+  63% { transform: translate3d(-6%, -3%, 0) scale(1.03); }
+  83% { transform: translate3d(3%, 7%, 0) scale(1.09); }
+}
+
+@keyframes pg-gradient-slow-drift-b {
+  0%, 100% { transform: translate3d(5%, -3%, 0) scale(1.07); }
+  23% { transform: translate3d(-6%, 6%, 0) scale(1.03); }
+  58% { transform: translate3d(6%, 5%, 0) scale(1.09); }
+  82% { transform: translate3d(-4%, -6%, 0) scale(1.04); }
+}
+
+@keyframes pg-gradient-soft-blend {
+  0%, 100% { opacity: .26; }
+  38% { opacity: .66; }
+  68% { opacity: .42; }
+}
+
+.pg-animated-gradient__grain {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  pointer-events: none;
+  image-rendering: pixelated;
+  opacity: .38;
+  mix-blend-mode: overlay;
 }
 
 .pg-animated-gradient__title {
@@ -50,6 +88,7 @@
   z-index: 1;
   margin: 0;
   color: var(--pg-color-gradient-text);
+  padding: var(--pg-space-4);
   font-family: var(--pg-font-family-base);
   font-size: clamp(2.25rem, 5vw, 3.75rem);
   font-weight: 750;
@@ -60,8 +99,18 @@
   text-shadow: 0 3px 24px var(--pg-color-gradient-title-shadow);
 }
 
+.pg-animated-gradient[data-pg-gradient-paused='true'] .pg-animated-gradient__canvas {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .pg-animated-gradient__canvas { transition: none; }
+  .pg-animated-gradient__canvas,
+  .pg-animated-gradient[data-pg-gradient-ready='true'] .pg-animated-gradient__canvas {
+    animation: none;
+  }
+  .pg-animated-gradient[data-pg-gradient-ready='true'] .pg-animated-gradient__canvas--b {
+    opacity: .4;
+  }
 }
 
 @media (max-width: 480px) {
