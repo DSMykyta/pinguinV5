@@ -40,7 +40,8 @@ test('registry resolves real pages and excludes unshipped features', () => {
   assert.equal(pageRegistry.resolve('/'), null);
   assert.equal(pageRegistry.resolve('/table-generator'), null);
   assert.equal(pageRegistry.resolve('/tools')?.id, 'tools');
-  assert.deepEqual(pageRegistry.getNavigation().map(page => page.id), ['tools']);
+  assert.equal(pageRegistry.resolve('/login-demo')?.id, 'login-demo');
+  assert.deepEqual(pageRegistry.getNavigation().map(page => page.id), ['tools', 'login-demo']);
 });
 
 test('registry rejects invalid and duplicate manifests', () => {

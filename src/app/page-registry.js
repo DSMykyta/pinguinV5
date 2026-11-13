@@ -11,6 +11,7 @@
 
 import { isPageType } from './page-types.js';
 import { manifest as toolsManifest } from '../features/tools/manifest.js';
+import { manifest as loginDemoManifest } from '../features/login-demo/manifest.js';
 
 const PAGE_ID = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 const PAGE_PATH = /^\/(?:[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:\/[a-z][a-z0-9]*(?:-[a-z0-9]+)*)*)?$/;
@@ -67,4 +68,4 @@ export function createPageRegistry(manifests) {
 }
 
 /** Only shipped, functional pages belong here. */
-export const pageRegistry = createPageRegistry([toolsManifest]);
+export const pageRegistry = createPageRegistry([toolsManifest, loginDemoManifest]);
