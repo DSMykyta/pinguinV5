@@ -36,7 +36,8 @@ export function createCollectionHeader({ column, th, getOptions, getFilter, onFi
     marker = document.createElement('span');
     marker.className = 'pg-collection-view__sort-mark';
     marker.setAttribute('aria-hidden', 'true');
-    sortButton.append(name, marker);
+    // Keep the sort indicator before the label in every column, filtered or not.
+    sortButton.append(marker, name);
     sortButton.addEventListener('click', () => {
       close();
       onSort(direction === 'asc' ? 'desc' : 'asc');
