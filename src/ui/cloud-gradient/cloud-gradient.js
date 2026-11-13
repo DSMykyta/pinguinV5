@@ -235,7 +235,7 @@ export function createCloudGradient({ tone = 'tertiary', variant = 'cloud' } = {
       frame = window.requestAnimationFrame(tick);
       return;
     }
-    if (previousTime !== null) elapsed += Math.min(80, delta) / 1000;
+    if (previousTime !== null) elapsed += Math.min(variant === 'aurora' ? 80 : 64, delta) / 1000;
     previousTime = now;
     paint();
     frame = window.requestAnimationFrame(tick);
