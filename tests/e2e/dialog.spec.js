@@ -112,3 +112,22 @@ test('mobile and dark theme preserve native dialog geometry', async ({ page }) =
   await page.locator('[data-pg-action="dialog-dismiss"]').click();
   await expect(dialog).toHaveCount(0);
 });
+
+test('edge-to-edge Dialog is reusable for arbitrary content without archived gradients', async ({ page }) => {
+  await page.goto('/tools');
+  await page.evaluate(async () => {
+    const { showDialog } = await import('/src/ui/dialog/dialog.js');
+    const content = document.createElement('div');
+    content.dataset.pgTestContent = 'plain';
+    content.textContent = 'Перегляд вмісту';
+    content.style.display = 'grid';
+    void showDialog({ title: 'Повноформатний перегляд', presentation: 'edge-to-edge', content });
+  });
+  const dialog = page.getByRole('dialog', { name: 'Повноформатний перегляд' });
+  await expect(dialog).toHaveAttribute('data-pg-presentation', 'edge-to-edge');
+  await expect(dialog.locator('.pg-dialog__header, .pg-dialog__footer')).toHaveCount(0);
+  await expect(dialog.locator('[data-pg-test-content="plain"]')).toHaveText('Перегляд вмісту');
+  await expect(dialog.getByRole('button', { name: 'Закрити діалог' })).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
+});
