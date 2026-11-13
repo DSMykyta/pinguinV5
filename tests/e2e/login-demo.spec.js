@@ -41,11 +41,16 @@ test('demo action validates inputs without pretending to authenticate', async ({
   await submit.click();
   await expect(login).toHaveAttribute('aria-invalid', 'true');
   await expect(password).toHaveAttribute('aria-invalid', 'true');
+  await expect(login).toHaveAttribute('placeholder', 'Вкажіть логін');
+  await expect(password).toHaveAttribute('placeholder', 'Вкажіть пароль');
   await expect(login).toBeFocused();
   await login.fill('demo');
+  await expect(login).toHaveAttribute('placeholder', ' ');
+  await expect(login).not.toHaveAttribute('aria-invalid', 'true');
   await submit.click();
   await expect(password).toBeFocused();
   await password.fill('example-only');
+  await expect(password).toHaveAttribute('placeholder', ' ');
   await password.press('Enter');
   await expect(page.getByRole('status')).toHaveText(
     'Демонстрація: форму заповнено. Справжній вхід не виконується.');
@@ -72,13 +77,18 @@ test('validation messages do not move or resize inputs and submit', async ({ pag
   };
 
   await submit.click();
-  await expect(fields.locator('.pg-input__error:visible')).toHaveCount(2);
+  await expect(fields.locator('.pg-input__error:not([hidden])')).toHaveCount(2);
+  await expect(page.getByLabel('Логін')).toHaveAttribute('placeholder', 'Вкажіть логін');
+  await expect(page.getByLabel('Пароль')).toHaveAttribute('placeholder', 'Вкажіть пароль');
+  await expect(fields.locator('.pg-input__support--sr-only')).toHaveCount(2);
   await unchanged();
   await page.getByLabel('Логін').fill('demo');
-  await expect(fields.locator('.pg-input__error:visible')).toHaveCount(1);
+  await expect(page.getByLabel('Логін')).toHaveAttribute('placeholder', ' ');
+  await expect(page.getByLabel('Пароль')).toHaveAttribute('placeholder', 'Вкажіть пароль');
+  await expect(fields.locator('.pg-input__error:not([hidden])')).toHaveCount(1);
   await unchanged();
   await page.getByLabel('Логін').fill('');
-  await expect(fields.locator('.pg-input__error:visible')).toHaveCount(1);
+  await expect(fields.locator('.pg-input__error:not([hidden])')).toHaveCount(1);
   await unchanged();
 });
 
@@ -132,4 +142,39 @@ test('navigating away disposes canvas and preserves universal shell', async ({ p
     .getByRole('link', { name: 'Інструменти' }).click();
   await expect(page).toHaveURL(/\/tools$/);
   await expect(page.locator('.pg-cloud-gradient')).toHaveCount(0);
+});
+
+test('placeholder errors keep the native labels, password toggle and stable layout', async ({ page }) => {
+  await page.goto('/login-demo');
+  const form = page.getByRole('form', { name: 'Демонстрація входу' });
+  const login = form.getByLabel('Логін');
+  const password = form.getByLabel('Пароль');
+  const toggle = form.getByRole('button', { name: 'Показати пароль' });
+  const rects = async () => form.locator('.pg-input, .pg-login-demo__submit').evaluateAll(nodes =>
+    nodes.map(node => {
+      const r = node.getBoundingClientRect();
+      return [r.x, r.y, r.width, r.height];
+    }));
+  const baseline = await rects();
+  await form.getByRole('button', { name: 'Увійти' }).click();
+  await expect(login).toHaveAttribute('placeholder', 'Вкажіть логін');
+  await expect(password).toHaveAttribute('placeholder', 'Вкажіть пароль');
+  await expect(login).toHaveAttribute('aria-invalid', 'true');
+  await expect(password).toHaveAttribute('aria-invalid', 'true');
+  const descriptions = await form.locator('.pg-input__support--sr-only').all();
+  expect(descriptions).toHaveLength(2);
+  for (const description of descriptions) {
+    await expect(description).toHaveCSS('clip-path', 'inset(50%)');
+  }
+  const invalid = await rects();
+  invalid.forEach((r, i) => r.forEach((coordinate, j) =>
+    expect(Math.abs(coordinate - baseline[i][j])).toBeLessThan(1)));
+  await password.fill('sample');
+  await expect(password).toHaveAttribute('placeholder', ' ');
+  await toggle.click();
+  await expect(password).toHaveAttribute('type', 'text');
+  await expect(password).toHaveValue('sample');
+  await form.getByRole('button', { name: 'Приховати пароль' }).click();
+  await expect(password).toHaveAttribute('type', 'password');
+  await expect(password).toHaveValue('sample');
 });

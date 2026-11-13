@@ -28,14 +28,14 @@ export function createInput({
   if (typeof label !== 'string' || !label.trim()) throw new TypeError('Input label must be a non-empty string');
   if (!VARIANTS.has(variant)) throw new TypeError('Unknown input variant: ' + variant);
   if (variant !== 'search' && !INPUT_TYPES.has(type)) throw new TypeError('Unsupported input type: ' + type);
-  if (!['inline', 'sr-only'].includes(errorPresentation)) throw new TypeError('Invalid Input error presentation');
+  if (!['inline', 'sr-only', 'placeholder'].includes(errorPresentation)) throw new TypeError('Invalid Input error presentation');
 
   const inputId = id || 'pg-input-' + (++nextInputId);
   const element = document.createElement('div');
   element.className = 'pg-input pg-input--' + variant;
-  // Visible validation reserves a shared Field support row. Screen-reader-only
-  // validation keeps the normal field geometry, including inside centered forms.
-  if (errorPresentation === 'sr-only') element.classList.add('pg-input--quiet-feedback');
+  // Only visible feedback reserves a row; quiet and placeholder messages remain
+  // available to assistive technology without moving neighboring controls.
+  if (errorPresentation !== 'inline') element.classList.add('pg-input--quiet-feedback');
   else if (variant !== 'search') element.classList.add('pg-field-layout');
   element.dataset.pgState = disabled ? 'disabled' : 'ready';
 
@@ -44,7 +44,8 @@ export function createInput({
   input.type = variant === 'search' ? 'search' : type;
   if (name !== undefined) input.name = name;
   input.value = String(value ?? '');
-  input.placeholder = typeof placeholder === 'string' && placeholder ? placeholder : ' ';
+  const defaultPlaceholder = typeof placeholder === 'string' && placeholder ? placeholder : ' ';
+  input.placeholder = defaultPlaceholder;
   input.required = Boolean(required);
   input.disabled = Boolean(disabled);
   input.readOnly = Boolean(readOnly);
@@ -101,7 +102,7 @@ export function createInput({
 
   const support = document.createElement('div');
   support.className = 'pg-input__support';
-  if (errorPresentation === 'sr-only') support.classList.add('pg-input__support--sr-only');
+  if (errorPresentation !== 'inline') support.classList.add('pg-input__support--sr-only');
   const descriptionElement = document.createElement('span');
   descriptionElement.className = 'pg-input__description';
   descriptionElement.id = inputId + '-description';
@@ -133,6 +134,9 @@ export function createInput({
   function setError(message = '') {
     errorElement.textContent = String(message ?? '');
     errorElement.hidden = !errorElement.textContent;
+    if (errorPresentation === 'placeholder') {
+      input.placeholder = errorElement.hidden ? defaultPlaceholder : errorElement.textContent;
+    }
     if (errorElement.hidden) input.removeAttribute('aria-invalid');
     else input.setAttribute('aria-invalid', 'true');
     element.dataset.pgState = disabled ? 'disabled' : errorElement.hidden ? 'ready' : 'error';

@@ -30,12 +30,12 @@ export function mount(host) {
   const login = createInput({
     id: 'pg-login-demo-username', label: 'Логін',
     name: 'username', autocomplete: 'username', required: true,
-    errorPresentation: 'sr-only',
+    errorPresentation: 'placeholder',
   });
   const password = createPasswordInput({
     id: 'pg-login-demo-password', label: 'Пароль',
     name: 'password', autocomplete: 'current-password', required: true,
-    errorPresentation: 'sr-only',
+    errorPresentation: 'placeholder',
   });
   const button = document.createElement('button');
   button.className = 'pg-button pg-button--primary pg-login-demo__submit';

@@ -1,3 +1,5 @@
+**Актуальний режим валідації для демо (2026-11-13):** `errorPresentation:'placeholder'` у глобальному `createInput` та `createPasswordInput` показує помилку тільки у native placeholder порожнього поля; прихований `aria-describedby` зберігає доступність. `inline` за замовчуванням не змінено. Деталі: [Password Input](password-input.md).
+
 [Global password field](password-input.md): `createPasswordInput()` composes this exact Input and existing mini IconButton. Opt-in `errorPresentation:'sr-only'` preserves errors for assistive technology but removes visible hint text and its reserved row. Default inline validation is unchanged.
 
 > **Optional HTML behavior (2026-11-10):** Rotating Placeholder увімкнено **лише** для полів із порожнім атрибутом `data-pg-rotating-placeholder` або `createInput({ rotatingPlaceholder: true })`. Жодних заданих списків фраз: історія зберігається за стабільним `name`, а до першого введення динамічного тексту немає. Це не зміна label, геометрії чи нативного autocomplete. Актуальний контракт: [rotating-placeholder.md](rotating-placeholder.md).
