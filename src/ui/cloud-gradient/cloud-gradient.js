@@ -59,7 +59,7 @@ const AURORA_FRAGMENT = [
   'void main(){',
   ' vec2 uv=gl_FragCoord.xy/resolution;',
   ' vec2 p=(uv-0.5)*2.0;',
-  ' float t=time*0.37;',
+  ' float t=time*0.60;',
   ' float warpA=sin(p.x*2.4+t*0.83+0.6*cos(p.y*1.8-t*0.45));',
   ' float warpB=sin(p.x*4.8-t*0.49+sin(p.y*2.1+t*0.63));',
   ' float warpC=sin(p.y*3.2+p.x*1.4-t*0.58);',
