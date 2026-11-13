@@ -1,0 +1,159 @@
+/*
+ * ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — INDEPENDENT RADIAL COLOR FIELDS                                                 ║
+ * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Main base with independent moving secondary and tertiary soft color fields.        ║
+ * ║ ЗАЛЕЖНОСТІ: Shared tone tokens, native CSS transforms, reduced-motion preference.               ║
+ * ║ ПУБЛІЧНИЙ API: .pg-animated-gradient, three compatible data-pg-preset modes, __title.           ║
+ * ║ ПРИНЦИП: TWO 200% radial pseudolayers; only transform/opacity animate. No Canvas or noise.      ║
+ * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
+.pg-animated-gradient {
+  /* Internal preset keys are retained to preserve the existing public API. */
+  --pg-gradient-secondary-motion: pg-gradient-travel-secondary;
+  --pg-gradient-tertiary-motion: pg-gradient-travel-tertiary;
+  --pg-gradient-secondary-duration: 8s;
+  --pg-gradient-tertiary-duration: 10.5s;
+  --pg-gradient-secondary-opacity: .90;
+  --pg-gradient-tertiary-opacity: .90;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-block-size: 280px;
+  overflow: hidden;
+  border-radius: var(--pg-radius-lg);
+  background: var(--pg-tone-main-base);
+}
+
+/* The previous single ::before forced both spots to travel together.
+ * Two separately composited pseudolayers let each color cross the ENTIRE
+ * surface in an independent direction, similarly to the moving Sparkles.
+ * Overscan is 50% on every side (200% of the visible surface); the radial
+ * falloff becomes transparent well before any layer edge can appear. */
+.pg-animated-gradient::before,
+.pg-animated-gradient::after {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  z-index: 0;
+  pointer-events: none;
+  transform-origin: center;
+  will-change: transform;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.pg-animated-gradient::before {
+  opacity: var(--pg-gradient-secondary-opacity);
+  background: radial-gradient(
+    ellipse 39% 39% at 43% 44%,
+    var(--pg-tone-secondary-base) 0%,
+    color-mix(in srgb, var(--pg-tone-secondary-base) 83%, transparent) 17%,
+    color-mix(in srgb, var(--pg-tone-secondary-base) 42%, transparent) 42%,
+    color-mix(in srgb, var(--pg-tone-secondary-base) 13%, transparent) 63%,
+    transparent 83%
+  );
+  animation-name: var(--pg-gradient-secondary-motion);
+  animation-duration: var(--pg-gradient-secondary-duration);
+}
+
+.pg-animated-gradient::after {
+  opacity: var(--pg-gradient-tertiary-opacity);
+  background: radial-gradient(
+    ellipse 39% 39% at 57% 56%,
+    var(--pg-tone-tertiary-base) 0%,
+    color-mix(in srgb, var(--pg-tone-tertiary-base) 83%, transparent) 17%,
+    color-mix(in srgb, var(--pg-tone-tertiary-base) 42%, transparent) 42%,
+    color-mix(in srgb, var(--pg-tone-tertiary-base) 13%, transparent) 63%,
+    transparent 83%
+  );
+  animation-name: var(--pg-gradient-tertiary-motion);
+  animation-duration: var(--pg-gradient-tertiary-duration);
+}
+
+/* Light = movement. Storm = contrary orbits. Dawn = breathing plus movement. */
+.pg-animated-gradient[data-pg-preset='storm'] {
+  --pg-gradient-secondary-motion: pg-gradient-orbit-secondary;
+  --pg-gradient-tertiary-motion: pg-gradient-orbit-tertiary;
+  --pg-gradient-secondary-duration: 9s;
+  --pg-gradient-tertiary-duration: 12s;
+}
+
+.pg-animated-gradient[data-pg-preset='dawn'] {
+  --pg-gradient-secondary-motion: pg-gradient-breathe-secondary;
+  --pg-gradient-tertiary-motion: pg-gradient-breathe-tertiary;
+  --pg-gradient-secondary-duration: 5.2s;
+  --pg-gradient-tertiary-duration: 6.7s;
+}
+
+/* Closed paths (0% == 100%) prevent snapping at loop boundaries.
+ * Speed does not drop to zero at every quarter as it did with ease-in-out. */
+@keyframes pg-gradient-travel-secondary {
+  0%, 100% { transform: translate3d(-16%, -12%, 0) scale(1.04); }
+  24% { transform: translate3d(12%, -17%, 0) scale(1.08); }
+  52% { transform: translate3d(18%, 11%, 0) scale(1.02); }
+  76% { transform: translate3d(-8%, 17%, 0) scale(1.12); }
+}
+
+@keyframes pg-gradient-travel-tertiary {
+  0%, 100% { transform: translate3d(17%, 14%, 0) scale(1.03); }
+  27% { transform: translate3d(-13%, 16%, 0) scale(1.09); }
+  56% { transform: translate3d(-19%, -11%, 0) scale(1.02); }
+  82% { transform: translate3d(8%, -18%, 0) scale(1.12); }
+}
+
+@keyframes pg-gradient-orbit-secondary {
+  from { transform: rotate(0deg) scale(1.06); }
+  to { transform: rotate(360deg) scale(1.06); }
+}
+
+@keyframes pg-gradient-orbit-tertiary {
+  from { transform: rotate(0deg) scale(1.04); }
+  to { transform: rotate(-360deg) scale(1.04); }
+}
+
+@keyframes pg-gradient-breathe-secondary {
+  0%, 100% { transform: translate3d(-14%, -9%, 0) scale(.98); opacity: .68; }
+  37% { transform: translate3d(6%, 12%, 0) scale(1.22); opacity: 1; }
+  71% { transform: translate3d(17%, -7%, 0) scale(1.08); opacity: .82; }
+}
+
+@keyframes pg-gradient-breathe-tertiary {
+  0%, 100% { transform: translate3d(16%, 11%, 0) scale(1.16); opacity: .90; }
+  42% { transform: translate3d(-17%, -10%, 0) scale(.91); opacity: .58; }
+  76% { transform: translate3d(-3%, 15%, 0) scale(1.23); opacity: 1; }
+}
+
+.pg-animated-gradient__title {
+  position: relative;
+  /* Readable above both color layers and any optional decorative overlay. */
+  z-index: 2;
+  margin: 0;
+  color: var(--pg-color-gradient-text);
+  padding: var(--pg-space-4);
+  font-family: var(--pg-font-family-base);
+  font-size: clamp(2.25rem, 5vw, 3.75rem);
+  font-weight: 750;
+  line-height: 1.08;
+  letter-spacing: -.055em;
+  text-align: center;
+  overflow-wrap: anywhere;
+  text-shadow: 0 3px 24px var(--pg-color-gradient-title-shadow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pg-animated-gradient::before,
+  .pg-animated-gradient::after {
+    animation: none;
+    transform: none;
+    will-change: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .pg-animated-gradient { min-block-size: 240px; }
+}
