@@ -200,6 +200,24 @@
   .pg-field__surface { transition: none !important; }
 }
 
+/* Shared validation layout: a hidden feedback element must not change the
+ * field's occupied block-size. Keep the control itself at 40/44px.
+ * A second line is reserved when permanent help and an error coexist.
+ * Long/translated messages may expand naturally instead of being clipped.
+ * Search inputs inside listbox toolbars stay compact (no validation there). */
+:where(.pg-input:not(.pg-input--search), .pg-select, .pg-combobox, .pg-listbox,
+  .pg-tag-field, .pg-number-field, .pg-textarea) {
+  --pg-field-feedback-space: 18px;
+  grid-template-rows: max-content minmax(var(--pg-field-feedback-space), max-content);
+  align-content: start;
+}
+
+:where(.pg-input:not(.pg-input--search), .pg-select, .pg-combobox, .pg-listbox,
+  .pg-tag-field, .pg-number-field, .pg-textarea):
+  has(> :last-child [id$='-description']:not([hidden])) {
+  --pg-field-feedback-space: 39px;
+}
+
 /* Reusable field help and validation feedback. */
 .pg-field-support { display: grid; gap: 3px; padding-inline: 2px; font-size: 12px; line-height: 1.4; }
 .pg-field-support[hidden], .pg-field-support > [hidden] { display: none; }

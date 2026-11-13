@@ -44,14 +44,11 @@
   gap: var(--pg-space-4);
   width: min(100%, 360px);
 }
-/* The shared Input hides support when clear. Keep that grid row reserved
-   so labels, fields and submit never jump when validation appears/disappears. */
-.pg-login-demo__form > .pg-input {
-  grid-template-rows: max-content minmax(1.4em, auto);
-  align-content: start;
-}
 .pg-login-demo__submit { width: 100%; }
 .pg-login-demo__status {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: calc(100% + var(--pg-space-3));
   margin: 0;
   color: var(--pg-color-text-secondary);
   text-align: center;

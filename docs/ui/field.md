@@ -57,3 +57,13 @@ The shared token is `--pg-field-control-size: var(--pg-control-size)` in `src/st
 Research sources: `legacy/css/components/forms/input.css` (`.input-main` 40px min); `legacy/css/components/forms/custom-select.css` (`.custom-select-trigger` 40px); `legacy/css/components/forms/checkbox.css` (24px glyph); [MUI Text Field sizes](https://mui.com/material-ui/react-text-field/); [Radix Themes Select sizes](https://www.radix-ui.com/themes/docs/components/select); [W3C WCAG 2.2 Target Size Minimum](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum) (24px AA with exceptions); [Apple accessibility control sizes](https://developer.apple.com/design/human-interface-guidelines/accessibility) (default 44×44pt iOS, 28×28pt macOS). The 40/44px geometry is **Pinguin's design choice**, not a universal requirement from these sources.
 
 Regression checks: shared height on all six form controls; both screen sizes and pointer capabilities; permanent labels, value and keyboard interaction, Select/Combobox/Listbox caret clicks, Number Field steppers, clipboard/placeholder, disabled/errors, long text, multiple selected chips and their expansion, dark/light, reduced motion. Changing Field must never resize global Shell, table rows, buttons or checkboxes.
+
+## Стабільність геометрії при перевірці (2026-11-13)
+
+Підтверджено джерело стрибка: навіть для однорядкового повідомлення support отримував `hidden`, тому висота батьківського контейнера й центрованої форми змінювалась при `setError()`. Це спільна поведінка кількох типів полів, а не проблема CloudGradient.
+
+У `src/ui/field/field.css` визначено **одну загальну геометрію** для Input (крім пошукового поля в компактному popup), Select, Combobox, Listbox, Tag Field, Number Field та Textarea. Grid завжди резервує одну лінію під status/error; якщо задано постійний опис `description`, резервуються дві лінії для опису та одночасної помилки. Під час появи/зникнення короткої помилки **label, 40/44px surface, наступні поля та кнопки не зміщуються**. Довгі або локалізовані багаторядкові повідомлення можуть збільшувати висоту, щоб текст не обрізався — це свідомий компроміс доступності.
+
+Підтримка `hidden`, `aria-describedby`, `aria-invalid`, `role=status` та вся валідаційна JS-логіка залишається незмінною. Заборонено повторювати `grid-template-rows` в окремих demo CSS. Пошуковий Input у Listbox не має validation support і зберігає компактну геометрію.
+
+Перевірки: `tests/e2e/field-feedback-stability.spec.js` — сім типів полів, description/no description, помилка/очищення, доступні підписи і незмінні координати. Демо `/login-demo` додатково перевіряє кнопку й успішний status без переміщення форми.
