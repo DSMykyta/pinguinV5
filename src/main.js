@@ -57,7 +57,9 @@ import { mountShell } from './shell/shell.js';
 import { initTooltips } from './ui/tooltip/tooltip.js';
 import { mountToasts } from './ui/toast/toast.js';
 import { mountDialogs } from './ui/dialog/dialog.js';
-import { mountRotatingPlaceholders } from './ui/input/rotating-placeholder.js';
+import {
+  mountRotatingPlaceholders, setRotatingPlaceholdersPaused,
+} from './ui/input/rotating-placeholder.js';
 
 const host = document.getElementById('app');
 const disposeTooltips = initTooltips();
@@ -66,8 +68,20 @@ const disposeDialogs = mountDialogs();
 const unmountShell = mountShell(host);
 const unmountPlaceholders = mountRotatingPlaceholders(host);
 
+// Native showModal() already makes the underlying Shell inert. Its infinite
+// CSS animations are paused by Dialog CSS; reuse the existing placeholder
+// scheduler pause API rather than letting it wake up behind the modal.
+// The Dialog manager emits this event after each open and close.
+const syncBackgroundActivity = () => {
+  setRotatingPlaceholdersPaused(Boolean(document.querySelector('.pg-dialog[open]')));
+};
+document.addEventListener('pg:modal-change', syncBackgroundActivity);
+syncBackgroundActivity();
+
 if (import.meta.hot) {
   import.meta.hot.dispose(() => {
+    document.removeEventListener('pg:modal-change', syncBackgroundActivity);
+    setRotatingPlaceholdersPaused(false);
     unmountPlaceholders();
     unmountShell();
     disposeTooltips();
