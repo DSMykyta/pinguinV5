@@ -23,6 +23,21 @@ test.beforeEach(async ({ page }) => {
   await page.getByRole('tab', { name: 'Макети даних' }).click();
 });
 
+test('sort indicators precede labels in both regular and filterable columns', async ({ page }) => {
+  for (const key of ['name', 'products', 'country', 'status']) {
+    const control = header(page, key).locator('.pg-collection-view__sort');
+    const parts = control.locator(':scope > *');
+    await expect(parts.nth(0)).toHaveClass('pg-collection-view__sort-mark');
+    await expect(parts.nth(1)).toHaveClass('pg-collection-view__column-name');
+    const positions = await control.evaluate(node => {
+      const marker = node.querySelector('.pg-collection-view__sort-mark').getBoundingClientRect();
+      const label = node.querySelector('.pg-collection-view__column-name').getBoundingClientRect();
+      return { markerRight: marker.right, labelLeft: label.left };
+    });
+    expect(positions.markerRight).toBeLessThanOrEqual(positions.labelLeft);
+  }
+});
+
 test('idle headers are quiet; hover, focus and active sorting keep stable widths', async ({ page }) => {
   const headings = root(page).locator('thead th');
   const geometry = () => headings.evaluateAll(nodes => nodes.map(node => {
