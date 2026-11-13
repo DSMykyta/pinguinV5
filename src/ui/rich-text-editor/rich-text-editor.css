@@ -104,6 +104,7 @@
   flex: 1 1 auto;
   block-size: 100%;
   min-block-size: 0;
+  --pg-rich-editor-glass-surface: var(--pg-color-surface);
 }
 .pg-rich-text-editor[data-pg-layout='contained'] .pg-rich-text-editor__main {
   display: grid;
@@ -118,12 +119,14 @@
   .pg-rich-text-editor__input,
   .pg-rich-text-editor__source
 ) {
-  grid-area: 1 / 1;
+  grid-area: 1 / 1 / -1 / 2;
   block-size: 100%;
   min-block-size: 0;
   overflow-y: auto;
   overscroll-behavior-y: contain;
+  /* Scrolled content can clear both glass overlays, including the last line. */
   padding-block-start: calc(40px + var(--pg-space-2) + var(--pg-space-4));
+  padding-block-end: calc(var(--pg-space-4) + 44px);
 }
 .pg-rich-text-editor[data-pg-layout='contained'] .pg-rich-text-editor__source {
   field-sizing: fixed;
@@ -134,7 +137,7 @@
   align-self: start;
   position: relative;
   inset-block-start: auto;
-  --pg-rich-editor-header-surface: var(--pg-color-surface);
+  --pg-rich-editor-header-surface: var(--pg-rich-editor-glass-surface);
   /* The translucent blur belongs to the fading overlay, not this hard-edged box. */
   background: transparent;
 }
@@ -154,8 +157,33 @@
   -webkit-mask-image: linear-gradient(to bottom, black 0%, black 35%, transparent 100%);
   mask-image: linear-gradient(to bottom, black 0%, black 35%, transparent 100%);
 }
-.pg-rich-text-editor[data-pg-layout='contained'][data-pg-mode='html'] .pg-rich-text-editor__header {
-  --pg-rich-editor-header-surface: var(--pg-color-code-surface);
+.pg-rich-text-editor[data-pg-layout='contained'][data-pg-mode='html'] {
+  --pg-rich-editor-glass-surface: var(--pg-color-code-surface);
 }
-.pg-rich-text-editor[data-pg-layout='contained'] .pg-rich-text-editor__notice { grid-area: 2 / 1; }
-.pg-rich-text-editor[data-pg-layout='contained'] .pg-rich-text-editor__stats-host { grid-area: 3 / 1; }
+.pg-rich-text-editor[data-pg-layout='contained'] .pg-rich-text-editor__notice {
+  grid-area: 2 / 1;
+  z-index: 2;
+}
+.pg-rich-text-editor[data-pg-layout='contained'] .pg-rich-text-editor__stats-host {
+  grid-area: 3 / 1;
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
+}
+/* Same softened glass as the header, fading upward into the scrolled document.
+ * The footer is overlaid, not an opaque end to the document viewport. */
+.pg-rich-text-editor[data-pg-layout='contained'] .pg-rich-text-editor__stats-host::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: -22px;
+  inset-block-end: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--pg-rich-editor-glass-surface) 36%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 65%, black 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 65%, black 100%);
+}
+

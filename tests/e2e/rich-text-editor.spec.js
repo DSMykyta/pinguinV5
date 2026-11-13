@@ -220,6 +220,76 @@ test('both editor modes fill the same still frame and scroll only their own docu
   expect((await measure()).panelScroll).toBe(0);
 });
 
+test('stats count the same visible words and characters in HTML and WYSIWYG', async ({ page }) => {
+  const { root, visual, code, editorMode, htmlMode } = getEditor(page);
+  const stats = root.locator('.pg-rich-text-editor__stats');
+  const html = '<h2>Заголовок</h2><p>Перше <strong>жирне</strong> слово.</p><ul><li>Другий</li><li>Третій</li></ul>';
+
+  await htmlMode.click();
+  await code.fill(html);
+  const htmlStats = await stats.textContent();
+  const normalized = await page.evaluate(async () => {
+    const { getEditorDocumentText, getEditorTextStats } = await import('/src/ui/rich-text-editor/stats.js');
+    const holder = document.createElement('div');
+    holder.innerHTML = '<h2>Заголовок</h2><p>Перше <strong>жирне</strong> слово.</p><ul><li>Другий</li><li>Третій</li></ul>';
+    const text = getEditorDocumentText(holder);
+    return { text, ...getEditorTextStats(text) };
+  });
+  expect(normalized.text).toBe('Заголовок\nПерше жирне слово.\nДругий\nТретій');
+  expect(normalized.words).toBe(6);
+  expect(htmlStats).toBe(normalized.characters + ' символів · ' + normalized.words + ' слів');
+
+  await editorMode.click();
+  await expect(visual.locator('strong')).toContainText('жирне');
+  await expect(stats).toHaveText(htmlStats);
+  await htmlMode.click();
+  await expect(stats).toHaveText(htmlStats);
+
+  // Unsaved HTML stays a draft but its meaningful text is counted immediately.
+  await code.fill('<p>Новий абзац</p><p>Два слова</p>');
+  const draftCount = await stats.textContent();
+  await editorMode.click();
+  await expect(stats).toHaveText(draftCount);
+});
+
+test('the bottom stats glass softens the top edge and stays put when the document scrolls', async ({ page }) => {
+  const { root, visual, code, htmlMode } = getEditor(page);
+  const read = () => root.evaluate(node => {
+    const footer = node.querySelector('.pg-rich-text-editor__stats-host');
+    const panel = node.closest('.pg-tabs__panel');
+    const glass = getComputedStyle(footer, '::before');
+    const rect = footer.getBoundingClientRect();
+    return {
+      top: rect.top,
+      bottom: rect.bottom,
+      backdrop: glass.backdropFilter,
+      mask: glass.maskImage,
+      tint: glass.backgroundColor,
+      panelScroll: panel.scrollTop,
+    };
+  });
+  const first = await read();
+  expect(first.backdrop).toContain('blur(6px)');
+  expect(first.mask).toContain('linear-gradient(');
+  expect(first.mask).toContain('transparent');
+  expect(first.tint).not.toBe('rgba(0, 0, 0, 0)');
+
+  await visual.evaluate(node => {
+    node.insertAdjacentHTML('beforeend', '<p>Прокручування під нижнім склом</p>'.repeat(80));
+    node.scrollTop = 400;
+  });
+  const after = await read();
+  expect(after.top).toBeCloseTo(first.top, 0);
+  expect(after.bottom).toBeCloseTo(first.bottom, 0);
+  expect(after.panelScroll).toBe(0);
+  await htmlMode.click();
+  await code.fill('<p>Темний режим скляного підвалу</p>');
+  const darkGlass = await read();
+  expect(darkGlass.backdrop).toContain('blur(6px)');
+  expect(darkGlass.mask).toContain('linear-gradient(');
+  expect(darkGlass.top).toBeCloseTo(first.top, 0);
+});
+
 test('floating formatting toolbar has no clipped corner shadow', async ({ page }) => {
   const { root } = getEditor(page);
   await root.locator('[data-pg-action="toggle-formatting"]').click();

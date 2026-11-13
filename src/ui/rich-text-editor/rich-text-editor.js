@@ -17,7 +17,7 @@ import { createEditorHistory, captureSelection, restoreSelection } from './histo
 import { executeRichTextCommand, getEditorSelection } from './commands.js';
 import { mountEditorToolbar } from './toolbar.js';
 import { mountEditorModeSwitch } from './mode.js';
-import { mountEditorStats } from './stats.js';
+import { mountEditorStats, getEditorDocumentText } from './stats.js';
 import { mountEditorPaste } from './paste.js';
 import { mountEditorCopy } from './copy.js';
 
@@ -115,10 +115,10 @@ export function createRichTextEditor({
   }
   const getHTML = () => mode === 'html' ? sanitizeSource(source.value) : serializeSafeHtml(input);
   const getText = () => {
-    if (mode === 'editor') return input.innerText?.replace(/\n$/, '') ?? input.textContent ?? '';
+    if (mode === 'editor') return getEditorDocumentText(input);
     const holder = input.ownerDocument.createElement('div');
     holder.append(parseSafeHtml(source.value));
-    return holder.textContent ?? '';
+    return getEditorDocumentText(holder);
   };
   const read = () => ({ html: getHTML(), selection: mode === 'editor' ? captureSelection(input) : null });
   function emit() {

@@ -9,6 +9,44 @@
  * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
+// Read visible document text with consistent semantic boundaries in both modes.
+// textContent glues neighbouring block elements together; innerText depends on layout.
+const BLOCKS = new Set(['p', 'div', 'h1', 'h2', 'h3', 'blockquote', 'li', 'ul', 'ol', 'pre', 'hr']);
+
+export function getEditorDocumentText(root) {
+  const parts = [];
+  let endsInBreak = false;
+
+  function append(value) {
+    if (!value) return;
+    parts.push(value);
+    endsInBreak = value.endsWith('\n');
+  }
+  function boundary() {
+    if (parts.length && !endsInBreak) append('\n');
+  }
+  function walk(node, preformatted = false) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const value = node.nodeValue ?? '';
+      append(preformatted ? value : value.replace(/[\t\r\n\f ]+/gu, ' '));
+      return;
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+    const tag = node.localName.toLowerCase();
+    if (tag === 'br' || tag === 'hr') {
+      boundary();
+      return;
+    }
+    const isBlock = BLOCKS.has(tag);
+    if (isBlock) boundary();
+    for (const child of node.childNodes) walk(child, preformatted || tag === 'pre');
+    if (isBlock) boundary();
+  }
+
+  for (const child of root.childNodes) walk(child);
+  return parts.join('').replace(/ *\n */gu, '\n').replace(/\n{2,}/gu, '\n').trim();
+}
+
 export function getEditorTextStats(text) {
   const input = String(text ?? '');
   const wordCount = typeof Intl.Segmenter === 'function'
