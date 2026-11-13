@@ -541,18 +541,24 @@ test('glass header stays stationary as long text passes beneath it', async ({ pa
     const input = node.querySelector('.pg-rich-text-editor__input');
     input.insertAdjacentHTML('beforeend', '<p>Текст під скляною панеллю.</p>'.repeat(90));
     const headerStyle = getComputedStyle(header);
+    const glass = getComputedStyle(header, '::before');
     return {
       position: headerStyle.position,
-      backdrop: headerStyle.backdropFilter,
-      background: headerStyle.backgroundColor,
+      backdrop: glass.backdropFilter,
+      mask: glass.maskImage,
+      background: glass.backgroundColor,
+      headerBackground: headerStyle.backgroundColor,
       top: header.getBoundingClientRect().top,
       mainBottom: main.getBoundingClientRect().bottom,
       panelBottom: panel.getBoundingClientRect().bottom,
     };
   });
   expect(before.position).toBe('relative');
-  expect(before.backdrop).toContain('blur(');
-  // CSS color-mix may serialize its transparency as rgba() or color(srgb / alpha).
+  expect(before.backdrop).toContain('blur(6px)');
+  expect(before.mask).toContain('linear-gradient(');
+  expect(before.mask).toContain('transparent');
+  expect(before.headerBackground).toBe('rgba(0, 0, 0, 0)');
+  // The tint is translucent while the mask makes the lower edge disappear.
   expect(before.background).toMatch(/(?:rgba\(|color\(srgb[^)]*\/)/);
   expect(before.mainBottom).toBeCloseTo(before.panelBottom, 0);
   await visual.evaluate(node => { node.scrollTop = 360; });
@@ -568,12 +574,14 @@ test('glass header stays stationary as long text passes beneath it', async ({ pa
   await code.fill('<p>Скляна шапка і в режимі HTML</p>');
   const htmlHeader = await root.evaluate(node => {
     const header = node.querySelector('.pg-rich-text-editor__header');
-    const style = getComputedStyle(header);
+    const style = getComputedStyle(header, '::before');
     return { top: header.getBoundingClientRect().top, backdrop: style.backdropFilter,
-      surface: style.getPropertyValue('--pg-rich-editor-header-surface').trim(),
+      mask: style.maskImage,
+      surface: getComputedStyle(header).getPropertyValue('--pg-rich-editor-header-surface').trim(),
       expected: getComputedStyle(document.documentElement).getPropertyValue('--pg-color-code-surface').trim() };
   });
   expect(htmlHeader.top).toBeCloseTo(before.top, 0);
-  expect(htmlHeader.backdrop).toContain('blur(');
+  expect(htmlHeader.backdrop).toContain('blur(6px)');
+  expect(htmlHeader.mask).toContain('linear-gradient(');
   expect(htmlHeader.surface).toBe(htmlHeader.expected);
 });
