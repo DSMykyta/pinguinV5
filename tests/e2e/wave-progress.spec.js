@@ -87,3 +87,47 @@ test('Reduced motion and mobile preserve visible progress without animating', as
   expect(box.x).toBeGreaterThanOrEqual(canvas.x);
   expect(box.x + box.width).toBeLessThanOrEqual(canvas.x + canvas.width + 1);
 });
+
+
+test('Wave and Slider share progress colors, label typography and central size tokens in both themes', async ({ page }) => {
+  await page.goto('/tools');
+  const demo = page.locator('.pg-tools-wave-demo');
+  for (const theme of ['light', 'dark']) {
+    await page.evaluate(theme => { document.documentElement.dataset.theme = theme; }, theme);
+    const sizes = await demo.evaluate(root => {
+      const el = selector => root.querySelector(selector);
+      const css = selector => getComputedStyle(el(selector));
+      const waveLabel = css('.pg-tools-wave-demo__heading');
+      const sliderLabel = css('.pg-slider__label');
+      const waveValue = css('.pg-tools-wave-demo__percent');
+      const sliderValue = css('.pg-slider__value');
+      const tokens = getComputedStyle(root);
+      return {
+        waveActive: css('.pg-wave-progress__wave').backgroundColor,
+        sliderActive: css('.pg-slider__active').backgroundColor,
+        handleColor: css('.pg-slider__handle').backgroundColor,
+        waveRest: css('.pg-wave-progress__rest').backgroundColor,
+        sliderRest: css('.pg-slider__inactive').backgroundColor,
+        waveLabel: { color: waveLabel.color, size: waveLabel.fontSize, weight: waveLabel.fontWeight },
+        sliderLabel: { color: sliderLabel.color, size: sliderLabel.fontSize, weight: sliderLabel.fontWeight },
+        waveValue: { color: waveValue.color, size: waveValue.fontSize, weight: waveValue.fontWeight },
+        sliderValue: { color: sliderValue.color, size: sliderValue.fontSize, weight: sliderValue.fontWeight },
+        activeHeight: css('.pg-slider__active').height,
+        inactiveHeight: css('.pg-slider__inactive').height,
+        handleHeight: css('.pg-slider__handle').height,
+        hitHeight: css('.pg-slider__input').height,
+        compactSize: tokens.getPropertyValue('--pg-compact-control-size').trim(),
+      };
+    });
+    expect(sizes.waveActive).toBe(sizes.sliderActive);
+    expect(sizes.handleColor).toBe(sizes.waveActive);
+    expect(sizes.waveRest).toBe(sizes.sliderRest);
+    expect(sizes.waveLabel).toEqual(sizes.sliderLabel);
+    expect(sizes.waveValue).toEqual(sizes.sliderValue);
+    expect(sizes.handleHeight).toBe(sizes.compactSize);
+    expect(sizes.handleHeight).toBe('32px');
+    expect(sizes.activeHeight).toBe('16px');
+    expect(sizes.inactiveHeight).toBe('10px');
+    expect(sizes.hitHeight).toBe('48px');
+  }
+});
