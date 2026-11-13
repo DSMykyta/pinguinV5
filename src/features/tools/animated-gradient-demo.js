@@ -37,14 +37,14 @@ export function createAnimatedGradientDemo() {
     action: 'animated-gradient-demo',
     variant: 'corner',
     onClick: () => {
-      const gradient = createAnimatedGradient({ text: 'pinguinV6', preset: 'dawn' });
+      const gradient = createAnimatedGradient({ text: 'pinguinV6', preset: 'light' });
       // Composition belongs to the demo; neither UI primitive imports the other.
       const sparkles = createSparkles({ visible: false });
       gradient.append(sparkles.element);
       const switcher = createButtonGroup({
         label: 'Тип руху градієнта',
         items: PRESETS,
-        value: 'dawn',
+        value: 'light',
         variant: 'connected',
         appearance: 'filled',
         shape: 'round',
