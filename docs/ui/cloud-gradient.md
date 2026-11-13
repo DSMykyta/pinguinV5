@@ -1,6 +1,6 @@
 # CloudGradient — глобальний WebGL-ефект
 
-**Гілка:** work. **Дослідження:** [Suno Canvas](../research/suno-canvas-gradient.md). **Демо:** /login-demo.
+**Гілка:** work. **Дослідження:** [Suno Canvas](../research/suno-canvas-gradient.md). **Демо:** /login-demo (оригінальна хмарка), /tools → Таблиці → Aurora (триколірна версія).
 
 ## Контракт
 
@@ -30,6 +30,28 @@ requestAnimationFrame змінює тільки час шейдера. Intersect
 Демо-сторінка /login-demo монтує рівно два вже наявні createInput (логін і пароль) та стандартну pg-button--primary по центру, поверх локальної інстанції CloudGradient розміром 130% × 120% сцени. Дія кнопки — тільки локальна валідація з повідомленням, без надсилання, збереження чи імітації автентифікації.
 
 Наявний CSS-компонент [AnimatedGradient](animated-gradient.md) не замінюється й не змінюється.
+
+## Aurora — опціональний триколірний режим (13.11.2026)
+
+`createCloudGradient` тепер має **два варіанти одного й того самого компонента**:
+
+```js
+const cloud = createCloudGradient({ tone: 'tertiary' }); // default variant:'cloud'
+const aurora = createCloudGradient({ variant: 'aurora' }); // 3 semantic tones
+container.append(aurora.element);
+aurora.mount();  // лише ПІСЛЯ вставлення в документ
+const stats = aurora.getStats(); // variant, framesRendered, width, height, running, renderer
+aurora.destroy(); // скасувати RAF, відписати listeners, звільнити WebGL
+```
+
+- `variant:'cloud'`: **оригінальний Suno-подібний шейдер і налаштування DPR збережено**; він продовжує малювати один `tone` поверх `--pg-color-page` на сторінці входу.
+- `variant:'aurora'`: новий fragment shader **у тому самому WebGL рендерері**. `main` — фон, `secondary` і `tertiary` — широкі кольорові поля з незалежною хвильовою деформацією меж. Кольори надходять виключно з `--pg-tone-{main,secondary,tertiary}-base`. Жодного CSS `blur()`, WebGL-пакета, grain/noise, canvas-піксельного циклу JS або копії Dialog.
+- Aurora рендерить **не частіше 30 кадрів/с** (draw викликається із throttle у звичайному `requestAnimationFrame` циклі); внутрішня роздільність не більша за **0,75 CSS-пікселя на один CSS-піксель**, і додатково обмежена **768×480**. Прискорення через GPU залежить від браузера/драйвера, тому FPS і пам'ять не можна вважати підтвердженими без реальних профілів.
+- `IntersectionObserver`, `visibilitychange`, `prefers-reduced-motion` та **існуюча подія Dialog `pg:modal-change`** ставлять кадри на паузу. Хмарка під відкритим модальним вікном зупиняється; хмарка *всередині активного Dialog* продовжує рух. Після закриття повертається рух без стрибка часу.
+- Для Aurora доступна **статична триколірна CSS-композиція** при відсутності WebGL. Не потрібно створювати статичні PNG або MP4.
+- У `tests/e2e/cloud-gradient-aurora.spec.js` зафіксовано триколірний renderer, дозволену частоту, зменшену роздільність, modal pause, reduced motion, залишений `cloud` у login-demo та звільнення ресурсів.
+- Звичайні діалоги та великі `workspace`-діалоги **не підключені до Aurora**. Наявний blur редактора не змінено, аби уникнути попередніх регресій. Демо Aurora використовує спільний `Dialog(presentation:'edge-to-edge')` і стандартну кнопку `Aurora` біля CSS-демо.
+- Перевірки в Chromium на реальному сайті й GPU/FPS потрібні **перед** підключенням Aurora як напівпрозорого backdrop для звичайних Dialog.
 
 ## Стабільна геометрія помилок
 
