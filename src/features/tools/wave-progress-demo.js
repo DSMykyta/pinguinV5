@@ -87,8 +87,15 @@ export function createWaveProgressDemo() {
     frame = requestAnimationFrame(animate);
   });
 
-  element.append(title, description, knownHeading, known.element, slider.element,
-    replay, unknownHeading, unknown.element);
+  const sliderSlot = document.createElement('div');
+  sliderSlot.className = 'pg-tools-wave-demo__slider';
+  sliderSlot.append(slider.element);
+  const actionSlot = document.createElement('div');
+  actionSlot.className = 'pg-tools-wave-demo__actions';
+  actionSlot.append(replay);
+
+  element.append(title, description, knownHeading, known.element, sliderSlot,
+    actionSlot, unknownHeading, unknown.element);
 
   return Object.freeze({
     element,
