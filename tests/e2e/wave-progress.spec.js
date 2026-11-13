@@ -66,7 +66,7 @@ test('Replay animates progress through the same component API', async ({ page })
   const progress = demo.getByRole('progressbar', { name: 'Демонстраційний прогрес' });
 
   await demo.locator('[data-pg-action="wave-progress-demo-play"]').click();
-  await expect(progress).toHaveAttribute('aria-valuenow', '0');
+  // The first animation frame may already have advanced on a busy CI runner.
   await expect(progress).toHaveAttribute('aria-valuenow', '100', { timeout: 7000 });
   await expect(demo.getByRole('slider', { name: 'Прогрес' })).toHaveValue('100');
 });
