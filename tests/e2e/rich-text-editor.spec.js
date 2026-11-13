@@ -254,9 +254,19 @@ test('icon switch and expandable formatting share one outer border', async ({ pa
   await expect(root.locator('.pg-rich-text-editor__main')).toHaveCSS('border-top-width', '1px');
   await expect(root.locator('.pg-rich-text-editor__stats')).toBeVisible();
 
+  const collapsedArrow = await trigger.boundingBox();
   await trigger.click();
   await expect(trigger).toHaveAttribute('aria-expanded', 'true');
   await expect(toolbar).toBeVisible();
+  const expandedArrow = await trigger.boundingBox();
+  expect(expandedArrow.x).toBeCloseTo(collapsedArrow.x, 1);
+  const order = await root.locator('.pg-rich-text-editor__header').evaluate(header =>
+    [...header.children].map(child => child.className));
+  expect(order).toEqual([
+    'pg-rich-text-editor__mode-host',
+    'pg-rich-text-editor__toolbar-toggle-host',
+    'pg-rich-text-editor__tools-host',
+  ]);
   await expect(toolbar.locator('button.pg-mini-button')).toHaveCount(12);
   await expect(toolbar.locator('button svg')).toHaveCount(12);
   await htmlMode.click();
@@ -286,11 +296,11 @@ test('compact expanded toolbar fits the editor on mobile', async ({ page }) => {
     const mode = bounds('.pg-rich-text-editor__mode-host');
     const tools = bounds('.pg-rich-text-editor__tools-host');
     const arrow = bounds('.pg-rich-text-editor__toolbar-toggle-host');
-    return { modeRight: mode.right, toolsLeft: tools.left, toolsRight: tools.right,
-      arrowLeft: arrow.left, sameRow: Math.abs((tools.top + tools.bottom) / 2 - (arrow.top + arrow.bottom) / 2) < 2 };
+    return { modeRight: mode.right, arrowLeft: arrow.left, arrowRight: arrow.right,
+      toolsLeft: tools.left, sameRow: Math.abs((tools.top + tools.bottom) / 2 - (arrow.top + arrow.bottom) / 2) < 2 };
   });
-  expect(layout.modeRight).toBeLessThanOrEqual(layout.toolsLeft);
-  expect(layout.toolsRight).toBeLessThanOrEqual(layout.arrowLeft);
+  expect(layout.modeRight).toBeLessThanOrEqual(layout.arrowLeft);
+  expect(layout.arrowRight).toBeLessThanOrEqual(layout.toolsLeft);
   expect(layout.sameRow).toBe(true);
 });
 
