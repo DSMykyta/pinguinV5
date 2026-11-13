@@ -1,0 +1,25 @@
+/*
+ * ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SHARED CODE SURFACE                                                                  ║
+ * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Темна поверхня та моноширинний текст для полів з режимом вихідного коду.              ║
+ * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css; стандартний data-pg-mode батьківського компонента.             ║
+ * ║ ПУБЛІЧНИЙ API: .pg-code-surface, .pg-code-surface__input.                                          ║
+ * ║ ПРИНЦИП: Один спільний стиль, без залежності від конкретного редактора або Shell.                 ║
+ * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
+/* Any opt-in editor with an HTML/code mode can reuse the same surface. */
+:where([data-pg-mode='html'], [data-pg-mode='code']) .pg-code-surface {
+  --pg-color-text-muted: var(--pg-color-code-muted);
+  background: var(--pg-color-code-surface);
+  color: var(--pg-color-code-text);
+  border-color: var(--pg-color-code-border);
+  font-family: var(--pg-font-family-code);
+}
+:where([data-pg-mode='html'], [data-pg-mode='code']) .pg-code-surface .pg-code-surface__input {
+  background: transparent;
+  color: var(--pg-color-code-text);
+  font-family: var(--pg-font-family-code);
+  caret-color: var(--pg-color-code-text);
+}
