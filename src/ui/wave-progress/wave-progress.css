@@ -12,55 +12,58 @@
 .pg-wave-progress {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--pg-wave-gap);
   inline-size: 100%;
   min-inline-size: 0;
-  block-size: 12px;
+  block-size: var(--pg-wave-container-height);
   overflow: hidden;
 }
 .pg-wave-progress__wave {
-  /* One complete 20px sine wave; one-period mask-position shift has no seam. */
+  /* SVG viewBox coordinates are dimensionless; tile geometry comes from CSS tokens. */
   --pg-wave-progress-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 10'%3E%3Cpath d='M0 5 Q5 0 10 5 T20 5' fill='none' stroke='black' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E");
   flex: 0 0 var(--pg-wave-progress-width, 60%);
   min-inline-size: 0;
-  block-size: 10px;
-  background: var(--pg-tone-main-base);
+  block-size: var(--pg-wave-height);
+  background: var(--pg-color-progress-active);
   -webkit-mask-image: var(--pg-wave-progress-mask);
   mask-image: var(--pg-wave-progress-mask);
-  -webkit-mask-size: 20px 100%;
-  mask-size: 20px 100%;
+  -webkit-mask-size: var(--pg-wave-period) 100%;
+  mask-size: var(--pg-wave-period) 100%;
   -webkit-mask-repeat: repeat-x;
   mask-repeat: repeat-x;
   -webkit-mask-position: 0 0;
   mask-position: 0 0;
-  animation: pg-wave-progress-flow 600ms linear infinite;
+  animation: pg-wave-progress-flow var(--pg-wave-duration) linear infinite;
 }
 .pg-wave-progress__rest {
   position: relative;
   flex: 1 1 0;
   min-inline-size: 0;
-  block-size: 4px;
+  block-size: var(--pg-wave-rest-height);
   border-radius: var(--pg-radius-full);
-  background: color-mix(in srgb, var(--pg-tone-main-base) 18%, var(--pg-color-surface));
+  background: var(--pg-color-progress-inactive);
 }
 .pg-wave-progress__rest::after {
   content: '';
   position: absolute;
   inset-inline-end: 0;
   inset-block-start: 0;
-  inline-size: 4px;
-  block-size: 4px;
+  inline-size: var(--pg-wave-dot-size);
+  block-size: var(--pg-wave-dot-size);
   border-radius: var(--pg-radius-full);
-  background: var(--pg-tone-main-base);
+  background: var(--pg-color-progress-active);
 }
 .pg-wave-progress[data-pg-state='empty'] .pg-wave-progress__wave { display: none; }
 .pg-wave-progress[data-pg-state='complete'] .pg-wave-progress__rest { display: none; }
 .pg-wave-progress[data-pg-state='indeterminate'] .pg-wave-progress__wave {
-  animation: pg-wave-progress-flow 600ms linear infinite,
-    pg-wave-progress-unknown 2400ms ease-in-out infinite alternate;
+  animation: pg-wave-progress-flow var(--pg-wave-duration) linear infinite,
+    pg-wave-progress-unknown var(--pg-wave-indeterminate-duration) ease-in-out infinite alternate;
 }
 @keyframes pg-wave-progress-flow {
-  to { -webkit-mask-position: 20px 0; mask-position: 20px 0; }
+  to {
+    -webkit-mask-position: var(--pg-wave-period) 0;
+    mask-position: var(--pg-wave-period) 0;
+  }
 }
 @keyframes pg-wave-progress-unknown {
   0% { flex-basis: 30%; }
