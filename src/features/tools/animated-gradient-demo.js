@@ -2,7 +2,7 @@
  * ╔════════════════════════════════════════════════════════════════════════════════════╗
  * ║ PINGUIN NEXT — ANIMATED GRADIENT DEMO                                             ║
  * ╠════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Три legacy-пресети з одним живим градієнтом у спільному Dialog.        ║
+ * ║ ПРИЗНАЧЕННЯ: Три типи руху одного живого градієнта у спільному Dialog.        ║
  * ║ ЗАЛЕЖНОСТІ: Existing Button, Button Group, Dialog, AnimatedGradient.               ║
  * ║ ПУБЛІЧНИЙ API: createAnimatedGradientDemo().                                       ║
  * ║ ПРИНЦИП: Demo складає наявні UI, жодного унікального modal/button skin.           ║
@@ -15,9 +15,9 @@ import { showDialog } from '../../ui/dialog/dialog.js';
 import { createAnimatedGradient } from '../../ui/animated-gradient/animated-gradient.js';
 
 const PRESETS = Object.freeze([
-  { id: 'light', label: 'Light' },
-  { id: 'storm', label: 'Storm' },
-  { id: 'dawn', label: 'Dawn' },
+  { id: 'light', label: 'Переміщення' },
+  { id: 'storm', label: 'Обертання' },
+  { id: 'dawn', label: 'Пульсація' },
 ]);
 
 export function createAnimatedGradientDemo() {
@@ -37,7 +37,7 @@ export function createAnimatedGradientDemo() {
     onClick: () => {
       const gradient = createAnimatedGradient({ text: 'pinguinV6', preset: 'dawn' });
       const switcher = createButtonGroup({
-        label: 'Тип градієнта',
+        label: 'Тип руху градієнта',
         items: PRESETS,
         value: 'dawn',
         variant: 'connected',
