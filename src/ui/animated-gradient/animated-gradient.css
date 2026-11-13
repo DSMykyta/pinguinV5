@@ -1,12 +1,12 @@
 /*
- * ╔════════════════════════════════════════════════════════════════════════════════════╗
- * ║ PINGUIN NEXT — ANIMATED GRADIENT STYLES                                            ║
- * ╠════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Суцільне поле з трьох рівноправних кольорів без контурів плям.        ║
- * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і чинні семантичні tone-палітри.               ║
- * ║ ПУБЛІЧНИЙ API: pg-animated-gradient і наявні BEM-класи glow/title.               ║
- * ║ ПРИНЦИП: Тільки м'який колір; без смуг, форм, SVG-шуму й blur() на великих шарах. ║
- * ╚════════════════════════════════════════════════════════════════════════════════════╝
+ * ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — ANIMATED GRADIENT STYLES                                                        ║
+ * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Один суцільний градієнт, без CSS-плям із прямокутними швами.                        ║
+ * ║ ЗАЛЕЖНОСТІ: Спільні semantic tone-токени; color-field.js володіє пікселями.                     ║
+ * ║ ПУБЛІЧНИЙ API: pg-animated-gradient, __canvas, __title.                                        ║
+ * ║ ПРИНЦИП: Жодних blur/filter/оверлеїв; один Canvas масштабований на всю площу.                    ║
+ * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
 .pg-animated-gradient {
@@ -20,8 +20,7 @@
   padding: var(--pg-space-5);
   overflow: hidden;
   border-radius: var(--pg-radius-lg);
-  /* One continuous color field; 1/3 of each semantic role underneath the
-   * moving colors. No stripe-producing linear gradient, even at rest. */
+  /* Visible immediately if Canvas is unavailable or still initializing. */
   background: color-mix(
     in srgb,
     var(--pg-tone-main-base) 33.333%,
@@ -29,83 +28,21 @@
   );
 }
 
-.pg-animated-gradient__glow {
+.pg-animated-gradient__canvas {
   position: absolute;
-  inline-size: 115%;
-  block-size: 160%;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  display: block;
+  opacity: 0;
   pointer-events: none;
-  /* A broad, continuously fading color field: no solid blob center, hard
-   * perimeter, border-radius, clipping or expensive backdrop/element blur. */
-  background: radial-gradient(
-    ellipse at center,
-    var(--pg-gradient-field-color) 0%,
-    color-mix(in srgb, var(--pg-gradient-field-color) 78%, transparent) 25%,
-    color-mix(in srgb, var(--pg-gradient-field-color) 46%, transparent) 53%,
-    color-mix(in srgb, var(--pg-gradient-field-color) 16%, transparent) 76%,
-    transparent 100%
-  );
-  animation-duration: var(--pg-gradient-field-duration);
-  animation-delay: var(--pg-gradient-field-delay);
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-  will-change: transform;
+  /* Browser interpolation makes the capped low-resolution painter seamless. */
+  image-rendering: auto;
+  transition: opacity var(--pg-motion-effects-fast-duration) var(--pg-motion-effects-ease);
 }
 
-/* Two fields of identical weight per semantic color, scattered in BOTH axes,
- * so no tone owns a horizontal or vertical third of the card. */
-.pg-animated-gradient__glow--main {
-  --pg-gradient-field-color: var(--pg-tone-main-base);
-}
-.pg-animated-gradient__glow--secondary {
-  --pg-gradient-field-color: var(--pg-tone-secondary-base);
-}
-.pg-animated-gradient__glow--tertiary {
-  --pg-gradient-field-color: var(--pg-tone-tertiary-base);
-}
-
-.pg-animated-gradient__glow[data-pg-field='a'] {
-  animation-name: pg-gradient-cloud-drift-a;
-}
-.pg-animated-gradient__glow[data-pg-field='b'] {
-  animation-name: pg-gradient-cloud-drift-b;
-}
-
-.pg-animated-gradient__glow--main[data-pg-field='a'] {
-  left: -44%;
-  top: -40%;
-  --pg-gradient-field-duration: 13s;
-  --pg-gradient-field-delay: -4s;
-}
-.pg-animated-gradient__glow--main[data-pg-field='b'] {
-  left: 18%;
-  top: -10%;
-  --pg-gradient-field-duration: 19s;
-  --pg-gradient-field-delay: -9s;
-}
-.pg-animated-gradient__glow--secondary[data-pg-field='a'] {
-  left: 14%;
-  top: -62%;
-  --pg-gradient-field-duration: 17s;
-  --pg-gradient-field-delay: -11s;
-}
-.pg-animated-gradient__glow--secondary[data-pg-field='b'] {
-  left: -30%;
-  top: 0%;
-  --pg-gradient-field-duration: 23s;
-  --pg-gradient-field-delay: -7s;
-}
-.pg-animated-gradient__glow--tertiary[data-pg-field='a'] {
-  left: -8%;
-  top: -20%;
-  --pg-gradient-field-duration: 21s;
-  --pg-gradient-field-delay: -14s;
-}
-.pg-animated-gradient__glow--tertiary[data-pg-field='b'] {
-  left: 27%;
-  top: -42%;
-  --pg-gradient-field-duration: 16s;
-  --pg-gradient-field-delay: -5s;
+.pg-animated-gradient[data-pg-gradient-ready='true'] .pg-animated-gradient__canvas {
+  opacity: 1;
 }
 
 .pg-animated-gradient__title {
@@ -123,25 +60,8 @@
   text-shadow: 0 3px 24px var(--pg-color-gradient-title-shadow);
 }
 
-/* Independent, long, slow motion; only compositor-friendly transforms move.
- * The radial falloffs supply all the softness: no form outlines appear. */
-@keyframes pg-gradient-cloud-drift-a {
-  0% { transform: translate3d(-7%, 6%, 0) scale(.94); }
-  48% { transform: translate3d(12%, -10%, 0) scale(1.09); }
-  100% { transform: translate3d(-3%, 9%, 0) scale(1.02); }
-}
-
-@keyframes pg-gradient-cloud-drift-b {
-  0% { transform: translate3d(9%, -8%, 0) scale(1.06); }
-  51% { transform: translate3d(-11%, 11%, 0) scale(.95); }
-  100% { transform: translate3d(7%, -5%, 0) scale(1.10); }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .pg-animated-gradient__glow {
-    animation: none;
-    will-change: auto;
-  }
+  .pg-animated-gradient__canvas { transition: none; }
 }
 
 @media (max-width: 480px) {
