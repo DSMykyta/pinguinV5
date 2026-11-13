@@ -45,15 +45,16 @@
   width: min(100%, 360px);
 }
 .pg-login-demo__submit { width: 100%; }
+/* Accessible demo response does not add a fourth visible block or move the form. */
 .pg-login-demo__status {
   position: absolute;
-  inset-inline: 0;
-  inset-block-start: calc(100% + var(--pg-space-3));
-  margin: 0;
-  color: var(--pg-color-text-secondary);
-  text-align: center;
-  font-size: 12px;
-  line-height: 1.5;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 .pg-login-demo__status[hidden] { display: none; }
 @media (max-width: 640px) {

@@ -20,7 +20,7 @@ let nextInputId = 0;
 
 export function createInput({
   label, id, name, variant = 'floating', type = 'text', labelPresentation = 'visible',
-  value = '', placeholder = '', description = '', error = '',
+  value = '', placeholder = '', description = '', error = '', errorPresentation = 'inline',
   required = false, disabled = false, readOnly = false,
   autocomplete, inputMode, clearable, leading, trailing, onInput, onChange,
   rotatingPlaceholder, placeholderHistoryKey, placeholderInterval, placeholderSave = 'change',
@@ -28,12 +28,15 @@ export function createInput({
   if (typeof label !== 'string' || !label.trim()) throw new TypeError('Input label must be a non-empty string');
   if (!VARIANTS.has(variant)) throw new TypeError('Unknown input variant: ' + variant);
   if (variant !== 'search' && !INPUT_TYPES.has(type)) throw new TypeError('Unsupported input type: ' + type);
+  if (!['inline', 'sr-only'].includes(errorPresentation)) throw new TypeError('Invalid Input error presentation');
 
   const inputId = id || 'pg-input-' + (++nextInputId);
   const element = document.createElement('div');
   element.className = 'pg-input pg-input--' + variant;
-  // Search inputs in compact popups have no validation feedback.
-  if (variant !== 'search') element.classList.add('pg-field-layout');
+  // Visible validation reserves a shared Field support row. Screen-reader-only
+  // validation keeps the normal field geometry, including inside centered forms.
+  if (errorPresentation === 'sr-only') element.classList.add('pg-input--quiet-feedback');
+  else if (variant !== 'search') element.classList.add('pg-field-layout');
   element.dataset.pgState = disabled ? 'disabled' : 'ready';
 
   const input = document.createElement('input');
@@ -98,6 +101,7 @@ export function createInput({
 
   const support = document.createElement('div');
   support.className = 'pg-input__support';
+  if (errorPresentation === 'sr-only') support.classList.add('pg-input__support--sr-only');
   const descriptionElement = document.createElement('span');
   descriptionElement.className = 'pg-input__description';
   descriptionElement.id = inputId + '-description';

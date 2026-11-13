@@ -20,6 +20,19 @@
 .pg-input__control::-webkit-search-cancel-button { display: none; }
 .pg-input[data-pg-state='disabled'] .pg-input__field { cursor: not-allowed; }
 .pg-input__support { display: grid; gap: 3px; padding-inline: 2px; font-size: 12px; line-height: 1.4; }
+/* Opt-in: keep validation in the accessibility tree without printed hints.
+ * The shared grid no longer reserves a support row for this mode. */
+.pg-input--quiet-feedback { position: relative; }
+.pg-input__support--sr-only:not([hidden]) {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 .pg-input__support[hidden], .pg-input__support > [hidden] { display: none; }
 .pg-input__description { color: var(--pg-color-text-secondary); }
 .pg-input__error { color: var(--pg-color-input-error); }

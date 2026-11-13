@@ -10,6 +10,7 @@
  */
 
 import { createInput } from '../../ui/input/input.js';
+import { createPasswordInput } from '../../ui/input/password-input.js';
 import { createCloudGradient } from '../../ui/cloud-gradient/cloud-gradient.js';
 import './login-demo.css';
 
@@ -29,11 +30,12 @@ export function mount(host) {
   const login = createInput({
     id: 'pg-login-demo-username', label: 'Логін',
     name: 'username', autocomplete: 'username', required: true,
+    errorPresentation: 'sr-only',
   });
-  const password = createInput({
+  const password = createPasswordInput({
     id: 'pg-login-demo-password', label: 'Пароль',
-    name: 'password', type: 'password',
-    autocomplete: 'current-password', required: true,
+    name: 'password', autocomplete: 'current-password', required: true,
+    errorPresentation: 'sr-only',
   });
   const button = document.createElement('button');
   button.className = 'pg-button pg-button--primary pg-login-demo__submit';
