@@ -35,7 +35,7 @@ test('Tables shows the seamless wave and two accessible loading states', async (
   expect(computed.animation).toContain('pg-wave-progress-flow');
   await expect(known.locator('svg')).toHaveCount(0);
 
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Елементи' }).click();
   await expect(demo).toBeHidden();
   await page.getByRole('tab', { name: 'Таблиці' }).click();
   await expect(demo).toBeVisible();

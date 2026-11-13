@@ -112,7 +112,7 @@ test('collapsing workspace navigation uses shared 150ms spatial duration without
 
 test('short dialog still animates subtly and retains native modality', async ({ page }) => {
   await page.goto('/tools');
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Елементи' }).click();
   await page.locator('[data-pg-action="dialog-demo-info"]').click();
   const modal = page.getByRole('dialog', { name: 'Інформація' });
   await expect(modal).toHaveAttribute('data-pg-state', 'visible');

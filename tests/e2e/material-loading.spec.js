@@ -13,7 +13,7 @@ import { test, expect } from '@playwright/test';
 
 test('loading replaces label with animated Material-inspired shape without moving existing button', async ({ page }) => {
   await page.goto('/tools');
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Елементи' }).click();
   const state = await page.evaluate(async () => {
     const { setButtonLoading } = await import('/src/ui/button/button.js');
     const button = document.createElement('button');
@@ -97,7 +97,7 @@ test('loading replaces label with animated Material-inspired shape without movin
 
 test('mini button uses a smaller centered shape, keeping its icon node, original label and size', async ({ page }) => {
   await page.goto('/tools');
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Елементи' }).click();
   const state = await page.evaluate(async () => {
     const { createIconButton, setButtonLoading } = await import('/src/ui/button/button.js');
     const button = createIconButton({

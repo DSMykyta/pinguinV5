@@ -14,15 +14,10 @@ import { createRichTextEditor } from '../../ui/rich-text-editor/rich-text-editor
 export function createRichTextEditorDemo() {
   const element = document.createElement('section');
   element.className = 'pg-tools-rich-text-editor-demo';
-  const heading = document.createElement('h3');
-  heading.className = 'pg-tools-rich-text-editor-demo__heading';
-  heading.textContent = 'Текстовий редактор';
-  const hint = document.createElement('p');
-  hint.className = 'pg-tools-rich-text-editor-demo__hint';
-  hint.textContent = '«Редактор» — візуальне форматування. «HTML» — редагування коду цього самого документа. Зміни застосовуються при поверненні в редактор.';
   const editor = createRichTextEditor({
     content: '<h2>Опис товару</h2><p>Виділіть текст і натисніть <strong>Жирний</strong> або <em>Курсив</em>, спробуйте списки й скасування змін.</p>',
+    layout: 'contained',
   });
-  element.append(heading, hint, editor.element);
+  element.append(editor.element);
   return { element, destroy() { editor.destroy(); element.remove(); } };
 }

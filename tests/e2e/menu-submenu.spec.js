@@ -19,7 +19,7 @@ const submenu = page => actions(page).locator('.pg-menu__subpanel').first();
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/tools');
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Елементи' }).click();
 });
 
 test('hover opens adjacent submenu and moving across the gap keeps it open', async ({ page }) => {
@@ -115,7 +115,7 @@ test('touch click expands and selects a submenu without hover', async ({ browser
   try {
     const page = await context.newPage();
     await page.goto('/tools');
-    await page.getByRole('tab', { name: 'Текст' }).click();
+    await page.getByRole('tab', { name: 'Елементи' }).click();
     await actions(page).locator('.pg-menu__trigger').click();
     await plugins(page).click();
     await expect(submenu(page)).toBeVisible();

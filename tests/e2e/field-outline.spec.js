@@ -13,7 +13,7 @@ import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({page}) => {
   await page.goto('/tools');
-  await page.getByRole('tab', {name: 'Текст'}).click();
+  await page.getByRole('tab', {name: 'Елементи'}).click();
 });
 
 test('permanent label stays above the border without any decorative cutout', async ({page}) => {

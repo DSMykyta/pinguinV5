@@ -57,7 +57,7 @@ test('contextual toolbar drops down and goes back up without removing outgoing c
   expect(props.transformTransition).toBe(true);
   expect(props.sibling).toBe(true);
 
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Елементи' }).click();
   await expect(tools).toHaveAttribute('data-pg-state', 'leaving');
   await expect(tools).toHaveAttribute('aria-hidden', 'true');
   await expect(tools.locator('.pg-view-switch')).toHaveCount(1);
@@ -75,7 +75,7 @@ test('rapid tab reversal cancels exit; no duplicate controls or lost search stat
   await page.getByRole('tab', { name: 'Макети даних' }).click();
   const search = page.getByRole('searchbox', { name: 'Шукати у таблиці брендів' });
   await search.fill('Pinguin');
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Елементи' }).click();
   await expect(tools).toHaveAttribute('data-pg-state', 'leaving');
   await page.getByRole('tab', { name: 'Макети даних' }).click();
   await expect(tools).toHaveAttribute('data-pg-state', 'visible');
@@ -93,7 +93,7 @@ test('reduced motion removes travel and toolbar is immediately hidden', async ({
   await page.getByRole('tab', { name: 'Макети даних' }).click();
   const tools = page.locator('.pg-shell__context-tools');
   await expect(tools).toHaveCSS('transition-duration', '0s');
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Елементи' }).click();
   await expect(tools).toBeHidden();
 });
 
@@ -115,7 +115,7 @@ test('pagination comes up from below and exits below using the same reveal contr
   await expect(pagination.locator('.pg-pagination__status')).toHaveText('Показано 25 з 32');
   await expect(footer).toHaveCSS('height', '56px');
 
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Елементи' }).click();
   await expect(footer).toHaveAttribute('data-pg-has-content', 'false');
   await expect(panel).toHaveAttribute('data-pg-state', 'leaving');
   await expect(panel).toHaveAttribute('aria-hidden', 'true');
@@ -151,7 +151,7 @@ test('reduced motion hides footer pagination immediately without removing the ra
   await page.getByRole('tab', { name: 'Макети даних' }).click();
   const panel = page.locator('.pg-shell__footer-panel');
   await expect(panel).toHaveCSS('transition-duration', '0s');
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Елементи' }).click();
   await expect(page.locator('.pg-shell__footer')).toBeEmpty();
   await expect(page.locator('.pg-shell__footer')).toHaveCSS('height', '56px');
 });

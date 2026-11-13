@@ -13,7 +13,7 @@ import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/tools');
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Елементи' }).click();
 });
 
 test('labels remain above fields through hover, focus, filling and blur', async ({ page }) => {

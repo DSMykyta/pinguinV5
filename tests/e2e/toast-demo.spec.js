@@ -44,7 +44,7 @@ test('Toast demo stays inside canvas on mobile, independent from tab selection',
   await page.goto('/tools');
   const trigger = page.locator('[data-pg-action="toast-demo"]');
   await expect(trigger).toBeVisible();
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Елементи' }).click();
   await expect(trigger).toBeHidden();
   await expect(page.locator('[data-pg-action="dialog-demo-info"]')).toBeVisible();
   await page.getByRole('tab', { name: 'Таблиці' }).click();

@@ -35,7 +35,7 @@ test('Aside pin reuses the global mini icon button with a stable pressed state',
 });
 
 test('outlined Menu trigger and compact table Menu share button skins', async ({page}) => {
-  await page.getByRole('tab',{name:'Текст'}).click();
+  await page.getByRole('tab',{name:'Елементи'}).click();
   const menu = page.locator('.pg-tools-menu-demo .pg-menu').first();
   const trigger = menu.locator('.pg-menu__trigger');
   await expect(trigger).toHaveClass(/pg-button--outline/);
@@ -54,7 +54,7 @@ test('outlined Menu trigger and compact table Menu share button skins', async ({
 });
 
 test('Dialog buttons take primary and secondary style from the same button module', async ({page}) => {
-  await page.getByRole('tab',{name:'Текст'}).click();
+  await page.getByRole('tab',{name:'Елементи'}).click();
   await page.getByRole('tab',{name:'Макети даних'}).click();
   const rows=page.locator('.pg-collection-view__table tbody tr');
   await rows.nth(0).locator('.pg-checkbox__row').click();
@@ -86,7 +86,7 @@ test('icon button variants preserve native disabled, hidden, keyboard focus and 
 });
 
 test('clear and tag removal buttons reuse shared controls instead of local CSS skins', async ({page}) => {
-  await page.getByRole('tab',{name:'Текст'}).click();
+  await page.getByRole('tab',{name:'Елементи'}).click();
   const clear = page.locator('.pg-tools-field-demo .pg-input__clear');
   await expect(clear).toHaveClass(/pg-mini-button/);
   await expect(clear).toHaveCSS('width','32px');
@@ -103,7 +103,7 @@ test('clear and tag removal buttons reuse shared controls instead of local CSS s
 });
 
 test('existing Button aligns an icon before or after the text with one 8px gap', async ({page}) => {
-  await page.getByRole('tab', {name:'Текст'}).click();
+  await page.getByRole('tab', {name:'Елементи'}).click();
   const row=page.locator('.pg-tools-button-demo__row');
   const before=row.getByRole('button',{name:'Іконка зліва'});
   const after=row.getByRole('button',{name:'Іконка справа'});
@@ -129,7 +129,7 @@ test('existing Button aligns an icon before or after the text with one 8px gap',
 });
 
 test('border orbit loading preserves button geometry and ignores repeated clicks', async ({page})=>{
-  await page.getByRole('tab',{name:'Текст'}).click();
+  await page.getByRole('tab',{name:'Елементи'}).click();
   const button=page.locator('[data-pg-action="button-loading-demo"]');
   const before=await button.boundingBox();
   await button.evaluate(el=>{
@@ -165,7 +165,7 @@ test('border orbit loading preserves button geometry and ignores repeated clicks
 });
 
 test('Loading works for mini, restores state after rejection and honors reduced motion',async({page})=>{
-  await page.getByRole('tab',{name:'Текст'}).click();
+  await page.getByRole('tab',{name:'Елементи'}).click();
   const compact=page.locator('[data-pg-action="button-loading-mini-demo"]');
   await compact.click();
   await expect(compact).toHaveAttribute('data-pg-loading','true');

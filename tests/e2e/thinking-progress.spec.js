@@ -41,7 +41,7 @@ test('Tables adds Thinking beside Wave, with an accessible unknown progress and 
     expect(palette.mask).toContain('85%');
   }
 
-  await page.getByRole('tab', { name: 'Текст', exact: true }).click();
+  await page.getByRole('tab', { name: 'Елементи', exact: true }).click();
   await expect(demo).toBeHidden();
   await page.getByRole('tab', { name: 'Таблиці', exact: true }).click();
   await expect(bar).toBeVisible();

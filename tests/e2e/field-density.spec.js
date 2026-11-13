@@ -22,7 +22,7 @@ const FIELD_SELECTORS = [
 
 async function visitTools(page) {
   await page.goto('/tools');
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Елементи' }).click();
 }
 
 async function dimensions(page) {

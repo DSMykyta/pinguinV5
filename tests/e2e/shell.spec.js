@@ -130,7 +130,7 @@ test('fourth corner FAB is always visible and aligned with the other shell contr
   await page.locator('[data-pg-action="aside-pin"]').click();
   await expect(fab).toBeVisible();
   await cornerAlignment();
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Елементи' }).click();
   await fab.click();
   await expect(page.locator('#pg-fab-actions .pg-fab__item').first())
     .toContainText('Редактор у legacy');

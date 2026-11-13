@@ -95,3 +95,52 @@
   border-radius: var(--pg-radius-sm); padding: var(--pg-space-3);
   background: var(--pg-color-surface-soft); overflow: auto;
 }
+
+/* Optional contained workspace: the frame and controls stay still. Both the
+ * visual document and HTML source scroll inside their own identical viewport. */
+.pg-rich-text-editor[data-pg-layout='contained'] {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  block-size: 100%;
+  min-block-size: 0;
+}
+.pg-rich-text-editor[data-pg-layout='contained'] .pg-rich-text-editor__main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  flex: 1 1 auto;
+  block-size: 100%;
+  min-block-size: 0;
+  overflow: hidden;
+}
+.pg-rich-text-editor[data-pg-layout='contained'] :is(
+  .pg-rich-text-editor__input,
+  .pg-rich-text-editor__source
+) {
+  grid-area: 1 / 1;
+  block-size: 100%;
+  min-block-size: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  padding-block-start: calc(40px + var(--pg-space-2) + var(--pg-space-4));
+}
+.pg-rich-text-editor[data-pg-layout='contained'] .pg-rich-text-editor__source {
+  field-sizing: fixed;
+  resize: none;
+}
+.pg-rich-text-editor[data-pg-layout='contained'] .pg-rich-text-editor__header {
+  grid-area: 1 / 1;
+  align-self: start;
+  position: relative;
+  inset-block-start: auto;
+  --pg-rich-editor-header-surface: var(--pg-color-surface);
+  background: color-mix(in srgb, var(--pg-rich-editor-header-surface) 70%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+.pg-rich-text-editor[data-pg-layout='contained'][data-pg-mode='html'] .pg-rich-text-editor__header {
+  --pg-rich-editor-header-surface: var(--pg-color-code-surface);
+}
+.pg-rich-text-editor[data-pg-layout='contained'] .pg-rich-text-editor__notice { grid-area: 2 / 1; }
+.pg-rich-text-editor[data-pg-layout='contained'] .pg-rich-text-editor__stats-host { grid-area: 3 / 1; }

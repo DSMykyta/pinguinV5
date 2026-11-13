@@ -25,13 +25,15 @@ let nextId = 0;
 
 export function createRichTextEditor({
   content = '', editable = true, toolbar = true, code = true, stats = true,
-  label = 'Редактор тексту', onChange, onModeChange,
+  label = 'Редактор тексту', layout = 'auto', onChange, onModeChange,
 } = {}) {
+  if (!['auto', 'contained'].includes(layout)) throw new TypeError('Unknown editor layout');
   const uid = ++nextId;
   const element = document.createElement('section');
   element.className = 'pg-rich-text-editor';
   element.dataset.pgModule = 'rich-text-editor';
   element.dataset.pgMode = 'editor';
+  element.dataset.pgLayout = layout;
 
   const main = document.createElement('div');
   main.className = 'pg-rich-text-editor__main pg-code-surface';
@@ -48,7 +50,7 @@ export function createRichTextEditor({
   if (toolbar) header.append(triggerHost, toolsHost);
 
   const input = document.createElement('div');
-  input.className = 'pg-rich-text-editor__input';
+  input.className = 'pg-rich-text-editor__input pg-scrollbar';
   input.id = 'pg-rich-text-editor-' + uid;
   input.contentEditable = String(Boolean(editable));
   input.setAttribute('role', 'textbox');
@@ -58,7 +60,7 @@ export function createRichTextEditor({
   input.append(parseSafeHtml(content));
 
   const source = document.createElement('textarea');
-  source.className = 'pg-rich-text-editor__source pg-code-surface__input';
+  source.className = 'pg-rich-text-editor__source pg-code-surface__input pg-scrollbar';
   source.id = input.id + '-html';
   source.setAttribute('aria-label', 'HTML-код тексту');
   source.setAttribute('spellcheck', 'false');
@@ -74,6 +76,7 @@ export function createRichTextEditor({
   notice.setAttribute('aria-live', 'polite');
   notice.hidden = true;
   const statusHost = document.createElement('div');
+  statusHost.className = 'pg-rich-text-editor__stats-host';
   main.append(header, input, source, notice, statusHost);
   element.append(main);
 
@@ -86,7 +89,8 @@ export function createRichTextEditor({
 
   // Native field-sizing matches the self-growing contenteditable field.
   // Only browsers without it need a small textarea height fallback.
-  const nativeSourceSizing = typeof CSS !== 'undefined' && CSS.supports?.('field-sizing', 'content');
+  const nativeSourceSizing = layout === 'contained' ||
+    (typeof CSS !== 'undefined' && CSS.supports?.('field-sizing', 'content'));
   function resizeSource() {
     if (destroyed || source.hidden || nativeSourceSizing) return;
     source.style.height = 'auto';

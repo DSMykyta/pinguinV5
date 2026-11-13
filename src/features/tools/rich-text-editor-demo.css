@@ -10,9 +10,16 @@
  * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
-.pg-tools-rich-text-editor-demo { min-inline-size: 0; margin-block: var(--pg-space-8); }
-.pg-tools-rich-text-editor-demo__heading { margin: 0; font-size: 16px; font-weight: 600; }
-.pg-tools-rich-text-editor-demo__hint {
-  margin: var(--pg-space-2) 0 var(--pg-space-5); max-inline-size: 72ch;
-  color: var(--pg-color-text-secondary); font-size: 13px;
+.pg-tools-rich-text-editor-demo {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  box-sizing: border-box;
+  /* The editor fills the panel from local navigation to the Shell footer. */
+  padding-inline: var(--pg-workspace-gutter, var(--pg-space-5));
+  overflow: hidden;
 }

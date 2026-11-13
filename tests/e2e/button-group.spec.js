@@ -16,7 +16,7 @@ test('tools tabs reuse a connected ghost button group without losing tab semanti
   const group = page.getByRole('tablist', { name: 'Інструменти' });
   const first = group.getByRole('tab', { name: 'Таблиці' });
   const middle = group.getByRole('tab', { name: 'Медіатека' });
-  const text = group.getByRole('tab', { name: 'Текст' });
+  const text = group.getByRole('tab', { name: 'Елементи' });
   const last = group.getByRole('tab', { name: 'Переходи' });
 
   await expect(group).toHaveClass(/pg-button-group/);
@@ -60,7 +60,7 @@ test('tools tabs reuse a connected ghost button group without losing tab semanti
 
   await text.click();
   await expect(text).toHaveAttribute('aria-selected', 'true');
-  await expect(page.locator('#pg-tools-panel-text')).toBeVisible();
+  await expect(page.locator('#pg-tools-panel-elements')).toBeVisible();
   await expect(page.locator('#pg-tools-panel-tables')).toBeHidden();
   await expect(middle).toHaveAttribute('aria-selected', 'false');
   await text.press('ArrowLeft');

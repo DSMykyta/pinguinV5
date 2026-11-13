@@ -13,7 +13,7 @@ import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/tools');
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Елементи' }).click();
   await page.evaluate(async () => {
     const [{ createListbox }, { createCombobox }, { createMenu }] = await Promise.all([
       import('/src/ui/listbox/listbox.js'),

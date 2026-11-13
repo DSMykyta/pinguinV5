@@ -45,7 +45,7 @@ async function clickCaret(page, field) {
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/tools');
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Елементи' }).click();
 });
 
 test('every demo value selector uses the same Field caret in both viewports and themes', async ({ page }) => {

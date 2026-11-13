@@ -78,7 +78,7 @@ test('tab changes do not move shared header, tabs or main section', async ({ pag
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/tools');
   const before = await coordinates(page);
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Елементи' }).click();
   const after = await coordinates(page);
   for (const key of Object.keys(before))
     expect(Math.abs(after[key] - before[key]), key).toBeLessThan(1);
@@ -101,7 +101,7 @@ test('header and content stay aligned with docked aside and on mobile', async ({
   await page.setViewportSize({ width: 390, height: 844 });
   const mobile = await coordinates(page);
   expect(Math.abs(mobile.tabX - mobile.chromeX)).toBeLessThan(1);
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Елементи' }).click();
   const mobileText = await coordinates(page);
   for (const key of Object.keys(mobile))
     expect(Math.abs(mobileText[key] - mobile[key]), key).toBeLessThan(1);
@@ -128,7 +128,7 @@ test('previous accepted spacing and fixed right controls survive aside pinning',
   expect(mainStyle.radius).toBe('0px');
   expect(mainStyle.background).toBe('rgba(0, 0, 0, 0)');
   await expect(main.locator('#pg-tools-panel-data-views .pg-collection-view')).toBeVisible();
-  await expect(page.locator('#pg-tools-panel-text .pg-page')).toBeHidden();
+  await expect(page.locator('#pg-tools-panel-elements .pg-page')).toBeHidden();
 
   const beforeContext = await context.boundingBox();
   const beforeSearch = await search.boundingBox();
@@ -163,7 +163,7 @@ test('main workspace stays transparent in dark theme across tabs', async ({ page
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 
   const main = page.locator('.pg-shell__content');
-  for (const tab of ['Таблиці', 'Макети даних', 'Медіатека', 'Текст', 'Переходи']) {
+  for (const tab of ['Таблиці', 'Макети даних', 'Медіатека', 'Елементи', 'Тексти', 'Переходи']) {
     await page.getByRole('tab', { name: tab, exact: true }).click();
     await expect(main).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
   }

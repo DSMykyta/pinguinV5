@@ -206,7 +206,7 @@ test('native title is not a forced tooltip: visible text stays quiet, truncated 
 test('select-all tooltip paints above the open listbox, not under its top-layer popup', async ({ page }) => {
   await page.setViewportSize({ width: 1148, height: 760 });
   await page.goto('/tools');
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Елементи' }).click();
 
   const listbox = page.locator('.pg-tools-listbox-demo .pg-listbox').nth(1);
   await listbox.locator('.pg-listbox__trigger').click();

@@ -13,11 +13,11 @@ import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/tools');
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Тексти' }).click();
 });
 
 function getEditor(page) {
-  const root = page.locator('#pg-tools-panel-text .pg-rich-text-editor');
+  const root = page.locator('#pg-tools-panel-texts .pg-rich-text-editor');
   return {
     root,
     visual: root.getByRole('textbox', { name: 'Редактор тексту' }),
@@ -155,45 +155,69 @@ test('editor and source use same full-width workspace on mobile', async ({ page 
   expect(dimensions.source).toBeLessThanOrEqual(dimensions.root);
 });
 
-test('editor and HTML source use the same intrinsic-height field without a resize handle', async ({ page }) => {
+test('both editor modes fill the same still frame and scroll only their own document', async ({ page }) => {
   const { root, visual, code, editorMode, htmlMode } = getEditor(page);
-  const getGeometry = () => root.evaluate(node => {
-    const visual = node.querySelector('.pg-rich-text-editor__input');
-    const source = node.querySelector('.pg-rich-text-editor__source');
-    const active = node.dataset.pgMode === 'html' ? source : visual;
+  const measure = () => root.evaluate(node => {
+    const panel = node.closest('.pg-tabs__panel');
+    const main = node.querySelector('.pg-rich-text-editor__main');
+    const header = node.querySelector('.pg-rich-text-editor__header');
+    const stats = node.querySelector('.pg-rich-text-editor__stats');
+    const input = node.dataset.pgMode === 'html'
+      ? node.querySelector('.pg-rich-text-editor__source')
+      : node.querySelector('.pg-rich-text-editor__input');
+    const rect = element => element.getBoundingClientRect();
     return {
-      height: active.getBoundingClientRect().height,
-      scrollHeight: active.scrollHeight,
-      resize: getComputedStyle(source).resize,
-      overflowY: getComputedStyle(source).overflowY,
+      panelScroll: panel.scrollTop,
+      panelOverflow: getComputedStyle(panel).overflowY,
+      mainHeight: rect(main).height,
+      panelHeight: rect(panel).height,
+      editorHeight: rect(input).height,
+      docHeight: input.scrollHeight,
+      headerTop: rect(header).top,
+      statsBottom: rect(stats).bottom,
+      scrollTop: input.scrollTop,
+      overflow: getComputedStyle(input).overflowY,
+      resize: getComputedStyle(node.querySelector('.pg-rich-text-editor__source')).resize,
     };
   });
+  const initial = await measure();
+  expect(initial.panelOverflow).toBe('hidden');
+  expect(initial.mainHeight).toBeCloseTo(initial.panelHeight, 0);
+  await visual.evaluate(node => {
+    node.insertAdjacentHTML('beforeend', '<p>Великий документ для перевірки внутрішнього прокручування.</p>'.repeat(100));
+  });
+  const visualLong = await measure();
+  expect(visualLong.editorHeight).toBeCloseTo(initial.editorHeight, 0);
+  expect(visualLong.docHeight).toBeGreaterThan(visualLong.editorHeight);
+  await visual.evaluate(node => { node.scrollTop = 220; });
+  const visualScrolled = await measure();
+  expect(visualScrolled.scrollTop).toBeGreaterThan(0);
+  expect(visualScrolled.panelScroll).toBe(0);
+  expect(visualScrolled.headerTop).toBeCloseTo(initial.headerTop, 0);
+  expect(visualScrolled.statsBottom).toBeCloseTo(initial.statsBottom, 0);
 
-  const initialEditor = await getGeometry();
   await htmlMode.click();
-  const initialCode = await getGeometry();
-  expect(initialCode.resize).toBe('none');
-  expect(initialCode.overflowY).toBe('hidden');
-  expect(initialCode.height).toBeCloseTo(initialEditor.height, 0);
-
-  const longHTML = Array.from({ length: 60 }, (_, index) =>
-    '<p>Рядок ' + index + ': багато тексту для перевірки висоти.</p>').join('\n');
+  const codeStart = await measure();
+  expect(codeStart.editorHeight).toBeCloseTo(initial.editorHeight, 0);
+  expect(codeStart.resize).toBe('none');
+  expect(codeStart.overflow).toBe('auto');
+  const longHTML = Array.from({ length: 90 }, (_, i) => '<p>Рядок ' + i + '</p>').join('\n');
   await code.fill(longHTML);
-  await expect.poll(async () => (await getGeometry()).height).toBeGreaterThan(initialCode.height + 100);
-  const largeSource = await getGeometry();
-  expect(largeSource.height).toBeGreaterThanOrEqual(largeSource.scrollHeight - 2);
-
-  await editorMode.click();
-  const largeEditor = await getGeometry();
-  expect(largeEditor.height).toBeGreaterThan(initialEditor.height + 100);
-  await htmlMode.click();
-  await code.fill('<p>Коротко</p>');
-  await expect.poll(async () => (await getGeometry()).height).toBeLessThan(largeSource.height - 100);
+  await code.evaluate(node => { node.scrollTop = 250; });
+  const codeLong = await measure();
+  expect(codeLong.docHeight).toBeGreaterThan(codeLong.editorHeight);
+  expect(codeLong.scrollTop).toBeGreaterThan(0);
+  expect(codeLong.editorHeight).toBeCloseTo(initial.editorHeight, 0);
+  expect(codeLong.mainHeight).toBeCloseTo(initial.mainHeight, 0);
+  expect(codeLong.panelScroll).toBe(0);
+  expect(codeLong.headerTop).toBeCloseTo(initial.headerTop, 0);
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await code.fill(longHTML);
-  await expect.poll(async () => (await getGeometry()).height).toBeGreaterThan(initialCode.height + 100);
-  expect((await getGeometry()).resize).toBe('none');
+  const mobile = await measure();
+  expect(mobile.mainHeight).toBeCloseTo(mobile.panelHeight, 0);
+  expect(mobile.docHeight).toBeGreaterThan(mobile.editorHeight);
+  await editorMode.click();
+  expect((await measure()).panelScroll).toBe(0);
 });
 
 test('floating formatting toolbar has no clipped corner shadow', async ({ page }) => {
@@ -507,35 +531,47 @@ test('source mode keeps native copy and selections outside editor are ignored', 
   expect(native).toBe(false);
 });
 
-test('formatting header sticks inside the scrollable tab while editing a long document', async ({ page }) => {
+test('glass header stays stationary as long text passes beneath it', async ({ page }) => {
   await page.setViewportSize({ width: 1080, height: 600 });
-  const { root } = getEditor(page);
-  const positions = await root.evaluate(rootNode => {
-    const input = rootNode.querySelector('.pg-rich-text-editor__input');
-    const header = rootNode.querySelector('.pg-rich-text-editor__header');
-    const panel = rootNode.closest('.pg-tabs__panel');
-    input.insertAdjacentHTML('beforeend', '<p>Довгий текст для прокрутки.</p>'.repeat(90));
-    const initial = header.getBoundingClientRect();
-    const scroller = panel.getBoundingClientRect();
-    panel.scrollTop = initial.top - scroller.top + panel.scrollTop + 45;
-    const stuck = header.getBoundingClientRect();
-    panel.scrollTop += 120;
-    const stuckAgain = header.getBoundingClientRect();
+  const { root, visual, htmlMode, code } = getEditor(page);
+  const before = await root.evaluate(node => {
+    const header = node.querySelector('.pg-rich-text-editor__header');
+    const panel = node.closest('.pg-tabs__panel');
+    const main = node.querySelector('.pg-rich-text-editor__main');
+    const input = node.querySelector('.pg-rich-text-editor__input');
+    input.insertAdjacentHTML('beforeend', '<p>Текст під скляною панеллю.</p>'.repeat(90));
+    const headerStyle = getComputedStyle(header);
     return {
-      position: getComputedStyle(header).position,
-      clipping: getComputedStyle(rootNode.querySelector('.pg-rich-text-editor__main')).overflowY,
-      scrollTop: panel.scrollTop,
-      scrollContainerTop: scroller.top,
-      stuckTop: stuck.top,
-      stuckAgainTop: stuckAgain.top,
-      headerBottom: stuck.bottom,
-      textTop: input.getBoundingClientRect().top,
+      position: headerStyle.position,
+      backdrop: headerStyle.backdropFilter,
+      background: headerStyle.backgroundColor,
+      top: header.getBoundingClientRect().top,
+      mainBottom: main.getBoundingClientRect().bottom,
+      panelBottom: panel.getBoundingClientRect().bottom,
     };
   });
-  expect(positions.position).toBe('sticky');
-  expect(positions.clipping).toBe('clip');
-  expect(positions.scrollTop).toBeGreaterThan(0);
-  expect(Math.abs(positions.stuckTop - positions.scrollContainerTop)).toBeLessThan(3);
-  expect(Math.abs(positions.stuckAgainTop - positions.stuckTop)).toBeLessThan(2);
-  expect(positions.headerBottom).toBeGreaterThan(positions.textTop);
+  expect(before.position).toBe('relative');
+  expect(before.backdrop).toContain('blur(');
+  expect(before.background).toMatch(/rgba\(/);
+  expect(before.mainBottom).toBeCloseTo(before.panelBottom, 0);
+  await visual.evaluate(node => { node.scrollTop = 360; });
+  const after = await root.evaluate(node => ({
+    headerTop: node.querySelector('.pg-rich-text-editor__header').getBoundingClientRect().top,
+    panelScroll: node.closest('.pg-tabs__panel').scrollTop,
+    inputScroll: node.querySelector('.pg-rich-text-editor__input').scrollTop,
+  }));
+  expect(after.headerTop).toBeCloseTo(before.top, 0);
+  expect(after.panelScroll).toBe(0);
+  expect(after.inputScroll).toBeGreaterThan(0);
+  await htmlMode.click();
+  await code.fill('<p>Скляна шапка і в режимі HTML</p>');
+  const htmlHeader = await root.evaluate(node => {
+    const header = node.querySelector('.pg-rich-text-editor__header');
+    const style = getComputedStyle(header);
+    return { top: header.getBoundingClientRect().top, backdrop: style.backdropFilter,
+      surface: style.getPropertyValue('--pg-rich-editor-header-surface').trim() };
+  });
+  expect(htmlHeader.top).toBeCloseTo(before.top, 0);
+  expect(htmlHeader.backdrop).toContain('blur(');
+  expect(htmlHeader.surface).toBe('var(--pg-color-code-surface)');
 });

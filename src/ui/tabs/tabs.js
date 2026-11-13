@@ -26,7 +26,8 @@ export function createTabs({ idPrefix, label, items, onChange, navHost = null })
   }
   const ids = new Set(items.map(item => item.id));
   if (ids.size !== items.length || items.some(item => !/^[a-z][a-z0-9-]*$/.test(item.id) ||
-    !item.label || !(item.content instanceof HTMLElement))) {
+    !item.label || !(item.content instanceof HTMLElement) ||
+    (item.scroll !== undefined && !['panel', 'contained'].includes(item.scroll)))) {
     throw new TypeError('Tabs require unique IDs, labels and DOM panels');
   }
 
@@ -65,6 +66,7 @@ export function createTabs({ idPrefix, label, items, onChange, navHost = null })
 
     const panel = document.createElement('section');
     panel.className = 'pg-tabs__panel pg-scrollbar';
+    panel.dataset.pgScroll = item.scroll === 'contained' ? 'contained' : 'panel';
     panel.id = idPrefix + '-panel-' + item.id;
     panel.setAttribute('role', 'tabpanel');
     panel.setAttribute('aria-labelledby', button.id);

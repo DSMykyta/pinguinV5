@@ -16,7 +16,7 @@ test('root redirects to Tools, without an Overview page', async ({ page }) => {
   await expect(page).toHaveURL(/\/tools$/);
   await expect(page.getByRole('heading', { level: 1, name: 'Інструменти' })).toBeVisible();
   await expect(page.locator('#pg-tools-panel-tables .pg-page')).toBeVisible();
-  await expect(page.locator('#pg-tools-panel-text .pg-page')).toBeHidden();
+  await expect(page.locator('#pg-tools-panel-elements .pg-page')).toBeHidden();
   const links = page.getByRole('navigation', { name: 'Інструменти' }).getByRole('link');
   await expect(links).toHaveCount(1);
   await expect(links.first()).toHaveAttribute('aria-current', 'page');
@@ -51,7 +51,7 @@ test('search appears only for records that can be searched', async ({ page }) =>
   await input.press('Escape');
   await expect(input).toHaveValue('');
   await expect(page.locator('#pg-tools-panel-data-views .pg-collection-view__table tbody tr')).toHaveCount(25);
-  await page.getByRole('tab',{name:'Текст'}).click();
+  await page.getByRole('tab',{name:'Елементи'}).click();
   await expect(search).toBeHidden();
 });
 

@@ -13,7 +13,7 @@ import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/tools');
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Елементи' }).click();
 });
 
 test('empty history adds no overlay; two saved values rotate with stable geometry', async ({ page }) => {
@@ -41,7 +41,7 @@ test('empty history adds no overlay; two saved values rotate with stable geometr
   expect(Math.abs(after.height - before.height)).toBeLessThan(1);
 
   await page.reload();
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Елементи' }).click();
   await input.scrollIntoViewIfNeeded();
   await expect(hint).toContainText(/Time Release|Sugar Free/);
 });

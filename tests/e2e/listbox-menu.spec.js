@@ -13,7 +13,7 @@ import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({page}) => {
   await page.goto('/tools');
-  await page.getByRole('tab', {name:'Текст'}).click();
+  await page.getByRole('tab', {name:'Елементи'}).click();
 });
 
 test('single Listbox uses native button, arrows and stable hidden form value', async({page})=>{

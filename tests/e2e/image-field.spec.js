@@ -18,7 +18,7 @@ const PNG = Buffer.from(
 
 test.beforeEach(async({page})=>{
   await page.goto('/tools');
-  await page.getByRole('tab',{name:'Текст'}).click();
+  await page.getByRole('tab',{name:'Елементи'}).click();
 });
 
 test('pick, reject invalid replacement, replace and remove revoke only owned blob URLs',async({page})=>{

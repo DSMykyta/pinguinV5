@@ -16,10 +16,10 @@ test('Dialog demo belongs to Text tab; native modal darkens and blurs backdrop',
   await page.goto('/tools');
 
   const tables = page.locator('#pg-tools-panel-tables');
-  const text = page.locator('#pg-tools-panel-text');
+  const text = page.locator('#pg-tools-panel-elements');
   await expect(tables).toBeVisible();
   await expect(text).toBeHidden();
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Елементи' }).click();
   await expect(tables).toBeHidden();
   await expect(text).toBeVisible();
   await expect(text.locator('[data-pg-action="dialog-demo-info"]')).toBeVisible();
@@ -100,7 +100,7 @@ test('mobile and dark theme preserve native dialog geometry', async ({ page }) =
   // Sidebar theme control is hidden behind mobile navigation below 1080px.
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.getByRole('tab', { name: 'Текст' }).click();
+  await page.getByRole('tab', { name: 'Елементи' }).click();
   await page.locator('[data-pg-action="dialog-demo-info"]').click();
   const dialog = page.getByRole('dialog');
   await expect(dialog).toBeVisible();

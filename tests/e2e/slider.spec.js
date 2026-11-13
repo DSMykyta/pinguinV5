@@ -46,7 +46,7 @@ async function geometry(page) {
 
 test('Slider is integrated in Tools text tab with working and disabled examples', async ({ page }) => {
   await page.goto('/tools');
-  await page.getByRole('tab', { name: 'Текст', exact: true }).click();
+  await page.getByRole('tab', { name: 'Елементи', exact: true }).click();
   const slider = page.getByRole('slider', { name: 'Гучність', exact: true });
   await slider.scrollIntoViewIfNeeded();
   await expect(slider).toHaveValue('50');

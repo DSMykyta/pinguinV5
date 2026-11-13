@@ -2,7 +2,7 @@
  * ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
  * ║ PINGUIN NEXT — TOOLS NAVIGATION TEST                                                              ║
  * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Перевіряє вкладки «Таблиці» й «Текст» та контекст aside.                            ║
+ * ║ ПРИЗНАЧЕННЯ: Перевіряє вкладки «Таблиці», «Елементи», «Тексти» та контекст aside.                            ║
  * ║ ЗАЛЕЖНОСТІ: UI page, UI tabs, контекстні callbacks від Shell.                                           ║
  * ║ ПУБЛІЧНИЙ API: mount(host, context).                                                               ║
  * ║ ПРИНЦИП: Окремі вкладки й контекст; жодних макетів непрацюючих редакторів.                        ║
@@ -66,11 +66,19 @@ const TABS = Object.freeze([
     sourceLabel: 'Незалежні колекції',
   },
   {
-    id: 'text',
-    label: 'Текст',
+    id: 'elements',
+    label: 'Елементи',
+    icon: 'layout-grid',
+    sourceUrl: 'https://github.com/DSMykyta/pinguinV5/blob/work/docs/ui/overview.md',
+    sourceLabel: 'Спільні UI-компоненти',
+  },
+  {
+    id: 'texts',
+    label: 'Тексти',
     icon: 'file-text',
-    sourceUrl: 'https://github.com/DSMykyta/pinguinV5/tree/legacy/js/components/editor',
-    sourceLabel: 'Редактор у legacy',
+    scroll: 'contained',
+    sourceUrl: 'https://github.com/DSMykyta/pinguinV5/blob/work/docs/ui/rich-text-editor.md',
+    sourceLabel: 'Текстовий редактор',
   },
   {
     id: 'navigation',
@@ -96,7 +104,7 @@ export function mount(host, { setAsideContext, setSearchEntries, setSearchContex
     ['data-views', dataViewsDemo],
     ['media-library', mediaLibraryDemo],
   ]);
-  const textPage = createPageView({ title: 'Текст' });
+  const elementsPage = createPageView({ title: 'Елементи' });
   const richTextEditorDemo = createRichTextEditorDemo();
   const fieldDemo = createFieldDemo();
   const advancedDemo = createAdvancedFieldDemo();
@@ -104,13 +112,14 @@ export function mount(host, { setAsideContext, setSearchEntries, setSearchContex
   const menuDemo = createMenuDemo();
   const buttonDemo = createButtonDemo();
   const imageDemo = createImageFieldDemo();
-  textPage.body.append(richTextEditorDemo.element, createDialogDemo(), createInputDemo(), fieldDemo.element, advancedDemo.element, listboxDemo.element, buttonDemo.element, menuDemo.element, imageDemo.element);
+  elementsPage.body.append(createDialogDemo(), createInputDemo(), fieldDemo.element, advancedDemo.element, listboxDemo.element, buttonDemo.element, menuDemo.element, imageDemo.element);
   const navigationDemo = createSectionNavigatorDemo();
   const pageByTab = new Map([
     ['tables', tablePage],
     ['data-views', dataViewsDemo.element],
     ['media-library', mediaLibraryDemo.element],
-    ['text', textPage],
+    ['elements', elementsPage],
+    ['texts', richTextEditorDemo.element],
     ['navigation', navigationDemo.element],
   ]);
 
@@ -121,6 +130,7 @@ export function mount(host, { setAsideContext, setSearchEntries, setSearchContex
     items: TABS.map(item => ({
       id: item.id,
       label: item.label,
+      scroll: item.scroll,
       // Content and future editor state belong exclusively to this panel.
       content: pageByTab.get(item.id) instanceof HTMLElement
         ? pageByTab.get(item.id) : pageByTab.get(item.id).element,
