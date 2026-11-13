@@ -26,7 +26,7 @@ test('login demo uses two shared inputs, a shared button and tertiary canvas beh
   await expect(cloud.locator('canvas')).toHaveCount(1);
   await expect(cloud).toHaveAttribute('data-pg-renderer', /webgl|fallback/);
   expect(await cloud.evaluate(node =>
-    getComputedStyle(node).getPropertyValue('--pg-cloud-gradient-glow').trim()))
+    node.style.getPropertyValue('--pg-cloud-gradient-glow').trim()))
     .toBe('var(--pg-tone-tertiary-base)');
   const [cloudBox, formBox] = await Promise.all([cloud, form].map(x => x.boundingBox()));
   expect(formBox.x).toBeGreaterThan(cloudBox.x);
