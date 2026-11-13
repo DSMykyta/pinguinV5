@@ -61,7 +61,7 @@ host.append(slider.element);
 ## Взаємодія та доступність
 
 Кольори походять зі спільних семантичних токенів прогресу: `--pg-color-progress-active` для активної частини,
-ручки, крапки й числа; `--pg-color-progress-inactive` для неактивної частини. Вони використовуються і Wave Progress.
+ручки й крапки; `--pg-color-progress-inactive` для неактивної частини. Відсоток і підпис використовують загальні текстові токени: приглушений `--pg-color-text-secondary` для назви й виразний `--pg-color-text-primary` для значення. Вони використовуються і Wave Progress.
 Окремої Material-палітри або локальних кольорових значень немає. Тема змінює
 компонент через ті самі токени, що й решту інтерфейсу.
 
@@ -86,6 +86,6 @@ host.append(slider.element);
 проміжків і меж, drag, клавіатура, крок/мінімум, незалежність, form reset,
 disabled, destroy, RTL, мобільний дотик, теми й reduced motion.
 
-## Оновлений контракт розмірів
+## Оновлений контракт розмірів і типографіки
 
-На вимогу власника видима висота ручки узгоджена з 32px hit-зоною Checkbox і Mini Button; нативна зона Slider залишається 48px. Активна шкала зберігає висоту 16px, неактивна має 10px. Усі геометричні CSS-величини Slider (включно з 6px відступом, 4px крапкою, фокусом) описані токенами у `src/styles/tokens.css`, а не локальними значеннями. Це навмисна зміна проти Material 3 XS, де ручка 44dp. Аудит: [slider-wave-size-audit](../research/slider-wave-size-audit.md).
+На вимогу власника видима висота ручки узгоджена з 32px hit-зоною Checkbox і Mini Button; нативна зона Slider залишається 48px. Активна шкала зберігає висоту 16px, неактивна має 10px. Усі геометричні CSS-величини Slider (включно з 6px відступом, 4px крапкою, фокусом) описані токенами у `src/styles/tokens.css`, а не локальними значеннями. Це навмисна зміна проти Material 3 XS, де ручка 44dp. Текстова пара «підпис ліворуч / відсоток праворуч» успадковує `--pg-progress-label-size`, `--pg-progress-label-weight` та `--pg-progress-value-weight`, як у Wave Progress. Аудит: [slider-wave-size-audit](../research/slider-wave-size-audit.md).
