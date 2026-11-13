@@ -68,3 +68,12 @@
 - [Локальний аудит Pinguin](dialog-performance.md) — попередня реальна регресія повноекранного blur Workspace.
 
 **Межі:** лише дослідження та документація. Ніякої зміни production UI і жодного Vercel deployment.
+
+
+## Реалізований експеримент Aurora — 2026-11-13
+
+Після попереднього дослідження користувач повідомив про вже наявну WebGL-хмарку на сторінці `/login-demo`. Її підтверджено в `src/ui/cloud-gradient` та розширено **новим параметром** `variant:'aurora'` без окремого renderer-класу чи нового Dialog. Три кольори — `main/secondary/tertiary`; малювання з throttle не вище 30 FPS, DPR до 0,75 і стеля 768×480, пауза при `pg:modal-change` для закритих фоном екземплярів, підтримка `prefers-reduced-motion` та CSS fallback. Оригінальна `variant:'cloud'` для `/login-demo` не змінює шейдер і DPR.
+
+Нова кнопка **Aurora** у `/tools` → «Таблиці» відкриває preview за допомогою наявного `Dialog(presentation:'edge-to-edge')`. Це **проба тільки всередині модального вікна**, не ефект `::backdrop` під ним. Звичайні Dialog та Workspace залишаються без змін; жоден повноекранний backdrop blur не відновлено.
+
+Критерій наступного рішення: перевірити реальний Chromium/Windows GPU FPS та взаємодію з UI перед опціональним використанням Aurora *позаду* Dialog. Контрольні сценарії: `tests/e2e/cloud-gradient-aurora.spec.js` і чинні `tests/e2e/login-demo.spec.js`; створені сценарії не вважати пройденими без фактичного запуску.
