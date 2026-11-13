@@ -17,6 +17,13 @@ test('login demo uses two shared inputs, a shared button and tertiary canvas beh
   const form = page.getByRole('form', { name: 'Демонстрація входу' });
   await expect(form.locator('.pg-input')).toHaveCount(2);
   await expect(form.locator('input[type="password"]')).toHaveCount(1);
+  // Names are initially inside the two native fields, not visible above them.
+  await expect(form.getByLabel('Логін')).toHaveAttribute('placeholder', 'Логін');
+  await expect(form.getByLabel('Пароль')).toHaveAttribute('placeholder', 'Пароль');
+  await expect(form.locator('.pg-field__label--sr-only')).toHaveCount(2);
+  for (const label of await form.locator('.pg-field__label--sr-only').all()) {
+    await expect(label).toHaveCSS('clip-path', 'inset(50%)');
+  }
   await expect(form.getByRole('button', { name: 'Увійти' })).toHaveClass(/pg-button--primary/);
   await expect(form.getByLabel('Логін')).toHaveAttribute('autocomplete', 'username');
   await expect(form.getByLabel('Пароль')).toHaveAttribute('autocomplete', 'current-password');
@@ -43,14 +50,15 @@ test('demo action validates inputs without pretending to authenticate', async ({
   await expect(password).toHaveAttribute('aria-invalid', 'true');
   await expect(login).toHaveAttribute('placeholder', 'Вкажіть логін');
   await expect(password).toHaveAttribute('placeholder', 'Вкажіть пароль');
+  await expect(page.locator('.pg-login-demo__form .pg-field__label--sr-only')).toHaveCount(2);
   await expect(login).toBeFocused();
   await login.fill('demo');
-  await expect(login).toHaveAttribute('placeholder', ' ');
+  await expect(login).toHaveAttribute('placeholder', 'Логін');
   await expect(login).not.toHaveAttribute('aria-invalid', 'true');
   await submit.click();
   await expect(password).toBeFocused();
   await password.fill('example-only');
-  await expect(password).toHaveAttribute('placeholder', ' ');
+  await expect(password).toHaveAttribute('placeholder', 'Пароль');
   await password.press('Enter');
   await expect(page.getByRole('status')).toHaveText(
     'Демонстрація: форму заповнено. Справжній вхід не виконується.');
@@ -83,7 +91,7 @@ test('validation messages do not move or resize inputs and submit', async ({ pag
   await expect(fields.locator('.pg-input__support--sr-only')).toHaveCount(2);
   await unchanged();
   await page.getByLabel('Логін').fill('demo');
-  await expect(page.getByLabel('Логін')).toHaveAttribute('placeholder', ' ');
+  await expect(page.getByLabel('Логін')).toHaveAttribute('placeholder', 'Логін');
   await expect(page.getByLabel('Пароль')).toHaveAttribute('placeholder', 'Вкажіть пароль');
   await expect(fields.locator('.pg-input__error:not([hidden])')).toHaveCount(1);
   await unchanged();
@@ -170,7 +178,7 @@ test('placeholder errors keep the native labels, password toggle and stable layo
   invalid.forEach((r, i) => r.forEach((coordinate, j) =>
     expect(Math.abs(coordinate - baseline[i][j])).toBeLessThan(1)));
   await password.fill('sample');
-  await expect(password).toHaveAttribute('placeholder', ' ');
+  await expect(password).toHaveAttribute('placeholder', 'Пароль');
   await toggle.click();
   await expect(password).toHaveAttribute('type', 'text');
   await expect(password).toHaveValue('sample');
