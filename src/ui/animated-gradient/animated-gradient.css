@@ -1,15 +1,23 @@
 /*
  * ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
- * ║ PINGUIN NEXT — LOOPING LEGACY GRADIENT TEXTURES                                                 ║
+ * ║ PINGUIN NEXT — CSS RADIAL COLOR DRIFT                                                           ║
  * ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Безшовне повільне перетікання двох готових полотен Light/Storm/Dawn.                ║
- * ║ ЗАЛЕЖНОСТІ: color-field.js, existing --pg-* tokens.                                             ║
- * ║ ПУБЛІЧНИЙ API: .pg-animated-gradient, __canvas--a/b, __grain, __title.                           ║
- * ║ ПРИНЦИП: 2x transform + opacity; жодних FPS-таймерів і clip/filter на шарах.                     ║
+ * ║ ПРИЗНАЧЕННЯ: Primary background, 2 soft radial color spots (secondary/tertiary).                 ║
+ * ║ ЗАЛЕЖНОСТІ: Global semantic tone tokens and reduced-motion preference.                          ║
+ * ║ ПУБЛІЧНИЙ API: .pg-animated-gradient, [data-pg-preset], __title.                                ║
+ * ║ ПРИНЦИП: ONE oversized blurred pseudo-element moved via transform; no Canvas/grain/timers.      ║
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
 .pg-animated-gradient {
+  --pg-gradient-secondary-x: 30%;
+  --pg-gradient-secondary-y: 40%;
+  --pg-gradient-tertiary-x: 70%;
+  --pg-gradient-tertiary-y: 60%;
+  --pg-gradient-spot-radius: 35%;
+  --pg-gradient-blur: 60px;
+  --pg-gradient-opacity: 1;
+  --pg-gradient-duration: 14s;
   position: relative;
   isolation: isolate;
   display: grid;
@@ -19,75 +27,74 @@
   min-block-size: 280px;
   overflow: hidden;
   border-radius: var(--pg-radius-lg);
-  background: color-mix(
-    in srgb,
-    var(--pg-tone-main-base) 33.333%,
-    color-mix(in srgb, var(--pg-tone-secondary-base), var(--pg-tone-tertiary-base))
-  );
+  background: var(--pg-tone-main-base);
 }
 
-.pg-animated-gradient__canvas {
+/* Same two-radial technique as the reference video. Everything is painted ONCE;
+ * only a single composited element moves. Overscan hides the layer's edges.
+ * The surrounding primary surface remains solid, so nothing forms stripes. */
+.pg-animated-gradient::before {
+  content: '';
   position: absolute;
-  /* The 32% overscan on ALL four edges absorbs every transform. */
-  inset: -32%;
-  inline-size: 164%;
-  block-size: 164%;
-  display: block;
-  opacity: 0;
+  inset: -20%;
   pointer-events: none;
-  image-rendering: auto;
+  background:
+    radial-gradient(
+      circle at var(--pg-gradient-secondary-x) var(--pg-gradient-secondary-y),
+      var(--pg-tone-secondary-base) 0%,
+      transparent var(--pg-gradient-spot-radius)
+    ),
+    radial-gradient(
+      circle at var(--pg-gradient-tertiary-x) var(--pg-gradient-tertiary-y),
+      var(--pg-tone-tertiary-base) 0%,
+      transparent var(--pg-gradient-spot-radius)
+    );
+  filter: blur(var(--pg-gradient-blur));
+  opacity: var(--pg-gradient-opacity);
   transform-origin: center;
+  will-change: transform;
+  animation: pg-gradient-color-drift var(--pg-gradient-duration) ease-in-out infinite alternate;
 }
 
-.pg-animated-gradient[data-pg-gradient-ready='true'] .pg-animated-gradient__canvas--a {
-  opacity: 1;
-  animation: pg-gradient-slow-drift-a 26s ease-in-out infinite;
+/* All three demos use primary as their BASE and exactly two colored spots.
+ * Only spot placement/softness/pace differ; palette roles never change. */
+.pg-animated-gradient[data-pg-preset='light'] {
+  --pg-gradient-secondary-x: 27%;
+  --pg-gradient-secondary-y: 28%;
+  --pg-gradient-tertiary-x: 77%;
+  --pg-gradient-tertiary-y: 74%;
+  --pg-gradient-spot-radius: 43%;
+  --pg-gradient-blur: 68px;
+  --pg-gradient-opacity: .82;
+  --pg-gradient-duration: 19s;
 }
 
-.pg-animated-gradient[data-pg-gradient-ready='true'] .pg-animated-gradient__canvas--b {
-  opacity: .4;
-  animation: pg-gradient-slow-drift-b 34s ease-in-out infinite,
-    pg-gradient-soft-blend 21s ease-in-out infinite;
+.pg-animated-gradient[data-pg-preset='storm'] {
+  --pg-gradient-secondary-x: 24%;
+  --pg-gradient-secondary-y: 65%;
+  --pg-gradient-tertiary-x: 76%;
+  --pg-gradient-tertiary-y: 28%;
+  --pg-gradient-spot-radius: 34%;
+  --pg-gradient-blur: 52px;
+  --pg-gradient-opacity: 1;
+  --pg-gradient-duration: 11s;
 }
 
-/* Every cycle returns EXACTLY to its starting transform / alpha,
-   while multiple dissimilar periods avoid a synchronized reset. */
-@keyframes pg-gradient-slow-drift-a {
-  0%, 100% { transform: translate3d(-4%, 3%, 0) scale(1.025); }
-  28% { transform: translate3d(7%, -6%, 0) scale(1.07); }
-  63% { transform: translate3d(-6%, -3%, 0) scale(1.03); }
-  83% { transform: translate3d(3%, 7%, 0) scale(1.09); }
+.pg-animated-gradient[data-pg-preset='dawn'] {
+  --pg-gradient-secondary-x: 30%;
+  --pg-gradient-secondary-y: 40%;
+  --pg-gradient-tertiary-x: 70%;
+  --pg-gradient-tertiary-y: 60%;
+  --pg-gradient-spot-radius: 35%;
+  --pg-gradient-blur: 60px;
+  --pg-gradient-opacity: 1;
+  --pg-gradient-duration: 14s;
 }
 
-@keyframes pg-gradient-slow-drift-b {
-  0%, 100% { transform: translate3d(5%, -3%, 0) scale(1.07); }
-  23% { transform: translate3d(-6%, 6%, 0) scale(1.03); }
-  58% { transform: translate3d(6%, 5%, 0) scale(1.09); }
-  82% { transform: translate3d(-4%, -6%, 0) scale(1.04); }
-}
-
-@keyframes pg-gradient-soft-blend {
-  0%, 100% { opacity: .26; }
-  38% { opacity: .66; }
-  68% { opacity: .42; }
-}
-
-.pg-animated-gradient__grain {
-  position: absolute;
-  inset: 0;
-  inline-size: 100%;
-  block-size: 100%;
-  pointer-events: none;
-  image-rendering: pixelated;
-  opacity: .38;
-  mix-blend-mode: overlay;
-}
-
-/* Legacy Light is a pale secondary tint; readable foreground must be dark
- * in light theme and light in dark theme. Both come from the existing main tone. */
-.pg-animated-gradient[data-pg-preset='light'] .pg-animated-gradient__title {
-  color: var(--pg-tone-main-base);
-  text-shadow: none;
+/* Alternating endpoints make an unbroken, reversible infinite drift. */
+@keyframes pg-gradient-color-drift {
+  from { transform: translate3d(-5%, 3%, 0) rotate(-8deg) scale(1.04); }
+  to { transform: translate3d(8%, -7%, 0) rotate(25deg) scale(1.20); }
 }
 
 .pg-animated-gradient__title {
@@ -106,17 +113,11 @@
   text-shadow: 0 3px 24px var(--pg-color-gradient-title-shadow);
 }
 
-.pg-animated-gradient[data-pg-gradient-paused='true'] .pg-animated-gradient__canvas {
-  animation-play-state: paused;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .pg-animated-gradient__canvas,
-  .pg-animated-gradient[data-pg-gradient-ready='true'] .pg-animated-gradient__canvas {
+  .pg-animated-gradient::before {
     animation: none;
-  }
-  .pg-animated-gradient[data-pg-gradient-ready='true'] .pg-animated-gradient__canvas--b {
-    opacity: .4;
+    transform: none;
+    will-change: auto;
   }
 }
 
