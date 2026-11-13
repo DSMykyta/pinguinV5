@@ -30,8 +30,8 @@ export function createAnimatedGradientDemo() {
     onClick: () => {
       void showDialog({
         title: 'Анімований градієнт',
-        content: createAnimatedGradient({ text: 'pinguin V6' }),
-        confirmText: 'Закрити',
+        presentation: 'edge-to-edge',
+        content: createAnimatedGradient({ text: null }),
       });
     },
   });
