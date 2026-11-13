@@ -142,6 +142,44 @@
   --pg-compact-control-size: 32px;
   --pg-checkbox-box-size: 24px;
   --pg-header-height: 60px;
+
+  /* Shared progress colors: Wave Progress and Slider use the same theme-aware ink. */
+  --pg-color-progress-active: var(--pg-tone-main-base);
+  --pg-color-progress-inactive: color-mix(
+    in srgb, var(--pg-color-progress-active) 18%, var(--pg-color-surface)
+  );
+
+  /* Control scale: Slider's visible handle equals Checkbox / Mini Button (32px).
+     Keep a separate native 48px range hit target. All component geometry
+     below is consumed through var(...) and never repeated as local pixels. */
+  --pg-track-compact-height: 10px;
+  --pg-slider-hit-size: var(--pg-space-12);
+  --pg-slider-handle-height: var(--pg-compact-control-size);
+  --pg-slider-handle-width: var(--pg-space-1);
+  --pg-slider-handle-pressed-width: 2px;
+  --pg-slider-handle-half-width: calc(var(--pg-slider-handle-width) / 2);
+  --pg-slider-handle-pressed-half-width: calc(var(--pg-slider-handle-pressed-width) / 2);
+  --pg-slider-handle-gap: 6px;
+  --pg-slider-track-active-height: var(--pg-space-4);
+  --pg-slider-track-inactive-height: var(--pg-track-compact-height);
+  --pg-slider-track-active-outer-radius: calc(var(--pg-slider-track-active-height) / 2);
+  --pg-slider-track-inactive-outer-radius: calc(var(--pg-slider-track-inactive-height) / 2);
+  --pg-slider-track-inner-radius: calc(var(--pg-slider-handle-width) / 2);
+  --pg-slider-dot-size: var(--pg-space-1);
+  --pg-slider-outline-size: var(--pg-slider-handle-pressed-width);
+  --pg-slider-outline-offset: 3px;
+  --pg-slider-label-size: 13px;
+  --pg-slider-description-size: 12px;
+
+  /* Seamless CSS mask: 20px is one complete SVG tile/animation period. */
+  --pg-wave-period: var(--pg-space-5);
+  --pg-wave-container-height: var(--pg-space-3);
+  --pg-wave-height: var(--pg-track-compact-height);
+  --pg-wave-rest-height: var(--pg-space-1);
+  --pg-wave-dot-size: var(--pg-space-1);
+  --pg-wave-gap: var(--pg-space-1);
+  --pg-wave-duration: 600ms;
+  --pg-wave-indeterminate-duration: 2400ms;
   /* M3-inspired motion channels: spatial movement vs. color/opacity effects.
      Functional/standard timing keeps approved FAB, Toast, RevealPanel intact. */
   --pg-motion-spatial-fast-duration: 150ms;
