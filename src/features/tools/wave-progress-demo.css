@@ -11,20 +11,20 @@
 
 .pg-tools-wave-demo {
   box-sizing: border-box;
-  inline-size: min(100%, 560px);
+  inline-size: min(100%, var(--pg-progress-demo-max-width));
   min-inline-size: 0;
   margin-block-start: var(--pg-space-10);
 }
 .pg-tools-wave-demo h3 {
   margin: 0;
   color: var(--pg-color-text-primary);
-  font-size: 15px;
-  font-weight: 600;
+  font-size: var(--pg-progress-heading-size);
+  font-weight: var(--pg-progress-value-weight);
 }
 .pg-tools-wave-demo__description {
   margin: var(--pg-space-2) 0 var(--pg-space-6);
   color: var(--pg-color-text-secondary);
-  font-size: 13px;
+  font-size: var(--pg-progress-body-size);
 }
 .pg-tools-wave-demo__heading {
   display: flex;
@@ -33,7 +33,8 @@
   gap: var(--pg-space-3);
   margin-block: var(--pg-space-3);
   color: var(--pg-color-text-secondary);
-  font-size: 13px;
+  font-size: var(--pg-progress-label-size);
+  font-weight: var(--pg-progress-label-weight);
 }
 .pg-tools-wave-demo__percent {
   color: var(--pg-color-text-primary);
