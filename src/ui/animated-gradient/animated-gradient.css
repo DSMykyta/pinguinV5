@@ -20,37 +20,55 @@
   padding: var(--pg-space-5);
   overflow: hidden;
   border-radius: var(--pg-radius-lg);
+  /* Equal visual thirds: each semantic tone owns one color center.
+   * The broad, seamless base remains visible when motion is reduced. */
   background: linear-gradient(
-    128deg,
+    90deg,
     var(--pg-tone-main-base) 0%,
-    var(--pg-tone-secondary-base) 52%,
+    var(--pg-tone-main-base) 20%,
+    var(--pg-tone-secondary-base) 45%,
+    var(--pg-tone-secondary-base) 55%,
+    var(--pg-tone-tertiary-base) 80%,
     var(--pg-tone-tertiary-base) 100%
   );
 }
 
 .pg-animated-gradient__glow {
   position: absolute;
-  inset: -30%;
+  top: -28%;
+  bottom: -28%;
+  width: 56%;
   pointer-events: none;
-  border-radius: 50%;
-  opacity: .94;
-  filter: blur(34px);
+  border-radius: 41% 59% 48% 52% / 56% 42% 58% 44%;
+  /* Identical area and intensity for all three tones; soft edges overlap. */
+  opacity: 1;
+  background: radial-gradient(
+    ellipse at center,
+    var(--pg-gradient-blob-color) 0%,
+    var(--pg-gradient-blob-color) 31%,
+    color-mix(in srgb, var(--pg-gradient-blob-color) 80%, transparent) 51%,
+    transparent 78%
+  );
+  filter: blur(24px);
   will-change: transform;
 }
 
 .pg-animated-gradient__glow--main {
-  background: radial-gradient(ellipse at 55% 48%, var(--pg-tone-main-base) 1%, transparent 62%);
-  animation: pg-gradient-main-flow 12s ease-in-out infinite alternate;
+  left: -11%;
+  --pg-gradient-blob-color: var(--pg-tone-main-base);
+  animation: pg-gradient-main-flow 13s ease-in-out infinite alternate;
 }
 
 .pg-animated-gradient__glow--secondary {
-  background: radial-gradient(ellipse at 42% 50%, var(--pg-tone-secondary-base) 2%, transparent 55%);
-  animation: pg-gradient-secondary-flow 15s ease-in-out infinite alternate;
+  left: 22%;
+  --pg-gradient-blob-color: var(--pg-tone-secondary-base);
+  animation: pg-gradient-secondary-flow 17s ease-in-out infinite alternate;
 }
 
 .pg-animated-gradient__glow--tertiary {
-  background: radial-gradient(ellipse at 65% 45%, var(--pg-tone-tertiary-base) 2%, transparent 57%);
-  animation: pg-gradient-tertiary-flow 17s ease-in-out infinite alternate;
+  left: 55%;
+  --pg-gradient-blob-color: var(--pg-tone-tertiary-base);
+  animation: pg-gradient-tertiary-flow 19s ease-in-out infinite alternate;
 }
 
 .pg-animated-gradient::before {
@@ -59,10 +77,12 @@
   z-index: 1;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(
-    100deg,
-    var(--pg-color-gradient-veil-strong),
-    var(--pg-color-gradient-veil-soft)
+  /* Neutral, localized text scrim; never a full-surface navy color cast. */
+  background: radial-gradient(
+    ellipse 60% 48% at 50% 52%,
+    var(--pg-color-gradient-veil-strong) 0%,
+    var(--pg-color-gradient-veil-soft) 65%,
+    transparent 100%
   );
 }
 
@@ -73,9 +93,9 @@
   inline-size: 116%;
   block-size: 116%;
   pointer-events: none;
-  opacity: .32;
+  opacity: .14;
   mix-blend-mode: soft-light;
-  animation: pg-gradient-grain-shift .28s steps(4, end) infinite;
+  animation: pg-gradient-grain-shift 1.2s steps(4, end) infinite;
 }
 
 .pg-animated-gradient__title {
@@ -93,22 +113,24 @@
   text-shadow: 0 3px 24px var(--pg-color-gradient-title-shadow);
 }
 
+/* Three different trajectories keep the color spots independent and in their
+ * respective thirds, instead of stacking all three across the entire card. */
 @keyframes pg-gradient-main-flow {
-  0% { transform: translate3d(-17%, -10%, 0) rotate(-14deg) scale(.86); }
-  48% { transform: translate3d(14%, 18%, 0) rotate(19deg) scale(1.12); }
-  100% { transform: translate3d(24%, -12%, 0) rotate(38deg) scale(.95); }
+  0% { transform: translate3d(-9%, -9%, 0) rotate(-13deg) scale(.94); }
+  49% { transform: translate3d(12%, 10%, 0) rotate(16deg) scale(1.11); }
+  100% { transform: translate3d(-4%, 15%, 0) rotate(-8deg) scale(.98); }
 }
 
 @keyframes pg-gradient-secondary-flow {
-  0% { transform: translate3d(19%, 16%, 0) rotate(17deg) scale(1.12); }
-  45% { transform: translate3d(-20%, -16%, 0) rotate(-25deg) scale(.91); }
-  100% { transform: translate3d(-5%, 18%, 0) rotate(34deg) scale(1.18); }
+  0% { transform: translate3d(10%, 12%, 0) rotate(14deg) scale(1.10); }
+  43% { transform: translate3d(-13%, -8%, 0) rotate(-19deg) scale(.92); }
+  100% { transform: translate3d(6%, -12%, 0) rotate(12deg) scale(1.04); }
 }
 
 @keyframes pg-gradient-tertiary-flow {
-  0% { transform: translate3d(13%, -18%, 0) rotate(-12deg) scale(.94); }
-  54% { transform: translate3d(-21%, 14%, 0) rotate(39deg) scale(1.16); }
-  100% { transform: translate3d(16%, 22%, 0) rotate(-31deg) scale(.89); }
+  0% { transform: translate3d(-8%, -14%, 0) rotate(-12deg) scale(.97); }
+  57% { transform: translate3d(12%, 12%, 0) rotate(24deg) scale(1.13); }
+  100% { transform: translate3d(-12%, 5%, 0) rotate(-18deg) scale(.93); }
 }
 
 @keyframes pg-gradient-grain-shift {
