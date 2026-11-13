@@ -2,16 +2,23 @@
  * ╔════════════════════════════════════════════════════════════════════════════════════╗
  * ║ PINGUIN NEXT — ANIMATED GRADIENT DEMO                                             ║
  * ╠════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Тестова кнопка діалогу із живим градієнтом у «Таблицях».              ║
- * ║ ЗАЛЕЖНОСТІ: Спільні Button, Dialog та AnimatedGradient.                          ║
+ * ║ ПРИЗНАЧЕННЯ: Три legacy-пресети з одним живим градієнтом у спільному Dialog.        ║
+ * ║ ЗАЛЕЖНОСТІ: Existing Button, Button Group, Dialog, AnimatedGradient.               ║
  * ║ ПУБЛІЧНИЙ API: createAnimatedGradientDemo().                                       ║
- * ║ ПРИНЦИП: Demo лише збирає існуючі компоненти, не змінює Shell.                    ║
+ * ║ ПРИНЦИП: Demo складає наявні UI, жодного унікального modal/button skin.           ║
  * ╚════════════════════════════════════════════════════════════════════════════════════╝
  */
 
 import { createIconButton } from '../../ui/button/button.js';
+import { createButtonGroup } from '../../ui/button-group/button-group.js';
 import { showDialog } from '../../ui/dialog/dialog.js';
 import { createAnimatedGradient } from '../../ui/animated-gradient/animated-gradient.js';
+
+const PRESETS = Object.freeze([
+  { id: 'light', label: 'Light' },
+  { id: 'storm', label: 'Storm' },
+  { id: 'dawn', label: 'Dawn' },
+]);
 
 export function createAnimatedGradientDemo() {
   const section = document.createElement('section');
@@ -28,11 +35,28 @@ export function createAnimatedGradientDemo() {
     action: 'animated-gradient-demo',
     variant: 'corner',
     onClick: () => {
+      const gradient = createAnimatedGradient({ text: 'pinguinV6', preset: 'dawn' });
+      const switcher = createButtonGroup({
+        label: 'Тип градієнта',
+        items: PRESETS,
+        value: 'dawn',
+        variant: 'connected',
+        appearance: 'filled',
+        shape: 'round',
+        size: 'xs',
+        selection: 'single',
+        onChange: value => gradient.setPreset(value),
+      });
+      switcher.element.classList.add('pg-tools-gradient-preview__switch');
+      const preview = document.createElement('div');
+      preview.className = 'pg-tools-gradient-preview';
+      preview.append(gradient, switcher.element);
+      // The shared Dialog manages focus, Escape, close and backdrop.
       void showDialog({
         title: 'Анімований градієнт',
         presentation: 'edge-to-edge',
-        content: createAnimatedGradient({ text: null }),
-      });
+        content: preview,
+      }).finally(() => switcher.destroy());
     },
   });
 
