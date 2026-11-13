@@ -35,7 +35,19 @@ export function serializeEditorSelection(input, range) {
   return serializeSafeHtml(holder);
 }
 
-/** Plain-text paste yields source tags; HTML-aware paste retains formatting. */
+/**
+ * HTML-aware targets prefer text/html over text/plain. If we place the actual
+ * markup in text/html, the target renders it and its tags vanish from view.
+ * Encode it as text inside <pre> so both plain and rich targets paste HTML
+ * SOURCE rather than visually formatted text.
+ */
+function sourceAsClipboardHtml(html, doc) {
+  const holder = doc.createElement('div');
+  holder.textContent = html;
+  return '<pre>' + holder.innerHTML + '</pre>';
+}
+
+/** Copy a visual selection as literal, sanitized HTML source in both MIME paths. */
 export function mountEditorCopy({ input }) {
   const controller = new AbortController();
   input.addEventListener('copy', event => {
@@ -45,8 +57,9 @@ export function mountEditorCopy({ input }) {
     const html = serializeEditorSelection(input, selection.getRangeAt(0));
     if (!html) return;
     event.preventDefault();
+    // Paste into textarea => raw tags; paste into rich editor => visible tags.
     event.clipboardData.setData('text/plain', html);
-    event.clipboardData.setData('text/html', html);
+    event.clipboardData.setData('text/html', sourceAsClipboardHtml(html, input.ownerDocument));
   }, { signal: controller.signal });
   return { dispose() { controller.abort(); } };
 }

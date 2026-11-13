@@ -539,7 +539,7 @@ test('showing and hiding the floating toolbar never moves the input, stats or fr
 });
 
 
-test('copying a visual selection writes HTML markup into plain and rich clipboard formats', async ({ page }) => {
+test('copying a visual selection exposes literal HTML tags in plain and rich clipboard formats', async ({ page }) => {
   const { visual } = getEditor(page);
   const copied = await visual.evaluate(node => {
     const selection = node.ownerDocument.getSelection();
@@ -553,10 +553,63 @@ test('copying a visual selection writes HTML markup into plain and rich clipboar
     return { plain: data.getData('text/plain'), html: data.getData('text/html'), prevented: event.defaultPrevented };
   });
   expect(copied.prevented).toBe(true);
-  expect(copied.plain).toBe(copied.html);
   expect(copied.plain).toContain('<h2>Опис товару</h2>');
   expect(copied.plain).toContain('<strong>Жирний</strong>');
   expect(copied.plain).toContain('<em>Курсив</em>');
+  // A rich destination should see escaped tags, not render the bold/italic nodes.
+  const rich = await page.evaluate(html => {
+    const holder = document.createElement('div');
+    holder.innerHTML = html;
+    return { content: holder.textContent, tags: [...holder.querySelectorAll('*')].map(el => el.tagName) };
+  }, copied.html);
+  expect(rich.content).toBe(copied.plain);
+  expect(rich.tags).toEqual(['PRE']);
+  expect(copied.html).toContain('&lt;strong&gt;Жирний&lt;/strong&gt;');
+});
+
+test('real Ctrl+C pastes literal markup into a separate rich-text target', async ({ page }) => {
+  const { visual } = getEditor(page);
+  await visual.focus();
+  await visual.evaluate(node => {
+    const selection = document.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    // Listen after the editor has handled copy; observe the real keyboard event.
+    window.__editorCopyEvidence = null;
+    node.addEventListener('copy', event => {
+      window.__editorCopyEvidence = {
+        plain: event.clipboardData?.getData('text/plain'),
+        rich: event.clipboardData?.getData('text/html'),
+        prevented: event.defaultPrevented,
+      };
+    }, { once: true });
+  });
+  await page.keyboard.press('ControlOrMeta+c');
+  const copied = await page.evaluate(() => window.__editorCopyEvidence);
+  expect(copied?.prevented).toBe(true);
+  expect(copied.plain).toContain('<strong>Жирний</strong>');
+  expect(copied.rich).toContain('&lt;strong&gt;Жирний&lt;/strong&gt;');
+
+  // Chromium's real clipboard must preserve the literal source on a paste
+  // into a different contenteditable (not just synthetic clipboard events).
+  await page.evaluate(() => {
+    const target = document.createElement('div');
+    target.id = 'html-copy-destination';
+    target.contentEditable = 'true';
+    target.setAttribute('aria-label', 'Зовнішній редактор');
+    target.style.cssText = 'position:fixed;top:100px;left:50px;z-index:9999;min-width:400px;min-height:50px';
+    document.body.append(target);
+    target.focus();
+  });
+  await page.keyboard.press('ControlOrMeta+v');
+  const pasted = await page.locator('#html-copy-destination').evaluate(node => ({
+    text: node.textContent,
+    hasFormatting: Boolean(node.querySelector('strong, em, h2')),
+  }));
+  expect(pasted.text).toContain('<strong>Жирний</strong>');
+  expect(pasted.hasFormatting).toBe(false);
 });
 
 test('copying part of a formatted line preserves enclosing paragraph and inline tags', async ({ page }) => {
@@ -581,7 +634,7 @@ test('source mode keeps native copy and selections outside editor are ignored', 
   const outside = await visual.evaluate(node => {
     const selection = document.getSelection();
     const range = document.createRange();
-    range.selectNodeContents(node.closest('.pg-tools-rich-text-editor-demo').querySelector('h3'));
+    range.selectNodeContents(document.querySelector('.pg-shell__page-name'));
     selection.removeAllRanges();
     selection.addRange(range);
     const data = new DataTransfer();
