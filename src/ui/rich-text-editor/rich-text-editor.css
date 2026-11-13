@@ -19,6 +19,8 @@
 .pg-rich-text-editor__header {
   position: relative;
   display: flex; flex-wrap: nowrap; align-items: center; justify-content: flex-start;
+  /* Reserve toolbar height so the document/stats do not jump on disclosure. */
+  min-block-size: calc(40px + var(--pg-space-2));
   gap: var(--pg-space-1); padding: var(--pg-space-2) var(--pg-space-3) 0;
 }
 .pg-rich-text-editor__mode-host,
