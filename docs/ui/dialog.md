@@ -111,3 +111,25 @@ The shared Dialog additionally supports an `editor` size, caller-owned DOM `cont
 Для JS-анімації текстових підказок `src/main.js` використовує **вже існуючий** `pg:modal-change` з Dialog manager та **вже існуючий** `setRotatingPlaceholdersPaused()` з Input. При відкритті невидимий scheduler зупиняється, при закритті відновлюється. Активний Dialog є сусідом `#app` в `document.body`, тому внутрішні анімації, форми, збереження, перевірки, Promise-обробники й дії Dialog **не заморожуються**. Інші мережеві задачі та критичні таймери програми свідомо не зупиняються: це могло б зіпсувати дані. Немає blanket `display:none`, layout reset, блокування worker, чи другого focus trap.
 
 Перевірка `tests/e2e/animated-gradient.spec.js`: background gradient paused, foreground dialog gradient running, native focus guard активний, стан повертається після закриття.
+
+
+## Повноформатний контент без шапки та підвалу — 2026-11-13
+
+Для фото, відео, полотен і анімованого градієнта доступне **оформлення того самого Dialog**:
+
+```js
+showDialog({
+  title: 'Перегляд вмісту',
+  presentation: 'edge-to-edge',
+  content: contentElement,
+});
+```
+
+- `presentation:'edge-to-edge'` — один загальний варіант **розміщення**, без другого modal manager, нового API для закриття або окремої кнопки.
+- Вміст займає **усю внутрішню площу Dialog** без заголовка, футера, відступів і рамки навколо вмісту. Зберігається зовнішній радіус стандартного Dialog.
+- Поверх вмісту — **існуюча** іконкова кнопка `Закрити діалог` у верхньому правому куті, з її чинним Button skin і доступним підписом. Вона отримує початковий фокус.
+- Заголовок `title` обов'язковий як **доступна назва** (`aria-label`), але не показується в DOM шапки. Параметр `content` обов'язковий. Не допускаються footer actions, форма підтвердження, `closeGuard`, `message` або `size:'workspace'`; для них залишається звичайний Dialog.
+- Native `showModal()`, Escape, клік по backdrop, повернення фокуса та черга працюють без змін.
+- Геометрія: стандартна ширина до 440px, висота до 420px у межах viewport. Заміна лише компонування, тому фото/відео/градієнт може повторно використати цей самий варіант.
+
+Демо: `src/features/tools/animated-gradient-demo.js` відкриває `createAnimatedGradient({text:null})` — **без напису** на кольорі. Наявна тестова кнопка *на сторінці* залишається. Тести: `tests/e2e/animated-gradient.spec.js`.
