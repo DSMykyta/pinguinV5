@@ -1,0 +1,44 @@
+/*
+ * ╔════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — WAVE PROGRESS DEMO LAYOUT                                           ║
+ * ╠════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Підписи та відступи демонстрації у «Таблицях».                        ║
+ * ║ ЗАЛЕЖНОСТІ: Спільні spacing, text tokens, Button та Slider.                      ║
+ * ║ ПУБЛІЧНИЙ API: .pg-tools-wave-demo та BEM-елементи.                               ║
+ * ║ ПРИНЦИП: Не змінює вигляд спільних Button, Slider або WaveProgress.              ║
+ * ╚════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
+.pg-tools-wave-demo {
+  box-sizing: border-box;
+  inline-size: min(100%, 560px);
+  min-inline-size: 0;
+  margin-block-start: var(--pg-space-10);
+}
+.pg-tools-wave-demo h3 {
+  margin: 0;
+  color: var(--pg-color-text-primary);
+  font-size: 15px;
+  font-weight: 600;
+}
+.pg-tools-wave-demo__description {
+  margin: var(--pg-space-2) 0 var(--pg-space-6);
+  color: var(--pg-color-text-secondary);
+  font-size: 13px;
+}
+.pg-tools-wave-demo__heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--pg-space-3);
+  margin-block: var(--pg-space-3);
+  color: var(--pg-color-text-secondary);
+  font-size: 13px;
+}
+.pg-tools-wave-demo__percent {
+  color: var(--pg-color-text-primary);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.pg-tools-wave-demo > .pg-slider { margin-block: var(--pg-space-5) var(--pg-space-3); }
+.pg-tools-wave-demo > .pg-button { margin-block-end: var(--pg-space-6); }
