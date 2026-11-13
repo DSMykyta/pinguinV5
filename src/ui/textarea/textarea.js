@@ -36,6 +36,8 @@ export function createTextarea({
   const uid = id || 'pg-textarea-' + (++nextTextareaId);
   const element = document.createElement('div');
   element.className = 'pg-textarea';
+  // Shared feedback geometry is owned by Field rather than this component.
+  element.classList.add('pg-field-layout');
   const control = document.createElement('textarea');
   control.className = 'pg-textarea__control';
   control.rows = rows;

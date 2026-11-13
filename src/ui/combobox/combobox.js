@@ -35,6 +35,8 @@ export function createCombobox({
   const uid = id || 'pg-combobox-' + (++nextComboId);
   const element = document.createElement('div');
   element.className = 'pg-combobox';
+  // Shared feedback geometry is owned by Field rather than this component.
+  element.classList.add('pg-field-layout');
   const input = document.createElement('input');
   input.type = 'text';
   input.id = uid;

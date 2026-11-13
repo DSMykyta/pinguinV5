@@ -35,6 +35,8 @@ export function createSelect({
   const uid = id || 'pg-select-' + (++nextSelectId);
   const element = document.createElement('div');
   element.className = 'pg-select';
+  // Shared feedback geometry is owned by Field rather than this component.
+  element.classList.add('pg-field-layout');
 
   const control = document.createElement('select');
   control.className = 'pg-select__control';

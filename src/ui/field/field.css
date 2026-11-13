@@ -200,20 +200,18 @@
   .pg-field__surface { transition: none !important; }
 }
 
-/* Shared validation layout: a hidden feedback element must not change the
- * field's occupied block-size. Keep the control itself at 40/44px.
- * A second line is reserved when permanent help and an error coexist.
- * Long/translated messages may expand naturally instead of being clipped.
- * Search inputs inside listbox toolbars stay compact (no validation there). */
-:where(.pg-input:not(.pg-input--search), .pg-select, .pg-combobox, .pg-listbox,
-  .pg-tag-field, .pg-number-field, .pg-textarea) {
+/* One Field-owned feedback layout used by all supporting controls.
+ * Consumers opt in with pg-field-layout, preserving CSS ownership.
+ * Search Inputs in popups intentionally remain compact.
+ * Short messages never change the label, control or adjacent row geometry;
+ * long messages may grow rather than get clipped. */
+.pg-field-layout {
   --pg-field-feedback-space: 18px;
   grid-template-rows: max-content minmax(var(--pg-field-feedback-space), max-content);
   align-content: start;
 }
 
-:where(.pg-input:not(.pg-input--search), .pg-select, .pg-combobox, .pg-listbox,
-  .pg-tag-field, .pg-number-field, .pg-textarea):has(> :last-child [id$='-description']:not([hidden])) {
+.pg-field-layout:has(> :last-child [id$='-description']:not([hidden])) {
   --pg-field-feedback-space: 39px;
 }
 

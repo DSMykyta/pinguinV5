@@ -32,6 +32,8 @@ export function createInput({
   const inputId = id || 'pg-input-' + (++nextInputId);
   const element = document.createElement('div');
   element.className = 'pg-input pg-input--' + variant;
+  // Search inputs in compact popups have no validation feedback.
+  if (variant !== 'search') element.classList.add('pg-field-layout');
   element.dataset.pgState = disabled ? 'disabled' : 'ready';
 
   const input = document.createElement('input');

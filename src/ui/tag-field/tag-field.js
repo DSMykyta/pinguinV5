@@ -27,6 +27,8 @@ export function createTagField({
   const uid = id || 'pg-tag-field-' + (++nextTagFieldId);
   const element = document.createElement('div');
   element.className = 'pg-tag-field';
+  // Shared feedback geometry is owned by Field rather than this component.
+  element.classList.add('pg-field-layout');
   const collection = document.createElement('div');
   collection.className = 'pg-tag-field__tokens';
   const input = document.createElement('input');

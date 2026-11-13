@@ -33,6 +33,8 @@ export function createNumberField({
   const uid = id || 'pg-number-field-' + (++nextNumberId);
   const element = document.createElement('div');
   element.className = 'pg-number-field';
+  // Shared feedback geometry is owned by Field rather than this component.
+  element.classList.add('pg-field-layout');
   const input = document.createElement('input');
   input.className = 'pg-number-field__control';
   input.type = 'number';

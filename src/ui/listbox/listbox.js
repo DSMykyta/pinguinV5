@@ -43,6 +43,8 @@ export function createListbox({
   const uid = id || 'pg-listbox-' + (++sequence);
   const element = document.createElement('div');
   element.className = 'pg-listbox';
+  // Shared feedback geometry is owned by Field rather than this component.
+  element.classList.add('pg-field-layout');
   const trigger = document.createElement('button');
   trigger.type = 'button';
   trigger.className = 'pg-listbox__trigger';

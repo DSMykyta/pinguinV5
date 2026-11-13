@@ -67,3 +67,5 @@ Regression checks: shared height on all six form controls; both screen sizes and
 Підтримка `hidden`, `aria-describedby`, `aria-invalid`, `role=status` та вся валідаційна JS-логіка залишається незмінною. Заборонено повторювати `grid-template-rows` в окремих demo CSS. Пошуковий Input у Listbox не має validation support і зберігає компактну геометрію.
 
 Перевірки: `tests/e2e/field-feedback-stability.spec.js` — сім типів полів, description/no description, помилка/очищення, доступні підписи і незмінні координати. Демо `/login-demo` додатково перевіряє кнопку й успішний status без переміщення форми.
+
+**Власність CSS:** усі компоненти з повідомленнями підтримки додають `pg-field-layout` до кореневого елемента. Лише `src/ui/field/field.css` задає цей reusable grid; жоден CSS компоненту не стилізує сторонні класи. Компактні пошукові поля не вмикають цей режим, оскільки не мають валідаційного feedback.
