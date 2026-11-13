@@ -144,10 +144,8 @@
   --pg-header-height: 60px;
 
   /* Shared progress colors: Wave Progress and Slider use the same theme-aware ink. */
-  --pg-color-progress-active: var(--pg-tone-main-base);
-  --pg-color-progress-inactive: color-mix(
-    in srgb, var(--pg-color-progress-active) 18%, var(--pg-color-surface)
-  );
+  --pg-color-progress-active: var(--pg-color-accent);
+  --pg-color-progress-inactive: var(--pg-color-accent-soft);
 
   /* Control scale: Slider's visible handle equals Checkbox / Mini Button (32px).
      Keep a separate native 48px range hit target. All component geometry
