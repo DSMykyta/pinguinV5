@@ -19,14 +19,14 @@ test('login demo uses two shared inputs, a shared button and tertiary canvas beh
   await expect(form.locator('input[type="password"]')).toHaveCount(1);
   // Names are initially inside the two native fields, not visible above them.
   await expect(form.getByLabel('Логін')).toHaveAttribute('placeholder', 'Логін');
-  await expect(form.getByLabel('Пароль')).toHaveAttribute('placeholder', 'Пароль');
+  await expect(form.locator('#pg-login-demo-password')).toHaveAttribute('placeholder', 'Пароль');
   await expect(form.locator('.pg-field__label--sr-only')).toHaveCount(2);
   for (const label of await form.locator('.pg-field__label--sr-only').all()) {
     await expect(label).toHaveCSS('clip-path', 'inset(50%)');
   }
   await expect(form.getByRole('button', { name: 'Увійти' })).toHaveClass(/pg-button--primary/);
   await expect(form.getByLabel('Логін')).toHaveAttribute('autocomplete', 'username');
-  await expect(form.getByLabel('Пароль')).toHaveAttribute('autocomplete', 'current-password');
+  await expect(form.locator('#pg-login-demo-password')).toHaveAttribute('autocomplete', 'current-password');
 
   const cloud = page.locator('.pg-cloud-gradient');
   await expect(cloud).toHaveAttribute('aria-hidden', 'true');
@@ -43,7 +43,7 @@ test('login demo uses two shared inputs, a shared button and tertiary canvas beh
 test('demo action validates inputs without pretending to authenticate', async ({ page }) => {
   await page.goto('/login-demo');
   const login = page.getByLabel('Логін');
-  const password = page.getByLabel('Пароль');
+  const password = page.locator('#pg-login-demo-password');
   const submit = page.getByRole('button', { name: 'Увійти' });
   await submit.click();
   await expect(login).toHaveAttribute('aria-invalid', 'true');
@@ -87,12 +87,12 @@ test('validation messages do not move or resize inputs and submit', async ({ pag
   await submit.click();
   await expect(fields.locator('.pg-input__error:not([hidden])')).toHaveCount(2);
   await expect(page.getByLabel('Логін')).toHaveAttribute('placeholder', 'Вкажіть логін');
-  await expect(page.getByLabel('Пароль')).toHaveAttribute('placeholder', 'Вкажіть пароль');
+  await expect(page.locator('#pg-login-demo-password')).toHaveAttribute('placeholder', 'Вкажіть пароль');
   await expect(fields.locator('.pg-input__support--sr-only')).toHaveCount(2);
   await unchanged();
   await page.getByLabel('Логін').fill('demo');
   await expect(page.getByLabel('Логін')).toHaveAttribute('placeholder', 'Логін');
-  await expect(page.getByLabel('Пароль')).toHaveAttribute('placeholder', 'Вкажіть пароль');
+  await expect(page.locator('#pg-login-demo-password')).toHaveAttribute('placeholder', 'Вкажіть пароль');
   await expect(fields.locator('.pg-input__error:not([hidden])')).toHaveCount(1);
   await unchanged();
   await page.getByLabel('Логін').fill('');
@@ -156,7 +156,7 @@ test('placeholder errors keep the native labels, password toggle and stable layo
   await page.goto('/login-demo');
   const form = page.getByRole('form', { name: 'Демонстрація входу' });
   const login = form.getByLabel('Логін');
-  const password = form.getByLabel('Пароль');
+  const password = form.locator('#pg-login-demo-password');
   const toggle = form.getByRole('button', { name: 'Показати пароль' });
   const rects = async () => form.locator('.pg-input, .pg-login-demo__submit').evaluateAll(nodes =>
     nodes.map(node => {
