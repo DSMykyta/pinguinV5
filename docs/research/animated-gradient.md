@@ -61,3 +61,17 @@
 ## Межі цього дослідження
 
 Production-файли `src/ui/animated-gradient/*`, `src/features/tools/*`, `src/ui/dialog/*` **не змінювалися** під час цього дослідження. Без дозволу користувача не виконувати міграцію renderer. Vercel не використовувати.
+
+
+## Оновлена реалізація за відеореференсом — 2026-11-13
+
+**Попередні пропозиції Canvas 2D і двох texture layers вище — історія дослідження, не чинний стан.** За новим прямим запитом користувача реалізацію спрощено до техніки зі скріншотів:
+
+- `src/ui/animated-gradient/animated-gradient.css`: головна поверхня `background: var(--pg-tone-main-base)` (**primary/main**).
+- **Один** псевдоелемент `::before` із `inset:-20%`: дві накладені `radial-gradient`-плями у `--pg-tone-secondary-base` та `--pg-tone-tertiary-base`, що зникають у прозорість приблизно до 35%, `filter:blur(60px)` (параметри можуть змінюватися за пресетом).
+- `animation: ... ease-in-out infinite alternate` рухає тільки `transform: translate3d/rotate/scale` однієї готової розмитої підкладки. **Ні JS-піксельного рендерингу, ні Canvas, ні шуму, ні декількох DOM blob-контейнерів.**
+- Існуючий компонент `createAnimatedGradient({text,preset})` зберігає `getPreset/setPreset`, назву `pinguinV6`; три кнопки Light/Storm/Dawn змінюють виключно розташування/розмір/м'якість/темп кольорових плям, залишаючи однаковий `main` фон та `secondary`/`tertiary` кольори.
+- `src/ui/animated-gradient/color-field.js` видалено як невикористовуваний код. Єдиний `Dialog` та спільний `ButtonGroup` збережено.
+- Локально перевірено **статичний візуальний прототип** у Chromium за параметрами Dawn 440×420: відсутні прямокутні шви, а синя й помаранчева плями плавно перетікають у темно-синій фон. Це не повний browser E2E тест сайту; тести додано у `tests/e2e/animated-gradient.spec.js` і вони потребують виконання.
+
+Залишкова вартість `filter:blur()` можлива під час rasterization; рух `transform` зазвичай може виконуватися на compositor, але реальні GPU/FPS слід профілювати на цільовому ПК. Бібліотек або додаткових фонових таймерів немає.
