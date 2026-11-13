@@ -4,7 +4,7 @@
  * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: One dataset, sortable native table, optional tiles, circular row selection,            ║
  * ║ ЗАЛЕЖНОСТІ: ../view-switch/view-switch.js, ../checkbox/checkbox.js, ../menu/menu.js,                ║
- * ║ ../button/button.js, ../icon/icon.js                                                                ║
+ * ║ collection-header.js, collection-filters.js, ../icon/icon.js, ../pagination/pagination.js.          ║
  * ║ ПУБЛІЧНИЙ API: createCollectionView()                                                               ║
  * ║ ПРИНЦИП: one legacy-inspired pagination service and existing Menu actions. Data fetching,           ║
  * ║ persistence and business actions belong to the caller.                                              ║
@@ -15,6 +15,8 @@ import { createViewSwitch } from '../view-switch/view-switch.js';
 import { createCheckbox } from '../checkbox/checkbox.js';
 import { createMenu } from '../menu/menu.js';
 import { createIcon } from '../icon/icon.js';
+import { createCollectionHeader } from './collection-header.js';
+import { getFilterValue, matchesColumnFilters, getColumnOptions } from './collection-filters.js';
 import { createPagination } from '../pagination/pagination.js';
 
 const collator = new Intl.Collator('uk', { numeric:true, sensitivity:'base' });
@@ -38,7 +40,9 @@ function validateColumns(columns) {
       typeof column.label!=='string'||!column.label.trim()||keys.has(column.key)||
       (column.align!==undefined&&!['start','end'].includes(column.align))||
       (column.render!==undefined&&typeof column.render!=='function')||
-      (column.sortValue!==undefined&&typeof column.sortValue!=='function')) {
+      (column.sortValue!==undefined&&typeof column.sortValue!=='function')||
+      (column.filterValue!==undefined&&typeof column.filterValue!=='function')||
+      (column.filterable!==undefined&&typeof column.filterable!=='boolean')) {
       throw new TypeError('Invalid collection column');
     }
     keys.add(column.key);
@@ -48,7 +52,7 @@ export function createCollectionView({
   label,rows=[],columns,getRowId=row=>row.id,renderTile,
   modes=['table'],initialMode='table',initialSort=null,
   selectable=false,rowActions=[],pageSize=25,density='compact',
-  onModeChange,onSortChange,onSelectionChange,onRowAction,onEditRow,onDensityChange,
+  onModeChange,onSortChange,onSelectionChange,onRowAction,onEditRow,onDensityChange,onFiltersChange,
 }={}) {
   if(typeof label!=='string'||!label.trim())throw new TypeError('Collection label is required');
   if(typeof getRowId!=='function')throw new TypeError('getRowId must be a function');
@@ -95,6 +99,7 @@ export function createCollectionView({
   empty.hidden=true;
   const controller=new AbortController();
   const headers=new Map();
+  const filters=new Map();
   const selected=new Set();
   const editColumnKey=columns.find(column=>column.primary)?.key??columns[0].key;
   let editClickTimer=null;
@@ -152,23 +157,17 @@ export function createCollectionView({
     th.dataset.pgColumn=column.key;
     if(column.align==='end')th.dataset.pgAlign='end';
     if(column.primary)th.dataset.pgPrimary='true';
-    if(column.sortable===false)th.textContent=column.label;
-    else {
-      const button=document.createElement('button');
-      button.type='button';
-      button.className='pg-collection-view__sort pg-button pg-button--plain';
-      const name=document.createElement('span');
-      name.textContent=column.label;
-      const marker=document.createElement('span');
-      marker.className='pg-collection-view__sort-mark';
-      marker.setAttribute('aria-hidden','true');
-      button.append(name,marker);
-      button.addEventListener('click',()=>{
-        setSort(column.key,sort?.key===column.key&&sort.direction==='asc'?'desc':'asc');
-      },{signal:controller.signal});
-      th.append(button);
-      headers.set(column.key,{th,button,marker,label:column.label});
-    }
+    const control=createCollectionHeader({
+      column,th,
+      getOptions:()=>getColumnOptions(dataset,column,dataset.filter(row=>
+        matchesQuery(row)&&matchesColumnFilters(row,columns,filters,column.key))),
+      getFilter:()=>filters.has(column.key)?[...filters.get(column.key)]:null,
+      onFilter:values=>setFilter(column.key,values),
+      onSort:direction=>setSort(column.key,direction),
+      onOpen:()=>closeHeaders(),
+    });
+    th.append(control.element);
+    headers.set(column.key,{th,control});
     heading.append(th);
   }
 
@@ -186,12 +185,44 @@ export function createCollectionView({
   element.append(tableScroller,tiles,empty,pageControl.element);
   // The caller may mount this same pagination element in the shared footer slot.
 
+  function closeHeaders() {
+    for(const {control} of headers.values())control.close();
+  }
+  function matchesQuery(row) {
+    const match=query.trim().toLocaleLowerCase('uk');
+    return !match||columns.some(column=>String(row[column.key]??'').toLocaleLowerCase('uk').includes(match));
+  }
+  function getFilters() {
+    return Object.fromEntries([...filters].map(([key,values])=>[key,[...values]]));
+  }
+  function updateFilterResults() {
+    sortedCache=null;
+    const onFirstPage=pageControl.getState().page===1;
+    pageControl.setPage(1);
+    if(onFirstPage)renderData();
+    if(selectable&&selected.size)notifySelection();
+    onFiltersChange?.(getFilters());
+  }
+  function setFilter(key,values) {
+    const column=columns.find(item=>item.key===key&&item.filterable);
+    if(!column)throw new RangeError('Column does not support filtering');
+    if(values!==null&&(!Array.isArray(values)||values.some(value=>
+      !['string','number'].includes(typeof value))))throw new TypeError('Filter values must be an array or null');
+    const selectedValues=values===null?null:new Set(values.map(String));
+    const available=new Set(dataset.map(row=>getFilterValue(row,column)));
+    if(selectedValues===null||(available.size>0&&selectedValues.size===available.size&&
+      [...available].every(value=>selectedValues.has(value))))filters.delete(key);
+    else filters.set(key,selectedValues);
+    updateFilterResults();
+  }
+  function clearFilters() {
+    if(!filters.size)return;
+    filters.clear();
+    updateFilterResults();
+  }
   function sortedRows() {
     if(sortedCache!==null)return sortedCache;
-    const match=query.trim().toLocaleLowerCase('uk');
-    const filtered=match?dataset.filter(row=>
-      columns.some(column=>String(row[column.key]??'').toLocaleLowerCase('uk').includes(match))
-    ):dataset;
+    const filtered=dataset.filter(row=>matchesQuery(row)&&matchesColumnFilters(row,columns,filters));
     if(!sort)return (sortedCache=[...filtered]);
     const column=columns.find(col=>col.key===sort.key);
     sortedCache=filtered.map((row,index)=>({row,index})).sort((a,b)=>{
@@ -453,19 +484,11 @@ export function createCollectionView({
         :'За поточним запитом нічого не знайдено';
     }
     const hasVisibleRows=shown.length>0;
-    tableScroller.hidden=!hasVisibleRows||currentMode!=='table';
+    tableScroller.hidden=dataState!=='ready'||currentMode!=='table';
     tiles.hidden=!hasVisibleRows||currentMode!=='tiles';
-    for(const [key,entry] of headers) {
-      const state=sort?.key===key?(sort.direction==='asc'?'ascending':'descending'):null;
-      if(state)entry.th.setAttribute('aria-sort',state);
-      else entry.th.removeAttribute('aria-sort');
-      entry.button.setAttribute('aria-label','Сортувати '+entry.label+' '+(state==='ascending'?'за спаданням':'за зростанням'));
-      const iconName=state==='ascending'?'arrow-up':state==='descending'?'arrow-down':'swap-vert';
-      if(entry.marker.dataset.pgIcon!==iconName) {
-        entry.marker.replaceChildren(createIcon(iconName));
-        entry.marker.dataset.pgIcon=iconName;
-      }
-    }
+    if(dataState==='ready'&&currentMode==='table')tableScroller.append(empty);
+    else element.insertBefore(empty,pageControl.element.parentNode===element?pageControl.element:null);
+    for(const [key,{control}] of headers)control.sync(sort,filters.has(key));
     syncSelection();
     restoreRowFocus(previousFocus);
   }
@@ -474,6 +497,7 @@ export function createCollectionView({
     const ids=next.map(row=>String(getRowId(row)));
     if(ids.some(id=>!id||id==='undefined')||new Set(ids).size!==ids.length)
       throw new TypeError('Rows need unique stable ids');
+    closeHeaders();
     dataset=[...next];
     sortedCache=null;
     dataState='ready';dataMessage='';
@@ -488,6 +512,7 @@ export function createCollectionView({
     if(selected.size||previousSelectionSize)notifySelection();
   }
   function setQuery(next) {
+    closeHeaders();
     query=String(next??'');
     sortedCache=null;
     const onFirstPage=pageControl.getState().page===1;
@@ -499,6 +524,7 @@ export function createCollectionView({
   function setSort(key,direction='asc') {
     if(!columns.some(col=>col.key===key&&col.sortable!==false)||
       !['asc','desc'].includes(direction))throw new RangeError('Invalid collection sort');
+    closeHeaders();
     sort={key,direction};
     sortedCache=null;
     const onFirstPage=pageControl.getState().page===1;
@@ -508,6 +534,7 @@ export function createCollectionView({
   }
   function setMode(next) {
     if(!modes.includes(next))throw new RangeError('Unsupported view mode');
+    closeHeaders();
     const changed=currentMode!==next;
     currentMode=next;
     switcher?.setValue(next);
@@ -526,6 +553,7 @@ export function createCollectionView({
   function setDataState(next,message='') {
     if(!['ready','loading','error'].includes(next))
       throw new RangeError('Invalid collection data state');
+    closeHeaders();
     dataState=next;
     dataMessage=String(message??'');
     element.dataset.pgDataState=next;
@@ -540,6 +568,7 @@ export function createCollectionView({
     getMode:()=>currentMode,setMode,
     getDensity:()=>currentDensity,setDensity,
     getRows:()=>[...sortedRows()],getVisibleRows,getSort:()=>sort?{...sort}:null,
+    getFilters,setFilter,clearFilters,
     setSort,getQuery:()=>query,setQuery,getSelectedIds,getSelectionSummary,
     getDataState:()=>dataState,setDataState,clearSelection() {
       if(!selected.size)return;selected.clear();syncSelection();notifySelection();
@@ -547,6 +576,7 @@ export function createCollectionView({
     getPagination:pageControl.getState,setPage:pageControl.setPage,
     setPageSize:pageControl.setPageSize,setRows,
     destroy(){
+      for(const {control} of headers.values())control.destroy();
       controller.abort();cleanupRows();allCheckbox?.destroy();
       pageControl.destroy();switcher?.destroy();element.remove();
     },

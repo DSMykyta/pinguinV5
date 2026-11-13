@@ -129,12 +129,35 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  width: 100%;
+  flex: 1 1 auto;
+  min-inline-size: 0;
   white-space: nowrap;
 }
 .pg-collection-view__table [data-pg-align='end'] .pg-collection-view__sort { justify-content: flex-end; }
 .pg-collection-view__sort-mark { display:inline-flex;align-items:center;color:var(--pg-color-text-muted); }
 .pg-collection-view__sort-mark > .pg-icon { inline-size:16px;block-size:16px; }
+.pg-collection-view__column-header { position:relative;display:flex;align-items:center;gap:4px;block-size:100%;min-inline-size:0; }
+.pg-collection-view__column-name { overflow:hidden;text-overflow:ellipsis;min-inline-size:0; }
+.pg-collection-view__sort-mark { flex:0 0 16px;opacity:0; }
+.pg-collection-view__table th:is(:hover,:focus-within,[aria-sort]) .pg-collection-view__sort-mark { opacity:1; }
+/* The existing cell padding is the indicator gutter for filterable columns.
+ * Their action slot is reserved once, without shortening the title twice. */
+.pg-collection-view__table th[data-pg-filterable='true'] .pg-collection-view__sort-mark { position:absolute;inset-inline-start:-18px; }
+.pg-collection-view__filter-trigger { opacity:0; }
+.pg-collection-view__table th:is(:hover,:focus-within,[data-pg-filtered='true'],[data-pg-filter-open='true']) .pg-collection-view__filter-trigger { opacity:1; }
+.pg-collection-view__filter-panel { font-size:13px;white-space:normal; }
+.pg-collection-view__filter-panel > [hidden] { display:none; }
+.pg-collection-view__filter-title { padding:6px 8px; }
+.pg-collection-view__filter-toolbar { display:flex;align-items:center;justify-content:space-between;gap:8px; }
+.pg-collection-view__filter-values { overflow:auto;max-block-size:240px; }
+.pg-collection-view__filter-option { display:flex;align-items:center;gap:8px; }
+.pg-collection-view__filter-option[hidden] { display:none; }
+.pg-collection-view__filter-count { margin-inline-start:auto;padding-inline-end:8px;color:var(--pg-color-text-muted);font-variant-numeric:tabular-nums; }
+.pg-collection-view__filter-empty { margin:0;padding:8px;color:var(--pg-color-text-muted); }
+.pg-collection-view__filter-empty[hidden] { display:none; }
+@media (hover:none), (pointer:coarse) {
+  .pg-collection-view__sort-mark,.pg-collection-view__filter-trigger { opacity:1; }
+}
 .pg-collection-view__tiles {
   flex: 1 1 auto; min-block-size: 0; overflow: auto;
   display: grid; grid-template-columns: repeat(auto-fill,minmax(min(var(--pg-collection-tile-min),100%),1fr));
