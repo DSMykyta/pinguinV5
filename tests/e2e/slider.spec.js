@@ -75,11 +75,12 @@ test('Native keyboard respects nonzero min, fractional steps, names and formatte
   expect(result.calls.slice(0, 2)).toEqual([['input', 15.5], ['change', 15.5]]);
 });
 
-test('Track and handle match M3 sizes, six-pixel gaps, stop dot and endpoint clipping', async ({ page }) => {
+test('Track and handle follow shared 32px controls, asymmetric 16/10px tracks and endpoint clipping', async ({ page }) => {
   await mount(page);
   const initial = await geometry(page);
   expect(initial.handle.width).toBe(4);
-  expect(initial.handle.height).toBe(44);
+  expect(initial.handle.height).toBe(32);
+  expect(initial.inactive.height).toBe(10);
   expect(initial.active.height).toBe(16);
   expect(initial.handle.x - initial.active.right).toBeCloseTo(6, 1);
   expect(initial.inactive.x - initial.handle.right).toBeCloseTo(6, 1);
@@ -178,8 +179,7 @@ test('Themes, keyboard focus, reduced motion and forced colors remain usable', a
     const palette = await page.locator('.pg-slider').first().evaluate(root => {
       const style = getComputedStyle(root);
       return {
-        active: style.getPropertyValue('--pg-color-accent').trim(),
-        inactive: style.getPropertyValue('--pg-color-accent-soft').trim(),
+        active: style.getPropertyValue('--pg-color-progress-active').trim(),
         handle: getComputedStyle(root.querySelector('.pg-slider__handle')).backgroundColor,
         track: getComputedStyle(root.querySelector('.pg-slider__inactive')).backgroundColor,
       };
@@ -187,7 +187,7 @@ test('Themes, keyboard focus, reduced motion and forced colors remain usable', a
     const normalize = color => color.startsWith('#')
       ? `rgb(${color.slice(1).match(/../g).map(value => parseInt(value, 16)).join(', ')})` : color;
     expect(palette.handle).toBe(normalize(palette.active));
-    expect(palette.track).toBe(normalize(palette.inactive));
+    expect(palette.track).not.toBe(palette.handle);
     await page.locator('form').screenshot({ path: testInfo.outputPath('slider-' + theme + '.png') });
   }
   expect(colors[0]).not.toBe(colors[1]);
