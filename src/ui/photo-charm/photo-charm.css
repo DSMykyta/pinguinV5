@@ -41,8 +41,8 @@
   transform:scale(1.1);
   filter:blur(var(--pg-photo-charm-blur, 40px)) saturate(var(--pg-photo-charm-saturation, 1.8));
   opacity:.85;
-  -webkit-mask-image:radial-gradient(ellipse at center, #000 32%, transparent 75%);
-  mask-image:radial-gradient(ellipse at center, #000 32%, transparent 75%);
+  -webkit-mask-image:radial-gradient(ellipse at center, var(--pg-color-page) 32%, transparent 75%);
+  mask-image:radial-gradient(ellipse at center, var(--pg-color-page) 32%, transparent 75%);
   pointer-events:none;
   user-select:none;
   transition:opacity var(--pg-motion-effects-normal-duration) var(--pg-motion-effects-ease);
