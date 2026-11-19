@@ -51,3 +51,7 @@
 @media (prefers-reduced-motion:reduce) {
   .pg-photo-charm__aura {transition:none;}
 }
+
+@media (max-width:520px) {
+  .pg-photo-charm {padding:var(--pg-space-8) var(--pg-space-6);}
+}

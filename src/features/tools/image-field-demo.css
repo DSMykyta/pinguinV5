@@ -17,8 +17,3 @@
 }
 .pg-tools-image-demo__preview {inline-size:100%;min-inline-size:0;}
 .pg-tools-image-demo>.pg-switch {margin-block:0 var(--pg-space-4);}
-@media (max-width:520px) {
-  .pg-tools-image-demo__preview .pg-photo-charm {
-    padding:var(--pg-space-8) var(--pg-space-6);
-  }
-}
