@@ -15,18 +15,7 @@ import {createSwitch} from '../../ui/switch/switch.js';
 
 // Online sample; always fall back to an embedded offline example.
 const EXAMPLE_IMAGE='https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=960&q=80';
-const FALLBACK_IMAGE='data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">'+
-  '<defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#78a5bb"/>'+
-  '<stop offset="1" stop-color="#edc3a3"/></linearGradient>'+
-  '<linearGradient id="lake" x2="0" y2="1"><stop stop-color="#638f9d"/>'+
-  '<stop offset="1" stop-color="#2d626c"/></linearGradient></defs>'+
-  '<rect width="900" height="600" fill="url(#sky)"/>'+
-  '<circle cx="662" cy="169" r="84" fill="#fff2c9" opacity=".85"/>'+
-  '<path d="M0 386 240 98 427 330 590 156 900 412V600H0Z" fill="#467f89"/>'+
-  '<path d="M0 430 226 230 410 401 641 269 900 454V600H0Z" fill="#255866"/>'+
-  '<rect y="460" width="900" height="140" fill="url(#lake)"/></svg>'
-);
+const FALLBACK_IMAGE=new URL('./photo-charm-fallback.svg',import.meta.url).href;
 
 export function createImageFieldDemo() {
   const element=document.createElement('section');
