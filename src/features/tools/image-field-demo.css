@@ -2,13 +2,23 @@
  * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
  * ║ PINGUIN NEXT — IMAGE FIELD DEMO                                                                     ║
  * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Gallery only. Image picker styles remain within shared UI component.                   ║
+ * ║ ПРИЗНАЧЕННЯ: Розміщення фото з шармом, перемикача та Image Field у вкладці «Елементи».              ║
  * ║ ЗАЛЕЖНОСТІ: Токени src/styles/tokens.css; стилі спільних компонентів.                               ║
- * ║ ПУБЛІЧНИЙ API: .pg-tools-image-demo                                                                 ║
- * ║ ПРИНЦИП: Тільки демонстрація; вигляд і логіка спільного UI не дублюються.                           ║
+ * ║ ПУБЛІЧНИЙ API: .pg-tools-image-demo, .pg-tools-image-demo__preview.                                ║
+ * ║ ПРИНЦИП: Тільки композиція, без перевизначення вигляду спільних UI.                                ║
  * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
-.pg-tools-image-demo {max-inline-size:420px;margin-block-start:var(--pg-space-10);}
+.pg-tools-image-demo {max-inline-size:560px;margin-block-start:var(--pg-space-10);}
 .pg-tools-image-demo h3 {font-size:15px;margin:0 0 5px;}
-.pg-tools-image-demo>p {color:var(--pg-color-text-secondary);font-size:13px;margin:0 0 16px;}
+.pg-tools-image-demo>p {
+  color:var(--pg-color-text-secondary);font-size:13px;
+  line-height:1.5;margin:0 0 var(--pg-space-4);
+}
+.pg-tools-image-demo__preview {inline-size:100%;min-inline-size:0;}
+.pg-tools-image-demo>.pg-switch {margin-block:0 var(--pg-space-4);}
+@media (max-width:520px) {
+  .pg-tools-image-demo__preview .pg-photo-charm {
+    padding:var(--pg-space-8) var(--pg-space-6);
+  }
+}

@@ -36,6 +36,7 @@ import './ui/combobox/combobox.css';
 import './ui/listbox/listbox.css';
 import './ui/menu/menu.css';
 import './ui/image-field/image-field.css';
+import './ui/photo-charm/photo-charm.css';
 import './ui/tag-field/tag-field.css';
 import './ui/textarea/textarea.css';
 import './ui/rich-text-editor/rich-text-editor.css';

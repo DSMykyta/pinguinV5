@@ -1,0 +1,53 @@
+/*
+ * ╔═══════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — PHOTO CHARM                                                ║
+ * ╠═══════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: CSS відбиток фото, м'який halo і чітке основне зображення.    ║
+ * ║ ЗАЛЕЖНОСТІ: Спільні токени src/styles/tokens.css.                         ║
+ * ║ ПУБЛІЧНИЙ API: .pg-photo-charm, __aura, __image, data-pg-enabled.         ║
+ * ║ ПРИНЦИП: Жодних canvas, анімацій без потреби або глобальних стилів.       ║
+ * ╚═══════════════════════════════════════════════════════════════════════════╝
+ */
+
+.pg-photo-charm {
+  position:relative;
+  isolation:isolate;
+  display:grid;
+  place-items:center;
+  box-sizing:border-box;
+  inline-size:100%;
+  min-inline-size:0;
+  padding:var(--pg-space-10) var(--pg-space-8);
+}
+.pg-photo-charm__image {
+  position:relative;
+  z-index:1;
+  display:block;
+  inline-size:100%;
+  min-inline-size:0;
+  aspect-ratio:var(--pg-photo-charm-ratio, 3 / 2);
+  object-fit:cover;
+  border-radius:var(--pg-radius-md);
+  background:var(--pg-color-surface-soft);
+  box-shadow:0 8px 24px var(--pg-color-shadow);
+}
+.pg-photo-charm__aura {
+  position:absolute;
+  z-index:0;
+  inset:var(--pg-space-4);
+  inline-size:calc(100% - 2 * var(--pg-space-4));
+  block-size:calc(100% - 2 * var(--pg-space-4));
+  object-fit:cover;
+  transform:scale(1.1);
+  filter:blur(var(--pg-photo-charm-blur, 40px)) saturate(var(--pg-photo-charm-saturation, 1.8));
+  opacity:.85;
+  -webkit-mask-image:radial-gradient(ellipse at center, #000 32%, transparent 75%);
+  mask-image:radial-gradient(ellipse at center, #000 32%, transparent 75%);
+  pointer-events:none;
+  user-select:none;
+  transition:opacity var(--pg-motion-effects-normal-duration) var(--pg-motion-effects-ease);
+}
+.pg-photo-charm[data-pg-enabled='false'] .pg-photo-charm__aura {opacity:0;}
+@media (prefers-reduced-motion:reduce) {
+  .pg-photo-charm__aura {transition:none;}
+}

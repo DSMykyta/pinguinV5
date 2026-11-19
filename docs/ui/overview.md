@@ -67,6 +67,7 @@
 | Listbox | `src/ui/listbox` | [Single/multiple listbox with chips, search and select-all](listbox.md) |
 | Menu | `src/ui/menu` | [Keyboard action/check menus](menu.md) |
 | Image Field | `src/ui/image-field` | [Local image preview, drag/drop and URL cleanup](image-field.md) |
+| Photo Charm | `src/ui/photo-charm` | [Розмите атмосферне тло з того самого фото](photo-charm.md); демо у «Елементах» |
 | Tag Field | `src/ui/tag-field` | Independent tag collection, paste parsing, two-step removal, undo; [contract](tag-field.md) |
 | Form Dialog | `src/ui/form-dialog` | Shared Dialog composition with validation and dirty close guard; [contract](form-dialog.md) |
 | Workspace Dialog | `src/ui/dialog` + `src/ui/form-dialog` + `src/ui/workspace-layout` | [Спільний редактор з навігацією «Переходи»](workspace-dialog.md); приклад у «Макетах даних» |
