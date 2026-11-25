@@ -107,29 +107,34 @@ export function analyzeTable(rows){
   const idx=key=>data.get(key)?.i, valid=key=>get(key)!==null, mass=basis?.type==='mass', liquid=basis?.type==='volume';
   const per=key=>basis&&valid(key)?get(key)*100/basis.n:null;
   const le=(a,b)=>a!==null&&a<=b+1e-9,ge=(a,b)=>a!==null&&a+1e-9>=b;
+  const fmt=v=>Number(v.toFixed(4)).toLocaleString('uk-UA');
+  const basisLabel=liquid?'100 мл':'100 г';
+  const threshold=(key,limit,unit='г')=>'Фактично: '+fmt(per(key))+' '+unit+'/'+basisLabel+'. Допустимо: ≤ '+fmt(limit)+' '+unit+'/'+basisLabel+'.';
   const claim=(key,label,detail='')=>put(idx(key),label,detail);
   const e=get('energy');
   if(mass)for(const key of ['fat','carbs','protein'])if(valid(key)&&get(key)>0)claim(key,Math.round(per(key))+'%','Масова частка порції.');
   if(basis){
    if(valid('sugar')){
     const i=idx('sugar'),old=hints[i].some(h=>h.label==='Sugar Free'||h.label==='No Added Sugar');
-    if(le(per('sugar'),.5)){hints[i]=hints[i].filter(h=>h.label!=='No Added Sugar');claim('sugar','Sugar Free');}
-    else if(!old&&le(per('sugar'),liquid?2.5:5))claim('sugar','Low Sugar');
+    if(le(per('sugar'),.5)){hints[i]=hints[i].filter(h=>h.label!=='No Added Sugar');claim('sugar','Sugar Free',threshold('sugar',.5));}
+    else if(!old&&le(per('sugar'),liquid?2.5:5))claim('sugar','Low Sugar',threshold('sugar',liquid?2.5:5));
    }
-   if(le(per('fat'),.5))claim('fat','Fat Free');
-   else if(le(per('fat'),liquid?1.5:3))claim('fat','Low Fat','Загальний поріг, спеціальні правила для молока не враховано.');
+   if(le(per('fat'),.5))claim('fat','Fat Free',threshold('fat',.5));
+   else if(le(per('fat'),liquid?1.5:3))claim('fat','Low Fat',threshold('fat',liquid?1.5:3)+' Для молока діють окремі правила.');
    const saltKey=valid('salt')?'salt':'sodium',s=per(saltKey),salt=s===null?null:s*(saltKey==='sodium'?2.5:1);
-   if(le(salt,.0125))claim(saltKey,'Salt Free');
-   else if(le(salt,.1))claim(saltKey,'Very Low Salt');
-   else if(le(salt,.3))claim(saltKey,'Low Salt','Загальний поріг; для води окремі правила.');
-   if(liquid&&le(per('energy'),4))claim('energy','Calorie Free');
-   else if(le(per('energy'),liquid?20:40))claim('energy','Low Calorie');
+   const saltDetail=limit=>'Еквівалент солі: '+fmt(salt)+' г/'+basisLabel+'. Допустимо: ≤ '+fmt(limit)+' г/'+basisLabel+'. Для води діють окремі правила.';
+   if(le(salt,.0125))claim(saltKey,'Salt Free',saltDetail(.0125));
+   else if(le(salt,.1))claim(saltKey,'Very Low Salt',saltDetail(.1));
+   else if(le(salt,.3))claim(saltKey,'Low Salt',saltDetail(.3));
+   if(liquid&&le(per('energy'),4))claim('energy','Calorie Free',threshold('energy',4,'ккал'));
+   else if(le(per('energy'),liquid?20:40))claim('energy','Low Calorie',threshold('energy',liquid?20:40,'ккал'));
    if(mass&&per('polyols')!==null&&per('polyols')>10)put(idx('polyols'),'Polyol Warning','Перевірте, чи понад 10% саме доданих поліолів, і наявність попередження.','yellow');
   }
   const fiberEnergy=e>0&&valid('fiber')?get('fiber')*100/e:null;
-  if((mass&&ge(per('fiber'),6))||ge(fiberEnergy,3))claim('fiber','High Fiber');
-  else if((mass&&ge(per('fiber'),3))||ge(fiberEnergy,1.5))claim('fiber','Source of Fiber');
-  if(e>0&&valid('protein')){const share=get('protein')*400/e;if(ge(share,20))claim('protein','High Protein','≥ 20% енергії з білка.');else if(ge(share,12))claim('protein','Source of Protein','≥ 12% енергії з білка.');}
+  const fiberDetail=(g,kcal)=>[mass&&valid('fiber')?'Фактично: '+fmt(per('fiber'))+' г/100 г.':'',fiberEnergy!==null?'Фактично: '+fmt(fiberEnergy)+' г/100 ккал.':'','Поріг: ≥ '+fmt(g)+' г/100 г або ≥ '+fmt(kcal)+' г/100 ккал.'].filter(Boolean).join(' ');
+  if((mass&&ge(per('fiber'),6))||ge(fiberEnergy,3))claim('fiber','High Fiber',fiberDetail(6,3));
+  else if((mass&&ge(per('fiber'),3))||ge(fiberEnergy,1.5))claim('fiber','Source of Fiber',fiberDetail(3,1.5));
+  if(e>0&&valid('protein')){const share=get('protein')*400/e;if(ge(share,20))claim('protein','High Protein','Фактично: '+fmt(share)+'% енергії з білка. Поріг: ≥ 20%.');else if(ge(share,12))claim('protein','Source of Protein','Фактично: '+fmt(share)+'% енергії з білка. Поріг: ≥ 12%.');}
   const excess=(parent,children,label)=>{if(valid(parent)){const sum=children.reduce((s,k)=>s+(get(k)??0),0);if(sum>get(parent)+.1)put(idx(parent),label,'Сума підвидів '+Number(sum.toFixed(4))+' г > '+get(parent)+' г.','red');}};
   if(valid('sugar')&&valid('carbs')&&get('sugar')>get('carbs')+.1)put(idx('sugar'),'Sugar Error','Цукри перевищують вуглеводи.','red');
   excess('carbs',['sugar','polyols','starch'],'Carb Error');excess('fat',['sat','trans','mono','poly'],'Fat Error');

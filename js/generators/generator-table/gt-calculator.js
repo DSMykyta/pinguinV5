@@ -64,7 +64,8 @@ export function updateCalculatedTableHints() {
             const color = h.color === 'red' || ['Unit Check', 'Calorie Check', 'Polyol Warning'].includes(h.label) ? h.color : 'secondary';
             span.className = 'tag c-' + color;
             span.textContent = h.label;
-            span.title = h.detail || h.label;
+            // Tooltips must explain a check, never merely repeat its label.
+            if (h.detail?.trim() && h.detail.trim() !== h.label) span.title = h.detail;
             return span;
         }));
     }

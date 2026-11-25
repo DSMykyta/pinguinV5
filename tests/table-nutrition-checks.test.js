@@ -12,6 +12,8 @@ assert.ok(!labels(fusion,4).includes('No Added Sugar'));
 for(const label of ['Added Sugar','Sweeteners','Allergens'])assert.ok(analyzeTable(fusion).highlights.at(-1).left.some(x=>x.label===label));
 assert.deepEqual(labels(table('50 г',[r('цукор','0.25 г')],'мальтитол'),1),['Sugar Free']);
 check(table('50 г',[r('цукор','2 г')],'декстроза'),1,'Low Sugar');
+assert.match(analyzeTable(table('50 г',[r('цукор','2 г')],'декстроза')).hints[1].find(h=>h.label==='Low Sugar').detail,/4 г\/100 г.*5 г\/100 г/);
+assert.match(analyzeTable(table('100 г',[r('Сіль','0.1 г')],'')).hints[1].find(h=>h.label==='Very Low Salt').detail,/0,1 г\/100 г/);
 check(table('100 мл',[r('цукор','2.5 г')],'декстроза'),1,'Low Sugar');
 assert.ok(!labels(table('100 мл',[r('цукор','3 г')],'декстроза'),1).includes('Low Sugar'));
 check(table('50 г',[r('цукор','10 г')],'сушене манго'),1,'No Added Sugar');
