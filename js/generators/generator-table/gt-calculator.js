@@ -59,7 +59,10 @@ export function updateCalculatedTableHints() {
     function renderTags(target, list) {
         target.replaceChildren(...list.map(h => {
             const span = document.createElement('span');
-            span.className = 'tag c-' + h.color;
+            // Use the original light-blue percentage style for informational hints.
+            // Preserve warning/error colors only for actual validation problems.
+            const color = h.color === 'red' || ['Unit Check', 'Calorie Check', 'Polyol Warning'].includes(h.label) ? h.color : 'secondary';
+            span.className = 'tag c-' + color;
             span.textContent = h.label;
             span.title = h.detail || h.label;
             return span;
@@ -159,8 +162,8 @@ export function markSugarClaims(rowsData = null) {
         const label = claims[index][0];
         tag.textContent = label;
         tag.dataset.sugarClaimHint = label;
-        tag.classList.remove('u-hidden', 'c-yellow');
-        tag.classList.add('c-main');
+        tag.classList.remove('u-hidden', 'c-yellow', 'c-main');
+        tag.classList.add('c-secondary');
         tag.title = claims[index].includes('No Added Sugar')
             ? 'Попередня перевірка за переліком інгредієнтів. Підтвердьте рецептуру та призначення компонентів у виробника.'
             : 'Не більше 0,5 г цукрів на 100 г або 100 мл за заявленою харчовою цінністю.';
@@ -202,11 +205,11 @@ export function markEssentialAminoAcids(rowsData = null) {
 
         if (isEssential) {
             toolSpan.textContent = 'EAA';
-            toolSpan.classList.remove('u-hidden', 'c-main');
-            toolSpan.classList.add('c-yellow');
+            toolSpan.classList.remove('u-hidden', 'c-main', 'c-yellow');
+            toolSpan.classList.add('c-secondary');
         } else {
             toolSpan.classList.remove('c-yellow');
-            toolSpan.classList.add('c-main');
+            toolSpan.classList.add('c-secondary');
             if (toolSpan.textContent === 'EAA') {
                 toolSpan.textContent = '';
                 toolSpan.classList.add('u-hidden');
