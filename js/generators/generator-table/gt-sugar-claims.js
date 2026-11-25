@@ -68,7 +68,7 @@ function getSugarClaimHints(rows) {
             if(!isSugarRow(row.left)||row.single) continue;
             const sugar=parseQuantity(row.right);
             if(serving!==null&&sugar!==null&&sugar*200<=serving+1e-10) result[i].push('Sugar Free');
-            if(noAdded) result[i].push('No Added Sugar');
+            else if(noAdded) result[i].push('No Added Sugar');
         }
     }
     return result;

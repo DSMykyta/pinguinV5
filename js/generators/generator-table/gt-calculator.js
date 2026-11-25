@@ -123,7 +123,7 @@ export function markSugarClaims(rowsData = null) {
             tag.removeAttribute('title');
         }
         if (!claims[index].length) return;
-        const label = claims[index].join(' · ');
+        const label = claims[index][0];
         tag.textContent = label;
         tag.dataset.sugarClaimHint = label;
         tag.classList.remove('u-hidden', 'c-yellow');

@@ -6,7 +6,7 @@ const cases = [
     "50 грам",
     "0.24 г",
     "Кокосова стружка, мальтитол, сукралоза",
-    "Sugar Free|No Added Sugar"
+    "Sugar Free"
   ],
   [
     "50 грам",
@@ -60,13 +60,13 @@ const cases = [
     "1 батончик (50 г)",
     "250 мг",
     "мальтитол",
-    "Sugar Free|No Added Sugar"
+    "Sugar Free"
   ],
   [
     "100 мл",
     "0.5 г",
     "сукралоза",
-    "Sugar Free|No Added Sugar"
+    "Sugar Free"
   ],
   [
     "1 порція",
@@ -100,14 +100,14 @@ const cases = [
   ]
 ];
 
-test('sugar claim hints handle serving units, threshold and ingredients independently', async () => {
+test('sugar claim hints handle serving units, threshold with Sugar Free taking display priority', async () => {
     const { getSugarClaimHints } = await import('../js/generators/generator-table/gt-sugar-claims.js');
     for (const [serving, sugar, ingredients, expected] of cases) {
         const rows = [{ left: 'Харчова цінність', right: serving }, { left: '- цукор', right: sugar }, { separator: true }, { left: 'Інгредієнти', header: true }, { left: ingredients, single: true }];
         assert.equal(getSugarClaimHints(rows)[1].join('|'), expected, JSON.stringify(rows));
     }
     const ru = [{ left: 'Пищевая ценность', right: '60 грамм' }, { left: ' - сахар', right: '0,3 г' }, { separator: true }, { left: 'Ингредиенты', header: true }, { left: 'какао, мальтитол', single: true }];
-    assert.deepEqual(getSugarClaimHints(ru)[1], ['Sugar Free', 'No Added Sugar']);
+    assert.deepEqual(getSugarClaimHints(ru)[1], ['Sugar Free']);
     assert.deepEqual(getSugarClaimHints(ru.slice(0, 2))[1], ['Sugar Free']);
     assert.deepEqual(getSugarClaimHints([...ru, { left: 'Харчова цінність', right: '50 г' }, { left: 'цукор', right: '2 г' }]).at(-1), []);
 });
