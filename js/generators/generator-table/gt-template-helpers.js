@@ -15,6 +15,7 @@
 
 import { createAndAppendRow, initializeEmptyRow } from './gt-row-manager.js';
 import { handleInputTypeSwitch } from './gt-row-renderer.js';
+import { updateCalculatedTableHints } from './gt-calculator.js';
 import { autoSaveSession } from './gt-session-manager.js';
 
 /**
@@ -27,6 +28,7 @@ export async function addSampleList(items) {
         row.classList.add('added');
         row.querySelector('.input-box.large input, .input-box.large textarea').value = item;
     }
+    updateCalculatedTableHints();
     autoSaveSession();
 }
 
@@ -55,5 +57,6 @@ export async function addSampleTemplate(type) {
     if (type === 'composition') {
         fieldRow.querySelector('.input-box.large input, .input-box.large textarea').value = 'Состав может незначительно отличаться в зависимости от вкуса';
     }
+    updateCalculatedTableHints();
     autoSaveSession();
 }

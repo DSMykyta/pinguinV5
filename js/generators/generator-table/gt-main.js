@@ -135,15 +135,20 @@ async function initTableGenerator(panelEl) {
     const sessionLoaded = loadSession ? await loadSession() : false;
 
     if (!sessionLoaded) {
-        initializeFirstRow();
+        await initializeFirstRow();
     }
+
+    callPlugin('gt-calculator', 'updateCalculatedTableHints');
 
     // 4. Ініціалізуємо Sortable
     if (typeof Sortable !== 'undefined') {
         const autoSaveSession = getPluginFunction('gt-session-manager', 'autoSaveSession');
         new Sortable(dom.rowsContainer, {
             ...SORTABLE_CONFIG,
-            onEnd: () => autoSaveSession?.(),
+            onEnd: () => {
+                callPlugin('gt-calculator', 'updateCalculatedTableHints');
+                autoSaveSession?.();
+            },
         });
     }
 

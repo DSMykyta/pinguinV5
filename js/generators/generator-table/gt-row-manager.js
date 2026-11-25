@@ -16,6 +16,7 @@ import { getTableDOM } from './gt-dom.js';
 import { renderNewRow } from './gt-row-renderer.js';
 import { resetRowCounter } from './gt-state.js';
 import { clearSession, autoSaveSession } from './gt-session-manager.js';
+import { updateCalculatedTableHints } from './gt-calculator.js';
 import { ROW_CLASSES } from './gt-config.js';
 
 /**
@@ -39,6 +40,7 @@ export function deleteRow(row) {
     const dom = getTableDOM();
     if (dom.rowsContainer.querySelectorAll('.content-bloc').length > 1) {
         row.remove();
+        updateCalculatedTableHints();
         autoSaveSession();
     } else {
         console.warn('Неможливо видалити останній рядок.');

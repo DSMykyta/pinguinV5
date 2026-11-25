@@ -9,6 +9,7 @@
  */
 
 import { incrementRowCounter } from './gt-state.js';
+import { updateCalculatedTableHints } from './gt-calculator.js';
 import { ROW_CLASSES } from './gt-config.js';
 import { insertRowAbove, insertRowBelow, deleteRow } from './gt-row-manager.js';
 import { enableTextareaAutoHeight, syncTextareaHeight } from '../../components/forms/textarea-auto-height.js';
@@ -131,6 +132,7 @@ function handleOptionClick(row, classToApply) {
         row.classList.toggle(classToApply);
     }
 
+    updateCalculatedTableHints();
     requestAnimationFrame(() => {
         row.querySelectorAll('textarea[data-auto-height]').forEach(syncTextareaHeight);
     });

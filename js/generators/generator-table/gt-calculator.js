@@ -13,8 +13,9 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
+import { getSugarClaimHints } from './gt-sugar-claims.js';
 import { getTableDOM } from './gt-dom.js';
-import { NUTRITION_PATTERNS, SELECTORS } from './gt-config.js';
+import { NUTRITION_PATTERNS, SELECTORS, ROW_CLASSES } from './gt-config.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { markPluginLoaded } from './gt-state.js';
 
@@ -34,6 +35,7 @@ export function init() {
 
 function collectInputRows(rowsContainer) {
     return Array.from(rowsContainer.querySelectorAll(SELECTORS.INPUTS_BLOC)).map(row => ({
+        row,
         left: row.querySelector(SELECTORS.INPUT_LEFT),
         right: row.querySelector(SELECTORS.INPUT_RIGHT),
         tag: row.querySelector(SELECTORS.INPUT_TAG)
@@ -47,6 +49,7 @@ export function updateCalculatedTableHints() {
     const rowsData = collectInputRows(dom.rowsContainer);
     calculatePercentages(rowsData);
     markEssentialAminoAcids(rowsData);
+    markSugarClaims(rowsData);
 }
 
 /**
@@ -92,6 +95,42 @@ export function calculatePercentages(rowsData = null) {
             item.tag.textContent = percentage;
             item.tag.classList.toggle('u-hidden', !percentage);
         }
+    });
+}
+
+/** Reuse the existing calculated-hint tag; claims are never exported as composition. */
+export function markSugarClaims(rowsData = null) {
+    const dom = getTableDOM();
+    if (!dom.rowsContainer) return;
+    const rows = rowsData || collectInputRows(dom.rowsContainer);
+    const claims = getSugarClaimHints(rows.map(item => ({
+        left: item.left?.value,
+        right: item.right?.value,
+        header: [ROW_CLASSES.TH, ROW_CLASSES.TH_STRONG, ROW_CLASSES.H3].some(cls => item.row?.classList.contains(cls)),
+        separator: item.row?.classList.contains(ROW_CLASSES.NEW_TABLE),
+        single: [ROW_CLASSES.SINGLE, ROW_CLASSES.COLSPAN2, ROW_CLASSES.H3].some(cls => item.row?.classList.contains(cls))
+    })));
+    rows.forEach((item, index) => {
+        const tag = item.tag;
+        if (!tag) return;
+        if (tag.dataset.sugarClaimHint) {
+            // Do not erase a percentage/EAA that has just replaced the old hint.
+            if (tag.textContent === tag.dataset.sugarClaimHint) {
+                tag.textContent = '';
+                tag.classList.add('u-hidden');
+            }
+            delete tag.dataset.sugarClaimHint;
+            tag.removeAttribute('title');
+        }
+        if (!claims[index].length) return;
+        const label = claims[index].join(' · ');
+        tag.textContent = label;
+        tag.dataset.sugarClaimHint = label;
+        tag.classList.remove('u-hidden', 'c-yellow');
+        tag.classList.add('c-main');
+        tag.title = claims[index].includes('No Added Sugar')
+            ? 'Попередня перевірка за переліком інгредієнтів. Підтвердьте рецептуру та призначення компонентів у виробника.'
+            : 'Не більше 0,5 г цукрів на 100 г або 100 мл за заявленою харчовою цінністю.';
     });
 }
 

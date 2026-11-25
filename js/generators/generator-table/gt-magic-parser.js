@@ -20,6 +20,7 @@ import { createAndAppendRow } from './gt-row-manager.js';
 import { ROW_CLASSES } from './gt-config.js';
 import { getTableDOM } from './gt-dom.js';
 import { handleInputTypeSwitch } from './gt-row-renderer.js';
+import { updateCalculatedTableHints } from './gt-calculator.js';
 import { autoSaveSession } from './gt-session-manager.js';
 
 // LEGO Magic Module
@@ -150,6 +151,7 @@ export async function processAndFillInputs(text) {
             applyClass(newRow, ROW_CLASSES.COLSPAN2);
         }
     }
+    updateCalculatedTableHints();
     autoSaveSession();
 }
 
