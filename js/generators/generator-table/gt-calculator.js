@@ -14,6 +14,8 @@
  */
 
 import { getSugarClaimHints } from './gt-sugar-claims.js';
+import { analyzeTable } from './gt-nutrition-checks.js';
+import { renderIngredientHighlights } from './gt-ingredient-highlights.js';
 import { getTableDOM } from './gt-dom.js';
 import { NUTRITION_PATTERNS, SELECTORS, ROW_CLASSES } from './gt-config.js';
 import { showToast } from '../../components/feedback/toast.js';
@@ -47,9 +49,40 @@ export function updateCalculatedTableHints() {
     if (!dom.rowsContainer) return;
 
     const rowsData = collectInputRows(dom.rowsContainer);
-    calculatePercentages(rowsData);
-    markEssentialAminoAcids(rowsData);
-    markSugarClaims(rowsData);
+    const model = rowsData.map(item => ({
+        left: item.left?.value, right: item.right?.value,
+        header: [ROW_CLASSES.TH, ROW_CLASSES.TH_STRONG, ROW_CLASSES.H3].some(cls => item.row.classList.contains(cls)),
+        separator: item.row.classList.contains(ROW_CLASSES.NEW_TABLE),
+        single: [ROW_CLASSES.SINGLE, ROW_CLASSES.COLSPAN2, ROW_CLASSES.H3].some(cls => item.row.classList.contains(cls))
+    }));
+    const { hints, highlights } = analyzeTable(model);
+    function renderTags(target, list) {
+        target.replaceChildren(...list.map(h => {
+            const span = document.createElement('span');
+            span.className = 'tag c-' + h.color;
+            span.textContent = h.label;
+            span.title = h.detail || h.label;
+            return span;
+        }));
+    }
+    rowsData.forEach((item, index) => {
+        const tag = item.tag, list = hints[index], single = model[index].single;
+        if (tag) {
+            delete tag.dataset.sugarClaimHint;
+            tag.removeAttribute('title');
+            tag.classList.remove('c-main', 'c-secondary', 'c-red', 'c-yellow');
+            tag.classList.add('gt-hint-group');
+            tag.classList.toggle('u-hidden', single || !list.length);
+            renderTags(tag, single ? [] : list);
+        }
+        const box = item.left?.parentElement;
+        let leftTag = box?.querySelector(':scope > .gt-left-hints');
+        if (single && list.length && box) {
+            if (!leftTag) { leftTag = document.createElement('span'); leftTag.className = 'gt-left-hints gt-hint-group'; box.append(leftTag); }
+            renderTags(leftTag, list);
+        } else leftTag?.remove();
+        for (const side of ['left', 'right']) renderIngredientHighlights(item[side], highlights[index][side]);
+    });
 }
 
 /**

@@ -664,3 +664,22 @@
 /* ============================================ */
 /* WORD CHIPS IN TABLE CELLS */
 /* group, tag — визначено в feedback/chip.css */
+
+
+/* Table generator: internal QA and inline ingredient marks. */
+.generator-table-row .gt-hint-group {
+ display:inline-flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;
+ gap:4px;max-width:75%;padding:0;background:transparent;flex-shrink:0;white-space:normal;
+}
+.generator-table-row .gt-hint-group.u-hidden {display:none;}
+.generator-table-row .gt-hint-group > .tag {position:static;}
+.generator-table-row .input-box > :is(input,textarea) {min-width:0;}
+.generator-table-row .gt-highlight-field {position:relative;}
+.generator-table-row .gt-ingredient-mirror {
+ position:absolute;inset:0 16px;pointer-events:none;overflow:hidden;color:transparent;z-index:1;
+}
+.generator-table-row .gt-ingredient-mirror > div {width:100%;min-height:100%;color:transparent;}
+.generator-table-row .gt-ingredient-mirror mark {padding:0;border-radius:2px;font:inherit;letter-spacing:inherit;}
+.generator-table-row .gt-ingredient-red {color:var(--color-error);background:var(--color-error-c);}
+.generator-table-row .gt-ingredient-yellow {color:var(--color-on-surface);background:color-mix(in srgb,#eab308 25%,var(--color-surface));}
+.generator-table-row .gt-highlight-field:focus-within .gt-ingredient-mirror {opacity:.65;}

@@ -149,4 +149,5 @@ export function handleInputTypeSwitch(row, type) {
         oldEl.parentNode.replaceChild(newEl, oldEl);
         if (newEl instanceof HTMLTextAreaElement) enableTextareaAutoHeight(newEl);
     });
+    updateCalculatedTableHints();
 }

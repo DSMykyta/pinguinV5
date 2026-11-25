@@ -1,6 +1,8 @@
 // Pure, conservative nutrition-claim hints. Internal guidance, not legal certification.
 // МОЗ №1145: <= 0.5 g sugars / 100 g or 100 ml; no added sugars or sweetening foods.
 
+export const ADDED_SUGAR_PATTERN = /(?<![\p{L}\p{N}])(?:цукор|цукр(?:у|ом|и|ів|ами|ова|овий|ове|ові)|сахар(?:а|у|ом|ы|ов|ами|ный|ная|ное|ные)?|sugars?|декстроз\p{L}*|dextrose|глюкоз\p{L}*|glucose|фруктоз\p{L}*|fructose|сахароз\p{L}*|сукроз\p{L}*|sucrose|мальтоз\p{L}*|maltose|лактоз\p{L}*|lactose|галактоз\p{L}*|galactose|трегалоз\p{L}*|trehalose|рибоз\p{L}*|ribose|сироп\p{L}*|syrups?|паток\p{L}*|molasses|мелас\p{L}*|мед|мёд|меда|меду|honey|нектар\p{L}*|nectar|джем\p{L}*|jam|повидл\p{L}*|фініков\p{L}*|фиников\p{L}*|date paste|концентрат\p{L}*\s+(?:\p{L}+\s+){0,2}(?:соку|сока|соків|соков)|(?:fruit|juice|apple|grape)\s+(?:juice\s+)?concentrate)(?![\p{L}\p{N}])/u;
+
 function normalize(value) {return String(value ?? '').normalize('NFKC').toLowerCase().replace(/\s+/g,' ').trim();}
 
 function parseQuantity(value, serving=false) {
@@ -33,7 +35,7 @@ function ingredientListEligible(value) {
     if(!/\p{L}{2}/u.test(input)||/^(?:[-–—\s.]*|(?:не вказано|не указано|не зазначено|відсутні дані|нет данных|немає даних|n\/a|unknown|введіть значення|введите значение|інгредієнти|ингредиенты|ingredients)[.!]?)$/u.test(input)) return false;
     // Conservative lexical screen: added mono/disaccharides and common sweetening foods.
     // Polyols and permitted sweetener additives (e.g. maltitol, sucralose) are not sugars.
-    const blocked=/(?<![\p{L}\p{N}])(?:цукор|цукр(?:у|ом|и|ів|ами|ова|овий|ове|ові)|сахар(?:а|у|ом|ы|ов|ами|ный|ная|ное|ные)?|sugars?|декстроз\p{L}*|dextrose|глюкоз\p{L}*|glucose|фруктоз\p{L}*|fructose|сахароз\p{L}*|сукроз\p{L}*|sucrose|мальтоз\p{L}*|maltose|лактоз\p{L}*|lactose|галактоз\p{L}*|galactose|трегалоз\p{L}*|trehalose|рибоз\p{L}*|ribose|сироп\p{L}*|syrups?|паток\p{L}*|molasses|мелас\p{L}*|мед|мёд|меда|меду|honey|нектар\p{L}*|nectar|джем\p{L}*|jam|повидл\p{L}*|фініков\p{L}*|фиников\p{L}*|date paste|концентрат\p{L}*\s+(?:\p{L}+\s+){0,2}(?:соку|сока|соків|соков)|(?:fruit|juice|apple|grape)\s+(?:juice\s+)?concentrate)(?![\p{L}\p{N}])/u;
+    const blocked=ADDED_SUGAR_PATTERN;
     return !blocked.test(input);
 }
 
@@ -74,4 +76,4 @@ function getSugarClaimHints(rows) {
     return result;
 }
 
-export { getSugarClaimHints };
+export { getSugarClaimHints, ingredientHeading, servingHeading, ingredientListEligible };
