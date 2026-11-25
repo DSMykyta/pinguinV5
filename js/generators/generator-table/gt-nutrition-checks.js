@@ -65,7 +65,7 @@ const patterns=[
 export function ingredientMatches(text){
  const out=[];text=String(text??'');
  for(const [label,color,rx] of patterns)for(const m of text.matchAll(new RegExp(rx.source,'giu'))){
-  if(label==='Allergens'&&/^(?:молок|milk|вершк|сливк|cream)/iu.test(m[0])&&/(?:кокосов\p{L}*|coconut)\s*$/iu.test(text.slice(Math.max(0,m.index-35),m.index)))continue;
+  if(label==='Allergens'&&/^(?:молок|milk|вершк|сливк|cream)/iu.test(m[0])&&(/(?:кокосов\p{L}*|coconut)\s*$/iu.test(text.slice(Math.max(0,m.index-35),m.index))||/^\s+(?:кокосов\p{L}*|coconut)(?!\p{L})/iu.test(text.slice(m.index+m[0].length))))continue;
   out.push({start:m.index,end:m.index+m[0].length,label,color});
  }
  out.sort((a,b)=>a.start-b.start||Number(b.color==='red')-Number(a.color==='red')||b.end-a.end);

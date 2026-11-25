@@ -43,4 +43,11 @@ assert.ok(ingredientMatches('аспартам, кофеїн, молоко').some
 assert.ok(!ingredientMatches('кокосове молоко').some(x=>x.label==='Allergens'));
 assert.ok(!ingredientMatches('ізомальтоолігосахариди').length);
 
+assert.ok(!ingredientMatches('вершки кокосові').some(x=>x.label==='Allergens'));
+const hidden=[r('Харчова цінність','50 г'),r('цукор','10 г'),{separator:true},{left:'Інгредієнти',header:true,single:true,right:'какао'},{left:'',right:'мальтитол',single:true}];
+assert.ok(!labels(hidden,1).includes('No Added Sugar'));
+assert.ok(labels(hidden,3).includes('Missing Ingredients'));
+const warning=[r('Харчова цінність','50 г'),r('цукор','10 г'),{separator:true},{left:'Інгредієнти',header:true,single:true},{left:'Склад може незначно відрізнятись',single:true}];
+assert.ok(!labels(warning,1).includes('No Added Sugar'));
+
 });

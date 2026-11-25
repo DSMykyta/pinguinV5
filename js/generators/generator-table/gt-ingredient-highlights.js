@@ -5,7 +5,7 @@ function sync(field){
  if(!mirror)return;
  const inner=mirror.firstElementChild;
  inner.style.transform='translate('+(-field.scrollLeft)+'px,'+(-field.scrollTop)+'px)';
- inner.style.width=field.tagName==='TEXTAREA'?field.clientWidth+'px':'max-content';
+ inner.style.width=field.tagName==='TEXTAREA'?'100%':'max-content';
 }
 export function renderIngredientHighlights(field,matches=[]){
  if(!field)return;

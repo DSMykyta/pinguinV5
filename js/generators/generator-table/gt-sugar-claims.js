@@ -51,14 +51,14 @@ function getSugarClaimHints(rows) {
             const heading=ingredientHeading(rows[i].left);
             if(!heading) continue;
             firstIngredients=Math.min(firstIngredients,i);
-            const parts=[heading[1]??'',rows[i].right??''];
+            const parts=[heading[1]??'',rows[i].single?'':(rows[i].right??'')];
             for(let j=i+1;j<end;j++){
                 const row=rows[j];
-                if(row.separator||row.header||ingredientHeading(row.left)||/^(?:застереження|попередження|предупреждение|рекомендац|умови зберігання|условия хранения|warning|storage|алергени|аллергены)/u.test(normalize(row.left))) break;
+                if(row.separator||row.header||ingredientHeading(row.left)||/^(?:застереження|попередження|предупреждение|рекомендац|умови зберігання|условия хранения|warning|storage|алергени|аллергены|склад може|состав может)/u.test(normalize(row.left))) break;
                 if(normalize(row.left)||normalize(row.right)){
                     // Ingredient text is stored in one-column rows by the generator.
                     if(!row.single) break;
-                    parts.push(row.left??'',row.right??'');
+                    parts.push(row.left??'');
                 }
             }
             ingredientBlocks.push(parts.join(' ').trim());
