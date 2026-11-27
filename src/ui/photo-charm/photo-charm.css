@@ -10,6 +10,7 @@
  */
 
 .pg-photo-charm {
+  --pg-photo-charm-gutter:var(--pg-space-8);
   position:relative;
   isolation:isolate;
   display:grid;
@@ -17,7 +18,7 @@
   box-sizing:border-box;
   inline-size:100%;
   min-inline-size:0;
-  padding:var(--pg-space-10) var(--pg-space-8);
+  padding:var(--pg-photo-charm-gutter);
 }
 .pg-photo-charm__image {
   position:relative;
@@ -34,15 +35,19 @@
 .pg-photo-charm__aura {
   position:absolute;
   z-index:0;
-  inset:var(--pg-space-4);
-  inline-size:calc(100% - 2 * var(--pg-space-4));
-  block-size:calc(100% - 2 * var(--pg-space-4));
+  inset:0;
+  box-sizing:border-box;
+  inline-size:100%;
+  block-size:100%;
+  padding:inherit;
   object-fit:cover;
-  transform:scale(1.1);
   filter:blur(var(--pg-photo-charm-blur, 40px)) saturate(var(--pg-photo-charm-saturation, 1.8));
   opacity:.85;
-  -webkit-mask-image:radial-gradient(ellipse at center, var(--pg-color-page) 32%, transparent 75%);
-  mask-image:radial-gradient(ellipse at center, var(--pg-color-page) 32%, transparent 75%);
+  /* Transparent padding gives the blur room before the two-axis fade. */
+  mask-image:
+    linear-gradient(to right, transparent, #000 var(--pg-photo-charm-gutter), #000 calc(100% - var(--pg-photo-charm-gutter)), transparent),
+    linear-gradient(to bottom, transparent, #000 var(--pg-photo-charm-gutter), #000 calc(100% - var(--pg-photo-charm-gutter)), transparent);
+  mask-composite:intersect;
   pointer-events:none;
   user-select:none;
   transition:opacity var(--pg-motion-effects-normal-duration) var(--pg-motion-effects-ease);
@@ -53,5 +58,5 @@
 }
 
 @media (max-width:520px) {
-  .pg-photo-charm {padding:var(--pg-space-8) var(--pg-space-6);}
+  .pg-photo-charm {--pg-photo-charm-gutter:var(--pg-space-6);}
 }
