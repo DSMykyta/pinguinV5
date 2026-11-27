@@ -105,6 +105,12 @@
 - `src/styles/foundation.css`
 - `src/styles/tokens.css`
 
+### src/ui/split-button — Основна дія + меню Material 3
+
+- `src/ui/split-button/split-button.js`
+- `src/ui/split-button/split-button.css`
+- [Контракт](split-button.md)
+
 ### src/ui/button-group — Групи кнопок і навігаційні групи
 
 - `src/ui/button-group/button-group.css`

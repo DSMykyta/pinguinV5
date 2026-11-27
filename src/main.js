@@ -13,6 +13,7 @@ import './styles/foundation.css';
 import './ui/position/popup-surface.css';
 import './ui/button/button.css';
 import './ui/button-group/button-group.css';
+import './ui/split-button/split-button.css';
 import './ui/data-row/data-row.css';
 import './ui/collection-view/collection-view.css';
 import './ui/selection-actions/selection-actions.css';

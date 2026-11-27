@@ -10,6 +10,7 @@
  */
 
 import { createIcon } from '../../ui/icon/icon.js';
+import { createSplitButton } from '../../ui/split-button/split-button.js';
 import { createIconButton, createSortButton, withButtonLoading } from '../../ui/button/button.js';
 
 export function createButtonDemo() {
@@ -79,12 +80,23 @@ export function createButtonDemo() {
   } });
   const micro = createIconButton({ label: 'Компактна дія', icon: 'sliders', variant: 'micro',
     onClick: () => { status.textContent = 'Компактна дія'; } });
-  row.append(left, right, loading, compact, sort.element, micro);
+  const split = createSplitButton({
+    label: 'Зберегти', icon: 'save', menuLabel: 'Варіанти збереження',
+    items: [
+      { label: 'Зберегти як', value: 'save-as', icon: 'pencil' },
+      { label: 'Створити копію', value: 'copy', icon: 'layers' },
+      { label: 'Експортувати', value: 'export', icon: 'external-link' },
+    ],
+    onAction: () => { status.textContent = 'Демо: зберегти.'; },
+    onSelect: (value, item) => { status.textContent = 'Демо: ' + item.label + '.'; },
+  });
+  row.append(left, right, loading, compact, sort.element, micro, split.element);
   element.append(title, hint, row, status);
   return {
     element,
     destroy() {
       for (const task of [...pending]) task.finish();
+      split.destroy();
       element.remove();
     },
   };

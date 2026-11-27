@@ -1,0 +1,64 @@
+/*
+ * ╔══════════════════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SPLIT BUTTON GEOMETRY                                                             ║
+ * ╠══════════════════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Капсула з двох кнопок; кругла права частина при відкритті.                          ║
+ * ║ ЗАЛЕЖНОСТІ: Спільні Button, Menu, design tokens, motion tokens.                                  ║
+ * ║ ПУБЛІЧНИЙ API: .pg-split-button та її частини.                                                   ║
+ * ║ ПРИНЦИП: Тільки геометрія і рух, кольори належать Button/Menu.                                   ║
+ * ╚══════════════════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
+.pg-split-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  max-inline-size: 100%;
+}
+
+.pg-split-button__primary,
+.pg-split-button__trigger {
+  min-block-size: var(--pg-control-size);
+  block-size: var(--pg-control-size);
+  transition: background-color var(--pg-duration-fast) ease,
+    border-color var(--pg-duration-fast) ease,
+    color var(--pg-duration-fast) ease,
+    filter var(--pg-duration-fast) ease,
+    border-radius var(--pg-motion-spatial-selection-duration) var(--pg-motion-spatial-ease);
+}
+.pg-split-button__primary {
+  border-radius: var(--pg-radius-full) var(--pg-space-1) var(--pg-space-1) var(--pg-radius-full);
+  border-start-start-radius: var(--pg-radius-full);
+  border-end-start-radius: var(--pg-radius-full);
+  border-start-end-radius: var(--pg-space-1);
+  border-end-end-radius: var(--pg-space-1);
+}
+.pg-split-button__trigger {
+  inline-size: var(--pg-control-size);
+  min-inline-size: var(--pg-control-size);
+  padding: 0;
+  border-start-start-radius: var(--pg-space-1);
+  border-end-start-radius: var(--pg-space-1);
+  border-start-end-radius: var(--pg-radius-full);
+  border-end-end-radius: var(--pg-radius-full);
+}
+.pg-split-button__trigger[aria-expanded='true'] {
+  border-radius: var(--pg-radius-full);
+}
+.pg-split-button__trigger > .pg-icon {
+  transition: transform var(--pg-motion-spatial-selection-duration) var(--pg-motion-spatial-ease);
+}
+.pg-split-button__trigger[aria-expanded='true'] > .pg-icon {
+  transform: rotate(180deg);
+}
+/* Same surface and menu items; only the joined silhouette differs. */
+.pg-split-button__panel {
+  border-start-start-radius: var(--pg-space-1);
+  border-start-end-radius: var(--pg-space-1);
+  border-end-start-radius: var(--pg-radius-lg);
+  border-end-end-radius: var(--pg-radius-lg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .pg-split-button__primary, .pg-split-button__trigger,
+  .pg-split-button__trigger > .pg-icon { transition: none; }
+}

@@ -38,3 +38,6 @@
 .pg-menu__item[data-pg-side='left'] > .pg-menu__sub-arrow {
   transform: rotate(90deg);
 }
+
+/* Optional leading action icons reuse the common list-item skin. */
+.pg-menu__item--with-icon { justify-content: flex-start; }

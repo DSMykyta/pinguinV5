@@ -42,14 +42,14 @@ function normalizeEntries(items, stack = new Set()) {
       disabled: Boolean(item.disabled), danger: Boolean(item.danger),
       checked: Boolean(item.checked),
       tone: item.tone ?? (item.danger ? 'danger' : undefined),
-      appearance: item.appearance, items: children,
+      appearance: item.appearance, items: children, icon: item.icon,
     };
   });
   stack.delete(items);
   return entries;
 }
 
-export function createMenu({ label, id, items = [], align = 'start', disabled = false, onSelect } = {}) {
+export function createMenu({ label, id, items = [], align = 'start', disabled = false, anchorGroup = false, onSelect } = {}) {
   if (typeof label !== 'string' || !label.trim()) throw new TypeError('Menu label is required');
   if (!['start', 'end'].includes(align)) throw new TypeError('Invalid menu alignment');
   const entries = normalizeEntries(items);
@@ -109,6 +109,10 @@ export function createMenu({ label, id, items = [], align = 'start', disabled = 
       button.type = 'button';
       button.className = 'pg-menu__item pg-button pg-button--list-item';
       button.textContent = entry.label;
+      if (entry.icon && entry.type !== 'check') {
+        button.prepend(createIcon(entry.icon));
+        button.classList.add('pg-menu__item--with-icon');
+      }
       button.dataset.pgValue = entry.value;
       button.disabled = entry.disabled;
       button.tabIndex = -1;
@@ -249,9 +253,11 @@ export function createMenu({ label, id, items = [], align = 'start', disabled = 
   }
   function positionNode(node) {
     if (!node.open) return;
-    const width = Math.max(170, ...node.buttons.map(button => button.scrollWidth + 12));
+    const anchor = node.parentButton ?? pointAnchor ?? (anchorGroup ? element : trigger);
+    const width = Math.max(170, ...node.buttons.map(button => button.scrollWidth + 12),
+      anchorGroup && node === root && !pointAnchor ? anchor.offsetWidth : 0);
     const geometry = positionPopup({
-      anchor: node.parentButton ?? pointAnchor ?? trigger, popup: node.panel,
+      anchor, popup: node.panel,
       placement: node.parent ? 'inline' : 'block',
       maxHeight: 320, matchWidth: false, minWidth: 170, maxWidth: 360,
       preferredWidth: width, align, gap: 4,
@@ -361,7 +367,7 @@ export function createMenu({ label, id, items = [], align = 'start', disabled = 
   });
 
   return Object.freeze({
-    element, trigger, open, openAt, close,
+    element, trigger, panel: root.panel, open, openAt, close,
     destroy() {
       disposed = true;
       close();

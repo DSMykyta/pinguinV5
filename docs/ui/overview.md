@@ -57,6 +57,7 @@
 | Іконки | `src/ui/icon` | [Google Material Symbols Rounded, локальні SVG](icons.md) |
 | Кнопки | `src/ui/button` | [Icon Button і Mini Button — контракт legacy `btn-icon`](button.md) |
 | Tooltip | `src/ui/tooltip` | Є, збережено корисну поведінку legacy |
+| Split Button | `src/ui/split-button` | [Material 3: primary action + circular menu trigger](split-button.md) |
 | Button Group | `src/ui/button-group` | [Material 3: connected/standard, ghost/tonal/filled, round/square](button-group.md) |
 | Toolbar | `src/ui/toolbar` | [Material 3 floating/docked surfaces, no duplicate button state](toolbar.md) |
 | Tabs | `src/ui/tabs` | [Локальні вкладки на спільному connected ghost Button Group](button-group.md) |

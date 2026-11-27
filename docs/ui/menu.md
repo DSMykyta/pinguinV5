@@ -7,6 +7,10 @@ Design contract · 2026-11-09. Reference: old MiniMax action/appearance example,
 - `createMenu({label,items,disabled?,align?,onSelect?})` returns `{element,trigger,open,close,destroy}`. Item type `action`, `navigation` or `check` and `value,label,disabled,checked,danger`.
 - Mount/destroy is local; floating menu has viewport-safe position with narrow mobile fallback. Do not hardcode page names.
 
+## Композиція зі Split Button
+
+`anchorGroup: true` прив'язує кореневу панель до всього контейнера Menu, враховує його ширину в межах спільного viewport-контракту. Повертається також `panel` для композиції. Опційний `icon` на action/navigation додає наявну Material-іконку перед текстом; check зберігає власну галочку. [Split Button](split-button.md) використовує цей контракт.
+
 ## Вкладені дії — підменю збоку (2026-11-11)
 
 Це **розширення існуючого `createMenu()`**, не новий компонент. Джерело візуальної поведінки — наданий власником скриншот контекстного меню ChatGPT: наведення на рядок із стрілкою відкриває сусідню панель праворуч; біля правого краю екрана підменю автоматично відкривається ліворуч, не обрізається скрол-контейнером.
