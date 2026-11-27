@@ -20,7 +20,7 @@ export function createHolographicFoilDemo() {
   description.textContent = 'Наведи курсор на картку. Нахил і відбиття реагують на його положення.';
   const stage = document.createElement('div');
   stage.className = 'pg-tools-holographic-foil-demo__stage';
-  const foil = createHolographicFoil({ base: 'medium', palette: 'theme' });
+  const foil = createHolographicFoil({ base: 'medium', palette: 'theme', intensity: 1 });
   const card = document.createElement('div');
   card.className = 'pg-tools-holographic-foil-demo__card';
   const top = document.createElement('div');

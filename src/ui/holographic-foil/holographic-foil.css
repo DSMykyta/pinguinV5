@@ -16,6 +16,10 @@
     var(--pg-tone-main-base) 30%;
   --pg-foil-base: var(--pg-color-foil-medium);
   min-inline-size: 0;
+  box-sizing: border-box;
+  /* Perspective can expand projected corners beyond the layout box. */
+  padding: var(--pg-foil-clearance, clamp(var(--pg-space-4), 6%, var(--pg-space-8)));
+  overflow: clip;
   perspective: 900px;
 }
 .pg-holographic-foil[data-pg-palette='spectrum'] {
@@ -33,7 +37,7 @@
   border-radius: var(--pg-foil-radius, var(--pg-radius-lg));
   background: var(--pg-foil-base);
   transform: rotateX(0deg) rotateY(0deg);
-  transition: transform var(--pg-motion-effects-slow-duration) var(--pg-motion-effects-ease);
+  transition: transform var(--pg-motion-spatial-normal-duration) var(--pg-motion-spatial-ease);
 }
 .pg-holographic-foil[data-pg-enabled='true'][data-pg-interactive='true'][data-pg-tilt='true'] .pg-holographic-foil__surface {
   transform: rotateX(var(--pg-foil-rotate-x, 0deg)) rotateY(var(--pg-foil-rotate-y, 0deg));
@@ -54,25 +58,40 @@
   background-repeat: no-repeat;
   background-position: var(--pg-foil-background-x, 50%) var(--pg-foil-background-y, 50%);
   mix-blend-mode: color-dodge;
-  transition: background-position var(--pg-motion-effects-slow-duration) var(--pg-motion-effects-ease);
+  transition: background-position var(--pg-motion-spatial-normal-duration) var(--pg-motion-spatial-ease);
+}
+/* Brand colors are the actual surface pigment, not a dodge layer on gray. */
+.pg-holographic-foil[data-pg-palette='theme'] .pg-holographic-foil__layer {
+  mix-blend-mode: normal;
 }
 .pg-holographic-foil__surface::after {
   content: '';
   z-index: 1;
-  background: radial-gradient(ellipse at var(--pg-foil-x, 50%) var(--pg-foil-y, 50%),
-    color-mix(in srgb, var(--pg-color-foil-highlight) 35%, transparent), transparent 65%);
+  background-image: radial-gradient(ellipse at center,
+    color-mix(in srgb, var(--pg-color-foil-highlight) 35%, transparent), transparent 45%);
+  background-size: 200% 200%;
+  background-repeat: no-repeat;
+  background-position: calc(100% - var(--pg-foil-x, 50%)) calc(100% - var(--pg-foil-y, 50%));
+  mix-blend-mode: color-dodge;
   opacity: 0;
-  transition: opacity var(--pg-motion-effects-normal-duration) var(--pg-motion-effects-ease);
+  transition: opacity var(--pg-motion-effects-normal-duration) var(--pg-motion-effects-ease),
+    background-position var(--pg-motion-spatial-normal-duration) var(--pg-motion-spatial-ease);
 }
 .pg-holographic-foil__content { position: relative; z-index: 2; }
 .pg-holographic-foil[data-pg-tracking='true'] .pg-holographic-foil__surface,
-.pg-holographic-foil[data-pg-tracking='true'] .pg-holographic-foil__layer { transition: none; }
+.pg-holographic-foil[data-pg-tracking='true'] .pg-holographic-foil__layer {
+  transition-duration: var(--pg-motion-spatial-fast-duration);
+  transition-timing-function: var(--pg-motion-spatial-fast-ease);
+}
+.pg-holographic-foil[data-pg-tracking='true'] .pg-holographic-foil__surface::after {
+  transition-duration: var(--pg-motion-effects-normal-duration), var(--pg-motion-spatial-fast-duration);
+}
 .pg-holographic-foil[data-pg-tracking='true'][data-pg-enabled='true'] .pg-holographic-foil__surface::after {
-  opacity: var(--pg-foil-intensity, .85);
+  opacity: calc(var(--pg-foil-intensity, .85) * .35);
 }
 .pg-holographic-foil[data-pg-enabled='false'] .pg-holographic-foil__layer { display: none; }
 @supports not (mix-blend-mode: color-dodge) {
-  .pg-holographic-foil__layer { opacity: calc(var(--pg-foil-intensity, .85) * .3); }
+  .pg-holographic-foil[data-pg-palette='spectrum'] .pg-holographic-foil__layer { opacity: calc(var(--pg-foil-intensity, .85) * .3); }
 }
 @media (prefers-reduced-motion: reduce) {
   .pg-holographic-foil[data-pg-enabled='true'][data-pg-interactive='true'][data-pg-tilt='true'] .pg-holographic-foil__surface {

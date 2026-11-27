@@ -18,8 +18,7 @@
 .pg-tools-holographic-foil-demo p { margin: 0; }
 .pg-tools-holographic-foil-demo p { color: var(--pg-color-text-secondary); }
 .pg-tools-holographic-foil-demo__stage {
-  inline-size: min(100%, 540px);
-  padding-block: var(--pg-space-6);
+  inline-size: min(100%, calc(540px + 2 * var(--pg-space-8)));
 }
 .pg-tools-holographic-foil-demo__card {
   display: flex;
@@ -29,7 +28,8 @@
   aspect-ratio: 2 / 1;
   box-sizing: border-box;
   padding: clamp(16px, 4vw, 32px);
-  color: var(--pg-color-foil-dark);
+  color: var(--pg-color-foil-highlight);
+  text-shadow: 0 1px 2px var(--pg-color-foil-dark), 0 0 3px var(--pg-color-foil-dark);
   font-weight: 600;
 }
 .pg-tools-holographic-foil-demo__top,
