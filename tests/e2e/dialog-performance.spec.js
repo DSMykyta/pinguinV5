@@ -155,6 +155,7 @@ test('standard, editor and edge-to-edge use one native static backdrop', async (
 });
 
 test('frost backdrop uses static theme washes and grain, never live blur', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.goto('/tools');
   await page.getByRole('tab', { name: 'Елементи' }).click();
   await page.locator('[data-pg-action="dialog-demo-info"]').click();
@@ -166,18 +167,38 @@ test('frost backdrop uses static theme washes and grain, never live blur', async
       const backdrop = getComputedStyle(node, '::backdrop');
       return { image: backdrop.backgroundImage, filter: backdrop.backdropFilter,
         animation: backdrop.animationName, transition: backdrop.transitionDuration,
-        size: backdrop.backgroundSize };
+        duration: backdrop.animationDuration, transitionProperty: backdrop.transitionProperty,
+        inset: backdrop.top, size: backdrop.backgroundSize };
     });
     expect(style.image).toMatch(/url\(/);
-    expect(style.image.match(/radial-gradient\(/g)).toHaveLength(2);
+    expect(style.image.match(/radial-gradient\(/g)).toHaveLength(4);
     expect(style.filter).toBe('none');
-    expect(style.animation).toBe('none');
-    expect(style.transition).toBe('0s');
+    expect(style.animation).toBe('pg-dialog-atmosphere');
+    expect(style.duration).toBe('80s');
+    expect(style.transitionProperty).toBe('opacity');
+    expect(style.transition).toBe('0.21s');
+    expect(parseFloat(style.inset)).toBeLessThan(0);
     expect(style.size).toContain('64px 64px');
     expect(await modal.evaluate(node => getComputedStyle(node, '::backdrop').backgroundColor))
       .toBe(theme === 'light' ? 'rgba(21, 27, 33, 0.76)' : 'rgba(17, 22, 27, 0.82)');
   }
   await expect(page.locator('.pg-dialog__blur-margins')).toHaveCount(0);
+  await page.keyboard.press('Escape');
+  await expect(modal).toHaveCount(0);
+});
+
+test('reduced motion keeps atmospheric backdrop stationary and immediately visible', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/tools');
+  await page.getByRole('tab', { name: 'Елементи' }).click();
+  await page.locator('[data-pg-action="dialog-demo-info"]').click();
+  const modal = page.getByRole('dialog', { name: 'Інформація' });
+  await expect(modal).toBeVisible();
+  const style = await modal.evaluate(node => {
+    const s = getComputedStyle(node, '::backdrop');
+    return { animation: s.animationName, transform: s.transform, opacity: s.opacity, transition: s.transitionProperty, filter: s.backdropFilter };
+  });
+  expect(style).toEqual({ animation: 'none', transform: 'none', opacity: '1', transition: 'none', filter: 'none' });
   await page.keyboard.press('Escape');
   await expect(modal).toHaveCount(0);
 });

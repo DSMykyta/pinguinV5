@@ -2,7 +2,7 @@
  * ╔════════════════════════════════════════════════════════════════════════════════════╗
  * ║ PINGUIN NEXT — DIALOG STYLES                                                         ║
  * ╠════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Native modal та статичне затемнення через ::backdrop.                        ║
+ * ║ ПРИЗНАЧЕННЯ: Native modal та атмосферне матове скло через ::backdrop.                        ║
  * ║ ЗАЛЕЖНОСТІ: Семантичні токени, button.css.                                         ║
  * ║ ПУБЛІЧНИЙ API: pg-dialog, pg-dialog__*, data-pg-state.                              ║
  * ║ ПРИНЦИП: Ізольований CSS, не змінює Shell.                                          ║
@@ -35,16 +35,64 @@
 .pg-dialog::backdrop,
 .pg-dialog__decision {
   background-color: var(--pg-color-dialog-frost-base);
-  /* Static frost: one small baked grain tile and two soft theme-aware washes.
-   * No live filter, offscreen capture, extra DOM or animation. */
+  /* Static frost: one sparse baked grain tile and four overlapping cloud washes.
+   * No live filter, offscreen capture or extra DOM. */
   background-image:
     url('./frost-grain.svg'),
-    radial-gradient(ellipse at 10% 5%, var(--pg-color-dialog-frost-light), transparent 68%),
-    radial-gradient(ellipse at 90% 92%, var(--pg-color-dialog-frost-accent), transparent 72%);
-  background-size: 64px 64px, 100% 100%, 100% 100%;
-  background-repeat: repeat, no-repeat, no-repeat;
+    radial-gradient(ellipse 37% 35% at 31% 36%, var(--pg-color-dialog-frost-light), transparent 100%),
+    radial-gradient(ellipse 34% 40% at 71% 60%, var(--pg-color-dialog-frost-accent), transparent 100%),
+    radial-gradient(ellipse 35% 29% at 35% 76%, var(--pg-color-dialog-frost-accent), transparent 100%),
+    radial-gradient(ellipse 33% 28% at 72% 21%, var(--pg-color-dialog-frost-light), transparent 100%);
+  background-size: 64px 64px, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
+}
+
+/* One native backdrop, double the viewport in each dimension. Only its
+ * transform and opacity move. Never animate gradient stops or background-position.
+ * Keep the interactive decision overlay stationary. */
+.pg-dialog[open]::backdrop {
+  opacity: 1;
+  transition: opacity var(--pg-motion-effects-normal-duration) var(--pg-motion-effects-ease);
+}
+.pg-dialog[data-pg-state='entering']::backdrop { opacity: 0; }
+.pg-dialog[data-pg-state='closing']::backdrop {
+  opacity: 0;
+  transition-duration: 120ms; /* Fit both existing Dialog exit lifecycles. */
+}
+@starting-style {
+  .pg-dialog[open]::backdrop { opacity: 0; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pg-dialog[open]::backdrop {
+    inset: -50%;
+    animation: pg-dialog-atmosphere var(--pg-motion-atmosphere-duration) ease-in-out infinite;
+  }
+  .pg-dialog[data-pg-state='closing']::backdrop { animation-play-state: paused; }
+  .pg-dialog__decision {
+    animation: pg-dialog-atmosphere-fade var(--pg-motion-effects-normal-duration) var(--pg-motion-effects-ease);
+  }
+}
+@keyframes pg-dialog-atmosphere {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(-5%, -2%) rotate(-7deg); }
+  75% { transform: translate(5%, 4%) rotate(7deg); }
+}
+@keyframes pg-dialog-atmosphere-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pg-dialog[open]::backdrop,
+  .pg-dialog[data-pg-state='entering']::backdrop,
+  .pg-dialog[data-pg-state='closing']::backdrop {
+    inset: 0;
+    opacity: 1;
+    animation: none;
+    transition: none;
+    transform: none;
+  }
 }
 
 /* The native modal blocks input beneath it. Pause CSS keyframes throughout
@@ -180,6 +228,7 @@ body:has(> .pg-dialog[open]) #app *::after {
 @media (prefers-reduced-transparency: reduce) {
   .pg-dialog::backdrop,
   .pg-dialog__decision { background: var(--pg-color-surface); }
+  .pg-dialog[open]::backdrop { inset: 0; animation: none; transform: none; }
 }
 
 /* Full-height editor keeps header/footer fixed; only its body scrolls. */

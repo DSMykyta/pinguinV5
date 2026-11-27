@@ -81,8 +81,8 @@
   --pg-color-fab-action-selected-border: #6f9eb8;
   --pg-color-dialog-backdrop: rgb(12 14 18 / 0.44);
   --pg-color-dialog-frost-base: rgb(21 27 33 / 0.76);
-  --pg-color-dialog-frost-light: rgb(82 103 118 / 0.34);
-  --pg-color-dialog-frost-accent: rgb(46 79 102 / 0.44);
+  --pg-color-dialog-frost-light: rgb(112 145 164 / 0.63);
+  --pg-color-dialog-frost-accent: rgb(42 107 148 / 0.72);
   --pg-color-dialog-shadow: rgb(0 0 0 / 0.22);
   --pg-color-dialog-action-text: #ffffff;
   --pg-color-dialog-danger: #bd4249;
@@ -208,6 +208,7 @@
   --pg-thinking-progress-duration: 2s;
   /* M3-inspired motion channels: spatial movement vs. color/opacity effects.
      Functional/standard timing keeps approved FAB, Toast, RevealPanel intact. */
+  --pg-motion-atmosphere-duration: 80s;
   --pg-motion-spatial-fast-duration: 150ms;
   --pg-motion-spatial-normal-duration: 340ms;
   --pg-motion-spatial-selection-duration: 280ms;
@@ -296,8 +297,8 @@
   --pg-color-fab-action-selected-border: #7bbad4;
   --pg-color-dialog-backdrop: rgb(0 0 0 / 0.60);
   --pg-color-dialog-frost-base: rgb(17 22 27 / 0.82);
-  --pg-color-dialog-frost-light: rgb(78 104 122 / 0.38);
-  --pg-color-dialog-frost-accent: rgb(38 73 99 / 0.52);
+  --pg-color-dialog-frost-light: rgb(99 137 161 / 0.66);
+  --pg-color-dialog-frost-accent: rgb(42 103 146 / 0.74);
   --pg-color-dialog-shadow: rgb(0 0 0 / 0.42);
   /* --pg-color-dialog-action-text: #15281f; */
   --pg-color-dialog-action-text: #113855;
