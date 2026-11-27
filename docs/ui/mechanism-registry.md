@@ -161,6 +161,7 @@
 
 - `src/ui/dialog/dialog.css`
 - `src/ui/dialog/dialog.js`
+- `src/ui/dialog/frost-grain.svg`
 
 ### src/ui/field — Оболонка полів, label, validation
 

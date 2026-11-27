@@ -80,8 +80,9 @@
   /* --pg-color-fab-action-selected-border: #6b9c89; */
   --pg-color-fab-action-selected-border: #6f9eb8;
   --pg-color-dialog-backdrop: rgb(12 14 18 / 0.44);
-  --pg-color-dialog-frost-light: color-mix(in srgb, var(--pg-color-surface) 24%, transparent);
-  --pg-color-dialog-frost-accent: color-mix(in srgb, var(--pg-color-accent) 16%, transparent);
+  --pg-color-dialog-frost-base: rgb(220 229 236 / 0.79);
+  --pg-color-dialog-frost-light: rgb(255 255 255 / 0.64);
+  --pg-color-dialog-frost-accent: rgb(123 186 212 / 0.42);
   --pg-color-dialog-shadow: rgb(0 0 0 / 0.22);
   --pg-color-dialog-action-text: #ffffff;
   --pg-color-dialog-danger: #bd4249;
@@ -294,8 +295,9 @@
   /* --pg-color-fab-action-selected-border: #96d2b8; */
   --pg-color-fab-action-selected-border: #7bbad4;
   --pg-color-dialog-backdrop: rgb(0 0 0 / 0.60);
-  --pg-color-dialog-frost-light: color-mix(in srgb, var(--pg-color-accent-soft) 24%, transparent);
-  --pg-color-dialog-frost-accent: color-mix(in srgb, var(--pg-color-accent) 9%, transparent);
+  --pg-color-dialog-frost-base: rgb(27 33 40 / 0.80);
+  --pg-color-dialog-frost-light: rgb(83 108 126 / 0.46);
+  --pg-color-dialog-frost-accent: rgb(45 83 108 / 0.56);
   --pg-color-dialog-shadow: rgb(0 0 0 / 0.42);
   /* --pg-color-dialog-action-text: #15281f; */
   --pg-color-dialog-action-text: #113855;

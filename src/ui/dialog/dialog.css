@@ -32,14 +32,15 @@
   transition: opacity 140ms ease, transform 140ms var(--pg-ease-layout);
 }
 
-.pg-dialog::backdrop {
-  background-color: var(--pg-color-dialog-backdrop);
+.pg-dialog::backdrop,
+.pg-dialog__decision {
+  background-color: var(--pg-color-dialog-frost-base);
   /* Static frost: one small baked grain tile and two soft theme-aware washes.
    * No live filter, offscreen capture, extra DOM or animation. */
   background-image:
     url('./frost-grain.svg'),
-    radial-gradient(ellipse at 18% 12%, var(--pg-color-dialog-frost-light), transparent 72%),
-    radial-gradient(ellipse at 88% 90%, var(--pg-color-dialog-frost-accent), transparent 76%);
+    radial-gradient(ellipse at 10% 5%, var(--pg-color-dialog-frost-light), transparent 68%),
+    radial-gradient(ellipse at 90% 92%, var(--pg-color-dialog-frost-accent), transparent 72%);
   background-size: 64px 64px, 100% 100%, 100% 100%;
   background-repeat: repeat, no-repeat, no-repeat;
   -webkit-backdrop-filter: none;
@@ -177,7 +178,8 @@ body:has(> .pg-dialog[open]) #app *::after {
 }
 
 @media (prefers-reduced-transparency: reduce) {
-  .pg-dialog::backdrop { background: var(--pg-color-surface); }
+  .pg-dialog::backdrop,
+  .pg-dialog__decision { background: var(--pg-color-surface); }
 }
 
 /* Full-height editor keeps header/footer fixed; only its body scrolls. */
@@ -242,7 +244,6 @@ body:has(> .pg-dialog[open]) #app *::after {
   justify-content: center;
   align-items: center;
   padding: 16px;
-  background: var(--pg-color-dialog-backdrop);
 }
 .pg-dialog__decision[hidden] { display: none; }
 .pg-dialog__decision-panel {
