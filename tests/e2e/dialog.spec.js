@@ -2,7 +2,7 @@
  * ╔════════════════════════════════════════════════════════════════════════════════════╗
  * ║ PINGUIN NEXT — DIALOG BROWSER TESTS                                                ║
  * ╠════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Перевіряє native modal, blur backdrop, фокус і незалежні вкладки.     ║
+ * ║ ПРИЗНАЧЕННЯ: Перевіряє native modal, static backdrop, фокус і незалежні вкладки.     ║
  * ║ ЗАЛЕЖНОСТІ: Playwright, src/ui/dialog, tools/dialog-demo.                          ║
  * ║ ПУБЛІЧНИЙ API: Browser E2E.                                                        ║
  * ║ ПРИНЦИП: Не змінюємо Shell і не дублюємо модальні компоненти.                      ║
@@ -11,7 +11,7 @@
 
 import { test, expect } from '@playwright/test';
 
-test('Dialog demo belongs to Text tab; native modal darkens and blurs backdrop', async ({ page }) => {
+test('Dialog demo belongs to Text tab; native modal darkens backdrop without live blur', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/tools');
 
@@ -35,7 +35,7 @@ test('Dialog demo belongs to Text tab; native modal darkens and blurs backdrop',
     const style = getComputedStyle(el, '::backdrop');
     return { filter: style.backdropFilter, background: style.backgroundColor };
   });
-  expect(backdrop.filter).toBe('blur(8px)');
+  expect(backdrop.filter).toBe('none');
   expect(backdrop.background).not.toBe('rgba(0, 0, 0, 0)');
   expect(await page.locator('.pg-shell__content').boundingBox()).toEqual(before);
   await expect(dialog.locator('[data-pg-action="dialog-confirm"]')).toBeFocused();

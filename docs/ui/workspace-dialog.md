@@ -16,7 +16,7 @@
 ## Висновки з перевірки work
 
 1. `src/shell/shell.js`, `src/shell/shell.css`: зовнішня сторінка має власні header, sidebar, content, footer (56 px), aside та кутові дії. У Shell є глобальні fixed-позиції, Router, стан панелей, пошук і localStorage. **Не можна монтувати його вдруге всередині dialog:** зіткнуться viewport-fixed кнопки, global id, маршрути й стани.
-2. `src/ui/dialog/dialog.js`: існують native `<dialog>` + `showModal()`, черга, focus/close guard, анімація та blur backdrop. Це єдиний власник модальності; не створювати окремий overlay або ручний focus trap.
+2. `src/ui/dialog/dialog.js`: існують native `<dialog>` + `showModal()`, черга, focus/close guard, анімація та статичний backdrop. Це єдиний власник модальності; не створювати окремий overlay або ручний focus trap.
 3. `src/ui/dialog/dialog.css`: `size: editor` уже має 90vw × 90dvh, `max 1100px` і фіксовані header/footer із прокруткою `body`. Він **не має** секційного aside, чотирьох кутів і незалежних прокруток. Не заміняти цей режим без перевірки наявних викликів.
 4. `src/ui/form-dialog/form-dialog.js`: спільний adapter містить `validate`, `save`, `isDirty`, `closeGuard`. Це потрібна точка композиції для нового режиму, не ще один save-controller.
 5. `src/ui/button/button.js`: `createIconButton({variant:'corner'})`, `setButtonLoading()`, `setButtonColor()` вже забезпечують єдині доступні стани. `src/ui/button/button.css` задає круглі кутові 40×40 та існуючий рух іконки. Не дублювати.
@@ -53,7 +53,7 @@
 - Фізичні кутові кнопки — 40×40 із рівними оптичними відступами 8px у структурному резерві 56px. Вони є **дочірніми елементами native dialog**, а не fixed-віконними глобальними діями.
 - Для редактора додати окремий `workspace` варіант розміру: орієнтир desktop `inline-size: min(1440px, calc(100dvw - 32px)); block-size: calc(100dvh - 32px)`. Не змінювати чинний `editor` розмір. На вузькому екрані — fullscreen, без подвійних рамок, зі safe-area inset.
 - Поточна адаптація — `@media (max-width: 700px)` із повноекранним editor і локальним overlay навігації; container queries можливі як подальше вдосконалення.
-- `prefers-reduced-motion` вимикає transitions; `prefers-reduced-transparency` вимикає backdrop blur. Немає власних дубльованих CSS-анімацій; за можливості використати наявні motion tokens та RevealPanel.
+- `prefers-reduced-motion` вимикає transitions; `prefers-reduced-transparency` використовує непрозоре тло; live blur вимкнено для всіх. Немає власних дубльованих CSS-анімацій; за можливості використати наявні motion tokens та RevealPanel.
 - Будь-яке користувацьке змінювання ширини навігації **не вводити за замовчуванням**: перший контракт — compact/expanded, як у Shell. Якщо окремо буде потрібен drag-resize, він матиме власну клавіатурну доступність і тест.
 
 ## Чотири дії: контракт

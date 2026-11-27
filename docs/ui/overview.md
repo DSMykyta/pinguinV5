@@ -66,7 +66,7 @@
 | Collection View | `src/ui/collection-view` | [Таблиця/плитки](collection-view.md) та [компактна/комфортна щільність](collection-density.md) |
 | View Switch | `src/ui/view-switch` | Contextual header mode control; [collection contract](collection-view.md) |
 | Toast | `src/ui/toast` | [Специфікація](toast.md), перший новий компонент |
-| Dialog / Confirm | `src/ui/dialog` | [Специфікація](dialog.md): native modal + blur |
+| Dialog / Confirm | `src/ui/dialog` | [Специфікація](dialog.md): native modal + статичний backdrop |
 | Input / Search field | `src/ui/input` | [Спільний Input](input.md) + [opt-in Rotating Placeholder](rotating-placeholder.md); static label above, native autocomplete, flexible adornments |
 | Shared Field | `src/ui/field` | [One plain outline, static label above, leading/trailing slots](field.md) |
 | Native Select | `src/ui/select` | Native browser choice with shared static label above the field; [contract](selection-fields.md) |
@@ -100,7 +100,7 @@
 
 `Таблиці` та `Текст` мають **окремі DOM-панелі та власні елементи createPageView**. Перемикання не змішує стан інструментів; активна панель видима, інша прихована. Toast демонструється у «Таблицях», інформаційний Dialog — у «Тексті». Confirm/видалення тестуються без окремої дублюючої кнопки: через спільні дії вибраних записів у «Макетах даних» та «Медіатеці». Перелік актуальних універсальних механізмів і меж див. у [аудиті](cleanup-audit.md).
 
-Для Dialog: [специфікація](dialog.md), `src/ui/dialog/dialog.js`, `src/ui/dialog/dialog.css`, `tests/e2e/dialog.spec.js`. Тло розмиває native `::backdrop` з `backdrop-filter: blur(8px)`; дані й фокус ізольовані браузерним `showModal()`. Кольори в `src/styles/tokens.css`.
+Для Dialog: [специфікація](dialog.md), `src/ui/dialog/dialog.js`, `src/ui/dialog/dialog.css`, `tests/e2e/dialog.spec.js`. Тло затемнює один native `::backdrop` без live blur; дані й фокус ізольовані браузерним `showModal()`. Кольори в `src/styles/tokens.css`.
 
 | Pagination | `src/ui/pagination` | [Shared numbered pages, ellipsis and page size](pagination.md) |
 | Segmented Switch | `src/ui/segment-switch` | [Native radio choice with sliding plate](segment-switch.md) |

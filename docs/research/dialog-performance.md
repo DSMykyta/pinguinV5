@@ -58,3 +58,18 @@
 - Заповнення поля `Назва бренду` в автоматизованому сценарії — 15 мс. Це не вимірювання користувацького FPS або INP на його Windows-пристрої.
 
 Широкий паралельний прогін **280** E2E-кейсів у невеликому 2-vCPU sandbox був перерваний після помилок в інших тестах (зокрема CollectionView, Field, RevealPanel); його **не вважати зеленим**. Окремі цільові 16 тестів пройшли. Для остаточної візуальної оцінки на Windows потрібен локальний браузер користувача після `Pull origin`.
+
+## Єдиний статичний backdrop — 2026-11-27
+
+Актуальний аудит коду: стандартні, editor та edge-to-edge Dialog досі використовували повноекранний blur(8px), Workspace — чотири blur-смуги. CSS-анімації Shell та rotating placeholders вже призупинялись; це не гарантує зупинки всіх JS/WebGL задач. Причину нинішнього зависання на конкретному Windows-пристрої не підтверджено trace.
+
+Ізольований A/B у Chromium 144, Linux, headless, --disable-gpu, 1456×900, синтетичний фон із 240 клітинками, native dialog 90vw × 90vh, 80 полів, рух translateY і оновлення одного підпису на rAF, 900 мс, три черговані прогони на варіант. Це не повний Pinguin і не вимір GPU користувача:
+
+| Backdrop | Кількість rAF-інтервалів | Медіана інтервалу |
+| --- | --- | --- |
+| Статичний dim | 54, 55, 54 | 16.7 мс |
+| dim + backdrop-filter: blur(8px) | 30, 27, 29 | 33.3 мс |
+
+Джерела: [WebKit: додаткові rendering passes](https://webkit.org/blog/3632/introducing-backdrop-filters/), [Chromium: backdrop filter + WebGL](https://issues.chromium.org/issues/414525204), [web.dev: dialog](https://web.dev/articles/building/a-dialog-component), [MDN: native dialog](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dialog).
+
+Рішення: універсальний статичний scrim через нативний ::backdrop, чинний theme token, без blur для всіх розмірів і без крайових DOM-смуг; непрозорий фон при reduced transparency. Немає нових JS-менеджерів, шарів, snapshot-залежностей. Native focus/close semantics, анімації панелі та фонова пауза лишаються. Історичні вимірювання вище збережені. Нові regression tests перевіряють відсутність blur/додаткових шарів і збереження dim. Повний прогін проєкту та Windows trace потрібні для підтвердження фактичного усунення зависань.

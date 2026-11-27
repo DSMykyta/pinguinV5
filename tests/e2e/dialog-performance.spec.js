@@ -20,7 +20,7 @@ async function openWorkspace(page) {
   return modal;
 }
 
-test('large dialog fades instead of scaling over the same blurred backdrop', async ({ page }) => {
+test('large dialog fades over a single static native backdrop', async ({ page }) => {
   const modal = await openWorkspace(page);
   const style = await modal.evaluate(node => {
     const computed = getComputedStyle(node);
@@ -31,6 +31,7 @@ test('large dialog fades instead of scaling over the same blurred backdrop', asy
       transitionProperty: computed.transitionProperty,
       transitionDuration: computed.transitionDuration,
       blur: backdrop.backdropFilter,
+      background: backdrop.backgroundColor,
       width: rect.width,
       height: rect.height,
     };
@@ -38,17 +39,9 @@ test('large dialog fades instead of scaling over the same blurred backdrop', asy
   expect(style.transform).toBe('none');
   expect(style.transitionProperty).toBe('opacity');
   expect(style.transitionDuration).toBe('0.12s');
-  // Workspace no longer live-blurs the occluded full viewport.
   expect(style.blur).toBe('none');
-  const blurMargins = page.locator('.pg-dialog__blur-margins');
-  await expect(blurMargins).toHaveCount(1);
-  await expect(blurMargins.locator('.pg-dialog__blur-margin-side')).toHaveCount(2);
-  expect(await blurMargins.evaluate(node => ({
-    top: getComputedStyle(node, '::before').backdropFilter,
-    bottom: getComputedStyle(node, '::after').backdropFilter,
-    left: getComputedStyle(node.querySelector('[data-pg-side="left"]')).backdropFilter,
-    right: getComputedStyle(node.querySelector('[data-pg-side="right"]')).backdropFilter,
-  }))).toEqual({top:'blur(8px)', bottom:'blur(8px)', left:'blur(8px)', right:'blur(8px)'});
+  expect(style.background).not.toBe('rgba(0, 0, 0, 0)');
+  await expect(page.locator('.pg-dialog__blur-margins')).toHaveCount(0);
   expect(style.width).toBeGreaterThan(800);
   expect(style.height).toBeGreaterThan(500);
   await modal.locator('[data-pg-action="dialog-dismiss"]').click();
@@ -133,4 +126,30 @@ test('reduced motion removes all dialog and section transitions without losing b
   await expect(layout.locator('.pg-section-navigator__title')).toHaveText('Канали продажу');
   await modal.locator('[data-pg-action="dialog-dismiss"]').click();
   await expect(modal).toHaveCount(0);
+});
+
+test('standard, editor and edge-to-edge use one native static backdrop', async ({ page }) => {
+  await page.goto('/tools');
+  await page.evaluate(async () => {
+    const { showDialog } = await import('/src/ui/dialog/dialog.js');
+    for (const size of ['standard', 'editor']) {
+      void showDialog({ title: 'Backdrop ' + size, message: 'Test backdrop', size });
+    }
+    const content = document.createElement('div');
+    content.textContent = 'Edge content';
+    void showDialog({ title: 'Backdrop edge', presentation: 'edge-to-edge', content });
+  });
+  for (const size of ['standard', 'editor', 'edge']) {
+    const modal = page.getByRole('dialog', { name: 'Backdrop ' + size });
+    await expect(modal).toBeVisible();
+    const backdrop = await modal.evaluate(node => {
+      const style = getComputedStyle(node, '::backdrop');
+      return { filter: style.backdropFilter, color: style.backgroundColor };
+    });
+    expect(backdrop.filter).toBe('none');
+    expect(backdrop.color).not.toBe('rgba(0, 0, 0, 0)');
+    await expect(page.locator('.pg-dialog__blur-margins')).toHaveCount(0);
+    await page.keyboard.press('Escape');
+    await expect(modal).toHaveCount(0);
+  }
 });

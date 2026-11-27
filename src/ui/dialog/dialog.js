@@ -15,25 +15,6 @@ import { createWorkspaceLayout } from '../workspace-layout/workspace-layout.js';
 const EXIT_DURATION = 140;
 const WORKSPACE_EXIT_DURATION = 120;
 
-/**
- * Full-screen backdrop blur repaints on every interaction inside Workspace.
- * Only the narrow OUTSIDE margins are visible; blur those four strips while
- * leaving the native ::backdrop responsible for dimming and focus trapping.
- * One shared Dialog manager owns creation and cleanup.
- */
-function mountWorkspaceBlurMargins(doc) {
-  const layer = doc.createElement('div');
-  layer.className = 'pg-dialog__blur-margins';
-  layer.setAttribute('aria-hidden', 'true');
-  for (const side of ['left', 'right']) {
-    const strip = doc.createElement('span');
-    strip.className = 'pg-dialog__blur-margin-side';
-    strip.dataset.pgSide = side;
-    layer.append(strip);
-  }
-  doc.body.append(layer);
-  return layer;
-}
 let manager = null;
 
 function validate(options) {
@@ -123,8 +104,6 @@ export function mountDialogs() {
       item.timerId = null;
     }
     if (item.element?.open) item.element.close();
-    item.blurMargins?.remove();
-    item.blurMargins = null;
     item.workspace?.destroy();
     item.workspace = null;
     item.element?.remove();
@@ -563,9 +542,6 @@ export function mountDialogs() {
       });
 
       doc.body.append(d);
-      if (item.options.size === 'workspace') {
-        item.blurMargins = mountWorkspaceBlurMargins(doc);
-      }
       d.showModal();
       doc.dispatchEvent(new Event('pg:modal-change'));
       (item.options.presentation === 'edge-to-edge' ? (item.options.showClose ? closeButton : body)
@@ -578,8 +554,6 @@ export function mountDialogs() {
         }
       });
     } catch (error) {
-      item.blurMargins?.remove();
-      item.blurMargins = null;
       item.workspace?.destroy();
       item.workspace = null;
       item.element?.remove();
@@ -596,7 +570,7 @@ export function mountDialogs() {
       queue.push({
         options: clean, focusOrigin: doc.activeElement,
         resolve, reject, closing: false, busy: false, result: 'cancel',
-        timerId: null, element: null, busySource: null, blurMargins: null,
+        timerId: null, element: null, busySource: null,
       });
       showNext();
     });
@@ -608,8 +582,6 @@ export function mountDialogs() {
     if (active) {
       if (active.timerId !== null) view.clearTimeout(active.timerId);
       if (active.element?.open) active.element.close();
-      active.blurMargins?.remove();
-      active.blurMargins = null;
       active.workspace?.destroy();
       active.workspace = null;
       active.element?.remove();
