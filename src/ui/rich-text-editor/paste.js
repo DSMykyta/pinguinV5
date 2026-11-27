@@ -11,10 +11,11 @@
 
 import { parseSafeHtml } from './html.js';
 import { getEditorSelection } from './commands.js';
+import { getPastedMarkdown, markdownToHtml } from './markdown.js';
 
 const STARTS_WITH_MARKUP = /^<(?:!doctype\s+html\b|html\b|body\b|p\b|div\b|h[1-3]\b|ul\b|ol\b|li\b|blockquote\b|strong\b|em\b|b\b|i\b|u\b|s\b|a\b|pre\b|code\b|br\b|hr\b)/i;
 const HAS_ENDING_TAG = /<\/(?:html|body|p|div|h[1-3]|ul|ol|li|blockquote|strong|em|b|i|u|s|a|pre|code)\s*>|<(?:br|hr)(?:\s[^<>]*)?\s*\/?>/i;
-const BLOCK_TAGS = new Set(['p', 'div', 'h1', 'h2', 'h3', 'ul', 'ol', 'blockquote', 'pre']);
+const BLOCK_TAGS = new Set(['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'blockquote', 'pre', 'table']);
 
 /** Recognize a complete HTML snippet, not incidental text containing angle brackets. */
 export function getPastedHtmlSource(value) {
@@ -86,22 +87,33 @@ function insertPlainText(root, plain) {
   insertFragment(root, fragment);
 }
 
-export function mountEditorPaste({ input, isEditable, onInput }) {
+export function mountEditorPaste({ input, isEditable, onInput, onFormat = () => {}, onMarkdown = () => {} }) {
   const controller = new AbortController();
   input.addEventListener('paste', event => {
     if (!isEditable()) return;
     const rich = event.clipboardData?.getData('text/html') || '';
-    const plain = event.clipboardData?.getData('text/plain') || '';
+    const mdMime = event.clipboardData?.getData('text/markdown') || '';
+    const plain = event.clipboardData?.getData('text/plain') || mdMime || '';
     if (!rich && !plain) return;
     event.preventDefault();
 
     const source = getPastedHtmlSource(plain);
     // A copied code block may provide rich HTML wrapping literal HTML source.
     const richAsText = rich ? new DOMParser().parseFromString(rich, 'text/html').body.textContent : '';
+    const markdown = getPastedMarkdown(mdMime || plain, Boolean(mdMime));
+    const literalRich = rich && /<(?:pre|code)\b/i.test(rich) && richAsText.trim() === plain.trim();
+    const onlyTextRich = rich && !/<(?:h[1-6]|strong|b|em|i|u|ul|ol|li|blockquote|a|table|s)\b/i.test(rich);
     if (source && (!rich || getPastedHtmlSource(richAsText))) {
       insertFragment(input, parseSafeHtml(source));
+      onFormat('html');
+    } else if (markdown !== null && (mdMime || !rich || literalRich || onlyTextRich)) {
+      const before = input.textContent.trim() === '';
+      insertFragment(input, parseSafeHtml(markdownToHtml(markdown, input.ownerDocument)));
+      onFormat('markdown');
+      if (before) onMarkdown(markdown);
     } else if (rich) {
       insertFragment(input, parseSafeHtml(rich));
+      onFormat('html');
     } else {
       insertPlainText(input, plain);
     }

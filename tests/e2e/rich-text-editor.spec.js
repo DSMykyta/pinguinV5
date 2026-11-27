@@ -708,3 +708,39 @@ test('glass header stays stationary as long text passes beneath it', async ({ pa
   expect(htmlHeader.mask).toContain('linear-gradient(');
   expect(htmlHeader.surface).toBe(htmlHeader.expected);
 });
+
+
+test('Markdown paste changes format without changing the visual mode, then source round-trips', async ({ page }) => {
+  const { root, visual, editorMode, htmlMode } = getEditor(page);
+  await visual.fill('');
+  await visual.evaluate(node => {
+    const data = new DataTransfer();
+    data.setData('text/plain', '## Markdown\n\n**Жирний**\n\n- перший\n- другий');
+    node.dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
+  });
+  await expect(root).toHaveAttribute('data-pg-format', 'markdown');
+  await expect(root).toHaveAttribute('data-pg-mode', 'editor');
+  await expect(visual.locator('h2')).toHaveText('Markdown');
+  await expect(root.getByRole('radio', { name: 'Редактор' })).toBeChecked();
+  await htmlMode.click();
+  const md = root.getByRole('textbox', { name: 'Markdown-код тексту' });
+  await expect(md).toHaveValue(/## Markdown/);
+  await md.fill('## Новий\n\n**текст**');
+  await editorMode.click();
+  await expect(visual.locator('strong')).toHaveText('текст');
+  await root.getByRole('button', { name: 'Формат документа: Markdown' }).click();
+  await root.getByRole('menuitem', { name: 'HTML', exact: true }).click();
+  await expect(root).toHaveAttribute('data-pg-format', 'html');
+  await expect(root).toHaveAttribute('data-pg-mode', 'editor');
+  await htmlMode.click();
+  await expect(root.getByRole('textbox', { name: 'HTML-код тексту' })).toHaveValue(/<strong>текст<\/strong>/);
+});
+
+test('context menu reuses shared menu and exposes all copy formats', async ({ page }) => {
+  const { root, visual } = getEditor(page);
+  await visual.click({ button: 'right' });
+  await expect(root.getByRole('menu', { name: 'Дії з текстом' })).toBeVisible();
+  await expect(root.getByRole('menuitem', { name: /Копіювати як Markdown/ })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(visual).toBeFocused();
+});

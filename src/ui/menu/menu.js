@@ -73,6 +73,8 @@ export function createMenu({ label, id, items = [], align = 'start', disabled = 
   const allNodes = [];
   const supportsPopover = typeof document.createElement('div').showPopover === 'function';
   let openState = false;
+  let pointAnchor = null;
+  let returnFocus = null;
   let disposed = false;
   let graceTimer = null;
   let typeTimer = null;
@@ -249,7 +251,7 @@ export function createMenu({ label, id, items = [], align = 'start', disabled = 
     if (!node.open) return;
     const width = Math.max(170, ...node.buttons.map(button => button.scrollWidth + 12));
     const geometry = positionPopup({
-      anchor: node.parentButton ?? trigger, popup: node.panel,
+      anchor: node.parentButton ?? pointAnchor ?? trigger, popup: node.panel,
       placement: node.parent ? 'inline' : 'block',
       maxHeight: 320, matchWidth: false, minWidth: 170, maxWidth: 360,
       preferredWidth: width, align, gap: 4,
@@ -309,6 +311,16 @@ export function createMenu({ label, id, items = [], align = 'start', disabled = 
     focusItem(root, 0);
     scrollDismiss.arm();
   }
+  function openAt(x, y, focusTarget) {
+    if (openState) close();
+    pointAnchor = document.createElement('span');
+    pointAnchor.setAttribute('aria-hidden', 'true');
+    Object.assign(pointAnchor.style, { position: 'fixed', left: x + 'px', top: y + 'px', width: '0', height: '0', pointerEvents: 'none' });
+    document.body.append(pointAnchor);
+    returnFocus = focusTarget ?? document.activeElement;
+    open();
+    if (!openState) { pointAnchor.remove(); pointAnchor = null; returnFocus = null; }
+  }
   function close(restore = false) {
     if (!openState) return;
     cancelGrace();
@@ -318,7 +330,11 @@ export function createMenu({ label, id, items = [], align = 'start', disabled = 
     scrollDismiss.disarm();
     trigger.setAttribute('aria-expanded', 'false');
     element.dataset.pgOpen = 'false';
-    if (restore) trigger.focus({ preventScroll: true });
+    const focusTarget = returnFocus ?? trigger;
+    pointAnchor?.remove();
+    pointAnchor = null;
+    returnFocus = null;
+    if (restore) focusTarget.focus({ preventScroll: true });
   }
 
   trigger.addEventListener('click', () => openState ? close(true) : open(), { signal });
@@ -345,7 +361,7 @@ export function createMenu({ label, id, items = [], align = 'start', disabled = 
   });
 
   return Object.freeze({
-    element, trigger, open, close,
+    element, trigger, open, openAt, close,
     destroy() {
       disposed = true;
       close();

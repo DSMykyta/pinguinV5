@@ -10,6 +10,7 @@
  */
 
 import { serializeSafeHtml } from './html.js';
+import { htmlToMarkdown } from './markdown.js';
 
 /** Reapply enclosing markup omitted by Range.cloneContents() for partial selections. */
 export function serializeEditorSelection(input, range) {
@@ -48,7 +49,7 @@ function sourceAsClipboardHtml(html, doc) {
 }
 
 /** Copy a visual selection as literal, sanitized HTML source in both MIME paths. */
-export function mountEditorCopy({ input }) {
+export function mountEditorCopy({ input, getFormat = () => 'html', notify = () => {} }) {
   const controller = new AbortController();
   input.addEventListener('copy', event => {
     const selection = input.ownerDocument.getSelection();
@@ -58,8 +59,12 @@ export function mountEditorCopy({ input }) {
     if (!html) return;
     event.preventDefault();
     // Paste into textarea => raw tags; paste into rich editor => visible tags.
-    event.clipboardData.setData('text/plain', html);
-    event.clipboardData.setData('text/html', sourceAsClipboardHtml(html, input.ownerDocument));
+    const format = getFormat();
+    const value = format === 'markdown' ? htmlToMarkdown(html, input.ownerDocument) : html;
+    event.clipboardData.setData('text/plain', value);
+    event.clipboardData.setData('text/html', sourceAsClipboardHtml(value, input.ownerDocument));
+    if (format === 'markdown') event.clipboardData.setData('text/markdown', value);
+    notify(format);
   }, { signal: controller.signal });
   return { dispose() { controller.abort(); } };
 }

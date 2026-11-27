@@ -11,7 +11,8 @@
 
 const ALLOWED_TAGS = new Set([
   'p', 'div', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'h1', 'h2', 'h3',
-  'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'a', 'hr',
+  'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'a', 'hr', 'h4', 'h5', 'h6', 'del', 'strike',
+  'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td', 'caption',
 ]);
 const DISCARD_TAGS = new Set([
   'script', 'style', 'iframe', 'frame', 'object', 'embed', 'svg', 'math',
@@ -44,6 +45,16 @@ function copySafeNode(node, into, doc) {
       target.setAttribute('href', href);
       target.setAttribute('rel', 'noopener noreferrer');
     }
+  }
+  if (target !== into && ['ol', 'td', 'th'].includes(tag)) {
+    for (const name of tag === 'ol' ? ['start'] : ['colspan', 'rowspan']) {
+      const value = node.getAttribute(name);
+      if (value && /^\d{1,4}$/.test(value) && Number(value) > 0) target.setAttribute(name, value);
+    }
+  }
+  // Keep task-list meaning without importing executable or interactive inputs.
+  if (tag === 'li' && node.firstElementChild?.matches('input[type=checkbox]')) {
+    target.append(doc.createTextNode(node.firstElementChild.hasAttribute('checked') ? '[x] ' : '[ ] '));
   }
   for (const child of node.childNodes) copySafeNode(child, target, doc);
   if (target !== into) into.append(target);

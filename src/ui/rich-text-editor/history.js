@@ -63,7 +63,7 @@ export function createEditorHistory({ read, apply, limit = 100 }) {
   let cursor = 0;
   function record() {
     const next = read();
-    if (entries[cursor].html === next.html) {
+    if (entries[cursor].html === next.html && entries[cursor].format === next.format && entries[cursor].markdown === next.markdown) {
       entries[cursor].selection = next.selection;
       return;
     }

@@ -19,20 +19,24 @@ import { mountEditorToolbar } from './toolbar.js';
 import { mountEditorModeSwitch } from './mode.js';
 import { mountEditorStats, getEditorDocumentText } from './stats.js';
 import { mountEditorPaste } from './paste.js';
-import { mountEditorCopy } from './copy.js';
+import { mountEditorCopy, serializeEditorSelection } from './copy.js';
+import { markdownToHtml, htmlToMarkdown } from './markdown.js';
+import { mountEditorActions } from './actions.js';
 
 let nextId = 0;
 
 export function createRichTextEditor({
   content = '', editable = true, toolbar = true, code = true, stats = true,
-  label = 'Редактор тексту', layout = 'auto', onChange, onModeChange,
+  label = 'Редактор тексту', layout = 'auto', format: initialFormat = 'html', onChange, onModeChange, onNotify,
 } = {}) {
+  if (!['html', 'markdown'].includes(initialFormat)) throw new TypeError('Unknown document format');
   if (!['auto', 'contained'].includes(layout)) throw new TypeError('Unknown editor layout');
   const uid = ++nextId;
   const element = document.createElement('section');
   element.className = 'pg-rich-text-editor';
   element.dataset.pgModule = 'rich-text-editor';
   element.dataset.pgMode = 'editor';
+  element.dataset.pgFormat = initialFormat;
   element.dataset.pgLayout = layout;
 
   const main = document.createElement('div');
@@ -57,7 +61,7 @@ export function createRichTextEditor({
   input.setAttribute('aria-multiline', 'true');
   input.setAttribute('aria-label', label);
   input.setAttribute('spellcheck', 'true');
-  input.append(parseSafeHtml(content));
+  input.append(parseSafeHtml(initialFormat === 'markdown' ? markdownToHtml(content) : content));
 
   const source = document.createElement('textarea');
   source.className = 'pg-rich-text-editor__source pg-code-surface__input pg-scrollbar';
@@ -86,6 +90,19 @@ export function createRichTextEditor({
   let composing = false;
   let isEditable = Boolean(editable);
   let mode = 'editor';
+  let format = initialFormat;
+  let markdownCache = initialFormat === 'markdown' ? { html: serializeSafeHtml(input), value: String(content) } : null;
+  const sourceHtml = value => format === 'markdown' ? markdownToHtml(value) : sanitizeSource(value);
+  const asSource = html => format === 'markdown'
+    ? (markdownCache?.html === html ? markdownCache.value : htmlToMarkdown(html)) : html;
+  function updateFormat(next) {
+    format = next;
+    element.dataset.pgFormat = next;
+    source.setAttribute('aria-label', next === 'markdown' ? 'Markdown-код тексту' : 'HTML-код тексту');
+  }
+  updateFormat(format);
+  function notify(message, type = 'success') { onNotify?.(message, type); }
+  const formatName = f => f === 'markdown' ? 'Markdown' : f === 'html' ? 'HTML' : 'текст';
 
   // Native field-sizing matches the self-growing contenteditable field.
   // Only browsers without it need a small textarea height fallback.
@@ -113,20 +130,24 @@ export function createRichTextEditor({
     holder.append(parseSafeHtml(value));
     return serializeSafeHtml(holder);
   }
-  const getHTML = () => mode === 'html' ? sanitizeSource(source.value) : serializeSafeHtml(input);
+  const getHTML = () => mode !== 'editor' ? sourceHtml(source.value) : serializeSafeHtml(input);
+  const getSource = () => mode !== 'editor' ? source.value : asSource(getHTML());
   const getText = () => {
     if (mode === 'editor') return getEditorDocumentText(input);
     const holder = input.ownerDocument.createElement('div');
-    holder.append(parseSafeHtml(source.value));
+    holder.append(parseSafeHtml(getHTML()));
     return getEditorDocumentText(holder);
   };
-  const read = () => ({ html: getHTML(), selection: mode === 'editor' ? captureSelection(input) : null });
+  const read = () => ({ html: getHTML(), format, markdown: format === 'markdown' ? getSource() : null,
+    selection: mode === 'editor' ? captureSelection(input) : null });
   function emit() {
     if (destroyed) return;
     for (const subscriber of subscribers) subscriber();
-    onChange?.({ html: getHTML(), text: getText(), mode });
+    onChange?.({ html: getHTML(), text: getText(), mode, format });
   }
   function apply(snapshot) {
+    updateFormat(snapshot.format ?? 'html');
+    markdownCache = snapshot.markdown === null || snapshot.markdown === undefined ? null : { html: snapshot.html, value: snapshot.markdown };
     input.replaceChildren(parseSafeHtml(snapshot.html));
     // Undo/redo belong to the WYSIWYG history only; HTML textarea uses native undo.
     if (mode === 'editor') {
@@ -138,23 +159,27 @@ export function createRichTextEditor({
   const history = createEditorHistory({ read, apply });
 
   function setMode(nextMode) {
-    if (destroyed || (nextMode !== 'editor' && nextMode !== 'html') || nextMode === mode) return false;
-    if (!code) return false;
+    if (destroyed || !['editor', 'html', 'markdown'].includes(nextMode) || nextMode === mode || !code) return false;
+    if (nextMode !== 'editor' && nextMode !== format) {
+      if (!setFormat(nextMode)) return false;
+      if (mode !== 'editor') return true;
+    }
     notice.hidden = true;
     notice.textContent = '';
-    if (nextMode === 'html') {
+    if (nextMode !== 'editor') {
       // Snapshot the rendered document once, not a second writable copy.
-      source.value = serializeSafeHtml(input);
+      source.value = asSource(serializeSafeHtml(input));
       input.hidden = true;
       source.hidden = false;
-      mode = 'html';
-      element.dataset.pgMode = 'html';
+      mode = format;
+      element.dataset.pgMode = mode;
       resizeSource();
       source.focus();
     } else {
       // The HTML textarea owns the draft until the user returns to WYSIWYG.
       // Never inject raw HTML into contenteditable; unsafe nodes/attrs are dropped.
-      const safe = sanitizeSource(source.value);
+      const safe = getHTML();
+      if (format === 'markdown') markdownCache = { html: safe, value: source.value };
       input.replaceChildren(parseSafeHtml(safe));
       mode = 'editor';
       element.dataset.pgMode = 'editor';
@@ -163,7 +188,7 @@ export function createRichTextEditor({
       history.record();
       input.focus();
       // No silent execution of scripts/handlers from HTML mode.
-      if (safe !== source.value && /<\/?[a-z][^>]*>/i.test(source.value)) {
+      if (format === 'html' && safe !== source.value && /<\/?[a-z][^>]*>/i.test(source.value)) {
         notice.textContent = 'HTML нормалізовано та очищено під час повернення в редактор.';
         notice.hidden = false;
       }
@@ -173,8 +198,38 @@ export function createRichTextEditor({
     return true;
   }
 
+  function setFormat(next) {
+    if (destroyed || !code || !isEditable || !['html', 'markdown'].includes(next) || next === format) return false;
+    const html = getHTML();
+    // Commit the current source to the single semantic document before converting.
+    if (format === 'markdown') markdownCache = { html, value: getSource() };
+    if (mode !== 'editor') input.replaceChildren(parseSafeHtml(html));
+    updateFormat(next);
+    if (mode !== 'editor') {
+      mode = format;
+      element.dataset.pgMode = mode;
+      source.value = asSource(html);
+      resizeSource();
+      source.focus();
+      onModeChange?.(mode);
+    }
+    history.record();
+    emit();
+    notify('Перетворено на ' + formatName(next));
+    return true;
+  }
+  function getCopyValue(target, selection) {
+    const html = selection?.html ?? getHTML();
+    if (target === 'html') return html;
+    if (target === 'markdown') return selection ? htmlToMarkdown(html) : (format === 'markdown' ? getSource() : htmlToMarkdown(html));
+    const holder = input.ownerDocument.createElement('div');
+    holder.append(parseSafeHtml(html));
+    return getEditorDocumentText(holder);
+  }
   const controls = Object.freeze({
-    getHTML, getText,
+    getHTML, getText, getSource, getCopyValue, notify, formatName, sourceToHtml: sourceHtml,
+    getFormat: () => format, setFormat,
+    canEdit: () => isEditable,
     getMode: () => mode,
     setMode,
     isEditable: () => isEditable && mode === 'editor',
@@ -230,24 +285,29 @@ export function createRichTextEditor({
   source.addEventListener('input', () => { if (!destroyed) { resizeSource(); emit(); } }, { signal: aborter.signal });
 
   const views = [
-    mountEditorPaste({ input, isEditable: () => isEditable, onInput: handleInput }),
-    mountEditorCopy({ input }),
+    mountEditorPaste({ input, isEditable: () => isEditable, onInput: handleInput,
+      onFormat: next => { if (code && next !== format) updateFormat(next); },
+      onMarkdown: value => { if (code) markdownCache = { html: serializeSafeHtml(input), value }; },
+    }),
+    mountEditorCopy({ input, getFormat: () => format, notify: f => notify('Скопійовано як ' + formatName(f)) }),
   ];
   if (toolbar) views.push(mountEditorToolbar({ host: toolsHost, triggerHost, controls, root: input }));
   if (code) views.push(mountEditorModeSwitch({ host: modeHost, controls, editorId: input.id, sourceId: source.id }));
   if (stats) views.push(mountEditorStats({ host: statusHost, controls }));
+  if (code) views.push(mountEditorActions({ element, input, source, host: statusHost, controls, serializeEditorSelection }));
   if (!toolbar && !code) header.remove();
 
   return Object.freeze({
     element, input, source,
     getMode: () => mode, setMode,
-    getHTML, getText,
-    getSource: () => mode === 'html' ? source.value : serializeSafeHtml(input),
+    getHTML, getText, getSource,
+    getFormat: () => format, setFormat,
     setHTML(html) {
       if (destroyed) return;
       const safe = sanitizeSource(html);
       input.replaceChildren(parseSafeHtml(safe));
-      source.value = safe;
+      markdownCache = null;
+      source.value = asSource(safe);
       resizeSource();
       history.record();
       emit();
@@ -259,11 +319,12 @@ export function createRichTextEditor({
       source.readOnly = !isEditable;
       emit();
     },
-    focus() { (mode === 'html' ? source : input).focus(); },
+    focus() { (mode !== 'editor' ? source : input).focus(); },
     execute(command) { return controls.execute(command); },
     clear() {
       if (destroyed) return;
       source.value = '';
+      markdownCache = null;
       resizeSource();
       input.replaceChildren();
       history.record();

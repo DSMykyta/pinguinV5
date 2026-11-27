@@ -24,14 +24,35 @@ export function mountEditorModeSwitch({ host, controls, editorId, sourceId }) {
     variant: 'filled',
     compact: true,
     fit: true,
-    onChange: mode => controls.setMode(mode),
+    onChange: mode => controls.setMode(mode === 'editor' ? 'editor' : controls.getFormat()),
   });
   switcher.element.classList.add('pg-rich-text-editor__mode-switch');
   const targets = { editor: editorId, html: sourceId };
   for (const radio of switcher.element.querySelectorAll('.pg-segment-switch__radio')) {
     radio.setAttribute('aria-controls', targets[radio.value]);
   }
-  const unsubscribe = controls.subscribe(() => switcher.setValue(controls.getMode()));
+  const radio = switcher.element.querySelector('.pg-segment-switch__radio[value="html"]');
+  const label = radio.nextElementSibling;
+  const icon = label.firstElementChild;
+  const flip = document.createElement('span');
+  flip.className = 'pg-rich-text-editor__format-flip';
+  flip.setAttribute('aria-hidden', 'true');
+  const md = document.createElement('span');
+  md.className = 'pg-rich-text-editor__format-md';
+  md.textContent = 'MD';
+  flip.append(icon, md);
+  label.append(flip);
+  function sync() {
+    const format = controls.getFormat();
+    const name = format === 'markdown' ? 'Markdown' : 'HTML';
+    radio.setAttribute('aria-label', name);
+    label.setAttribute('aria-label', name);
+    if (label.title !== name) label.title = name;
+    flip.dataset.pgFormat = format;
+    switcher.setValue(controls.getMode() === 'editor' ? 'editor' : 'html');
+  }
+  const unsubscribe = controls.subscribe(sync);
+  sync();
   host.append(switcher.element);
   return {
     dispose() {

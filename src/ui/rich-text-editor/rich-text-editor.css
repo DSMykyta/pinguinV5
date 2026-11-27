@@ -187,3 +187,19 @@
   mask-image: linear-gradient(to bottom, transparent 0%, black 65%, black 100%);
 }
 
+
+/* Format is independent of the visual/source selection. Only its glyph flips. */
+.pg-rich-text-editor__format-flip { display: grid; place-items: center; inline-size: 17px; block-size: 17px; transform-style: preserve-3d; transition: transform var(--pg-motion-spatial-selection-duration) var(--pg-motion-spatial-ease); }
+.pg-rich-text-editor__format-flip > * { grid-area: 1 / 1; backface-visibility: hidden; }
+.pg-rich-text-editor__format-flip[data-pg-format='markdown'] { transform: rotateY(180deg); }
+.pg-rich-text-editor__format-md { transform: rotateY(180deg); font-size: 10px; font-weight: 650; }
+.pg-rich-text-editor[data-pg-mode='markdown'][data-pg-layout='contained'] { --pg-rich-editor-glass-surface: var(--pg-color-selected); }
+.pg-rich-text-editor__stats-host { display: flex; align-items: center; justify-content: space-between; }
+.pg-rich-text-editor__format-menu { margin-inline-start: auto; margin-inline-end: var(--pg-space-4); }
+.pg-rich-text-editor__format-menu .pg-menu__trigger { background: transparent; border: 0; color: var(--pg-color-text-muted); font-size: 12px; min-block-size: 28px; padding: var(--pg-space-1) var(--pg-space-2); }
+.pg-rich-text-editor__format-menu [aria-current='true'] { font-weight: 650; background: var(--pg-color-selected); }
+.pg-rich-text-editor__context-menu { position: absolute; inline-size: 0; block-size: 0; }
+.pg-rich-text-editor__context-menu .pg-menu__trigger[hidden] { display: none; }
+.pg-rich-text-editor__input table { border-collapse: collapse; max-inline-size: 100%; }
+.pg-rich-text-editor__input :is(td, th) { border: 1px solid var(--pg-color-border); padding: var(--pg-space-2); }
+@media (prefers-reduced-motion: reduce) { .pg-rich-text-editor__format-flip { transition: none; } }

@@ -10,16 +10,24 @@
  */
 
 /* Any opt-in editor with an HTML/code mode can reuse the same surface. */
-:where([data-pg-mode='html'], [data-pg-mode='code']) .pg-code-surface {
+:where([data-pg-mode='html'], [data-pg-mode='code'], [data-pg-mode='markdown']) .pg-code-surface {
   --pg-color-text-muted: var(--pg-color-code-muted);
   background: var(--pg-color-code-surface);
   color: var(--pg-color-code-text);
   border-color: var(--pg-color-code-border);
   font-family: var(--pg-font-family-code);
 }
-:where([data-pg-mode='html'], [data-pg-mode='code']) .pg-code-surface .pg-code-surface__input {
+:where([data-pg-mode='html'], [data-pg-mode='code'], [data-pg-mode='markdown']) .pg-code-surface .pg-code-surface__input {
   background: transparent;
   color: var(--pg-color-code-text);
   font-family: var(--pg-font-family-code);
   caret-color: var(--pg-color-code-text);
+}
+
+/* Neutral source palette, inherits the active theme rather than forcing black. */
+:where([data-pg-mode='markdown']) .pg-code-surface {
+  --pg-color-code-surface: var(--pg-color-selected);
+  --pg-color-code-text: var(--pg-color-text-primary);
+  --pg-color-code-muted: var(--pg-color-text-secondary);
+  --pg-color-code-border: var(--pg-color-border-strong);
 }
