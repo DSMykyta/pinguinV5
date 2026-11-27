@@ -16,7 +16,8 @@ import './login-demo.css';
 
 export function mount(host) {
   const page = document.createElement('section');
-  page.className = 'pg-login-demo';
+  page.className = 'pg-login-demo pg-scrollbar';
+  page.dataset.pgScrollbarPrimary = '';
   page.dataset.pgModule = 'login-demo';
   const scene = document.createElement('div');
   scene.className = 'pg-login-demo__scene';

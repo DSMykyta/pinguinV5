@@ -63,3 +63,22 @@
   background-image: none;
 }
 .pg-scrollbar::-webkit-scrollbar-corner { background: transparent; }
+
+/* Optional desktop projection; only explicitly registered vertical scrollports. */
+.pg-scrollbar[data-pg-scrollbar-detached] { scrollbar-width: none; }
+.pg-scrollbar[data-pg-scrollbar-detached]::-webkit-scrollbar { display: none; }
+.pg-scrollbar--edge {
+  position: fixed;
+  top: var(--pg-scrollbar-edge-top, 0px);
+  right: 0;
+  width: var(--pg-space-3);
+  height: var(--pg-scrollbar-edge-height, 0px);
+  z-index: 89;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  scroll-behavior: auto;
+  overscroll-behavior: contain;
+  background: transparent;
+}
+.pg-scrollbar--edge[hidden] { display: none; }
+.pg-scrollbar__extent { height: var(--pg-scrollbar-extent, 0px); pointer-events: none; }

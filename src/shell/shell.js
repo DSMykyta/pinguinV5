@@ -21,6 +21,7 @@ import { createAside } from './aside/aside.js';
 import { createAsideFab } from './aside/fab.js';
 import { createSearch } from './search/search.js';
 import { createRevealPanel } from '../ui/reveal-panel/reveal-panel.js';
+import { mountEdgeScrollbar } from '../ui/scrollbar/scrollbar.js';
 
 const NARROW_QUERY = '(max-width: 1080px)';
 
@@ -267,6 +268,7 @@ export function mountShell(host) {
   shell.append(sidebar.element, workspace, aside.element,
     asideFab.element, backdrop);
   host.replaceChildren(shell);
+  const disposeEdgeScrollbar = mountEdgeScrollbar({ host: shell, container: content, media: viewport });
 
   function persist() {
     savePreferences(storage, preferences);
@@ -431,6 +433,7 @@ export function mountShell(host) {
 
   return function unmountShell() {
     isDisposed = true;
+    disposeEdgeScrollbar();
     contextReveal.destroy();
     footerReveal.destroy();
     pageOutlet.dispose();

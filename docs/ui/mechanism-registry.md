@@ -265,9 +265,10 @@
 - `src/ui/rich-text-editor/stats.js`
 - `src/ui/rich-text-editor/toolbar.js`
 
-### src/ui/scrollbar — Глобальний scrollbar
+### src/ui/scrollbar — Глобальний scrollbar, синхронізована вертикальна смуга на краю Shell
 
 - `src/ui/scrollbar/scrollbar.css`
+- `src/ui/scrollbar/scrollbar.js`
 
 ### src/ui/section-navigator — Переходи між секціями, жести
 

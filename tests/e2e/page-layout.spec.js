@@ -343,3 +343,36 @@ test('every tools tab uses a shared responsive Main without extra page gutters',
   expect(Math.abs(loginBox.x - mainBox.x - 16)).toBeLessThan(1);
   expect(Math.abs(mainBox.x + mainBox.width - loginBox.x - loginBox.width - 16)).toBeLessThan(1);
 });
+
+test('desktop page scrollbar stays at screen edge and mirrors the active scrollport', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/tools');
+  await page.getByRole('tab', { name: 'Елементи', exact: true }).click();
+  const source = page.locator('#pg-tools-panel-elements');
+  const rail = page.locator('.pg-scrollbar--edge');
+  const main = page.locator('.pg-shell__content');
+  await expect(rail).toBeVisible();
+  await expect(source).toHaveCSS('scrollbar-width', 'none');
+  const right = async () => { const box = await rail.boundingBox(); return box.x + box.width; };
+  expect(await right()).toBeCloseTo(1440, 0);
+  await source.evaluate(node => { node.scrollTop = 400; });
+  await expect.poll(() => rail.evaluate(node => node.scrollTop)).toBeGreaterThan(300);
+  await rail.evaluate(node => { node.scrollTop = 0; });
+  await expect.poll(() => source.evaluate(node => node.scrollTop)).toBeLessThan(2);
+  await page.locator('[data-pg-action="aside-toggle"]').click();
+  await page.locator('[data-pg-action="aside-pin"]').click();
+  await expect(rail).toBeVisible();
+  expect(await right()).toBeCloseTo(1440, 0);
+  expect((await main.boundingBox()).y).toBeCloseTo((await rail.boundingBox()).y, 0);
+  await page.getByRole('tab', { name: 'Ефекти', exact: true }).click();
+  await expect(page.locator('#pg-tools-panel-effects')).toHaveAttribute('data-pg-scrollbar-detached', '');
+  await expect(source).not.toHaveAttribute('data-pg-scrollbar-detached', '');
+  await page.getByRole('tab', { name: 'Тексти', exact: true }).click();
+  await expect(rail).toBeHidden();
+  await page.getByRole('tab', { name: 'Елементи', exact: true }).click();
+  await expect(rail).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(rail).toBeHidden();
+  await expect(source).not.toHaveAttribute('data-pg-scrollbar-detached', '');
+  await expect(source).not.toHaveCSS('scrollbar-width', 'none');
+});
