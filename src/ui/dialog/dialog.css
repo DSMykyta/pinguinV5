@@ -9,6 +9,14 @@
  * ╚════════════════════════════════════════════════════════════════════════════════════╝
  */
 
+.pg-dialog, .pg-dialog__decision-panel {
+  border: 1px solid var(--pg-color-border);
+  border-radius: 18px;
+  background: var(--pg-color-surface);
+  color: var(--pg-color-text-primary);
+  box-shadow: 0 24px 70px var(--pg-color-dialog-shadow);
+}
+
 .pg-dialog {
   position: fixed;
   inset: 0;
@@ -18,11 +26,6 @@
   max-height: calc(100dvh - 32px);
   margin: auto;
   padding: 0;
-  border: 1px solid var(--pg-color-border);
-  border-radius: 18px;
-  background: var(--pg-color-surface);
-  color: var(--pg-color-text-primary);
-  box-shadow: 0 24px 70px var(--pg-color-dialog-shadow);
   overflow: hidden;
   opacity: 0;
   transform: translateY(7px) scale(.992);
@@ -278,30 +281,37 @@ body:has(> .pg-dialog[open]) #app *::after {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 18px;
-  padding: 24px;
+  padding: 16px;
   background: var(--pg-color-dialog-backdrop);
 }
 .pg-dialog__decision[hidden] { display: none; }
+.pg-dialog__decision-panel {
+  display: flex;
+  flex-direction: column;
+  width: min(440px, 100%);
+  max-block-size: 100%;
+  min-block-size: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
 .pg-dialog__decision-message {
-  box-sizing: border-box;
-  width: min(420px, 100%);
   margin: 0;
-  padding: 22px 24px;
-  border: 1px solid var(--pg-color-border);
-  border-radius: 14px;
-  background: var(--pg-color-surface);
-  color: var(--pg-color-text-primary);
-  font-size: 15px;
+  padding: 24px;
+  font-size: 14px;
   line-height: 1.5;
-  box-shadow: 0 10px 30px var(--pg-color-shadow);
+  overflow-wrap: anywhere;
 }
 .pg-dialog__decision-actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 8px;
-  width: min(420px, 100%);
+  padding: 16px 24px 20px;
+  border-block-start: 1px solid var(--pg-color-border);
+}
+@media (max-width: 480px) {
+  .pg-dialog__decision-message { padding: 18px; }
+  .pg-dialog__decision-actions { padding: 14px 18px 18px; }
 }
 @media (max-width: 700px) {
   .pg-dialog--workspace {

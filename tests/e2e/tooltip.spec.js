@@ -131,7 +131,8 @@ test('local tooltip lifecycle cancels pending work, remounts and disposes indepe
       const doc = frame.contentDocument;
       const view = frame.contentWindow;
       const button = doc.createElement('button');
-      button.textContent = label;
+      button.textContent = '•';
+      button.setAttribute('aria-label', label);
       button.dataset.pgTooltip = label;
       button.setAttribute('data-pg-tooltip-always', '');
       doc.body.append(button);
@@ -238,4 +239,44 @@ test('select-all tooltip paints above the open listbox, not under its top-layer 
   await expect(panel).toBeVisible();
   await page.mouse.move(5, 5);
   await expect(tooltip).toHaveCount(0);
+});
+
+test('redundant text and an already expanded popup do not produce tooltips', async ({ page }) => {
+  await page.goto('/tools');
+  await page.evaluate(() => {
+    const host = document.createElement('div');
+    host.style.cssText = 'position:fixed;top:80px;left:350px;z-index:9999;background:white';
+    const text = document.createElement('button');
+    text.id = 'pg-test-visible-label';
+    text.textContent = 'Зрозуміло';
+    text.dataset.pgTooltip = text.textContent;
+    text.setAttribute('data-pg-tooltip-always', '');
+    const icon = document.createElement('button');
+    icon.id = 'pg-test-popup-trigger';
+    icon.textContent = '•';
+    icon.dataset.pgTooltip = 'Відкрити меню';
+    icon.setAttribute('data-pg-tooltip-always', '');
+    icon.setAttribute('aria-haspopup', 'menu');
+    icon.setAttribute('aria-expanded', 'false');
+    host.append(text, icon);
+    document.body.append(host);
+  });
+  await page.locator('#pg-test-visible-label').hover();
+  await page.waitForTimeout(250);
+  await expect(page.getByRole('tooltip')).toHaveCount(0);
+  const trigger = page.locator('#pg-test-popup-trigger');
+  await trigger.hover();
+  await expect(page.getByRole('tooltip')).toHaveText('Відкрити меню');
+  await trigger.evaluate(node => node.setAttribute('aria-expanded', 'true'));
+  await expect(page.getByRole('tooltip')).toHaveCount(0);
+});
+
+test('column filter already explains itself by opening its panel on hover', async ({ page }) => {
+  await page.goto('/tools');
+  await page.getByRole('tab', { name: 'Макети даних' }).click();
+  const trigger = page.getByRole('button', { name: 'Фільтр: Країна', exact: true });
+  await trigger.hover();
+  await expect(page.getByRole('dialog', { name: 'Фільтр: Країна', exact: true })).toBeVisible();
+  await expect(page.getByRole('tooltip')).toHaveCount(0);
+  await expect(trigger).toHaveAttribute('aria-label', 'Фільтр: Країна');
 });

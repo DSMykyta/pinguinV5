@@ -176,7 +176,7 @@ export function createCollectionHeader({ column, th, getOptions, getFilter, onFi
     th.dataset.pgFilterable = 'true';
     const id = 'pg-column-filter-' + (++sequence);
     trigger = createIconButton({ label: 'Фільтр: ' + column.label,
-      icon: 'sliders', variant: 'mini', action: 'column-filter' });
+      icon: 'sliders', variant: 'mini', action: 'column-filter', tooltip: false });
     trigger.classList.add('pg-collection-view__filter-trigger');
     trigger.dataset.pgContextual = 'true';
     trigger.setAttribute('aria-haspopup', 'dialog');

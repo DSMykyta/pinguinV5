@@ -175,6 +175,7 @@ export function mountDialogs() {
     if (item.workspace) item.workspace.element.inert = false;
     item.decisionOrigin?.focus({ preventScroll: true });
     item.decisionOrigin = null;
+    doc.dispatchEvent(new Event('pg:modal-change'));
   }
 
   function showDecision(item, { message, confirmText, onConfirm, danger = false, origin }) {
@@ -182,13 +183,16 @@ export function mountDialogs() {
     hideDecision(item);
     const overlay = doc.createElement('div');
     overlay.className = 'pg-dialog__decision';
-    overlay.setAttribute('role', 'alertdialog');
-    overlay.setAttribute('aria-modal', 'true');
+    const card = doc.createElement('div');
+    card.className = 'pg-dialog__decision-panel';
+    card.setAttribute('role', 'alertdialog');
+    card.setAttribute('aria-modal', 'true');
+    card.setAttribute('aria-label', confirmText);
     const description = doc.createElement('p');
     description.className = 'pg-dialog__decision-message';
     description.id = 'pg-dialog-decision-message';
     description.textContent = message;
-    overlay.setAttribute('aria-describedby', description.id);
+    card.setAttribute('aria-describedby', description.id);
     const actions = doc.createElement('div');
     actions.className = 'pg-dialog__decision-actions';
     const cancel = doc.createElement('button');
@@ -202,7 +206,7 @@ export function mountDialogs() {
     approve.textContent = confirmText;
     cancel.addEventListener('click', () => hideDecision(item));
     approve.addEventListener('click', async () => {
-      if (item.busy || item.closing) return;
+      if (item.busy || item.closing || overlay.dataset.pgPending === 'true') return;
       overlay.dataset.pgPending = 'true';
       approve.disabled = true;
       cancel.disabled = true;
@@ -213,17 +217,20 @@ export function mountDialogs() {
         console.error('Workspace decision failed:', error);
         if (!item.closing) {
           report(item, 'Не вдалося виконати дію.', 'alert');
+          delete overlay.dataset.pgPending;
           approve.disabled = false;
           cancel.disabled = false;
         }
       }
     });
     actions.append(cancel, approve);
-    overlay.append(description, actions);
+    card.append(description, actions);
+    overlay.append(card);
     item.decision = overlay;
     if (item.workspace) item.workspace.element.inert = true;
     item.decisionOrigin = origin ?? item.element?.querySelector('[data-pg-action="dialog-dismiss"]');
     item.element.querySelector('.pg-dialog__panel').append(overlay);
+    doc.dispatchEvent(new Event('pg:modal-change'));
     cancel.focus({ preventScroll: true });
   }
 
@@ -532,12 +539,15 @@ export function mountDialogs() {
         if (event.key === 'Escape' && item.decision) {
           event.preventDefault();
           event.stopPropagation();
-          hideDecision(item);
+          if (item.decision.dataset.pgPending !== 'true') hideDecision(item);
         }
       }, true);
       d.addEventListener('cancel', event => {
         event.preventDefault();
-        if (item.decision) { hideDecision(item); return; }
+        if (item.decision) {
+          if (item.decision.dataset.pgPending !== 'true') hideDecision(item);
+          return;
+        }
         void requestDismiss(item, 'escape');
       });
       d.addEventListener('click', event => {

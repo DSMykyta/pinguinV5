@@ -112,7 +112,7 @@ export function setButtonColor(button, { tone, appearance } = {}) {
  * Creates a reusable accessible icon button.
  * The callback is attached once and belongs to the component's owner.
  */
-export function createIconButton({ label, icon, action, onClick, variant = 'default', tone, appearance } = {}) {
+export function createIconButton({ label, icon, action, onClick, variant = 'default', tone, appearance, tooltip = true } = {}) {
   if (!['default', 'mini', 'corner'].includes(variant)) throw new TypeError('Unknown IconButton variant');
   const button = document.createElement('button');
   button.type = 'button';
@@ -120,8 +120,10 @@ export function createIconButton({ label, icon, action, onClick, variant = 'defa
   if (variant === 'mini') button.classList.add('pg-mini-button');
   if (variant === 'corner') button.classList.add('pg-icon-button--corner');
   button.setAttribute('aria-label', label);
-  button.dataset.pgTooltip = label;
-  button.setAttribute('data-pg-tooltip-always', '');
+  if (tooltip) {
+    button.dataset.pgTooltip = label;
+    button.setAttribute('data-pg-tooltip-always', '');
+  }
   if (action) button.dataset.pgAction = action;
   if (tone != null || appearance != null) {
     setButtonColor(button, { tone, appearance: appearance ?? 'ghost' });

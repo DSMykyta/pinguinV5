@@ -222,3 +222,33 @@ test('all workspace sections share the same flush edges and the title aligns wit
   expect(aligned.top).toBeLessThanOrEqual(56);
   expect(aligned.bottom).toBeLessThanOrEqual(56);
 });
+
+test('workspace delete confirmation contains message and actions in one surface', async ({ page }) => {
+  const modal = await openEditor(page);
+  const remove = modal.locator('[data-pg-action="dialog-delete"]');
+  await remove.hover();
+  await expect(page.getByRole('tooltip')).toHaveText('Видалити');
+  await remove.click();
+  const decision = page.getByRole('alertdialog', { name: 'Видалити', exact: true });
+  await expect(decision).toBeVisible();
+  await expect(page.getByRole('tooltip')).toHaveCount(0);
+  const cancel = decision.getByRole('button', { name: 'Скасувати' });
+  await expect(cancel).toBeFocused();
+  const approve = decision.getByRole('button', { name: 'Видалити', exact: true });
+  const bounds = await decision.boundingBox();
+  for (const part of [decision.locator('.pg-dialog__decision-message'), cancel, approve]) {
+    const r = await part.boundingBox();
+    expect(r.x).toBeGreaterThanOrEqual(bounds.x);
+    expect(r.y).toBeGreaterThanOrEqual(bounds.y);
+    expect(r.x + r.width).toBeLessThanOrEqual(bounds.x + bounds.width + 1);
+    expect(r.y + r.height).toBeLessThanOrEqual(bounds.y + bounds.height + 1);
+  }
+  await cancel.click();
+  await expect(decision).toHaveCount(0);
+  await expect(modal).toBeVisible();
+  await expect(remove).toBeFocused();
+  await remove.click();
+  await approve.click();
+  await expect(modal).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Редагувати: Aero Pulse', exact: true })).toHaveCount(0);
+});

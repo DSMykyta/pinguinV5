@@ -32,6 +32,9 @@ export function initTooltips({ doc = document, view = window } = {}) {
   let frame = null;
   let moveFrame = null;
   let previousDescription = null;
+  const targetObserver = new view.MutationObserver(() => {
+    if (target && (!shouldShow(target) || !resolveTarget(target))) hide();
+  });
 
   function resolveTarget(node) {
     const element = node?.closest?.(SELECTOR);
@@ -57,16 +60,23 @@ export function initTooltips({ doc = document, view = window } = {}) {
   }
 
   function shouldShow(element) {
+    if (!element.isConnected || element.closest('[inert], [hidden]') ||
+        element.matches(':disabled, [aria-disabled="true"]') ||
+        (element.hasAttribute('aria-haspopup') && element.getAttribute('aria-expanded') === 'true')) return false;
     if (element.hasAttribute('data-pg-tooltip-collapsed')) {
       return element.closest('.pg-shell')?.dataset.pgSidebarState === 'collapsed' &&
         !view.matchMedia('(max-width: 1080px)').matches;
     }
     // Explicitly labelled icon-only commands retain tooltips. Text gets a
     // hint only when it is actually cropped in either axis.
-    return element.hasAttribute('data-pg-tooltip-always') ||
-      element.hasAttribute('data-tooltip-always') ||
-      element.scrollWidth > element.clientWidth + 1 ||
-      element.scrollHeight > element.clientHeight + 1;
+    const clipped = element.clientWidth > 0 && element.scrollWidth > element.clientWidth + 1 ||
+      element.clientHeight > 0 && element.scrollHeight > element.clientHeight + 1;
+    if (clipped) return true;
+    if (!element.hasAttribute('data-pg-tooltip-always') && !element.hasAttribute('data-tooltip-always')) return false;
+    // Explicit hints are for missing information, not a second copy of a visible label.
+    const visibleText = element.innerText?.trim().replace(/\s+/g, ' ') ?? '';
+    const hint = textFor(element).trim().replace(/\s+/g, ' ');
+    return !visibleText || visibleText !== hint;
   }
 
   function cancelTimer() {
@@ -97,6 +107,7 @@ export function initTooltips({ doc = document, view = window } = {}) {
 
   function hide() {
     cancelTimer();
+    targetObserver.disconnect();
     clearTooltip();
     target = null;
   }
@@ -172,6 +183,10 @@ export function initTooltips({ doc = document, view = window } = {}) {
     if (target === element && (timer !== null || tooltip !== null)) return;
     hide();
     target = element;
+    targetObserver.observe(element, { attributes: true, attributeFilter: [
+      'aria-expanded', 'aria-haspopup', 'aria-disabled', 'disabled', 'hidden', 'inert',
+      'data-pg-tooltip', 'data-tooltip', 'data-pg-tooltip-always', 'data-tooltip-always',
+    ] });
     mode = nextMode;
     timer = view.setTimeout(show, nextMode === 'focus' ? 70 : 140);
   }
@@ -220,6 +235,7 @@ export function initTooltips({ doc = document, view = window } = {}) {
 
   function onClick() {
     // The theme and pin buttons can change labels while the hint is visible.
+    if (target && !shouldShow(target)) { hide(); return; }
     if (tooltip && target) {
       tooltip.textContent = textFor(target);
       position();
