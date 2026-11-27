@@ -1,3 +1,5 @@
+> **2026-11-27 — чинне рішення власника:** нативні випадаючі списки заборонені в Pinguin. `createSelect()` — адаптер на `createListbox({multiple:false, searchable:false})`, без другого popup або стилів. `getValue()` та `onChange` повертають один рядок, `setOptions` зберігає стабільні ключі; `placeholder:null` вибирає перший доступний пункт. Групи представлені префіксом назви. Форма отримує значення та required-перевірку через невидимий input, без `<select>`. `Combobox`, `Menu`, multi Listbox залишаються незалежними. Попередні вимоги використовувати native Select нижче є архівними й скасовані.
+
 > **Current design decision (2026-11-09):** Select and Combobox have static labels above their plain 56px surface. The earlier floating/notch details below are archival and superseded by [field.md](field.md).
 
 # Selection fields — design contract (2026-11-08)

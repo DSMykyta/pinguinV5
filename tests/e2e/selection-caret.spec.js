@@ -102,14 +102,13 @@ test('Combobox caret reopens suggestions even if Escape left the input focused',
   await expect(input).toHaveAttribute('aria-expanded', 'false');
 });
 
-test('native Select and collection sorting Selects keep the caret inside the native hit target', async ({ page }) => {
+test('country and collection sorting Selects open the shared Pinguin popup from their caret', async ({ page }) => {
   const country = page.locator('.pg-tools-field-demo .pg-select');
-  const native = country.locator('select');
+  const trigger = country.locator('.pg-listbox__trigger');
   await clickCaret(page, country);
-  await expect(native).toBeFocused();
-  await native.press('Escape');
-  await native.selectOption('pl');
-  await expect(native).toHaveValue('pl');
+  await expect(country.getByRole('listbox')).toBeVisible();
+  await country.getByRole('option', { name: 'Польща' }).click();
+  await expect(trigger).toContainText('Польща');
 
   for (const tab of ['Макети даних', 'Медіатека']) {
     await page.getByRole('tab', { name: tab }).click();
@@ -119,8 +118,9 @@ test('native Select and collection sorting Selects keep the caret inside the nat
     const sorting = aside.locator('.pg-select');
     await expect(sorting).toHaveCount(1);
     await clickCaret(page, sorting);
-    await expect(sorting.locator('select')).toBeFocused();
-    await sorting.locator('select').press('Escape');
+    await expect(sorting.getByRole('listbox')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(sorting.locator('.pg-listbox__trigger')).toBeFocused();
   }
 });
 

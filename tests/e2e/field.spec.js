@@ -54,9 +54,11 @@ test('shared Field renders SVG caret without throwing or replacing its icon clas
   const caret = select.locator('.pg-field__trailing--decorative svg.pg-icon.pg-field__caret');
   await expect(caret).toHaveCount(1);
   await expect(caret).toHaveAttribute('aria-hidden', 'true');
-  await expect(select.getByRole('combobox', { name: 'Країна' })).toBeVisible();
-  await select.getByRole('combobox', { name: 'Країна' }).selectOption('pl');
-  await expect(select.getByRole('combobox', { name: 'Країна' })).toHaveValue('pl');
+  const trigger = select.locator('.pg-listbox__trigger');
+  await expect(trigger).toBeVisible();
+  await trigger.click();
+  await select.getByRole('option', { name: 'Польща' }).click();
+  await expect(trigger).toContainText('Польща');
 
   // The same public slot API must also accept subsequent caret updates.
   await page.evaluate(async () => {
@@ -85,7 +87,7 @@ test('Input, Select, Combobox and Tag Field show a permanent label above the bor
     const component = page.locator('#pg-field-test-area .pg-' + type);
     const label = component.locator('.pg-field__label');
     const surface = component.locator('.pg-field__surface');
-    const control = type === 'select' ? component.locator('select')
+    const control = type === 'select' ? component.locator('.pg-listbox__trigger')
       : type === 'combobox' ? component.locator('input[role=combobox]')
       : component.locator('input:not([type=hidden])');
     const before = await label.boundingBox();
@@ -117,10 +119,13 @@ test('input adornments are independent of text width and focus remains native', 
   await expect(field.getByRole('textbox', { name: 'Назва' })).toHaveValue('Pinguin');
 });
 
-test('select is native, retains values in a form and retains its permanent label', async ({ page }) => {
-  const select = page.getByRole('combobox', { name: 'Країна' });
-  await select.selectOption('pl');
-  await expect(select).toHaveValue('pl');
+test('single Select uses Listbox, retains form values and permanent label', async ({ page }) => {
+  const owner = page.locator('#pg-field-test-area .pg-select');
+  await expect(owner.locator('select')).toHaveCount(0);
+  const select = owner.locator('.pg-listbox__trigger');
+  await select.click();
+  await owner.getByRole('option', { name: 'Польща' }).click();
+  await expect(select).toContainText('Польща');
   const shell = page.locator('#pg-field-test-area .pg-select .pg-field');
   await expect(shell).toHaveAttribute('data-pg-filled', 'true');
   await page.evaluate(() => {
@@ -175,4 +180,31 @@ test('dark theme, reduced motion and mobile widths retain the plain border', asy
     expect(rect.x + rect.width).toBeLessThanOrEqual(390);
     await expect(shell.locator('.pg-field__surface')).toHaveCSS('transition-duration', '0s');
   }
+});
+
+
+test('required custom Select supports form validation, reset, disabled options and scalar changes', async ({ page }) => {
+  const result = await page.evaluate(async () => {
+    const { createSelect } = await import('/src/ui/select/select.js');
+    const form = document.createElement('form');
+    let changes = [];
+    const field = createSelect({ label: 'Обов’язковий вибір', name: 'choice', required: true,
+      options: [{label:'Перша',value:'one'}, {label:'Недоступна',value:'bad',disabled:true}],
+      onChange: value => changes.push(value) });
+    form.append(field.element);
+    document.body.append(form);
+    window.pgRequiredSelect = { field, form, changes };
+    return { valid: form.checkValidity(), native: form.querySelectorAll('select').length };
+  });
+  expect(result).toEqual({ valid:false, native:0 });
+  const root = page.locator('.pg-select').filter({hasText:'Обов’язковий вибір'});
+  await root.locator('.pg-listbox__trigger').click();
+  await expect(root.getByRole('option',{name:'Недоступна'})).toHaveAttribute('aria-disabled','true');
+  await root.getByRole('option',{name:'Перша'}).click();
+  expect(await page.evaluate(() => {
+    const {field,form,changes}=window.pgRequiredSelect;
+    return [field.getValue(),new FormData(form).get('choice'),form.checkValidity(),changes];
+  })).toEqual(['one','one',true,['one']]);
+  await page.evaluate(() => window.pgRequiredSelect.form.reset());
+  await expect(root.locator('.pg-listbox__trigger')).toContainText('Оберіть значення');
 });

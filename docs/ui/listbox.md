@@ -1,3 +1,5 @@
+> **2026-11-27:** звичайний Select тепер використовує цей самий Listbox у single-режимі. Нативного picker немає. Старі згадки про обов’язковий native Select нижче скасовані.
+
 > **Current implementation:** Listbox uses `createFieldFrame` for its trigger and composes a normal `createInput({ variant: 'search' })` for internal filtering. Its trigger visually stays active while the popup is open. It shares the common compact 40px desktop / 44px coarse-pointer outer-field geometry and focus styling with Number Field and Input.
 
 > **Current design decision (2026-11-09):** Listbox has a permanent label above its 40px desktop / 44px touch trigger surface; the native-like placeholder stays visible. The earlier floating/notch details below are archival and superseded by [field.md](field.md).

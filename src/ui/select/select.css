@@ -2,18 +2,22 @@
  * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
  * ║ PINGUIN NEXT — SELECT                                                                               ║
  * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Native select: label, outline and decorative caret use shared Field.                   ║
+ * ║ ПРИЗНАЧЕННЯ: Single Select form proxy; visible UI belongs to Listbox.                   ║
  * ║ ЗАЛЕЖНОСТІ: src/styles/tokens.css і спільний UI.                                                    ║
- * ║ ПУБЛІЧНИЙ API: .pg-select, .pg-select__control, .pg-select__field,               ║
- * ║ .pg-select__support                                                                                 ║
+ * ║ ПУБЛІЧНИЙ API: .pg-select__form-value,               ║
+ * ║ no visible component styles                                                                                 ║
  * ║ ПРИНЦИП: Ізольована поведінка, без зв'язків між features.                                           ║
  * ╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
-.pg-select { display: grid; gap: 6px; min-inline-size: 0; }
-.pg-select__control { appearance: none; cursor: pointer; }
-.pg-select__control:disabled { cursor: not-allowed; }
-.pg-select__control option, .pg-select__control optgroup { color: var(--pg-color-text-primary); background: var(--pg-color-surface); }
-.pg-select__support { display: grid; gap: 3px; font-size: 12px; color: var(--pg-color-text-secondary); }
-.pg-select__support[hidden] { display: none; }
-.pg-select__error { color: var(--pg-color-input-error); }
+/* Visually hidden but participates in form constraint validation. */
+.pg-select__form-value {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  pointer-events: none;
+}

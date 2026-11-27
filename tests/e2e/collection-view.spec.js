@@ -344,7 +344,9 @@ test('sorted header and aside share one collection sorting state',async({page})=
   const aside=page.locator('#pg-aside-panel');
   await expect(aside.getByRole('radiogroup',{name:'Напрямок сортування'})).toBeVisible();
   await expect(aside.getByRole('radio',{name:'Я–А'})).toBeChecked();
-  await aside.getByRole('combobox',{name:'Сортувати за'}).selectOption('products');
+  const sorting = aside.locator('.pg-select');
+  await sorting.locator('.pg-listbox__trigger').click();
+  await sorting.locator('.pg-listbox__option').filter({hasText:/^Товари$/}).click();
   await expect(heads.nth(3)).toHaveAttribute('aria-sort','descending');
   await aside.locator('.pg-segment-switch__label[title="А–Я"]').click();
   await expect(heads.nth(3)).toHaveAttribute('aria-sort','ascending');

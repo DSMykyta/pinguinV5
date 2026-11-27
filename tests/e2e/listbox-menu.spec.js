@@ -81,14 +81,15 @@ test('Menu keyboard navigation executes current item, restores focus, persists c
   await expect(menus.nth(2).locator('.pg-menu__trigger')).toBeDisabled();
 });
 
-test('Select and Combobox are independent from Listbox and Menu collections', async ({page})=>{
+test('Select uses shared Listbox while Combobox and action Menu remain independent', async ({page})=>{
   const all = {
-    native: await page.locator('.pg-tools-field-demo .pg-select').count(),
+    select: await page.locator('.pg-tools-field-demo .pg-select.pg-listbox').count(),
+    native: await page.locator('select').count(),
     combo: await page.locator('.pg-tools-field-demo .pg-combobox').count(),
     multi: await page.locator('.pg-tools-listbox-demo .pg-listbox').count(),
     actions: await page.locator('.pg-tools-menu-demo .pg-menu').count(),
   };
-  expect(all).toEqual({native:1,combo:1,multi:3,actions:3});
+  expect(all).toEqual({select:1,native:0,combo:1,multi:3,actions:3});
 });
 
 

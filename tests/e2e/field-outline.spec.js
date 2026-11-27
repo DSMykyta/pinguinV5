@@ -74,12 +74,10 @@ test('single-line input, select and combobox surfaces share a compact 40px heigh
   expect(narrow.every(h=>Math.abs(h-40)<.25)).toBe(true);
 });
 
-test('native Select opens from the chevron area at desktop and mobile widths',async ({page})=>{
-  const field=page.locator('.pg-tools-field-demo .pg-select')
-    .filter({has:page.locator('select[name="demo-field-country"]')});
-  const select=field.locator('select');
+test('Pinguin Select opens from the chevron area at desktop and mobile widths',async ({page})=>{
+  const field=page.locator('.pg-tools-field-demo .pg-select');
+  const trigger=field.locator('.pg-listbox__trigger');
   const caret=field.locator('.pg-field__caret');
-
   for(const [width,theme] of [[1280,'light'],[390,'dark']]) {
     await page.setViewportSize({width,height:844});
     await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);
@@ -87,29 +85,23 @@ test('native Select opens from the chevron area at desktop and mobile widths',as
     const target=await caret.evaluate(arrow=>{
       const r=arrow.getBoundingClientRect();
       const x=r.left+r.width/2,y=r.top+r.height/2;
-      return {x,y,hit:document.elementFromPoint(x,y)?.getAttribute('name')};
+      return {x,y,hit:document.elementFromPoint(x,y)===arrow.closest('.pg-field').querySelector('.pg-field__control')};
     });
-    // The arrow is visual only: pointer input must go to the native select.
-    expect(target.hit).toBe('demo-field-country');
-    await select.evaluate(el=>{
-      el.dataset.pgTestCaretPointer='false';
-      el.addEventListener('pointerdown',event=>{
-        el.dataset.pgTestCaretPointer=String(event.target===el);
-      },{once:true});
-    });
+    expect(target.hit).toBe(true);
     await page.mouse.click(target.x,target.y);
-    await expect(select).toHaveAttribute('data-pg-test-caret-pointer','true');
-    await expect(select).toBeFocused();
+    await expect(trigger).toHaveAttribute('aria-expanded','true');
+    await expect(field.getByRole('listbox')).toBeVisible();
     await page.keyboard.press('Escape');
-    await select.blur();
+    await expect(trigger).toBeFocused();
+    await trigger.blur();
   }
-
-  // Native keyboard selection and option values still work.
-  await select.focus();
-  await select.press('ArrowDown');
-  await expect(select).toHaveValue('ua');
-  await select.selectOption('pl');
-  await expect(select).toHaveValue('pl');
+  await trigger.press('ArrowDown');
+  await page.keyboard.press('Home');
+  await page.keyboard.press('Enter');
+  await expect(trigger).toContainText('Україна');
+  await trigger.click();
+  await field.getByRole('option',{name:'Польща'}).click();
+  await expect(trigger).toContainText('Польща');
 });
 
 test('checkbox circle and mixed-state keyboard behavior remain unchanged',async ({page})=>{
