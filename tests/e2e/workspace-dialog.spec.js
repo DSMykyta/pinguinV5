@@ -85,8 +85,11 @@ test('modal tooltips occupy the browser top layer and background hints cannot ap
   const close = modal.locator('[data-pg-action="dialog-dismiss"]');
   await close.hover();
   const tooltip = page.getByRole('tooltip');
-  await expect(tooltip).toBeVisible();
-  await expect(tooltip).toHaveText('Закрити діалог');
+  await expect(close).not.toHaveAttribute('data-pg-tooltip');
+  await page.waitForTimeout(220);
+  await expect(tooltip).toHaveCount(0);
+  await modal.locator('[data-pg-action="dialog-delete"]').hover();
+  await expect(tooltip).toHaveText('Видалити');
   const state = await tooltip.evaluate(element => ({
     inModal: Boolean(element.closest('dialog')),
     inTopLayer: element.matches(':popover-open'),

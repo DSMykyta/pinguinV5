@@ -53,7 +53,7 @@ export function createWorkspaceLayout({ title, body, status, sections = [] }) {
       element.dataset.pgNav = expanded ? 'expanded' : 'collapsed';
       toggle.setAttribute('aria-expanded', String(expanded));
       toggle.setAttribute('aria-label', expanded ? 'Згорнути меню редактора' : 'Розгорнути меню редактора');
-      toggle.dataset.pgTooltip = toggle.getAttribute('aria-label');
+      // No redundant tooltip on the workspace disclosure control.
     },
   });
   toggle.classList.add('pg-workspace-layout__nav-toggle');

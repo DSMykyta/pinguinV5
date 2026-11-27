@@ -44,7 +44,7 @@ export function createPasswordInput(options = {}) {
     field.input.type = isVisible ? 'text' : 'password';
     const label = isVisible ? 'Приховати пароль' : 'Показати пароль';
     visibilityButton.setAttribute('aria-label', label);
-    visibilityButton.dataset.pgTooltip = label;
+    // Eye icon and aria-label already communicate the action.
     visibilityButton.replaceChildren(createIcon(isVisible ? 'visibility-off' : 'visibility'));
     field.element.dataset.pgPasswordVisible = String(isVisible);
   }

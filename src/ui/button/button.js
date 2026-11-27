@@ -111,8 +111,9 @@ export function setButtonColor(button, { tone, appearance } = {}) {
 /**
  * Creates a reusable accessible icon button.
  * The callback is attached once and belongs to the component's owner.
+ * Visual hints are opt-in; accessible names are always retained.
  */
-export function createIconButton({ label, icon, action, onClick, variant = 'default', tone, appearance, tooltip = true } = {}) {
+export function createIconButton({ label, icon, action, onClick, variant = 'default', tone, appearance, tooltip = false } = {}) {
   if (!['default', 'mini', 'corner', 'micro'].includes(variant)) throw new TypeError('Unknown IconButton variant');
   const button = document.createElement('button');
   button.type = 'button';

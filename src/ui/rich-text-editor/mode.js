@@ -50,7 +50,7 @@ export function mountEditorModeSwitch({ host, controls, editorId, sourceId }) {
     const name = format === 'markdown' ? 'Markdown' : 'HTML';
     radio.setAttribute('aria-label', name);
     label.setAttribute('aria-label', name);
-    if (label.title !== name) label.title = name;
+    if (label.dataset.pgTooltip !== name) label.dataset.pgTooltip = name;
     reel.dataset.pgFormat = format;
     switcher.setValue(controls.getMode() === 'editor' ? 'editor' : 'html');
   }

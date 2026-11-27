@@ -104,7 +104,7 @@ export function createListbox({
   // Keep the shared mini Button as the sole interactive target.
   const all = multiple && selectAll ? createIconButton({
     label: 'Вибрати всі', icon: 'plus', variant: 'mini',
-    action: 'listbox-select-all',
+    action: 'listbox-select-all', tooltip: true,
     onClick(event) {
       if (!opened || disabled) return;
       const eligible = visibleIndices();

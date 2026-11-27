@@ -391,7 +391,7 @@ export function mountDialogs() {
       const closeButton = createIconButton({
         label: 'Закрити діалог',
         icon: 'x',
-        action: 'dialog-dismiss',
+        action: 'dialog-dismiss', tooltip: false,
         onClick: () => { void requestDismiss(item, 'close-button'); },
       });
       closeButton.classList.add('pg-dialog__close');
@@ -421,26 +421,26 @@ export function mountDialogs() {
         });
         const refreshButton = createIconButton({
           label: 'Оновити', icon: 'refresh', variant: 'mini',
-          action: 'dialog-refresh', onClick: () => { void handleRefresh(item); },
+          action: 'dialog-refresh', tooltip: true, onClick: () => { void handleRefresh(item); },
         });
         refreshButton.disabled = !item.options.onRefresh;
         item.refreshButton = refreshButton;
         const deleteButton = createIconButton({
           label: 'Видалити', icon: 'delete', variant: 'corner',
-          action: 'dialog-delete', tone: 'danger', appearance: 'ghost',
+          action: 'dialog-delete', tooltip: true, tone: 'danger', appearance: 'ghost',
           onClick: () => handleDelete(item),
         });
         deleteButton.disabled = !item.options.onDelete;
         item.deleteButton = deleteButton;
         const saveButton = createIconButton({
           label: 'Зберегти', icon: 'save', variant: 'mini',
-          action: 'dialog-save',
+          action: 'dialog-save', tooltip: true,
           onClick: () => { void handleConfirm(item, false); },
         });
         item.saveButton = saveButton;
         const saveCloseButton = createIconButton({
           label: 'Зберегти і закрити', icon: 'check', variant: 'corner',
-          action: 'dialog-confirm',
+          action: 'dialog-confirm', tooltip: true,
           onClick: () => { void handleConfirm(item, true); },
         });
         item.confirmButton = saveCloseButton;

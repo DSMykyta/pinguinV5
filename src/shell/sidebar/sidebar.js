@@ -62,7 +62,7 @@ export function createSidebar({ pages, onToggle, onNavigate, onCycleTheme }) {
   const toggle = createIconButton({
     label: 'Згорнути навігацію',
     icon: 'panel-left',
-    action: 'sidebar-toggle',
+    action: 'sidebar-toggle', tooltip: true,
     onClick: onToggle,
   });
   toggle.classList.add('pg-sidebar__toggle', 'pg-icon-button--corner');
@@ -97,7 +97,7 @@ export function createSidebar({ pages, onToggle, onNavigate, onCycleTheme }) {
   const themeButton = createIconButton({
     label: 'Змінити тему',
     icon: 'monitor',
-    action: 'theme-cycle',
+    action: 'theme-cycle', tooltip: true,
     onClick: onCycleTheme,
   });
   themeButton.classList.add('pg-sidebar__theme-button', 'pg-icon-button--corner');

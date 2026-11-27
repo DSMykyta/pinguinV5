@@ -4,7 +4,7 @@ The existing delegated `initTooltips()` owns all text/icon hints and converts na
 
 **Global text rule (2026-11-10):** a string from `title`, `data-tooltip`, or `data-pg-tooltip` displays only when its owning element is actually clipped (`scrollWidth > clientWidth` or `scrollHeight > clientHeight`, with small pixel-rounding tolerance). A fully visible table name, file name, or label never displays an unnecessary tooltip. The text must be laid out within its actual available width before measuring it; `text-overflow: ellipsis` alone is not sufficient.
 
-**Explicit exceptions:** icon-only controls (their label is not otherwise displayed) use the existing `data-pg-tooltip-always` attribute; collapsed Sidebar uses its existing `data-pg-tooltip-collapsed`. These continue to appear even when the hit target itself is not clipped. Never infer `always` from the presence of a native `title` attribute.
+**Explicit exceptions (revised 2026-11-27):** only intentionally opted-in icon controls with missing contextual information use `data-pg-tooltip-always`; collapsed Sidebar uses `data-pg-tooltip-collapsed`. `createIconButton()` does not create a visual hint unless `tooltip:true` is passed. The accessible `aria-label` is always preserved. Never infer `always` from the presence of a native `title` attribute.
 
 The shared Tooltip delegates hover/focus handling, keyboard feedback, hiding and lifecycle to one instance. It does not mutate component geometry, invent a new CSS class for hover cards, or display unrelated business-specific text.
 
@@ -22,3 +22,8 @@ Verification: tooltip inside large Workspace Dialog is visible above the modal a
 ## Усунення надлишкових підказок (2026-11-27)
 
 Глобальний Tooltip відкидає дублікати повністю видимого тексту навіть за legacy always, disabled/inert/hidden контролі та тригери з aria-haspopup, коли aria-expanded=true. Спостерігається лише поточна ціль, щоб при відкритті popup негайно прибрати вже показану підказку. Іконковий column filter з автоматичним hover-open використовує існуючу фабрику Button з tooltip:false, зберігаючи aria-label. Підказки справді обрізаного тексту, згорнутого Sidebar та неочевидних іконкових команд залишаються. Події pg:modal-change тепер також супроводжують відкриття/закриття внутрішнього підтвердження Workspace.
+
+
+## Підказки лише за потреби — 2026-11-27
+
+Звичайні хрестики закриття діалогів, очищення полів/пошуку, іконка видимості пароля, прості шеврони розгортання редактора та його навігації не потребують Tooltip. За замовчуванням `createIconButton({tooltip:false})`; `aria-label` не видаляється. Явно залишено контекстні іконки Shell, поточну тему, закріплення панелі, масовий вибір, пояснення `i`, команди форматування з гарячими клавішами або неочевидними символами, окремі операції збереження/видалення/оновлення запису та обрізаний текст. Підказки сегментів — тільки за обрізанням, без native title. Демо-дії з конкретним призначенням можуть явно підключати підказку. Новий icon button не повинен автоматично створювати її.

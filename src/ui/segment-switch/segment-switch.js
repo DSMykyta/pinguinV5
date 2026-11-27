@@ -57,7 +57,7 @@ export function createSegmentSwitch({
     const optionLabel = document.createElement('label');
     optionLabel.className = 'pg-segment-switch__label';
     optionLabel.htmlFor = id;
-    optionLabel.title = item.label;
+    optionLabel.dataset.pgTooltip = item.label;
     optionLabel.setAttribute('aria-label', item.label);
     if (item.icon) {
       const icon = createIcon(item.icon);

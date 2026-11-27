@@ -56,7 +56,7 @@ export function mountShell(host) {
   const mobileNavButton = createIconButton({
     label: 'Відкрити меню',
     icon: 'panel-left',
-    action: 'mobile-menu-toggle',
+    action: 'mobile-menu-toggle', tooltip: true,
     onClick: () => {
       mobileNavOpen = !mobileNavOpen;
       mobileAsideOpen = false;
@@ -89,7 +89,7 @@ export function mountShell(host) {
   const contextButton = createIconButton({
     label: 'Відкрити контекстне меню',
     icon: 'sliders',
-    action: 'aside-toggle',
+    action: 'aside-toggle', tooltip: true,
     onClick: () => {
       search.close();
       if (viewport.matches) {

@@ -38,7 +38,7 @@ export function createAside({ onPinToggle }) {
   const pinButton = createIconButton({
     label: 'Закріпити панель',
     icon: 'pin',
-    action: 'aside-pin',
+    action: 'aside-pin', tooltip: true,
     variant: 'mini',
     onClick: onPinToggle,
   });

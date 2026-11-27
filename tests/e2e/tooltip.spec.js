@@ -280,3 +280,34 @@ test('column filter already explains itself by opening its panel on hover', asyn
   await expect(page.getByRole('tooltip')).toHaveCount(0);
   await expect(trigger).toHaveAttribute('aria-label', 'Фільтр: Країна');
 });
+
+
+test('ordinary close and clear controls stay quiet while intentional hints remain available', async ({ page }) => {
+  await page.goto('/tools');
+  await page.getByRole('tab', { name: 'Елементи' }).click();
+  await page.locator('[data-pg-action="dialog-demo-info"]').click();
+  const dialog = page.getByRole('dialog', { name: 'Інформація' });
+  const close = dialog.locator('[data-pg-action="dialog-dismiss"]');
+  await expect(close).toHaveAttribute('aria-label', 'Закрити діалог');
+  await expect(close).not.toHaveAttribute('data-pg-tooltip');
+  await close.hover();
+  await page.waitForTimeout(220);
+  await expect(page.getByRole('tooltip')).toHaveCount(0);
+  await close.click();
+  await expect(dialog).toHaveCount(0);
+  const clear = page.locator('.pg-tools-field-demo input[name="demo-field-code"]').locator('..').locator('..').locator('[data-pg-action="input-clear"]');
+  await expect(clear).toBeVisible();
+  await expect(clear).not.toHaveAttribute('data-pg-tooltip');
+  await clear.hover();
+  await page.waitForTimeout(220);
+  await expect(page.getByRole('tooltip')).toHaveCount(0);
+  await page.evaluate(async () => {
+    const { createIconButton } = await import('/src/ui/button/button.js');
+    const button = createIconButton({ label: 'Дія без підказки', icon: 'x' });
+    button.id = 'pg-tooltip-opt-out-test';
+    document.body.append(button);
+  });
+  const button = page.locator('#pg-tooltip-opt-out-test');
+  await expect(button).toHaveAttribute('aria-label', 'Дія без підказки');
+  await expect(button).not.toHaveAttribute('data-pg-tooltip');
+});

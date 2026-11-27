@@ -54,6 +54,7 @@ export function createAsideFab({
     icon,
     action,
     variant: 'corner',
+    tooltip: true,
     onClick: () => setOpen(!open),
   });
   button.classList.add('pg-fab__trigger');

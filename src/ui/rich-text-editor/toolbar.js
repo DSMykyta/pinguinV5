@@ -64,6 +64,8 @@ export function mountEditorToolbar({ host, triggerHost, controls, root }) {
       label: item.label,
       icon: item.icon,
       action: item.id,
+      // Keyboard shortcuts and less familiar formatting actions are useful hints.
+      tooltip: true,
       variant: 'mini',
       onClick: () => controls.execute(item.id),
     });
@@ -107,7 +109,7 @@ export function mountEditorToolbar({ host, triggerHost, controls, root }) {
     trigger.setAttribute('aria-expanded', String(expanded));
     const label = expanded ? 'Згорнути форматування' : 'Розгорнути форматування';
     trigger.setAttribute('aria-label', label);
-    trigger.dataset.pgTooltip = label;
+    // The chevron and expanded state already communicate disclosure.
     reveal.setVisible(expanded);
   }
   function sync() {

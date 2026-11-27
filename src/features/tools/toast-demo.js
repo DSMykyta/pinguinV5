@@ -25,7 +25,7 @@ export function createToastDemo() {
   const trigger = createIconButton({
     label: 'Показати Toast',
     icon: 'check-circle',
-    action: 'toast-demo',
+    action: 'toast-demo', tooltip: true,
     onClick: () => showToast('Зміни збережено', { type: 'success' }),
   });
   trigger.classList.add('pg-icon-button--corner');

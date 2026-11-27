@@ -24,7 +24,7 @@ export function createDialogDemo() {
   const info = createIconButton({
     label: 'Показати Dialog',
     icon: 'info',
-    action: 'dialog-demo-info',
+    action: 'dialog-demo-info', tooltip: true,
     onClick: () => showDialog({
       title: 'Інформація',
       message: 'Це універсальне модальне вікно Pinguin Next.',
