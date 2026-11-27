@@ -38,11 +38,15 @@ test('one printed card follows the pointer without an autonomous loop', async ({
   await expect(layer).toHaveCSS('mix-blend-mode', 'normal');
   await expect(layer).toHaveCSS('opacity', '1');
   await expect(layer).toHaveCSS('animation-name', 'none');
+  await expect(surface).toHaveCSS('mask-composite', 'intersect');
+  const glare = () => surface.evaluate(node => getComputedStyle(node, '::after').opacity);
+  await expect.poll(glare).toBe('0.22');
   const box = await card.boundingBox();
   await page.mouse.move(box.x + box.width * .15, box.y + box.height * .3);
   await expect(card).toHaveAttribute('data-pg-tracking', 'true');
   await expect.poll(() => layer.evaluate(node => parseFloat(getComputedStyle(node).backgroundPositionX))).toBeLessThan(27);
   const left = await layer.evaluate(node => getComputedStyle(node).backgroundPositionX);
+  await expect.poll(glare).toBe('0.78');
   await page.mouse.move(box.x + box.width * .85, box.y + box.height * .7);
   await expect.poll(() => layer.evaluate(node => parseFloat(getComputedStyle(node).backgroundPositionX))).toBeGreaterThan(parseFloat(left) + 30);
   await expect.poll(() => surface.evaluate(node => getComputedStyle(node).transform)).not.toBe('matrix(1, 0, 0, 1, 0, 0)');
@@ -52,7 +56,7 @@ test('one printed card follows the pointer without an autonomous loop', async ({
   await page.mouse.move(1, 1);
   await expect(card).not.toHaveAttribute('data-pg-tracking', 'true');
   await expect(layer).toHaveCSS('background-position', '50% 50%');
-
+  await expect.poll(glare).toBe('0.22');
 });
 
 test('reduced motion and narrow viewport keep the card static', async ({ page }) => {
@@ -94,7 +98,7 @@ test('card stays inside its reserved region and tracking transitions remain inte
     }
     await page.mouse.move(1, 1);
     await expect(card).not.toHaveAttribute('data-pg-tracking', 'true');
-    await expect(surface).toHaveCSS('transition-duration', '0.34s');
+    await expect(surface).toHaveCSS('transition-duration', '0.84s');
     await page.mouse.move(box.x + box.width*.85, box.y + box.height*.5);
     await expect(card).toHaveAttribute('data-pg-tracking', 'true');
     await expect(surface).toHaveCSS('transition-duration', '0.15s');
