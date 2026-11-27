@@ -163,3 +163,20 @@ test('reduced motion disables caret transition once in the shared Field skin', a
     await expect(field.locator('.pg-field__caret')).toHaveCSS('transition-duration', '0s');
   }
 });
+
+
+test('no native select is mounted anywhere across the tools tabs or brand editor', async ({ page }) => {
+  for (const tab of ['Таблиці','Макети даних','Медіатека','Елементи','Тексти','Переходи']) {
+    await page.getByRole('tab',{name:tab,exact:true}).click();
+    await expect(page.locator('select')).toHaveCount(0);
+  }
+  await page.getByRole('tab',{name:'Макети даних',exact:true}).click();
+  await page.locator('#pg-tools-panel-data-views .pg-collection-view__editable-name').first().click();
+  const dialog=page.getByRole('dialog',{name:/^Редагувати «.+»$/});
+  await expect(dialog).toBeVisible();
+  await expect(dialog.locator('.pg-select.pg-listbox')).toHaveCount(3);
+  await expect(page.locator('select')).toHaveCount(0);
+  await page.goto('/login-demo');
+  await expect(page.locator('.pg-login-demo')).toBeVisible();
+  await expect(page.locator('select')).toHaveCount(0);
+});

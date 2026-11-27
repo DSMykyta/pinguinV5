@@ -92,6 +92,12 @@ async function walk(folder) {
     } else if (entry.name.endsWith('.html')) {
       await checkHtml(path, label);
     }
+    if (label.startsWith('src/') && /\.(?:js|mjs|ts|tsx|html)$/.test(label) && !/\.(?:test|spec)\./.test(label)) {
+      const source = await readFile(path, 'utf8');
+      if (/\bcreateElement\s*\(\s*['"`]select['"`]|<select(?:\s|>)/i.test(source)) {
+        errors.push(label + ': native select is forbidden; use createSelect / createListbox');
+      }
+    }
   }
 }
 

@@ -2,7 +2,7 @@
  * ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
  * ║ PINGUIN NEXT — LISTBOX (SINGLE OR MULTIPLE)                                                         ║
  * ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Separate from native Select and editable Combobox; no feature ownership.               ║
+ * ║ ПРИЗНАЧЕННЯ: Shared value picker; Select is a single-value adapter, Combobox is editable.               ║
  * ║ ЗАЛЕЖНОСТІ: ../field/field.js, ../input/input.js, ../button/button.js, ../position/position-popup.js,                    ║
  * ║ ../position/dismiss-on-scroll.js, ../position/ensure-option-visible.js, ../icon/icon.js                              ║
  * ║ ПУБЛІЧНИЙ API: createListbox()                                                                      ║

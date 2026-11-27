@@ -100,7 +100,7 @@
 
 /* One decorative caret for Select, Listbox and Combobox.
  * Unlike ordinary trailing actions, it never owns a separate hit target.
- * The underlying native select / button / input spans the entire surface.
+ * The underlying button or input spans the entire surface.
  */
 .pg-field__trailing--decorative {
   position: absolute;
