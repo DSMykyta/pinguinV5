@@ -39,13 +39,18 @@ export function createFocusCarouselDemo() {
     image.loading = 'lazy';
     return image;
   });
-  const carousel = createFocusCarousel({ items, label: 'Фокусна карусель: фотографії' });
+  const carousel = createFocusCarousel({ items, label: 'Фокусна карусель: фотографії', pauseOnHover: false });
   const autoplay = createSwitch({
     label: 'Автопрокрутка',
     checked: false,
     onChange: enabled => carousel.setAutoplay(enabled),
   });
-  stage.append(carousel.element, autoplay.element);
+  const loop = createSwitch({
+    label: 'Зациклення',
+    checked: false,
+    onChange: enabled => carousel.setLoop(enabled),
+  });
+  stage.append(carousel.element, autoplay.element, loop.element);
   element.append(title, description, stage);
-  return Object.freeze({ element, destroy() { autoplay.destroy(); carousel.destroy(); element.remove(); } });
+  return Object.freeze({ element, destroy() { autoplay.destroy(); loop.destroy(); carousel.destroy(); element.remove(); } });
 }

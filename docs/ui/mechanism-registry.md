@@ -157,7 +157,7 @@
 - `src/ui/field/field.js`
 - `src/ui/field/support.js`
 
-### src/ui/focus-carousel — Горизонтальний scroll snap та фокус від позиції
+### src/ui/focus-carousel — Горизонтальний scroll snap та фокус від позиції — опційне зациклення й автопрокрутка
 
 - `src/ui/focus-carousel/focus-carousel.css`
 - `src/ui/focus-carousel/focus-carousel.js`

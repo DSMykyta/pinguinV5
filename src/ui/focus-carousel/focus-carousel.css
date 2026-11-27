@@ -19,6 +19,8 @@
   overflow-y: hidden;
   overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
+  scroll-behavior: auto;
+  overflow-anchor: none;
   scroll-padding-inline: 0;
   scrollbar-width: none;
   border-radius: var(--pg-radius-lg);

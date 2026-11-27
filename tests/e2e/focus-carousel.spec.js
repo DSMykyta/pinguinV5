@@ -22,7 +22,7 @@ async function openCarousel(page) {
 async function centered(track, index) {
   await expect.poll(() => track.evaluate((node, i) => {
     const rect = node.getBoundingClientRect();
-    const slide = node.children[i].getBoundingClientRect();
+    const slide = node.querySelectorAll('.pg-focus-carousel__slide:not([data-pg-clone])')[i].getBoundingClientRect();
     return Math.abs(rect.left + node.clientWidth / 2 - slide.left - slide.width / 2);
   }, index)).toBeLessThan(3);
 }
@@ -79,4 +79,28 @@ test('ordinary vertical wheel moves horizontally and autoplay is optional', asyn
   await autoplay.uncheck();
   await expect(autoplay).not.toBeChecked();
   await expect(track.locator('img')).toHaveCount(5);
+});
+
+test('loop wraps in both directions and autoplay advances across the boundary', async ({ page }) => {
+  const track = await openCarousel(page);
+  const loop = page.getByRole('switch', { name: 'Зациклення' });
+  await loop.check();
+  await expect(track).toHaveAttribute('data-pg-loop', 'true');
+  await centered(track, 0);
+  await track.focus();
+  await page.keyboard.press('ArrowLeft');
+  await centered(track, 4);
+  await page.keyboard.press('ArrowRight');
+  await centered(track, 0);
+  await page.keyboard.press('End');
+  await centered(track, 4);
+  const autoplay = page.getByRole('switch', { name: 'Автопрокрутка' });
+  await autoplay.check();
+  const box = await track.boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await centered(track, 0);
+  await autoplay.uncheck();
+  await loop.uncheck();
+  await expect(track.locator('[data-pg-clone]')).toHaveCount(0);
+  await centered(track, 0);
 });
