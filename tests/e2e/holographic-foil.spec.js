@@ -2,7 +2,7 @@
  * ╔════════════════════════════════════════════════════════════════════════════════════╗
  * ║ PINGUIN NEXT — HOLOGRAPHIC FOIL E2E
  * ╠════════════════════════════════════════════════════════════════════════════════════╣
- * ║ ПРИЗНАЧЕННЯ: Перевіряє спільне демо, керування та reduced motion.
+ * ║ ПРИЗНАЧЕННЯ: Перевіряє картку, палітру теми, реакцію на курсор та reduced motion.
  * ║ ЗАЛЕЖНОСТІ: Playwright; /tools.
  * ║ ПУБЛІЧНИЙ API: Browser regression tests.
  * ║ ПРИНЦИП: Реальний сценарій користувача.
@@ -19,6 +19,20 @@ test('one printed card follows the pointer without an autonomous loop', async ({
   const layer = card.locator('.pg-holographic-foil__layer');
   const surface = card.locator('.pg-holographic-foil__surface');
   await expect(card).toHaveCount(1);
+  await expect(card).toHaveAttribute('data-pg-palette', 'theme');
+  await expect(panel.locator('input, button, select, textarea')).toHaveCount(0);
+  const colors = await layer.evaluate(node => {
+    const css = getComputedStyle(node);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    return ['main', 'secondary', 'tertiary'].map(tone => {
+      ctx.fillStyle = css.getPropertyValue('--pg-tone-' + tone + '-base').trim();
+      const hex = ctx.fillStyle.slice(1);
+      const rgb = [0, 2, 4].map(i => parseInt(hex.slice(i, i + 2), 16));
+      return css.backgroundImage.includes('rgb(' + rgb.join(', ') + ')');
+    });
+  });
+  expect(colors).toEqual([true, true, true]);
   await expect(card.getByText('PINGUIN', { exact: true })).toBeVisible();
   await expect(layer).toHaveCSS('background-size', '300% 200%');
   await expect(layer).toHaveCSS('mix-blend-mode', 'color-dodge');
@@ -36,14 +50,7 @@ test('one printed card follows the pointer without an autonomous loop', async ({
   await page.mouse.move(1, 1);
   await expect(card).not.toHaveAttribute('data-pg-tracking', 'true');
   await expect(layer).toHaveCSS('background-position', '50% 50%');
-  await panel.getByRole('radio', { name: 'Pinguin', exact: true }).focus();
-  await panel.getByRole('radio', { name: 'Pinguin', exact: true }).press('Space');
-  await expect(card).toHaveAttribute('data-pg-palette', 'theme');
-  await panel.getByRole('switch', { name: 'Реакція на курсор' }).focus();
-  await panel.getByRole('switch', { name: 'Реакція на курсор' }).press('Space');
-  await expect(card).toHaveAttribute('data-pg-interactive', 'false');
-  await page.mouse.move(box.x + box.width * .8, box.y + box.height * .6);
-  await expect(card).not.toHaveAttribute('data-pg-tracking', 'true');
+
 });
 
 test('reduced motion and narrow viewport keep the card static', async ({ page }) => {

@@ -10,21 +10,19 @@
  */
 
 .pg-holographic-foil {
-  --pg-foil-color-a: var(--pg-tone-tertiary-base);
-  --pg-foil-color-b: color-mix(in srgb, var(--pg-tone-tertiary-base) 45%, var(--pg-tone-main-base));
-  --pg-foil-color-c: var(--pg-tone-main-base);
-  --pg-foil-color-d: var(--pg-tone-secondary-base);
-  --pg-foil-color-e: color-mix(in srgb, var(--pg-tone-secondary-base) 50%, var(--pg-tone-tertiary-base));
+  --pg-foil-colors: var(--pg-tone-main-base) 0%,
+    var(--pg-tone-secondary-base) 10%,
+    var(--pg-tone-tertiary-base) 20%,
+    var(--pg-tone-main-base) 30%;
   --pg-foil-base: var(--pg-color-foil-medium);
   min-inline-size: 0;
   perspective: 900px;
 }
 .pg-holographic-foil[data-pg-palette='spectrum'] {
-  --pg-foil-color-a: var(--pg-color-foil-pink);
-  --pg-foil-color-b: var(--pg-color-foil-gold);
-  --pg-foil-color-c: var(--pg-color-foil-green);
-  --pg-foil-color-d: var(--pg-color-foil-blue);
-  --pg-foil-color-e: var(--pg-color-foil-violet);
+  --pg-foil-colors: var(--pg-color-foil-pink) 0%,
+    var(--pg-color-foil-gold) 6%, var(--pg-color-foil-green) 12%,
+    var(--pg-color-foil-blue) 18%, var(--pg-color-foil-violet) 24%,
+    var(--pg-color-foil-pink) 30%;
 }
 .pg-holographic-foil[data-pg-base='dark'] { --pg-foil-base: var(--pg-color-foil-dark); }
 .pg-holographic-foil[data-pg-base='theme'] { --pg-foil-base: var(--pg-tone-main-base); }
@@ -51,9 +49,7 @@
 .pg-holographic-foil__layer {
   opacity: var(--pg-foil-intensity, .85);
   background-image: repeating-linear-gradient(var(--pg-foil-angle, 115deg),
-    var(--pg-foil-color-a) 0%, var(--pg-foil-color-b) 6%,
-    var(--pg-foil-color-c) 12%, var(--pg-foil-color-d) 18%,
-    var(--pg-foil-color-e) 24%, var(--pg-foil-color-a) 30%);
+    var(--pg-foil-colors));
   background-size: 300% 200%;
   background-repeat: no-repeat;
   background-position: var(--pg-foil-background-x, 50%) var(--pg-foil-background-y, 50%);
