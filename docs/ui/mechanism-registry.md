@@ -227,6 +227,8 @@
 
 ### src/ui/position — Popup positioning, scroll dismissal, visible option
 
+[CSS-first позиціонування та fallback](anchor-positioning.md) — єдиний геометричний контракт.
+
 - `src/ui/position/dismiss-on-scroll.js`
 - `src/ui/position/ensure-option-visible.js`
 - `src/ui/position/popup-surface.css`

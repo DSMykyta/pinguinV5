@@ -97,3 +97,50 @@ test('Menu opens immediately above its trigger with a 4px gap', async ({ page })
   await holder.locator('.pg-menu__trigger').click();
   await verifyUpward(page, 'menu', '.pg-menu__trigger', '.pg-menu__panel');
 });
+
+test('native anchor follows a moved menu trigger without a JS reposition call', async ({ page }) => {
+  const supported = await page.evaluate(() =>
+    CSS.supports('position-anchor', '--pg-popup-anchor') &&
+    CSS.supports('top', 'anchor(bottom)') &&
+    CSS.supports('width', 'anchor-size(width)') &&
+    CSS.supports('position-try-fallbacks', 'flip-block, flip-inline, flip-block flip-inline') &&
+    typeof HTMLElement.prototype.showPopover === 'function');
+  test.skip(!supported, 'CSS Anchor Positioning is not supported');
+  const holder = page.locator('#popup-test-menu');
+  await holder.evaluate(node => {
+    node.style.bottom = 'auto';
+    node.style.top = '80px';
+    node.style.left = '100px';
+  });
+  await holder.locator('.pg-menu__trigger').click();
+  const popup = holder.locator('.pg-menu__panel');
+  await expect(popup).toBeVisible();
+  const read = () => holder.evaluate(node => {
+    const trigger = node.querySelector('.pg-menu__trigger').getBoundingClientRect();
+    const popup = node.querySelector('.pg-menu__panel');
+    const box = popup.getBoundingClientRect();
+    return { anchor: popup.style.getPropertyValue('position-anchor'),
+      gap: box.top - trigger.bottom, x: box.left, dx: box.left - trigger.left };
+  });
+  const before = await read();
+  expect(before.anchor).toMatch(/^--pg-popup-anchor-/);
+  expect(before.gap).toBeCloseTo(4, 0);
+  expect(before.dx).toBeCloseTo(0, 0);
+  await holder.evaluate(node => { node.style.left = '160px'; });
+  await expect.poll(async () => (await read()).x).toBeCloseTo(before.x + 60, 0);
+  expect((await read()).gap).toBeCloseTo(4, 0);
+});
+
+test('supported browser keeps the native anchor when the menu flips upward', async ({ page }) => {
+  const supported = await page.evaluate(() =>
+    CSS.supports('position-anchor', '--pg-popup-anchor') &&
+    CSS.supports('top', 'anchor(bottom)') &&
+    CSS.supports('width', 'anchor-size(width)') &&
+    CSS.supports('position-try-fallbacks', 'flip-block, flip-inline, flip-block flip-inline'));
+  test.skip(!supported, 'CSS Anchor Positioning is not supported');
+  const holder = page.locator('#popup-test-menu');
+  await holder.locator('.pg-menu__trigger').click();
+  await verifyUpward(page, 'menu', '.pg-menu__trigger', '.pg-menu__panel');
+  expect(await holder.locator('.pg-menu__panel').evaluate(node =>
+    node.style.getPropertyValue('position-anchor'))).toMatch(/^--pg-popup-anchor-/);
+});

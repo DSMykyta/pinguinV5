@@ -33,6 +33,10 @@
 
 [Два канали руху (spatial/effects)](motion.md) задані в `src/styles/tokens.css`; старі aliases збережено без зміни затверджених FAB, Toast і RevealPanel. Компоненти не створюють локальних анімацій заради нових режимів.
 
+## Нативні спливні панелі
+
+[CSS Anchor Positioning + Popover API](anchor-positioning.md): спільний positionPopup() використовує нативну геометрію, де вона відповідає контракту. Резервна геометрія залишається централізованою.
+
 ## Компонентний контракт
 
 Підключувані поведінки та lifecycle: [дослідження шармів legacy](../legacy-behavior-research.md). Насамперед перевикористовуємо готові компоненти й native browser APIs; поведінки отримують елемент та callbacks явно.
