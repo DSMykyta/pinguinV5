@@ -14,7 +14,7 @@
   max-width: none;
   margin-inline: 0;
   min-width: 0;
-  padding: 40px var(--pg-workspace-gutter, clamp(20px, 5vw, 72px)) 72px;
+  padding: 40px var(--pg-workspace-gutter, 0px) 72px;
   box-sizing: border-box;
 }
 

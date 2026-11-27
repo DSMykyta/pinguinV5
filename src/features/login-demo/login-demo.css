@@ -17,7 +17,7 @@
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
-  padding: var(--pg-space-6) var(--pg-workspace-gutter, clamp(20px, 5vw, 72px));
+  padding: var(--pg-space-6) var(--pg-workspace-gutter, 0px);
 }
 .pg-login-demo__scene {
   position: relative;
@@ -58,7 +58,7 @@
 }
 .pg-login-demo__status[hidden] { display: none; }
 @media (max-width: 640px) {
-  .pg-login-demo { padding: var(--pg-space-4); }
+  .pg-login-demo { padding-block: var(--pg-space-4); }
   .pg-login-demo__scene {
     min-height: min(480px, calc(100dvh - 160px));
     padding: var(--pg-space-2);

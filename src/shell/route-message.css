@@ -33,5 +33,5 @@
   text-underline-offset: 3px;
 }
 
-/* Default route/error content retains the shared article inset. */
-.pg-route-message { margin: 40px var(--pg-workspace-gutter, clamp(20px, 5vw, 72px)); }
+/* Route/error content follows the same horizontal workspace boundary. */
+.pg-route-message { margin: 40px var(--pg-workspace-gutter, 0px); }

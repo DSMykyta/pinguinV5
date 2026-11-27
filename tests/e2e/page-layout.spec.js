@@ -276,3 +276,51 @@ test('structural side rails and footer share compact sidebar width', async ({ pa
   expect(mobile.bottom).toBe(56);
   expect(mobile.marginLeft).toBe('0px');
 });
+
+
+test('every tools tab uses the full horizontal Main without extra page gutters', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/tools');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const main = page.locator('.pg-shell__content');
+  const tabs = [
+    ['Таблиці', 'tables', '.pg-page'],
+    ['Макети даних', 'data-views', '.pg-tools-data-views__root'],
+    ['Медіатека', 'media-library', '.pg-media-library__root'],
+    ['Елементи', 'elements', '.pg-page'],
+    ['Тексти', 'texts', '.pg-rich-text-editor__main'],
+    ['Переходи', 'navigation', '.pg-tools-section-navigator-demo'],
+  ];
+  async function checkTabs() {
+    for (const [label,id,selector] of tabs) {
+      await page.getByRole('tab', { name: label, exact: true }).click();
+      const panel = main.locator('#pg-tools-panel-' + id);
+      const surface = panel.locator(selector).first();
+      await expect(surface).toBeVisible();
+      const geometry = await panel.evaluate((node, target) => {
+        const surface = node.querySelector(target);
+        const rect = surface.getBoundingClientRect();
+        const outer = node.getBoundingClientRect();
+        const css = getComputedStyle(surface);
+        return { left: rect.left - outer.left, right: outer.right - rect.right,
+          startPadding: parseFloat(css.paddingInlineStart), endPadding: parseFloat(css.paddingInlineEnd) };
+      }, selector);
+      expect(Math.abs(geometry.left), label + ' left').toBeLessThan(1);
+      // A native vertical scrollbar may reserve a small strip on the right.
+      const scrollbar = await panel.evaluate(node => node.offsetWidth - node.clientWidth);
+      expect(Math.abs(geometry.right - scrollbar), label + ' right').toBeLessThan(1);
+      expect(geometry.startPadding, label + ' padding start').toBe(0);
+      expect(geometry.endPadding, label + ' padding end').toBe(0);
+    }
+  }
+  await checkTabs();
+  await page.locator('[data-pg-action="aside-toggle"]').click();
+  await page.locator('[data-pg-action="aside-pin"]').click();
+  await checkTabs();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await checkTabs();
+  await page.goto('/login-demo');
+  const login = page.locator('.pg-login-demo');
+  await expect(login).toHaveCSS('padding-left', '0px');
+  await expect(login).toHaveCSS('padding-right', '0px');
+});
