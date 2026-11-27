@@ -153,3 +153,29 @@ test('standard, editor and edge-to-edge use one native static backdrop', async (
     await expect(modal).toHaveCount(0);
   }
 });
+
+test('frost backdrop uses static theme washes and grain, never live blur', async ({ page }) => {
+  await page.goto('/tools');
+  await page.getByRole('tab', { name: 'Елементи' }).click();
+  await page.locator('[data-pg-action="dialog-demo-info"]').click();
+  const modal = page.getByRole('dialog', { name: 'Інформація' });
+  await expect(modal).toBeVisible();
+  for (const theme of ['light', 'dark']) {
+    await page.evaluate(value => document.documentElement.setAttribute('data-theme', value), theme);
+    const style = await modal.evaluate(node => {
+      const backdrop = getComputedStyle(node, '::backdrop');
+      return { image: backdrop.backgroundImage, filter: backdrop.backdropFilter,
+        animation: backdrop.animationName, transition: backdrop.transitionDuration,
+        size: backdrop.backgroundSize };
+    });
+    expect(style.image).toMatch(/url\(/);
+    expect(style.image.match(/radial-gradient\(/g)).toHaveLength(2);
+    expect(style.filter).toBe('none');
+    expect(style.animation).toBe('none');
+    expect(style.transition).toBe('0s');
+    expect(style.size).toContain('64px 64px');
+  }
+  await expect(page.locator('.pg-dialog__blur-margins')).toHaveCount(0);
+  await page.keyboard.press('Escape');
+  await expect(modal).toHaveCount(0);
+});

@@ -33,7 +33,15 @@
 }
 
 .pg-dialog::backdrop {
-  background: var(--pg-color-dialog-backdrop);
+  background-color: var(--pg-color-dialog-backdrop);
+  /* Static frost: one small baked grain tile and two soft theme-aware washes.
+   * No live filter, offscreen capture, extra DOM or animation. */
+  background-image:
+    url('./frost-grain.svg'),
+    radial-gradient(ellipse at 18% 12%, var(--pg-color-dialog-frost-light), transparent 72%),
+    radial-gradient(ellipse at 88% 90%, var(--pg-color-dialog-frost-accent), transparent 76%);
+  background-size: 64px 64px, 100% 100%, 100% 100%;
+  background-repeat: repeat, no-repeat, no-repeat;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }

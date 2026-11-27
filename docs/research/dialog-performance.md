@@ -73,3 +73,7 @@
 Джерела: [WebKit: додаткові rendering passes](https://webkit.org/blog/3632/introducing-backdrop-filters/), [Chromium: backdrop filter + WebGL](https://issues.chromium.org/issues/414525204), [web.dev: dialog](https://web.dev/articles/building/a-dialog-component), [MDN: native dialog](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dialog).
 
 Рішення: універсальний статичний scrim через нативний ::backdrop, чинний theme token, без blur для всіх розмірів і без крайових DOM-смуг; непрозорий фон при reduced transparency. Немає нових JS-менеджерів, шарів, snapshot-залежностей. Native focus/close semantics, анімації панелі та фонова пауза лишаються. Історичні вимірювання вище збережені. Нові regression tests перевіряють відсутність blur/додаткових шарів і збереження dim. Повний прогін проєкту та Windows trace потрібні для підтвердження фактичного усунення зависань.
+
+### Статична імітація матового скла
+
+Після погодження власника додано два статичні theme-aware radial-gradient і локальну 64×64 SVG grain tile з готовою геометрією (без SVG-фільтрів). Розрахунок пікселів під діалогом не потрібен; збережено `backdrop-filter: none`. Це декоративне покриття, не знімок і не справжнє розмиття. Витрати на початковий paint/compositing залишаються; фактична продуктивність на пристрої користувача потребує перевірки. Контракт: [Dialog](../ui/dialog.md#pseudo-frosted-glass--2026-11-27).
