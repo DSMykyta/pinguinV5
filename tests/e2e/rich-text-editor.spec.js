@@ -744,3 +744,28 @@ test('context menu reuses shared menu and exposes all copy formats', async ({ pa
   await page.keyboard.press('Escape');
   await expect(visual).toBeFocused();
 });
+
+
+test('format glyph rolls vertically inside a stationary switch and respects reduced motion', async ({ page }) => {
+  const { root, visual } = getEditor(page);
+  const reel = root.locator('.pg-rich-text-editor__format-reel');
+  const track = reel.locator('.pg-rich-text-editor__format-track');
+  const geometry = await reel.boundingBox();
+  await expect(track).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 0, -17)');
+  await expect(track).toHaveCSS('transition-duration', '0.28s');
+  await visual.fill('');
+  await visual.evaluate(node => {
+    const data = new DataTransfer();
+    data.setData('text/plain', '## Markdown');
+    node.dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
+  });
+  await expect(track).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 0, 0)');
+  expect(await reel.boundingBox()).toEqual(geometry);
+  await expect(root.getByRole('radio', { name: 'Редактор' })).toBeChecked();
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(track).toHaveCSS('transition-duration', '0s');
+  await root.getByRole('button', { name: 'Формат документа: Markdown' }).click();
+  await root.getByRole('menuitemcheckbox', { name: 'HTML', exact: true }).click();
+  await expect(track).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 0, -17)');
+  expect(await reel.boundingBox()).toEqual(geometry);
+});

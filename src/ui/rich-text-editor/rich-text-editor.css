@@ -188,11 +188,16 @@
 }
 
 
-/* Format is independent of the visual/source selection. Only its glyph flips. */
-.pg-rich-text-editor__format-flip { display: grid; place-items: center; inline-size: 17px; block-size: 17px; transform-style: preserve-3d; transition: transform var(--pg-motion-spatial-selection-duration) var(--pg-motion-spatial-ease); }
-.pg-rich-text-editor__format-flip > * { grid-area: 1 / 1; backface-visibility: hidden; }
-.pg-rich-text-editor__format-flip[data-pg-format='markdown'] { transform: rotateY(180deg); }
-.pg-rich-text-editor__format-md { transform: rotateY(180deg); font-size: 10px; font-weight: 650; }
+/* Fixed viewport + one continuous vertical track, like RevealPanel's spatial
+ * translation. The shared selection duration/easing allow interruption/reversal. */
+.pg-rich-text-editor__format-reel { display: block; inline-size: 17px; block-size: 17px; overflow: hidden; }
+.pg-rich-text-editor__format-track {
+  display: grid; grid-template-rows: repeat(2, 17px); place-items: center;
+  transform: translateY(-50%);
+  transition: transform var(--pg-motion-spatial-selection-duration) var(--pg-motion-spatial-ease);
+}
+.pg-rich-text-editor__format-reel[data-pg-format='markdown'] .pg-rich-text-editor__format-track { transform: translateY(0); }
+.pg-rich-text-editor__format-md { font-size: 10px; font-weight: 650; line-height: 1; }
 .pg-rich-text-editor[data-pg-mode='markdown'][data-pg-layout='contained'] { --pg-rich-editor-glass-surface: var(--pg-color-selected); }
 .pg-rich-text-editor__stats-host { display: flex; align-items: center; justify-content: space-between; }
 .pg-rich-text-editor__format-menu { margin-inline-start: auto; margin-inline-end: var(--pg-space-4); }
@@ -201,4 +206,4 @@
 .pg-rich-text-editor__context-menu .pg-menu__trigger[hidden] { display: none; }
 .pg-rich-text-editor__input table { border-collapse: collapse; max-inline-size: 100%; }
 .pg-rich-text-editor__input :is(td, th) { border: 1px solid var(--pg-color-border); padding: var(--pg-space-2); }
-@media (prefers-reduced-motion: reduce) { .pg-rich-text-editor__format-flip { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .pg-rich-text-editor__format-track { transition: none; } }
