@@ -4,8 +4,8 @@
  * ╠════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Анімована WebGL-хмара одного семантичного кольору.                      ║
  * ║ ЗАЛЕЖНОСТІ: WebGL 1, DOM observers, системна тема через CSS --pg-* tokens.        ║
- * ║ ПУБЛІЧНИЙ API: createCloudGradient({ tone }) -> { element, mount, destroy }.║
- * ║ ПРИНЦИП: Незалежний renderer; не дублює CSS AnimatedGradient чи форму.            ║
+ * ║ ПУБЛІЧНИЙ API: createCloudGradient({ tone, background, cycle }) -> { element, mount, destroy }.║
+ * ║ ПРИНЦИП: Незалежний renderer; не залежить від форми або Dialog.            ║
  * ╚════════════════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -23,6 +23,7 @@ const FRAGMENT = [
   'uniform vec2 resolution;',
   'uniform vec3 backgroundColor;',
   'uniform vec3 glowColor;',
+  'uniform float intensity;',
   'void main(){',
   ' vec2 uv=gl_FragCoord.xy/resolution;',
   ' vec2 p=(uv-0.5)*2.0;',
@@ -33,7 +34,7 @@ const FRAGMENT = [
   ' float detail=sin(p.x*1.5+time*0.3)*cos(p.y*1.5-time*0.4);',
   ' thermal*=hotspot*(detail*0.3+0.7);',
   ' float vignette=smoothstep(0.3,1.0,length(p));',
-  ' float opacity=clamp(thermal*0.76*(1.0-vignette),0.0,1.0);',
+  ' float opacity=clamp(thermal*0.76*intensity*(1.0-vignette),0.0,1.0);',
   ' vec3 color=mix(backgroundColor,glowColor,opacity);',
   ' float grain=fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233))',
   ' +time*0.1)*43758.5453);',
@@ -94,17 +95,19 @@ function createRenderer(canvas) {
     const resolution = gl.getUniformLocation(program, 'resolution');
     const background = gl.getUniformLocation(program, 'backgroundColor');
     const glow = gl.getUniformLocation(program, 'glowColor');
-    if ([time, resolution, background, glow].some(value => value === null)) {
+    const intensity = gl.getUniformLocation(program, 'intensity');
+    if ([time, resolution, background, glow, intensity].some(value => value === null)) {
       throw new Error('WebGL uniform unavailable');
     }
     return {
-      paint(width, height, seconds, baseRgb, glowRgb) {
+      paint(width, height, seconds, baseRgb, glowRgb, strength) {
         gl.viewport(0, 0, width, height);
         gl.useProgram(program);
         gl.uniform1f(time, seconds);
         gl.uniform2f(resolution, width, height);
         gl.uniform3fv(background, baseRgb);
         gl.uniform3fv(glow, glowRgb);
+        gl.uniform1f(intensity, strength);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       },
       destroy() {
@@ -125,8 +128,11 @@ function createRenderer(canvas) {
   }
 }
 
-export function createCloudGradient({ tone = 'tertiary' } = {}) {
+export function createCloudGradient({ tone = 'tertiary', background = 'page', cycle = false } = {}) {
   if (!TONES.has(tone)) throw new RangeError('Unknown CloudGradient tone');
+  if (!['page', 'brand'].includes(background)) throw new RangeError('Unknown CloudGradient background');
+  if (typeof cycle !== 'boolean') throw new TypeError('CloudGradient cycle must be boolean');
+  const backgroundToken = background === 'brand' ? '--pg-color-gradient-base' : '--pg-color-page';
   const element = document.createElement('div');
   element.className = 'pg-cloud-gradient';
   element.setAttribute('aria-hidden', 'true');
@@ -134,6 +140,7 @@ export function createCloudGradient({ tone = 'tertiary' } = {}) {
   element.dataset.pgMotion = 'paused';
   element.style.setProperty('--pg-cloud-gradient-glow',
     'var(--pg-tone-' + tone + '-base)');
+  element.style.setProperty('--pg-cloud-gradient-base', 'var(' + backgroundToken + ')');
   const canvas = document.createElement('canvas');
   canvas.className = 'pg-cloud-gradient__canvas';
   canvas.setAttribute('aria-hidden', 'true');
@@ -145,16 +152,17 @@ export function createCloudGradient({ tone = 'tertiary' } = {}) {
   let resizeObserver = null, visibilityObserver = null, themeObserver = null;
   let mounted = false, destroyed = false, visible = true;
   let frame = 0, previousTime = null, elapsed = 0;
-  let background = null, glow = null;
+  let baseRgb = null, glow = null;
+  let cycleTime = 0, strength = 1;
 
   function readTheme() {
     const styles = getComputedStyle(element);
-    background = parseHex(styles.getPropertyValue('--pg-color-page'));
+    baseRgb = parseHex(styles.getPropertyValue(backgroundToken));
     glow = parseHex(styles.getPropertyValue('--pg-tone-' + tone + '-base'));
   }
 
   function paint() {
-    if (!renderer || !background || !glow) return;
+    if (!renderer || !baseRgb || !glow) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     const width = Math.max(1, Math.round(element.clientWidth * dpr));
     const height = Math.max(1, Math.round(element.clientHeight * dpr));
@@ -162,7 +170,7 @@ export function createCloudGradient({ tone = 'tertiary' } = {}) {
       canvas.width = width;
       canvas.height = height;
     }
-    renderer.paint(width, height, elapsed, background, glow);
+    renderer.paint(width, height, elapsed, baseRgb, glow, strength);
   }
 
   function shouldRun() {
@@ -173,7 +181,17 @@ export function createCloudGradient({ tone = 'tertiary' } = {}) {
   function tick(now) {
     frame = 0;
     if (!shouldRun()) { syncMotion(); return; }
-    if (previousTime !== null) elapsed += Math.min(64, now - previousTime) / 1000;
+    if (previousTime !== null) {
+      const dt = Math.min(64, now - previousTime) / 1000;
+      if (cycle) {
+        cycleTime += dt;
+        // The same shader time advances continuously, with no phase reset.
+        const wave = (1 - Math.cos(cycleTime * Math.PI * 2 / 14)) / 2;
+        const speed = 1 + 3.5 * wave * wave;
+        strength = 1 + .25 * Math.sin(cycleTime * Math.PI * 2 / 11);
+        elapsed += dt * speed;
+      } else elapsed += dt;
+    }
     previousTime = now;
     paint();
     frame = window.requestAnimationFrame(tick);

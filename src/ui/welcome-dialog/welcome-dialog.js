@@ -3,19 +3,20 @@
  * ║ PINGUIN NEXT — WELCOME DIALOG
  * ╠════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Вітальна презентація Pinguin V6.
- * ║ ЗАЛЕЖНОСТІ: Спільний Dialog, AnimatedGradient.
+ * ║ ЗАЛЕЖНОСТІ: Спільний Dialog, CloudGradient.
  * ║ ПУБЛІЧНИЙ API: showWelcomeDialog().
  * ║ ПРИНЦИП: Єдиний native Dialog; життєвий цикл градієнта прив’язано до відкриття.
  * ╚════════════════════════════════════════════════════════════════════════════════════╝
  */
 
 import { showDialog } from '../dialog/dialog.js';
-import { createAnimatedGradient } from '../animated-gradient/animated-gradient.js';
+import { createCloudGradient } from '../cloud-gradient/cloud-gradient.js';
 
 export function showWelcomeDialog() {
   const content = document.createElement('div');
   content.className = 'pg-welcome-dialog';
-  const gradient = createAnimatedGradient({ cycle: true });
+  const gradient = createCloudGradient({ tone: 'tertiary', background: 'brand', cycle: true });
+  gradient.element.classList.add('pg-welcome-dialog__cloud');
   const brand = document.createElement('div');
   brand.className = 'pg-welcome-dialog__brand';
   brand.setAttribute('aria-hidden', 'true');

@@ -120,10 +120,15 @@
 - `src/ui/checkbox/checkbox.css`
 - `src/ui/checkbox/checkbox.js`
 
-### src/ui/cloud-gradient — Одноколірна WebGL-хмара входу
+### src/ui/cloud-gradient — Спільна одноколірна WebGL-хмара входу та вітання
 
 - `src/ui/cloud-gradient/cloud-gradient.css`
 - `src/ui/cloud-gradient/cloud-gradient.js`
+
+### src/ui/welcome-dialog — Вітальний контент спільного Dialog і CloudGradient
+
+- `src/ui/welcome-dialog/welcome-dialog.css`
+- `src/ui/welcome-dialog/welcome-dialog.js`
 
 ### src/ui/code-surface — Оформлення коду
 
@@ -350,7 +355,7 @@
 
 ## Припарковані механізми (не імпортувати)
 
-[Архів 13.11.2026](../../trash/2026-11-13-decorative-effects/README.md): AnimatedGradient (радіальні рухомі поля), Sparkles (іскри), CloudGradient Aurora (багатоколірна експериментальна хмара). Активна одноколірна CloudGradient — виняток для login. Перед новим аналогічним ефектом перевірити архів і причину відключення. Відновлення тільки за відповідним запитом, не автоматично.
+[Архів 13.11.2026](../../trash/2026-11-13-decorative-effects/README.md): AnimatedGradient (радіальні рухомі поля), Sparkles (іскри), CloudGradient Aurora (багатоколірна експериментальна хмара). Активна одноколірна CloudGradient — спільний renderer для входу й вітання. Перед новим аналогічним ефектом перевірити архів і причину відключення. Відновлення тільки за відповідним запитом, не автоматично.
 
 ## Legacy
 

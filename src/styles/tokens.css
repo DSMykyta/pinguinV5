@@ -90,8 +90,6 @@
   --pg-tone-main-base: #113855;
   /* Fixed brand canvas, independent of light/dark chrome. */
   --pg-color-gradient-base: #113855;
-  --pg-color-gradient-secondary: #007aff;
-  --pg-color-gradient-tertiary: #ff5223;
   --pg-color-gradient-on: #ffffff;
   --pg-tone-main-soft: color-mix(in srgb, var(--pg-tone-main-base) 10%, transparent);
   --pg-tone-main-on-soft: #113855;

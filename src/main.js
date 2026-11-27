@@ -26,7 +26,6 @@ import './ui/toast/toast.css';
 import './ui/reveal-panel/reveal-panel.css';
 import './ui/toolbar/toolbar.css';
 import './ui/dialog/dialog.css';
-import './ui/animated-gradient/animated-gradient.css';
 import './ui/welcome-dialog/welcome-dialog.css';
 import './ui/cloud-gradient/cloud-gradient.css';
 import './ui/holographic-foil/holographic-foil.css';

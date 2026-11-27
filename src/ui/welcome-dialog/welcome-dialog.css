@@ -3,7 +3,7 @@
  * ║ PINGUIN NEXT — WELCOME DIALOG STYLES
  * ╠════════════════════════════════════════════════════════════════════════════════════╣
  * ║ ПРИЗНАЧЕННЯ: Презентаційна типографіка Pinguin V6.
- * ║ ЗАЛЕЖНОСТІ: AnimatedGradient, семантичні токени.
+ * ║ ЗАЛЕЖНОСТІ: CloudGradient, семантичні токени.
  * ║ ПУБЛІЧНИЙ API: pg-welcome-dialog та BEM parts.
  * ║ ПРИНЦИП: Тільки композиція контенту, без перевизначення Dialog.
  * ╚════════════════════════════════════════════════════════════════════════════════════╝
@@ -16,6 +16,10 @@
   isolation: isolate;
   overflow: hidden;
   color: var(--pg-color-gradient-on);
+}
+.pg-welcome-dialog__cloud {
+  position: absolute;
+  inset: 0;
 }
 .pg-welcome-dialog__brand {
   position: relative;

@@ -15,7 +15,7 @@
   isolation: isolate;
   overflow: hidden;
   pointer-events: none;
-  background: var(--pg-color-page);
+  background: var(--pg-cloud-gradient-base, var(--pg-color-page));
 }
 
 .pg-cloud-gradient__canvas {
@@ -27,9 +27,9 @@
 .pg-cloud-gradient[data-pg-renderer='fallback'] {
   background: radial-gradient(
     ellipse 48% 48% at center,
-    color-mix(in srgb, var(--pg-cloud-gradient-glow) 32%, var(--pg-color-page)) 0%,
-    color-mix(in srgb, var(--pg-cloud-gradient-glow) 10%, var(--pg-color-page)) 40%,
-    var(--pg-color-page) 80%
+    color-mix(in srgb, var(--pg-cloud-gradient-glow) 32%, var(--pg-cloud-gradient-base, var(--pg-color-page))) 0%,
+    color-mix(in srgb, var(--pg-cloud-gradient-glow) 10%, var(--pg-cloud-gradient-base, var(--pg-color-page))) 40%,
+    var(--pg-cloud-gradient-base, var(--pg-color-page)) 80%
   );
 }
 .pg-cloud-gradient[data-pg-renderer='fallback'] .pg-cloud-gradient__canvas {
