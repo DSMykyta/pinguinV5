@@ -335,3 +335,14 @@
   --pg-tone-info-solid: var(--pg-tone-info-base);
   --pg-tone-info-on-solid: #000000;
 }
+
+/* Holographic foil material samples: fixed neutral bases and reference spectrum. */
+:root {
+  --pg-color-foil-medium: #8a8d9a;
+  --pg-color-foil-dark: #17181f;
+  --pg-color-foil-pink: #b3306e;
+  --pg-color-foil-gold: #b89a2c;
+  --pg-color-foil-green: #2ea86c;
+  --pg-color-foil-blue: #2c78b8;
+  --pg-color-foil-violet: #7a3cb8;
+}

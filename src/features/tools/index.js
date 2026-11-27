@@ -26,6 +26,8 @@ import { createImageFieldDemo } from './image-field-demo.js';
 import { createDataViewsDemo } from './data-views-demo.js';
 import { createMediaLibraryDemo } from './media-library-demo.js';
 import { createSectionNavigatorDemo } from './section-navigator-demo.js';
+import { createHolographicFoilDemo } from './holographic-foil-demo.js';
+import './holographic-foil-demo.css';
 import './toast-demo.css';
 import './wave-progress-demo.css';
 import './thinking-progress-demo.css';
@@ -85,6 +87,13 @@ const TABS = Object.freeze([
     sourceUrl: 'https://github.com/DSMykyta/pinguinV5/blob/work/docs/ui/section-navigator.md',
     sourceLabel: 'Дослідження переходів',
   },
+  {
+    id: 'effects',
+    label: 'Ефекти',
+    icon: 'layers',
+    sourceUrl: 'https://github.com/DSMykyta/pinguinV5/blob/work/docs/ui/mechanism-registry.md',
+    sourceLabel: 'Реєстр усіх механізмів',
+  },
 ]);
 
 export function mount(host, { setAsideContext, setSearchEntries, setSearchContext, setHeaderActions, setFooterContent, setPageFabContext, localNavigation }) {
@@ -112,6 +121,9 @@ export function mount(host, { setAsideContext, setSearchEntries, setSearchContex
   const imageDemo = createImageFieldDemo();
   elementsPage.body.append(createDialogDemo(), createInputDemo(), fieldDemo.element, advancedDemo.element, listboxDemo.element, buttonDemo.element, menuDemo.element, imageDemo.element);
   const navigationDemo = createSectionNavigatorDemo();
+  const effectsPage = createPageView({ title: 'Ефекти' });
+  const foilDemo = createHolographicFoilDemo();
+  effectsPage.body.append(foilDemo.element);
   const pageByTab = new Map([
     ['tables', tablePage],
     ['data-views', dataViewsDemo.element],
@@ -119,6 +131,7 @@ export function mount(host, { setAsideContext, setSearchEntries, setSearchContex
     ['elements', elementsPage],
     ['texts', richTextEditorDemo.element],
     ['navigation', navigationDemo.element],
+    ['effects', effectsPage],
   ]);
 
   const tabs = createTabs({
@@ -180,6 +193,7 @@ export function mount(host, { setAsideContext, setSearchEntries, setSearchContex
     mediaLibraryDemo.destroy();
     richTextEditorDemo.destroy();
     navigationDemo.destroy();
+    foilDemo.destroy();
     fieldDemo.destroy();
     advancedDemo.destroy();
     listboxDemo.destroy();

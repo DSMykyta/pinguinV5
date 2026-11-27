@@ -1,0 +1,78 @@
+/*
+ * ╔════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — HOLOGRAPHIC FOIL
+ * ╠════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Ізольована оптична фольга з протилежним рухом до нахилу.
+ * ║ ЗАЛЕЖНОСТІ: Семантичні та матеріальні токени; native CSS.
+ * ║ ПУБЛІЧНИЙ API: .pg-holographic-foil; data-pg-*; --pg-foil-*
+ * ║ ПРИНЦИП: Шар не перехоплює ввід; transform замість анімування layout.
+ * ╚════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
+.pg-holographic-foil {
+  --pg-foil-color-a: var(--pg-tone-tertiary-base);
+  --pg-foil-color-b: var(--pg-tone-main-base);
+  --pg-foil-color-c: var(--pg-tone-secondary-base);
+  --pg-foil-color-d: var(--pg-tone-main-base);
+  --pg-foil-color-e: var(--pg-tone-secondary-base);
+  --pg-foil-base: var(--pg-color-foil-medium);
+  min-inline-size: 0;
+  perspective: 900px;
+}
+.pg-holographic-foil[data-pg-palette='spectrum'] {
+  --pg-foil-color-a: var(--pg-color-foil-pink);
+  --pg-foil-color-b: var(--pg-color-foil-gold);
+  --pg-foil-color-c: var(--pg-color-foil-green);
+  --pg-foil-color-d: var(--pg-color-foil-blue);
+  --pg-foil-color-e: var(--pg-color-foil-violet);
+}
+.pg-holographic-foil[data-pg-base='dark'] { --pg-foil-base: var(--pg-color-foil-dark); }
+.pg-holographic-foil[data-pg-base='theme'] { --pg-foil-base: var(--pg-tone-main-base); }
+.pg-holographic-foil__surface {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--pg-foil-radius, var(--pg-radius-lg));
+  background: var(--pg-foil-base);
+}
+.pg-holographic-foil__layer {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: -100%;
+  inline-size: 300%;
+  pointer-events: none;
+  user-select: none;
+  opacity: var(--pg-foil-intensity, .85);
+  background: repeating-linear-gradient(var(--pg-foil-angle, 115deg),
+    var(--pg-foil-color-a) 0%, var(--pg-foil-color-b) 6%,
+    var(--pg-foil-color-c) 12%, var(--pg-foil-color-d) 18%,
+    var(--pg-foil-color-e) 24%, var(--pg-foil-color-a) 30%);
+  mix-blend-mode: color-dodge;
+  transform: translate3d(0, 0, 0);
+}
+.pg-holographic-foil__content { position: relative; z-index: 1; }
+.pg-holographic-foil[data-pg-animated='true'][data-pg-enabled='true'] .pg-holographic-foil__layer {
+  animation: pg-foil-travel var(--pg-foil-duration, 6s) ease-in-out infinite;
+}
+.pg-holographic-foil[data-pg-animated='true'][data-pg-enabled='true'][data-pg-tilt='true'] .pg-holographic-foil__surface {
+  animation: pg-foil-tilt var(--pg-foil-duration, 6s) ease-in-out infinite;
+}
+.pg-holographic-foil[data-pg-enabled='false'] .pg-holographic-foil__layer { display: none; }
+@keyframes pg-foil-travel {
+  0%, 100% { transform: translate3d(30%, 0, 0); }
+  50% { transform: translate3d(-30%, 0, 0); }
+}
+@keyframes pg-foil-tilt {
+  0%, 100% { transform: rotateY(-9deg) rotateX(3deg); }
+  50% { transform: rotateY(9deg) rotateX(-3deg); }
+}
+@supports not (mix-blend-mode: color-dodge) {
+  .pg-holographic-foil__layer { opacity: calc(var(--pg-foil-intensity, .85) * .3); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pg-holographic-foil[data-pg-animated='true'][data-pg-enabled='true'] .pg-holographic-foil__layer,
+  .pg-holographic-foil[data-pg-animated='true'][data-pg-enabled='true'][data-pg-tilt='true'] .pg-holographic-foil__surface {
+    animation: none;
+    transform: none;
+  }
+}
