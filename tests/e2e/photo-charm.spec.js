@@ -70,3 +70,31 @@ test('two independent photo charms and reduced-motion transitions',async({page})
   });
   expect(result).toEqual({independent:[false,true],duration:'0s',remaining:false});
 });
+
+test('photo glow has equal fade space on all sides at desktop and mobile widths',async({page})=>{
+  const charm=page.locator('.pg-tools-image-demo .pg-photo-charm');
+  for(const width of [1280,390]){
+    await page.setViewportSize({width,height:900});
+    const geometry=await charm.evaluate(root=>{
+      const aura=root.querySelector('.pg-photo-charm__aura');
+      const sharp=root.querySelector('.pg-photo-charm__image');
+      const outer=root.getBoundingClientRect();
+      const inner=sharp.getBoundingClientRect();
+      const a=aura.getBoundingClientRect();
+      const style=getComputedStyle(aura);
+      const gutters=[inner.left-outer.left,outer.right-inner.right,
+        inner.top-outer.top,outer.bottom-inner.bottom];
+      const padding=[style.paddingLeft,style.paddingRight,style.paddingTop,style.paddingBottom].map(parseFloat);
+      return {gutters,padding,aligned:Math.abs(a.left-outer.left)<1&&Math.abs(a.top-outer.top)<1
+        &&Math.abs(a.width-outer.width)<1&&Math.abs(a.height-outer.height)<1,
+        mask:style.maskImage,composite:style.maskComposite,transform:style.transform};
+    });
+    expect(geometry.aligned).toBe(true);
+    expect(Math.max(...geometry.gutters)-Math.min(...geometry.gutters)).toBeLessThan(1);
+    geometry.padding.forEach((value,i)=>expect(Math.abs(value-geometry.gutters[i])).toBeLessThan(1));
+    expect(geometry.mask).toContain('linear-gradient');
+    expect(geometry.mask).not.toContain('radial-gradient');
+    expect(geometry.composite).toContain('intersect');
+    expect(geometry.transform).toBe('none');
+  }
+});
