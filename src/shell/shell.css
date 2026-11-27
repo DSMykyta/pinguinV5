@@ -49,16 +49,18 @@
 .pg-shell__backdrop { display: none; position: fixed; inset: 0; z-index: 70; padding: 0; border: 0; background: var(--pg-color-overlay); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity var(--pg-duration-layout) ease, visibility 0s linear var(--pg-duration-layout); }
 @media (max-width: 1080px) {
   .pg-shell, .pg-shell[data-pg-sidebar-state='collapsed'], .pg-shell[data-pg-aside-mode='docked'], .pg-shell[data-pg-sidebar-state='collapsed'][data-pg-aside-mode='docked'] { display: block; transition: none; }
-  .pg-shell__workspace { height: 100%; }
+  .pg-shell__workspace { height: 100%; --pg-workspace-chrome-inset: var(--pg-space-4); }
+  /* Main owns the single mobile gutter; its pages remain internally flush. */
+  .pg-shell__content { padding-inline: var(--pg-workspace-chrome-inset); }
   .pg-shell__mobile-menu { position: fixed; top: 10px; left: 12px; z-index: 95; display: inline-grid; }
   .pg-shell__heading-area { padding-left: 48px; }
-  .pg-shell__header { padding-right: 115px; }
+  .pg-shell__header { padding-left: 0; padding-right: 115px; }
   .pg-shell__header-actions { top: 10px; }
   .pg-shell__backdrop { display: block; }
   .pg-shell[data-pg-overlay-state='open'] .pg-shell__backdrop { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity var(--pg-duration-layout) ease; }
 }
 @media (max-width: 640px) {
-  .pg-shell__header { flex-basis: var(--pg-header-height); padding-left: var(--pg-workspace-chrome-inset); padding-right: 120px; }
+  .pg-shell__header { flex-basis: var(--pg-header-height); padding-left: 0; padding-right: 120px; }
   .pg-shell__page-name { font-size: 18px; }
   .pg-shell__local-nav { min-height: 48px; }
   .pg-shell__header-actions { top: 10px; }

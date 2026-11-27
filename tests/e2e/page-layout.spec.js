@@ -278,7 +278,7 @@ test('structural side rails and footer share compact sidebar width', async ({ pa
 });
 
 
-test('every tools tab uses the full horizontal Main without extra page gutters', async ({ page }) => {
+test('every tools tab uses a shared responsive Main without extra page gutters', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/tools');
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -290,8 +290,14 @@ test('every tools tab uses the full horizontal Main without extra page gutters',
     ['Елементи', 'elements', '.pg-page'],
     ['Тексти', 'texts', '.pg-rich-text-editor__main'],
     ['Переходи', 'navigation', '.pg-tools-section-navigator-demo'],
+    ['Ефекти', 'effects', '.pg-page'],
   ];
-  async function checkTabs() {
+  async function checkTabs(inset = 0) {
+    await expect(main).toHaveCSS('padding-left', inset + 'px');
+    await expect(main).toHaveCSS('padding-right', inset + 'px');
+    const nav = page.locator('.pg-shell__local-nav');
+    await expect(nav).toHaveCSS('padding-left', inset + 'px');
+    await expect(nav).toHaveCSS('padding-right', inset + 'px');
     for (const [label,id,selector] of tabs) {
       await page.getByRole('tab', { name: label, exact: true }).click();
       const panel = main.locator('#pg-tools-panel-' + id);
@@ -306,6 +312,10 @@ test('every tools tab uses the full horizontal Main without extra page gutters',
           startPadding: parseFloat(css.paddingInlineStart), endPadding: parseFloat(css.paddingInlineEnd) };
       }, selector);
       expect(Math.abs(geometry.left), label + ' left').toBeLessThan(1);
+      const mainBox = await main.boundingBox();
+      const panelBox = await panel.boundingBox();
+      expect(Math.abs(panelBox.x - mainBox.x - inset), label + ' shared left inset').toBeLessThan(1);
+      expect(Math.abs(mainBox.x + mainBox.width - panelBox.x - panelBox.width - inset), label + ' shared right inset').toBeLessThan(1);
       // A native vertical scrollbar may reserve a small strip on the right.
       const scrollbar = await panel.evaluate(node => node.offsetWidth - node.clientWidth);
       expect(Math.abs(geometry.right - scrollbar), label + ' right').toBeLessThan(1);
@@ -317,10 +327,19 @@ test('every tools tab uses the full horizontal Main without extra page gutters',
   await page.locator('[data-pg-action="aside-toggle"]').click();
   await page.locator('[data-pg-action="aside-pin"]').click();
   await checkTabs();
+  for (const width of [1080, 640, 390, 320]) {
+    await page.setViewportSize({ width, height: 844 });
+    await checkTabs(16);
+  }
   await page.setViewportSize({ width: 390, height: 844 });
-  await checkTabs();
   await page.goto('/login-demo');
   const login = page.locator('.pg-login-demo');
   await expect(login).toHaveCSS('padding-left', '0px');
   await expect(login).toHaveCSS('padding-right', '0px');
+  await expect(main).toHaveCSS('padding-left', '16px');
+  await expect(main).toHaveCSS('padding-right', '16px');
+  const loginBox = await login.boundingBox();
+  const mainBox = await main.boundingBox();
+  expect(Math.abs(loginBox.x - mainBox.x - 16)).toBeLessThan(1);
+  expect(Math.abs(mainBox.x + mainBox.width - loginBox.x - loginBox.width - 16)).toBeLessThan(1);
 });
