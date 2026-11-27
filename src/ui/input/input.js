@@ -22,7 +22,7 @@ export function createInput({
   label, id, name, variant = 'floating', type = 'text', labelPresentation = 'visible',
   value = '', placeholder = '', description = '', error = '', errorPresentation = 'inline',
   required = false, disabled = false, readOnly = false,
-  autocomplete, inputMode, clearable, leading, trailing, onInput, onChange,
+  autocomplete, inputMode, clearable, leading, trailing, info, onInput, onChange,
   rotatingPlaceholder, placeholderHistoryKey, placeholderInterval, placeholderSave = 'change',
 } = {}) {
   if (typeof label !== 'string' || !label.trim()) throw new TypeError('Input label must be a non-empty string');
@@ -90,7 +90,7 @@ export function createInput({
   // All variants share the exact same frame/label layout; search only adds an icon.
   const frame = createFieldFrame({
     label, control: input, controlId: inputId, labelPresentation,
-    leading: addons, trailing: suffixes,
+    leading: addons, trailing: suffixes, info,
   });
   frame.field.classList.add('pg-input__field');
   frame.label.classList.add('pg-input__label');
@@ -119,11 +119,12 @@ export function createInput({
 
   function updateDescribedBy() {
     const ids = [];
+    if (frame.infoDescriptionId) ids.push(frame.infoDescriptionId);
     if (!descriptionElement.hidden) ids.push(descriptionElement.id);
     if (!errorElement.hidden) ids.push(errorElement.id);
     if (ids.length) input.setAttribute('aria-describedby', ids.join(' '));
     else input.removeAttribute('aria-describedby');
-    support.hidden = ids.length === 0;
+    support.hidden = descriptionElement.hidden && errorElement.hidden;
   }
   function syncValue() {
     const filled = input.value.length > 0;

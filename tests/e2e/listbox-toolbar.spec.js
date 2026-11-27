@@ -117,3 +117,34 @@ test('mini button remains beside search on narrow viewport without overflow', as
   expect(Math.abs(a.y+a.height/2-b.y-b.height/2)).toBeLessThan(2);
   expect(b.x+b.width).toBeLessThanOrEqual(t.x+t.width+1);
 });
+
+
+test('mixed and all selected use the main soft accent instead of success green', async ({ page }) => {
+  const multi = page.locator('.pg-tools-listbox-demo .pg-listbox').nth(1);
+  await multi.locator('.pg-listbox__trigger').click();
+  const all = multi.locator('.pg-listbox__select-all');
+  for (const theme of ['light', 'dark']) {
+    await page.evaluate(theme => document.documentElement.dataset.theme = theme, theme);
+    await expect(all).toHaveAttribute('aria-pressed', 'mixed');
+    await expect(all).toHaveAttribute('data-pg-tone', 'main');
+    await expect(all).toHaveAttribute('data-pg-appearance', 'soft');
+    const ink = await all.evaluate(node => {
+      const probe = document.createElement('span');
+      probe.style.color = 'var(--pg-tone-main-on-soft)';
+      node.append(probe);
+      const color = getComputedStyle(probe).color;
+      probe.remove();
+      return color;
+    });
+    await expect(all).toHaveCSS('color', ink);
+    await all.click();
+    await expect(all).not.toHaveAttribute('data-pg-tone', 'success');
+    await all.click();
+    await expect(all).toHaveAttribute('aria-pressed', 'true');
+    await expect(all).toHaveAttribute('data-pg-tone', 'main');
+    await expect(all).toHaveAttribute('data-pg-appearance', 'soft');
+    await expect(all).toHaveCSS('color', ink);
+    await all.click();
+    await multi.getByRole('option',{name:'Пром.ua',exact:true}).click();
+  }
+});

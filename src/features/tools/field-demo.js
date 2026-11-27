@@ -33,13 +33,6 @@ export function createFieldDemo() {
   const suffix = document.createElement('span');
   suffix.className = 'pg-tools-field-demo__unit';
   suffix.textContent = 'за шт.';
-  const help = document.createElement('button');
-  help.type = 'button';
-  help.className = 'pg-tools-field-demo__help pg-button pg-button--step';
-  help.textContent = '?';
-  help.setAttribute('aria-label', 'Пояснення одиниць');
-  help.dataset.pgTooltip = 'Число та суфікс не змінюють положення підпису';
-  help.setAttribute('data-pg-tooltip-always', '');
 
   const controls = [
     createInput({ label: 'Назва запису', name: 'demo-field-name' }),
@@ -62,7 +55,8 @@ export function createFieldDemo() {
     }),
     createInput({
       label: 'Ціна товару', name: 'demo-field-price',
-      inputMode: 'decimal', leading: unit, trailing: [suffix, help],
+      inputMode: 'decimal', leading: unit, trailing: suffix,
+      info: 'Число та суфікс не змінюють положення підпису',
     }),
     createInput({
       label: 'Код виробника', name: 'demo-field-code',

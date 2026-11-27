@@ -109,3 +109,24 @@ test('reduced motion disables the rotating arrow transition', async ({ page }) =
     expect(duration).toBe('0s');
   }
 });
+
+
+test('shared dropdown options have flat joining edges with rounded popup exterior', async ({ page }) => {
+  const root = page.locator('#visual-test-listbox');
+  await root.locator('.pg-listbox__trigger').click();
+  const first = root.getByRole('option', { name: 'Варіант 1', exact: true });
+  const second = root.getByRole('option', { name: 'Варіант 2', exact: true });
+  await first.click();
+  await second.click();
+  await expect(first).toHaveAttribute('aria-selected', 'true');
+  await expect(second).toHaveAttribute('aria-selected', 'true');
+  await expect(first).toHaveCSS('border-radius', '0px');
+  await expect(second).toHaveCSS('border-radius', '0px');
+  const a = await first.boundingBox(), b = await second.boundingBox();
+  expect(Math.abs(a.y+a.height-b.y)).toBeLessThan(1);
+  await expect(root.locator('.pg-listbox__panel')).not.toHaveCSS('border-radius', '0px');
+  await page.keyboard.press('Escape');
+  const combo = page.locator('#visual-test-combobox');
+  await combo.getByRole('combobox').focus();
+  await expect(combo.getByRole('option').first()).toHaveCSS('border-radius', '0px');
+});

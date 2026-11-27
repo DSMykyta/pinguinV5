@@ -21,7 +21,7 @@ function slotNodes(value) {
   return items;
 }
 
-export function createFieldFrame({ label, control, controlId, leading, trailing, labelPresentation = 'visible' } = {}) {
+export function createFieldFrame({ label, control, controlId, leading, trailing, info, labelPresentation = 'visible' } = {}) {
   if (typeof label !== 'string' || !label.trim()) throw new TypeError('Field label is required');
   if (!(control instanceof HTMLElement)) throw new TypeError('Field control must be an HTMLElement');
   if (typeof controlId !== 'string' || !controlId.trim()) throw new TypeError('Field controlId is required');
@@ -36,6 +36,34 @@ export function createFieldFrame({ label, control, controlId, leading, trailing,
   if (labelPresentation === 'sr-only') caption.classList.add('pg-field__label--sr-only');
   caption.htmlFor = controlId;
   caption.textContent = label;
+
+  // The optional information glyph belongs to the label row, never the input.
+  const infoText = String(info ?? '').trim();
+  let labelRow = caption;
+  let infoDescriptionId;
+  let infoDescription;
+  if (infoText && labelPresentation === 'visible') {
+    labelRow = document.createElement('div');
+    labelRow.className = 'pg-field__label-row';
+    const glyph = document.createElement('span');
+    glyph.className = 'pg-field__info';
+    glyph.tabIndex = 0;
+    glyph.setAttribute('role', 'img');
+    glyph.setAttribute('aria-label', infoText);
+    glyph.dataset.pgTooltip = infoText;
+    glyph.setAttribute('data-pg-tooltip-always', '');
+    glyph.append(createIcon('info'));
+    labelRow.append(caption, glyph);
+  }
+  if (infoText) {
+    infoDescriptionId = controlId + '-info';
+    infoDescription = document.createElement('span');
+    infoDescription.id = infoDescriptionId;
+    infoDescription.hidden = true;
+    infoDescription.textContent = infoText;
+    const ids = [control.getAttribute('aria-describedby'), infoDescriptionId].filter(Boolean);
+    control.setAttribute('aria-describedby', ids.join(' '));
+  }
 
   const surface = document.createElement('div');
   surface.className = 'pg-field__surface';
@@ -65,10 +93,11 @@ export function createFieldFrame({ label, control, controlId, leading, trailing,
   setSlot(lead, leading);
   setSlot(trail, trailing);
   surface.append(lead, edit, trail);
-  field.append(caption, surface);
+  field.append(labelRow, surface);
+  if (infoDescription) field.append(infoDescription);
 
   return Object.freeze({
-    field, surface, edit, label: caption, leadingSlot: lead, trailingSlot: trail,
+    field, surface, edit, label: caption, infoDescriptionId, leadingSlot: lead, trailingSlot: trail,
     setLeading(value) { setSlot(lead, value); },
     setTrailing(value) { setSlot(trail, value); },
     setFilled(value) { field.dataset.pgFilled = String(Boolean(value)); },

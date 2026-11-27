@@ -123,3 +123,22 @@ test('checkbox circle and mixed-state keyboard behavior remain unchanged',async 
   await partial.getByRole('checkbox').press('Space');
   await expect(partial).toHaveAttribute('data-pg-mixed','false');
 });
+
+
+test('field information is a text-size glyph on the label row, not an input button', async ({ page }) => {
+  const field = page.locator('.pg-tools-field-demo .pg-input').filter({ has: page.locator('input[name="demo-field-price"]') });
+  const info = field.locator('.pg-field__info');
+  const label = field.locator('.pg-field__label');
+  const surface = field.locator('.pg-field__surface');
+  await expect(info).toBeVisible();
+  await expect(info.locator('svg')).toHaveCSS('width', '13px');
+  await expect(info.locator('svg')).toHaveCSS('height', '13px');
+  await expect(field.locator('.pg-field__trailing button')).toHaveCount(0);
+  const [a,b,c] = await Promise.all([info.boundingBox(),label.boundingBox(),surface.boundingBox()]);
+  expect(Math.abs(a.y+a.height/2-b.y-b.height/2)).toBeLessThan(1);
+  expect(Math.abs(c.x+c.width-a.x-a.width-2)).toBeLessThan(1);
+  expect(a.y+a.height).toBeLessThan(c.y);
+  await expect(field.locator('input')).toHaveAttribute('aria-describedby', /-info$/);
+  await info.hover();
+  await expect(page.getByRole('tooltip')).toHaveText('Число та суфікс не змінюють положення підпису');
+});

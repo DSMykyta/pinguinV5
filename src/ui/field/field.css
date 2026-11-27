@@ -21,6 +21,21 @@
   font-size: 13px; font-weight: 450; line-height: 1.4;
   overflow-wrap: anywhere; cursor: text;
 }
+/* Optional helper on the label baseline: same type size, no button surface. */
+.pg-field__label-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--pg-space-2); min-inline-size: 0;
+  padding-inline-end: 2px;
+}
+.pg-field__label-row > .pg-field__label { flex: 1 1 auto; }
+.pg-field__info {
+  display: inline-flex; align-items: center; justify-content: center;
+  flex: 0 0 auto; font-size: 13px; line-height: 1;
+  color: var(--pg-color-text-secondary);
+  cursor: help;
+}
+.pg-field__info > .pg-icon { inline-size: 1em; block-size: 1em; }
+.pg-field__info:focus-visible { outline: 1px solid var(--pg-color-focus); outline-offset: 2px; }
 /* Only for compact embedded filters: label remains in the accessibility tree. */
 .pg-field__label--sr-only {
   position: absolute;
@@ -156,7 +171,8 @@
   gap: 8px;
   min-block-size: 38px;
   padding: 9px 12px;
-  border-radius: var(--pg-radius-sm);
+  /* One uninterrupted list surface; adjacent selected rows share their edge. */
+  border-radius: 0;
   color: var(--pg-color-text-primary);
   font-size: 13px;
   cursor: pointer;

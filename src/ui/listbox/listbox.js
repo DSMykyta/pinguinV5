@@ -294,7 +294,7 @@ export function createListbox({
         setButtonColor(all);
       } else {
         all.dataset.pgState = 'active';
-        setButtonColor(all, { tone: 'success', appearance: 'solid' });
+        setButtonColor(all, { tone: 'main', appearance: 'soft' });
       }
       // Swap only the existing button's SVG, never the button or its focus.
       const iconName = state === 'false' ? 'plus' : state === 'mixed' ? 'minus' : 'check';
