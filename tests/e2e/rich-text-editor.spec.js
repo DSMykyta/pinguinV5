@@ -729,7 +729,7 @@ test('Markdown paste changes format without changing the visual mode, then sourc
   await editorMode.click();
   await expect(visual.locator('strong')).toHaveText('текст');
   await root.getByRole('button', { name: 'Формат документа: Markdown' }).click();
-  await root.getByRole('menuitem', { name: 'HTML', exact: true }).click();
+  await root.getByRole('menuitemcheckbox', { name: 'HTML', exact: true }).click();
   await expect(root).toHaveAttribute('data-pg-format', 'html');
   await expect(root).toHaveAttribute('data-pg-mode', 'editor');
   await htmlMode.click();

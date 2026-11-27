@@ -61,9 +61,11 @@ export function mountEditorActions({ element, input, source, host, controls, ser
   }
   async function paste(selection) {
     if (!controls.canEdit()) return;
+    const before = controls.getHTML();
+    const mode = controls.getMode();
     try {
       const value = await doc.defaultView.navigator.clipboard.readText();
-      if (disposed || !value) return;
+      if (disposed || !value || before !== controls.getHTML() || mode !== controls.getMode()) return;
       restore(selection);
       const target = active();
       if (target === source) {
@@ -81,7 +83,8 @@ export function mountEditorActions({ element, input, source, host, controls, ser
   async function cut(selection) {
     if (!controls.canEdit() || !(selection?.html || selection?.raw)) return;
     const before = controls.getHTML();
-    if (!await copy(controls.getFormat(), selection) || disposed || before !== controls.getHTML()) return;
+    const mode = controls.getMode();
+    if (!await copy(controls.getFormat(), selection) || disposed || before !== controls.getHTML() || mode !== controls.getMode()) return;
     restore(selection);
     if (active() === source && selection.source) {
       source.setRangeText('', selection.start, selection.end, 'start');
@@ -97,10 +100,11 @@ export function mountEditorActions({ element, input, source, host, controls, ser
   ];
   const footer = createMenu({
     label: 'Формат документа', align: 'end',
-    items: formats,
+    items: formats.map(f => ({ ...f, type: 'check', checked: f.value === controls.getFormat() })), 
     onSelect(value) { restore(saved); controls.setFormat(value); },
   });
   footer.element.classList.add('pg-rich-text-editor__format-menu');
+  footer.trigger.classList.replace('pg-button--outline', 'pg-button--quiet');
   footer.trigger.addEventListener('pointerdown', () => { saved = capture(); }, { signal });
   footer.trigger.addEventListener('keydown', () => { saved = capture(); }, { signal });
   host.append(footer.element);
@@ -137,6 +141,9 @@ export function mountEditorActions({ element, input, source, host, controls, ser
   }
   for (const target of [input, source]) {
     target.addEventListener('contextmenu', showContext, { signal });
+    if (target === source) target.addEventListener('copy', () => {
+      if (source.selectionStart !== source.selectionEnd) controls.notify('Скопійовано як ' + controls.formatName(controls.getFormat()));
+    }, { signal });
     target.addEventListener('keydown', event => {
       if (event.isComposing || !event.ctrlKey || !event.altKey || event.shiftKey || event.metaKey || event.getModifierState('AltGraph')) return;
       const format = { KeyC: 'text', KeyH: 'html', KeyM: 'markdown' }[event.code];
@@ -150,9 +157,8 @@ export function mountEditorActions({ element, input, source, host, controls, ser
     footer.trigger.textContent = controls.formatName(format) + ' ▾';
     footer.trigger.setAttribute('aria-label', 'Формат документа: ' + controls.formatName(format));
     footer.trigger.disabled = !controls.canEdit();
-    for (const node of footer.element.querySelectorAll('[role=menuitem]')) {
-      if (node.dataset.pgValue === format) node.setAttribute('aria-current', 'true');
-      else node.removeAttribute('aria-current');
+    for (const node of footer.element.querySelectorAll('[role=menuitemcheckbox]')) {
+      node.setAttribute('aria-checked', String(node.dataset.pgValue === format));
     }
   };
   const unsubscribe = controls.subscribe(sync);

@@ -49,6 +49,7 @@ export function getPastedMarkdown(value, explicit = false) {
   if (/^\S[^\n]*\n {0,3}(?:={3,}|-{3,})[ \t]*$/m.test(raw)) return raw;
   if ((raw.match(/^[ \t]*(?:[-+*]|\d+[.)])[ \t]+\S/gm) || []).length >= 2) return raw;
   if (/(?:\*\*[^*\n]+\*\*|__[^_\n]+__|~~[^~\n]+~~|\[[^\]\n]+\]\([^) \n]+\)|\x60[^\x60\n]+\x60)/.test(raw)) return raw;
+  if (/(?:^|[\s(])(?:\*[^*\s][^*\n]*?\*|_[^_\s][^_\n]*?_)(?=$|[\s.,!?;:)])/m.test(raw)) return raw;
   if (/^\s*\|.+\|\s*\n\s*\|?[\s:|-]*---[\s:|-]*$/m.test(raw)) return raw;
   return null;
 }

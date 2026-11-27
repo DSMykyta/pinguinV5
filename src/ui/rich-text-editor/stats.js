@@ -11,7 +11,7 @@
 
 // Read visible document text with consistent semantic boundaries in both modes.
 // textContent glues neighbouring block elements together; innerText depends on layout.
-const BLOCKS = new Set(['p', 'div', 'h1', 'h2', 'h3', 'blockquote', 'li', 'ul', 'ol', 'pre', 'hr']);
+const BLOCKS = new Set(['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'li', 'ul', 'ol', 'pre', 'hr', 'table', 'tr', 'td', 'th', 'caption']);
 
 export function getEditorDocumentText(root) {
   const parts = [];

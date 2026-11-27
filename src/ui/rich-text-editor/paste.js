@@ -13,8 +13,8 @@ import { parseSafeHtml } from './html.js';
 import { getEditorSelection } from './commands.js';
 import { getPastedMarkdown, markdownToHtml } from './markdown.js';
 
-const STARTS_WITH_MARKUP = /^<(?:!doctype\s+html\b|html\b|body\b|p\b|div\b|h[1-3]\b|ul\b|ol\b|li\b|blockquote\b|strong\b|em\b|b\b|i\b|u\b|s\b|a\b|pre\b|code\b|br\b|hr\b)/i;
-const HAS_ENDING_TAG = /<\/(?:html|body|p|div|h[1-3]|ul|ol|li|blockquote|strong|em|b|i|u|s|a|pre|code)\s*>|<(?:br|hr)(?:\s[^<>]*)?\s*\/?>/i;
+const STARTS_WITH_MARKUP = /^<(?:!doctype\s+html\b|html\b|body\b|p\b|div\b|h[1-6]\b|ul\b|ol\b|li\b|blockquote\b|strong\b|em\b|b\b|i\b|u\b|s\b|a\b|pre\b|code\b|table\b|del\b|br\b|hr\b)/i;
+const HAS_ENDING_TAG = /<\/(?:html|body|p|div|h[1-6]|ul|ol|li|blockquote|strong|em|b|i|u|s|a|pre|code|table|del)\s*>|<(?:br|hr)(?:\s[^<>]*)?\s*\/?>/i;
 const BLOCK_TAGS = new Set(['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'blockquote', 'pre', 'table']);
 
 /** Recognize a complete HTML snippet, not incidental text containing angle brackets. */
@@ -32,7 +32,7 @@ function fragmentContainsBlocks(fragment) {
 function topLevelTextBlock(root, start) {
   let node = start.nodeType === Node.ELEMENT_NODE ? start : start.parentElement;
   while (node && node !== root) {
-    if (node.parentElement === root && ['p', 'div', 'h1', 'h2', 'h3', 'blockquote'].includes(node.localName)) return node;
+    if (node.parentElement === root && ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote'].includes(node.localName)) return node;
     node = node.parentElement;
   }
   return null;
@@ -103,7 +103,7 @@ export function mountEditorPaste({ input, isEditable, onInput, onFormat = () => 
     const markdown = getPastedMarkdown(mdMime || plain, Boolean(mdMime));
     const literalRich = rich && /<(?:pre|code)\b/i.test(rich) && richAsText.trim() === plain.trim();
     const onlyTextRich = rich && !/<(?:h[1-6]|strong|b|em|i|u|ul|ol|li|blockquote|a|table|s)\b/i.test(rich);
-    if (source && (!rich || getPastedHtmlSource(richAsText))) {
+    if (!mdMime && source && (!rich || getPastedHtmlSource(richAsText))) {
       insertFragment(input, parseSafeHtml(source));
       onFormat('html');
     } else if (markdown !== null && (mdMime || !rich || literalRich || onlyTextRich)) {
