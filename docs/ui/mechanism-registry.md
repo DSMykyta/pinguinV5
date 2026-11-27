@@ -159,7 +159,7 @@
 
 - `src/ui/form-dialog/form-dialog.js`
 
-### src/ui/holographic-foil — Голографічне змішування, спектр, нахил
+### src/ui/holographic-foil — Голографічне змішування, спектр, відблиск і нахил від курсора
 
 - `src/ui/holographic-foil/holographic-foil.css`
 - `src/ui/holographic-foil/holographic-foil.js`

@@ -17,18 +17,37 @@
 .pg-tools-holographic-foil-demo h3,
 .pg-tools-holographic-foil-demo p { margin: 0; }
 .pg-tools-holographic-foil-demo p { color: var(--pg-color-text-secondary); }
-.pg-tools-holographic-foil-demo__gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
-  gap: var(--pg-space-6);
-  padding-block: var(--pg-space-4);
+.pg-tools-holographic-foil-demo__stage {
+  inline-size: min(100%, 540px);
+  padding-block: var(--pg-space-6);
 }
-.pg-tools-holographic-foil-demo__sample { margin: 0; min-inline-size: 0; }
-.pg-tools-holographic-foil-demo__sample figcaption {
-  margin-block-start: var(--pg-space-4);
-  color: var(--pg-color-text-secondary);
+.pg-tools-holographic-foil-demo__card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--pg-space-4);
+  aspect-ratio: 2 / 1;
+  box-sizing: border-box;
+  padding: clamp(16px, 4vw, 32px);
+  color: var(--pg-color-foil-dark);
+  font-weight: 600;
 }
-.pg-tools-holographic-foil-demo__swatch { aspect-ratio: 2 / 1; }
+.pg-tools-holographic-foil-demo__top,
+.pg-tools-holographic-foil-demo__bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--pg-space-4);
+  font-size: .75rem;
+  letter-spacing: .06em;
+}
+.pg-tools-holographic-foil-demo__name {
+  display: block;
+  font-size: clamp(1.8rem, 6vw, 3.4rem);
+  font-weight: 750;
+  line-height: 1;
+  letter-spacing: -.055em;
+}
 .pg-tools-holographic-foil-demo__controls {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));

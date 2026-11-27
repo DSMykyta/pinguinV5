@@ -5,16 +5,16 @@
  * ║ ПРИЗНАЧЕННЯ: Ізольована оптична фольга з протилежним рухом до нахилу.
  * ║ ЗАЛЕЖНОСТІ: Семантичні та матеріальні токени; native CSS.
  * ║ ПУБЛІЧНИЙ API: .pg-holographic-foil; data-pg-*; --pg-foil-*
- * ║ ПРИНЦИП: Шар не перехоплює ввід; transform замість анімування layout.
+ * ║ ПРИНЦИП: Шар не перехоплює ввід; нерухомий шар, рухається тільки його фон.
  * ╚════════════════════════════════════════════════════════════════════════════════════╝
  */
 
 .pg-holographic-foil {
   --pg-foil-color-a: var(--pg-tone-tertiary-base);
-  --pg-foil-color-b: var(--pg-tone-main-base);
-  --pg-foil-color-c: var(--pg-tone-secondary-base);
-  --pg-foil-color-d: var(--pg-tone-main-base);
-  --pg-foil-color-e: var(--pg-tone-secondary-base);
+  --pg-foil-color-b: color-mix(in srgb, var(--pg-tone-tertiary-base) 45%, var(--pg-tone-main-base));
+  --pg-foil-color-c: var(--pg-tone-main-base);
+  --pg-foil-color-d: var(--pg-tone-secondary-base);
+  --pg-foil-color-e: color-mix(in srgb, var(--pg-tone-secondary-base) 50%, var(--pg-tone-tertiary-base));
   --pg-foil-base: var(--pg-color-foil-medium);
   min-inline-size: 0;
   perspective: 900px;
@@ -34,45 +34,55 @@
   overflow: hidden;
   border-radius: var(--pg-foil-radius, var(--pg-radius-lg));
   background: var(--pg-foil-base);
+  transform: rotateX(0deg) rotateY(0deg);
+  transition: transform var(--pg-motion-effects-slow-duration) var(--pg-motion-effects-ease);
 }
-.pg-holographic-foil__layer {
+.pg-holographic-foil[data-pg-enabled='true'][data-pg-interactive='true'][data-pg-tilt='true'] .pg-holographic-foil__surface {
+  transform: rotateX(var(--pg-foil-rotate-x, 0deg)) rotateY(var(--pg-foil-rotate-y, 0deg));
+}
+.pg-holographic-foil__layer,
+.pg-holographic-foil__surface::after {
   position: absolute;
-  inset-block: 0;
-  inset-inline-start: -100%;
-  inline-size: 300%;
+  inset: 0;
+  border-radius: inherit;
   pointer-events: none;
   user-select: none;
+}
+.pg-holographic-foil__layer {
   opacity: var(--pg-foil-intensity, .85);
-  background: repeating-linear-gradient(var(--pg-foil-angle, 115deg),
+  background-image: repeating-linear-gradient(var(--pg-foil-angle, 115deg),
     var(--pg-foil-color-a) 0%, var(--pg-foil-color-b) 6%,
     var(--pg-foil-color-c) 12%, var(--pg-foil-color-d) 18%,
     var(--pg-foil-color-e) 24%, var(--pg-foil-color-a) 30%);
+  background-size: 300% 200%;
+  background-repeat: no-repeat;
+  background-position: var(--pg-foil-background-x, 50%) var(--pg-foil-background-y, 50%);
   mix-blend-mode: color-dodge;
-  transform: translate3d(0, 0, 0);
+  transition: background-position var(--pg-motion-effects-slow-duration) var(--pg-motion-effects-ease);
 }
-.pg-holographic-foil__content { position: relative; z-index: 1; }
-.pg-holographic-foil[data-pg-animated='true'][data-pg-enabled='true'] .pg-holographic-foil__layer {
-  animation: pg-foil-travel var(--pg-foil-duration, 6s) ease-in-out infinite;
+.pg-holographic-foil__surface::after {
+  content: '';
+  z-index: 1;
+  background: radial-gradient(ellipse at var(--pg-foil-x, 50%) var(--pg-foil-y, 50%),
+    color-mix(in srgb, var(--pg-color-foil-highlight) 35%, transparent), transparent 65%);
+  opacity: 0;
+  transition: opacity var(--pg-motion-effects-normal-duration) var(--pg-motion-effects-ease);
 }
-.pg-holographic-foil[data-pg-animated='true'][data-pg-enabled='true'][data-pg-tilt='true'] .pg-holographic-foil__surface {
-  animation: pg-foil-tilt var(--pg-foil-duration, 6s) ease-in-out infinite;
+.pg-holographic-foil__content { position: relative; z-index: 2; }
+.pg-holographic-foil[data-pg-tracking='true'] .pg-holographic-foil__surface,
+.pg-holographic-foil[data-pg-tracking='true'] .pg-holographic-foil__layer { transition: none; }
+.pg-holographic-foil[data-pg-tracking='true'][data-pg-enabled='true'] .pg-holographic-foil__surface::after {
+  opacity: var(--pg-foil-intensity, .85);
 }
 .pg-holographic-foil[data-pg-enabled='false'] .pg-holographic-foil__layer { display: none; }
-@keyframes pg-foil-travel {
-  0%, 100% { transform: translate3d(30%, 0, 0); }
-  50% { transform: translate3d(-30%, 0, 0); }
-}
-@keyframes pg-foil-tilt {
-  0%, 100% { transform: rotateY(-9deg) rotateX(3deg); }
-  50% { transform: rotateY(9deg) rotateX(-3deg); }
-}
 @supports not (mix-blend-mode: color-dodge) {
   .pg-holographic-foil__layer { opacity: calc(var(--pg-foil-intensity, .85) * .3); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pg-holographic-foil[data-pg-animated='true'][data-pg-enabled='true'] .pg-holographic-foil__layer,
-  .pg-holographic-foil[data-pg-animated='true'][data-pg-enabled='true'][data-pg-tilt='true'] .pg-holographic-foil__surface {
-    animation: none;
+  .pg-holographic-foil[data-pg-enabled='true'][data-pg-interactive='true'][data-pg-tilt='true'] .pg-holographic-foil__surface {
     transform: none;
   }
+  .pg-holographic-foil__surface, .pg-holographic-foil__layer, .pg-holographic-foil__surface::after { transition: none; }
+  .pg-holographic-foil__layer { background-position: 50% 50%; }
+  .pg-holographic-foil[data-pg-tracking='true'][data-pg-enabled='true'] .pg-holographic-foil__surface::after { opacity: 0; }
 }
