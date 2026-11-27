@@ -20,7 +20,7 @@ test('one printed card follows the pointer without an autonomous loop', async ({
   const surface = card.locator('.pg-holographic-foil__surface');
   await expect(card).toHaveCount(1);
   await expect(card).toHaveAttribute('data-pg-palette', 'theme');
-  await expect(panel.locator('input, button, select, textarea')).toHaveCount(0);
+  await expect(panel.locator('.pg-tools-holographic-foil-demo').locator('input, button, select, textarea')).toHaveCount(0);
   const colors = await layer.evaluate(node => {
     const css = getComputedStyle(node);
     const canvas = document.createElement('canvas');

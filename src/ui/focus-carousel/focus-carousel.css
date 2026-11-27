@@ -44,8 +44,9 @@
   opacity: var(--pg-carousel-opacity, 1);
   transform-origin: center;
 }
+.pg-focus-carousel[data-pg-state='dragging'],
+.pg-focus-carousel[data-pg-state='settling'] { scroll-snap-type: none; }
 .pg-focus-carousel[data-pg-state='dragging'] {
-  scroll-snap-type: none;
   cursor: grabbing;
   user-select: none;
 }

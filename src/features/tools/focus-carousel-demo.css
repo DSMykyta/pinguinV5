@@ -18,36 +18,17 @@
 .pg-tools-focus-carousel-demo p { margin: 0; }
 .pg-tools-focus-carousel-demo p { color: var(--pg-color-text-secondary); }
 .pg-tools-focus-carousel-demo__stage {
+  display: grid;
+  gap: var(--pg-space-3);
   inline-size: min(100%, 540px);
   min-inline-size: 0;
 }
 .pg-tools-focus-carousel-demo__card {
-  --pg-carousel-art: var(--pg-tone-main-base);
-  position: relative;
-  overflow: hidden;
+  display: block;
+  inline-size: 100%;
   aspect-ratio: 3 / 4;
+  object-fit: cover;
   border-radius: var(--pg-radius-lg);
-  background: color-mix(in srgb, var(--pg-carousel-art) 35%, var(--pg-color-surface));
-}
-.pg-tools-focus-carousel-demo__card[data-pg-tone='secondary'] { --pg-carousel-art: var(--pg-tone-secondary-base); }
-.pg-tools-focus-carousel-demo__card[data-pg-tone='success'] { --pg-carousel-art: var(--pg-tone-success-base); }
-.pg-tools-focus-carousel-demo__card[data-pg-tone='tertiary'] { --pg-carousel-art: var(--pg-tone-tertiary-base); }
-.pg-tools-focus-carousel-demo__card[data-pg-tone='warning'] { --pg-carousel-art: var(--pg-tone-warning-base); }
-.pg-tools-focus-carousel-demo__landscape { position: absolute; inset: 0; }
-.pg-tools-focus-carousel-demo__landscape::before {
-  content: '';
-  position: absolute;
-  inline-size: 22%;
-  aspect-ratio: 1;
-  inset-block-start: 14%;
-  inset-inline-end: 15%;
-  border-radius: var(--pg-radius-full);
-  background: var(--pg-color-surface);
-}
-.pg-tools-focus-carousel-demo__landscape::after {
-  content: '';
-  position: absolute;
-  inset: 42% 0 0;
-  background: linear-gradient(to bottom, var(--pg-carousel-art), color-mix(in srgb, var(--pg-carousel-art) 65%, var(--pg-color-text-primary)));
-  clip-path: polygon(0 35%, 20% 12%, 39% 38%, 64% 0, 82% 29%, 100% 15%, 100% 100%, 0 100%);
+  background: var(--pg-color-surface-soft);
+  user-select: none;
 }

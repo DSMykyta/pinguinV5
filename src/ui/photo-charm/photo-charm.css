@@ -45,8 +45,8 @@
   opacity:.85;
   /* Transparent padding gives the blur room before the two-axis fade. */
   mask-image:
-    linear-gradient(to right, transparent, #000 var(--pg-photo-charm-gutter), #000 calc(100% - var(--pg-photo-charm-gutter)), transparent),
-    linear-gradient(to bottom, transparent, #000 var(--pg-photo-charm-gutter), #000 calc(100% - var(--pg-photo-charm-gutter)), transparent);
+    linear-gradient(to right, transparent, var(--pg-color-text-primary) var(--pg-photo-charm-gutter), var(--pg-color-text-primary) calc(100% - var(--pg-photo-charm-gutter)), transparent),
+    linear-gradient(to bottom, transparent, var(--pg-color-text-primary) var(--pg-photo-charm-gutter), var(--pg-color-text-primary) calc(100% - var(--pg-photo-charm-gutter)), transparent);
   mask-composite:intersect;
   pointer-events:none;
   user-select:none;
