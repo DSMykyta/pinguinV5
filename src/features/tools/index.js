@@ -9,6 +9,7 @@
  * ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
+import { showWelcomeDialog } from '../../ui/welcome-dialog/welcome-dialog.js';
 import { createTabs } from '../../ui/tabs/tabs.js';
 import { createPageView } from '../../ui/page/page.js';
 import { createToastDemo } from './toast-demo.js';
@@ -103,8 +104,14 @@ export function mount(host, { setAsideContext, setSearchEntries, setSearchContex
   const tablePage = createPageView({ title: 'Таблиці' });
   const waveProgressDemo = createWaveProgressDemo();
   const thinkingProgressDemo = createThinkingProgressDemo();
+  const welcome = document.createElement('button');
+  welcome.type = 'button';
+  welcome.className = 'pg-button pg-button--secondary';
+  welcome.dataset.pgAction = 'welcome-dialog';
+  welcome.textContent = 'Вітання Pinguin V6';
+  welcome.addEventListener('click', () => { void showWelcomeDialog(); });
   tablePage.body.append(createToastDemo(), waveProgressDemo.element,
-    thinkingProgressDemo.element);
+    thinkingProgressDemo.element, welcome);
   // The table itself is the page surface; there is no duplicate title or card.
   const dataViewsDemo = createDataViewsDemo();
   const mediaLibraryDemo = createMediaLibraryDemo();

@@ -127,6 +127,12 @@ body:has(> .pg-dialog[open]) #app *::after {
 .pg-dialog[data-pg-presentation='edge-to-edge'] {
   block-size: min(420px, calc(100dvh - 32px));
 }
+.pg-dialog[data-pg-chrome='none'] {
+  border: 0;
+}
+.pg-dialog[data-pg-chrome='none'] .pg-dialog__body:focus {
+  outline: none;
+}
 .pg-dialog[data-pg-presentation='edge-to-edge'] .pg-dialog__panel {
   position: relative;
   block-size: 100%;

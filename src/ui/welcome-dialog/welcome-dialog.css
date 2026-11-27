@@ -1,0 +1,43 @@
+/**
+ * ╔════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — WELCOME DIALOG STYLES
+ * ╠════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Презентаційна типографіка Pinguin V6.
+ * ║ ЗАЛЕЖНОСТІ: AnimatedGradient, семантичні токени.
+ * ║ ПУБЛІЧНИЙ API: pg-welcome-dialog та BEM parts.
+ * ║ ПРИНЦИП: Тільки композиція контенту, без перевизначення Dialog.
+ * ╚════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
+.pg-welcome-dialog {
+  position: relative;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+  overflow: hidden;
+  color: var(--pg-color-gradient-on);
+}
+.pg-welcome-dialog__brand {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--pg-space-2);
+  font-family: var(--pg-font-family-base);
+  text-align: center;
+  user-select: none;
+}
+.pg-welcome-dialog__name {
+  font-size: clamp(16px, 4vw, 23px);
+  font-weight: 500;
+  letter-spacing: .27em;
+  line-height: 1;
+  padding-inline-start: .27em;
+}
+.pg-welcome-dialog__version {
+  font-size: clamp(92px, 32vw, 160px);
+  font-weight: 760;
+  font-style: italic;
+  letter-spacing: -.09em;
+  line-height: .88;
+  padding-inline-end: .09em;
+}

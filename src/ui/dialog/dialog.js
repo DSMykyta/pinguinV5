@@ -76,6 +76,11 @@ function validate(options) {
       options.confirmTone != null || options.confirmAppearance != null)) {
     throw new TypeError('Edge-to-edge Dialog requires content without form or footer actions');
   }
+  const showClose = options.showClose ?? true;
+  if (typeof showClose !== 'boolean' || (!showClose &&
+      (presentation !== 'edge-to-edge' || options.closeOnBackdrop === false))) {
+    throw new TypeError('Buttonless Dialog requires edge-to-edge with backdrop dismissal');
+  }
   const sections = options.sections ?? [];
   if (size === 'workspace' && !Array.isArray(sections)) throw new TypeError('Workspace sections must be an array');
   const leftAction = options.leftAction ?? null;
@@ -94,7 +99,7 @@ function validate(options) {
     throw new TypeError('Dialog confirmation appearance requires confirmTone');
   }
   return {
-    title: options.title, message, content, confirmText, cancelText, size, presentation, leftAction,
+    title: options.title, message, content, confirmText, cancelText, size, presentation, showClose, leftAction,
     confirmTone, confirmAppearance,
     validate: options.validate, onConfirm: options.onConfirm, closeGuard: options.closeGuard,
     onRefresh: options.onRefresh, onDelete: options.onDelete, isDirty: options.isDirty,
@@ -363,6 +368,7 @@ export function mountDialogs() {
       d.dataset.pgState = 'entering';
       if (item.options.presentation === 'edge-to-edge') {
         d.dataset.pgPresentation = 'edge-to-edge';
+        if (!item.options.showClose) d.dataset.pgChrome = 'none';
         // Title is still an accessible name, without a visible heading.
         d.setAttribute('aria-label', item.options.title);
       } else {
@@ -450,8 +456,10 @@ export function mountDialogs() {
         d.append(panel);
       } else if (item.options.presentation === 'edge-to-edge') {
         // Same Dialog and shared close button; no extra wrapper or actions.
-        item.actionButtons = [closeButton];
-        panel.append(body, closeButton);
+        item.actionButtons = item.options.showClose ? [closeButton] : [];
+        body.tabIndex = -1;
+        panel.append(body);
+        if (item.options.showClose) panel.append(closeButton);
         d.append(panel);
       } else {
       const footer = doc.createElement('footer');
@@ -560,7 +568,7 @@ export function mountDialogs() {
       }
       d.showModal();
       doc.dispatchEvent(new Event('pg:modal-change'));
-      (item.options.presentation === 'edge-to-edge' ? closeButton
+      (item.options.presentation === 'edge-to-edge' ? (item.options.showClose ? closeButton : body)
         : (item.options.size === 'editor' || item.options.size === 'workspace'
           ? (item.options.content?.querySelector('[autofocus]') || title)
           : (cancelButton ?? item.confirmButton))).focus({ preventScroll: true });

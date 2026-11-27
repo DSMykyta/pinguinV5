@@ -26,6 +26,8 @@ import './ui/toast/toast.css';
 import './ui/reveal-panel/reveal-panel.css';
 import './ui/toolbar/toolbar.css';
 import './ui/dialog/dialog.css';
+import './ui/animated-gradient/animated-gradient.css';
+import './ui/welcome-dialog/welcome-dialog.css';
 import './ui/cloud-gradient/cloud-gradient.css';
 import './ui/holographic-foil/holographic-foil.css';
 import './ui/focus-carousel/focus-carousel.css';
@@ -62,10 +64,12 @@ import { mountShell } from './shell/shell.js';
 import { initTooltips } from './ui/tooltip/tooltip.js';
 import { mountToasts } from './ui/toast/toast.js';
 import { mountDialogs } from './ui/dialog/dialog.js';
+import { showWelcomeDialog } from './ui/welcome-dialog/welcome-dialog.js';
 import {
   mountRotatingPlaceholders, setRotatingPlaceholdersPaused,
 } from './ui/input/rotating-placeholder.js';
 
+const isWelcomeEntry = window.location.pathname === '/';
 const host = document.getElementById('app');
 const disposeTooltips = initTooltips();
 const disposeToasts = mountToasts();
@@ -82,6 +86,17 @@ const syncBackgroundActivity = () => {
 };
 document.addEventListener('pg:modal-change', syncBackgroundActivity);
 syncBackgroundActivity();
+
+// Show the welcome on the first root entry in this browser tab, not on every route.
+if (isWelcomeEntry) {
+  let shouldWelcome = true;
+  try {
+    const key = 'pg:v1:welcome-dialog:seen';
+    shouldWelcome = sessionStorage.getItem(key) !== 'true';
+    if (shouldWelcome) sessionStorage.setItem(key, 'true');
+  } catch { /* Storage can be unavailable; the root entry still works. */ }
+  if (shouldWelcome) void showWelcomeDialog().catch(error => console.error('Welcome Dialog:', error));
+}
 
 if (import.meta.hot) {
   import.meta.hot.dispose(() => {
