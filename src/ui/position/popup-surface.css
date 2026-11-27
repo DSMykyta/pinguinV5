@@ -1,0 +1,51 @@
+/*
+ * ╔════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SHARED POPUP SURFACE                                               ║
+ * ╠════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Common floating surface and optional native popover motion.           ║
+ * ║ ЗАЛЕЖНОСТІ: Design tokens, native Popover API.                                    ║
+ * ║ ПУБЛІЧНИЙ API: .pg-popup-surface, data-pg-popup-motion, data-pg-popup-direction.   ║
+ * ║ ПРИНЦИП: Surface owns skin only; callers own layout, semantics and lifecycle.      ║
+ * ╚════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
+:is(.pg-popup-surface, .pg-field__popup, .pg-menu__panel) {
+  box-sizing: border-box;
+  display: grid;
+  margin: 0;
+  border: 1px solid var(--pg-color-border);
+  border-radius: var(--pg-radius-md);
+  background: var(--pg-color-surface);
+  color: var(--pg-color-text-primary);
+  box-shadow: 0 8px 20px var(--pg-color-shadow);
+}
+:is(.pg-popup-surface, .pg-field__popup, .pg-menu__panel)[hidden] { display: none; }
+:is(.pg-popup-surface, .pg-field__popup, .pg-menu__panel):popover-open { inset: auto; }
+
+/* Opt-in only: keep the existing field and menu lifecycle unchanged. */
+@supports (transition-behavior: allow-discrete) and (overlay: auto) {
+  .pg-popup-surface[data-pg-popup-motion][popover] {
+    --pg-popup-offset: -4px;
+    opacity: 0;
+    translate: 0 var(--pg-popup-offset);
+    transition: opacity var(--pg-motion-effects-fast-duration) var(--pg-motion-effects-ease),
+      translate var(--pg-motion-spatial-fast-duration) var(--pg-motion-spatial-fast-ease),
+      display var(--pg-motion-effects-fast-duration) allow-discrete,
+      overlay var(--pg-motion-effects-fast-duration) allow-discrete;
+  }
+  .pg-popup-surface[data-pg-popup-motion][data-pg-popup-direction='up'] { --pg-popup-offset: 4px; }
+  .pg-popup-surface[data-pg-popup-motion]:popover-open {
+    opacity: 1;
+    translate: 0 0;
+  }
+  .pg-popup-surface[data-pg-popup-motion][inert] { pointer-events: none; }
+  @starting-style {
+    .pg-popup-surface[data-pg-popup-motion]:popover-open {
+      opacity: 0;
+      translate: 0 var(--pg-popup-offset);
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pg-popup-surface[data-pg-popup-motion] { transition: none; translate: none; }
+}

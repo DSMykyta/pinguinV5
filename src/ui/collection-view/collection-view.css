@@ -144,14 +144,26 @@
  * filterable headers. Reserve its width even while hidden to avoid jumps. */
 .pg-collection-view__filter-trigger { opacity:0; }
 .pg-collection-view__table th:is(:hover,:focus-within,[data-pg-filtered='true'],[data-pg-filter-open='true']) .pg-collection-view__filter-trigger { opacity:1; }
-.pg-collection-view__filter-panel { font-size:13px;white-space:normal; }
+.pg-collection-view__filter-panel {
+  position:fixed; z-index:60; gap:4px; padding:8px;
+  font-size:13px; white-space:normal; overflow:auto; overflow-wrap:anywhere;
+}
 .pg-collection-view__filter-panel > [hidden] { display:none; }
-.pg-collection-view__filter-title { padding:6px 8px; }
-.pg-collection-view__filter-toolbar { display:flex;align-items:center;justify-content:space-between;gap:8px; }
-.pg-collection-view__filter-values { overflow:auto;max-block-size:240px; }
-.pg-collection-view__filter-option { display:flex;align-items:center;gap:8px; }
+.pg-collection-view__filter-toolbar {
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  min-block-size:36px; padding-inline:4px;
+}
+.pg-collection-view__filter-separator { block-size:1px; background:var(--pg-color-border); }
+.pg-collection-view__filter-values { overflow:auto; max-block-size:240px; min-block-size:0; }
+.pg-collection-view__filter-option { border-radius:var(--pg-radius-sm); }
 .pg-collection-view__filter-option[hidden] { display:none; }
-.pg-collection-view__filter-count { margin-inline-start:auto;padding-inline-end:8px;color:var(--pg-color-text-muted);font-variant-numeric:tabular-nums; }
+.pg-collection-view__filter-option > :first-child { inline-size:100%; align-items:stretch; }
+.pg-collection-view__filter-option label { min-block-size:36px; padding-inline:4px; }
+.pg-collection-view__filter-option:is(:hover,:focus-within) { background:var(--pg-color-hover); }
+.pg-collection-view__filter-count {
+  margin-inline-start:auto; padding-inline-end:4px; flex:0 0 auto;
+  color:var(--pg-color-text-muted); font-size:12px; font-variant-numeric:tabular-nums;
+}
 .pg-collection-view__filter-empty { margin:0;padding:8px;color:var(--pg-color-text-muted); }
 .pg-collection-view__filter-empty[hidden] { display:none; }
 @media (hover:none), (pointer:coarse) {

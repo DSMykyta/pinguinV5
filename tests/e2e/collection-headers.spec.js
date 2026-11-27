@@ -151,3 +151,30 @@ test('large facets reuse search, escape text safely and clean up independent ins
   await page.getByRole('button', { name: 'Прибрати тестові колекції', exact: true }).click();
   await expect(page.locator('.pg-collection-view__filter-panel:popover-open')).toHaveCount(0);
 });
+
+test('filter uses the shared surface, adaptive geometry and distinct applied state', async ({ page }) => {
+  const country = header(page, 'country');
+  const trigger = country.getByRole('button', { name: /^Фільтр:/ });
+  await openCountry(page);
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+  await expect(country).toHaveAttribute('data-pg-filtered', 'false');
+  await expect(trigger).not.toHaveAttribute('data-pg-tone');
+  await expect(panel(page)).toHaveClass(/pg-popup-surface/);
+  await expect(panel(page).locator('.pg-collection-view__filter-separator')).toBeVisible();
+  await expect(panel(page).getByText('Країна', { exact: true })).toHaveCount(0);
+  const box = await panel(page).boundingBox();
+  const button = await trigger.boundingBox();
+  expect(box.width).toBeGreaterThanOrEqual(200);
+  expect(box.width).toBeLessThan(280);
+  expect(Math.abs(box.x + box.width / 2 - button.x - button.width / 2)).toBeLessThan(2);
+  const ukraine = panel(page).getByRole('checkbox', { name: 'Україна', exact: true });
+  await panel(page).locator('.pg-collection-view__filter-option').filter({ hasText: 'Україна' })
+    .locator('.pg-collection-view__filter-count').click();
+  await expect(ukraine).not.toBeChecked();
+  await expect(trigger).toHaveAttribute('data-pg-tone', 'main');
+  await expect(country).toHaveAttribute('data-pg-filtered', 'true');
+  await ukraine.press('Escape');
+  await expect(panel(page)).toBeHidden();
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  await expect(trigger).toHaveAttribute('data-pg-tone', 'main');
+});

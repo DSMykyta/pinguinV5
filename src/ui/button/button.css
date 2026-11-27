@@ -730,6 +730,17 @@
   box-shadow: 0 2px 8px var(--pg-color-shadow);
 }
 
+/* Contextual disclosure: neutral while browsing; tone denotes a real applied state.
+ * Opt-in on the existing mini control, without changing its 32px geometry. */
+.pg-mini-button[data-pg-contextual='true']:not([data-pg-tone]):is(:hover, :focus-visible, [aria-expanded='true']) {
+  background: var(--pg-color-hover);
+  color: var(--pg-color-icon);
+  box-shadow: none;
+}
+.pg-mini-button[data-pg-contextual='true'][data-pg-tone] {
+  box-shadow: none;
+}
+
 .pg-mini-button:active:not(:disabled) {
   transform: scale(.98);
 }

@@ -50,6 +50,7 @@ export function createCollectionHeader({ column, th, getOptions, getFilter, onFi
   let showTimer = null, hideTimer = null;
   let options = [], controls = [];
   let reset = null, list = null, noMatches = null;
+  let preferredWidth = null;
   const hasPopover = typeof element.showPopover === 'function';
   let observer = null, scrollDismiss = null;
   const belongs = target => target instanceof Node &&
@@ -61,8 +62,16 @@ export function createCollectionHeader({ column, th, getOptions, getFilter, onFi
   function position() {
     if (!opened) return;
     if (!th.isConnected || !th.getClientRects().length) { close(); return; }
-    positionPopup({ anchor: th, popup: panel, matchWidth: false,
-      minWidth: 260, maxWidth: 320, preferredWidth: 280, maxHeight: 420 });
+    if (preferredWidth === null) {
+      // Measure the actual labels once per open, not on every search keystroke.
+      panel.style.width = 'max-content';
+      panel.style.maxHeight = 'none';
+      preferredWidth = panel.offsetWidth;
+    }
+    const geometry = positionPopup({ anchor: th, inlineAnchor: trigger, popup: panel,
+      matchWidth: false, align: 'center', minWidth: 200, maxWidth: 320,
+      preferredWidth, maxHeight: 420 });
+    panel.dataset.pgPopupDirection = geometry.direction;
   }
   function syncOptions() {
     if (!opened) return;
@@ -104,7 +113,9 @@ export function createCollectionHeader({ column, th, getOptions, getFilter, onFi
       const count = document.createElement('span');
       count.className = 'pg-collection-view__filter-count';
       count.setAttribute('aria-hidden', 'true');
-      row.append(checkbox.element, count);
+      // Put the count inside the native label so the entire option is clickable.
+      checkbox.input.closest('label').append(count);
+      row.append(checkbox.element);
       list.append(row);
       controls.push({ option, row, checkbox, count });
     }
@@ -118,7 +129,9 @@ export function createCollectionHeader({ column, th, getOptions, getFilter, onFi
       onOpen();
       opened = true;
       pinned = focus;
+      panel.inert = false;
       panel.hidden = false;
+      preferredWidth = null;
       trigger.setAttribute('aria-expanded', 'true');
       th.dataset.pgFilterOpen = 'true';
       search.setValue('');
@@ -141,6 +154,7 @@ export function createCollectionHeader({ column, th, getOptions, getFilter, onFi
     opened = pinned = pointerInPanel = false;
     scrollDismiss.disarm();
     observer?.disconnect();
+    panel.inert = true;
     if (hasPopover && panel.matches(':popover-open')) panel.hidePopover();
     panel.hidden = true;
     if (!hasPopover) element.append(panel);
@@ -164,19 +178,19 @@ export function createCollectionHeader({ column, th, getOptions, getFilter, onFi
     trigger = createIconButton({ label: 'Фільтр: ' + column.label,
       icon: 'sliders', variant: 'mini', action: 'column-filter' });
     trigger.classList.add('pg-collection-view__filter-trigger');
+    trigger.dataset.pgContextual = 'true';
     trigger.setAttribute('aria-haspopup', 'dialog');
     trigger.setAttribute('aria-expanded', 'false');
     trigger.setAttribute('aria-controls', id);
     panel = document.createElement('section');
     panel.id = id;
-    panel.className = 'pg-collection-view__filter-panel pg-field__popup pg-scrollbar';
+    panel.className = 'pg-collection-view__filter-panel pg-popup-surface pg-scrollbar';
+    panel.dataset.pgPopupMotion = '';
+    panel.inert = true;
     panel.hidden = true;
     panel.setAttribute('role', 'dialog');
     panel.setAttribute('aria-label', 'Фільтр: ' + column.label);
     if (hasPopover) panel.setAttribute('popover', 'manual');
-    const title = document.createElement('strong');
-    title.className = 'pg-collection-view__filter-title';
-    title.textContent = column.label;
     const toolbar = document.createElement('div');
     toolbar.className = 'pg-collection-view__filter-toolbar';
     all = createCheckbox({ label: 'Всі', onChange: () => {
@@ -189,6 +203,9 @@ export function createCollectionHeader({ column, th, getOptions, getFilter, onFi
     reset.textContent = 'Скинути';
     reset.addEventListener('click', () => onFilter(null), { signal });
     toolbar.append(all.element, reset);
+    const separator = document.createElement('div');
+    separator.className = 'pg-collection-view__filter-separator';
+    separator.setAttribute('aria-hidden', 'true');
     search = createInput({ label: 'Пошук значень: ' + column.label,
       variant: 'search', labelPresentation: 'sr-only', placeholder: 'Пошук…',
       clearable: true, onInput: () => syncOptions() });
@@ -198,7 +215,7 @@ export function createCollectionHeader({ column, th, getOptions, getFilter, onFi
     noMatches.className = 'pg-collection-view__filter-empty';
     noMatches.setAttribute('role', 'status');
     noMatches.textContent = 'Нічого не знайдено';
-    panel.append(title, toolbar, search.element, list, noMatches);
+    panel.append(toolbar, separator, search.element, list, noMatches);
     element.append(trigger, panel);
     trigger.addEventListener('click', () => opened && pinned ? close(true) : open(true), { signal });
     trigger.addEventListener('keydown', event => {
@@ -253,7 +270,7 @@ export function createCollectionHeader({ column, th, getOptions, getFilter, onFi
         }
       }
       if (trigger) {
-        setButtonColor(trigger, filtered ? { tone: 'main', appearance: 'ghost' } : {});
+        setButtonColor(trigger, filtered ? { tone: 'main', appearance: 'soft' } : {});
         trigger.setAttribute('aria-label', 'Фільтр: ' + column.label + (filtered ? ' — застосовано' : ''));
       }
       syncOptions();

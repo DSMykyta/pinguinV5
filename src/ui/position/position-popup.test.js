@@ -91,3 +91,13 @@ test('unknown placement fails instead of silently using another geometry mode', 
   assert.throws(() => position({ left: 0, right: 90, bottom: 40 },
     180, 80, { placement: 'sideways' }), /Unknown popup placement/);
 });
+
+test('centered block popup clamps to viewport edges', () => {
+  const centered = position({ left: 300, top: 20, right: 332, bottom: 52, width: 32 },
+    220, 100, { align: 'center' });
+  assert.equal(centered.left, 206);
+  assert.equal(centered.top, 56);
+  const edge = position({ left: 290, top: 20, right: 322, bottom: 52, width: 32 },
+    220, 100, { align: 'center' }, { width: 330, height: 500 });
+  assert.equal(edge.left, 102);
+});

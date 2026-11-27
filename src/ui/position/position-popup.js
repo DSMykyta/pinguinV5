@@ -14,7 +14,7 @@
 export function positionPopup({
   anchor, popup, maxHeight = 320, matchWidth = true,
   minWidth = 170, maxWidth = 300, preferredWidth = null, align = 'start', gap = 4, edge = 8,
-  placement = 'block',
+  placement = 'block', inlineAnchor = anchor,
 } = {}) {
   if (!(anchor instanceof HTMLElement) || !(popup instanceof HTMLElement)) {
     throw new TypeError('Popup positioning requires anchor and popup elements');
@@ -53,7 +53,9 @@ export function positionPopup({
   }
   if (placement !== 'block') throw new TypeError('Unknown popup placement');
   const width = Math.min(widthLimit, desiredWidth);
-  const requestedLeft = align === 'end' ? rect.right - width : rect.left;
+  const inlineRect = inlineAnchor === anchor ? rect : inlineAnchor.getBoundingClientRect();
+  const requestedLeft = align === 'center' ? inlineRect.left + (inlineRect.width - width) / 2
+    : align === 'end' ? inlineRect.right - width : inlineRect.left;
   const left = Math.max(edge, Math.min(requestedLeft, viewportWidth - width - edge));
 
   popup.style.position = 'fixed';
