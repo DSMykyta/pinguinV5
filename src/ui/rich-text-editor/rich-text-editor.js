@@ -27,7 +27,7 @@ let nextId = 0;
 
 export function createRichTextEditor({
   content = '', editable = true, toolbar = true, code = true, stats = true,
-  label = 'Редактор тексту', layout = 'auto', format: initialFormat = 'html', onChange, onModeChange, onNotify,
+  label = 'Редактор тексту', layout = 'auto', format: initialFormat = 'html', headerNote = '', onChange, onModeChange, onNotify,
 } = {}) {
   if (!['html', 'markdown'].includes(initialFormat)) throw new TypeError('Unknown document format');
   if (!['auto', 'contained'].includes(layout)) throw new TypeError('Unknown editor layout');
@@ -52,6 +52,14 @@ export function createRichTextEditor({
   if (code) header.append(modeHost);
   // Keep the disclosure directly beside the mode switch; actions reveal to its right.
   if (toolbar) header.append(triggerHost, toolsHost);
+  // Optional passive metadata; no language or feature logic in the editor.
+  const noteText = String(headerNote ?? '').trim();
+  if (noteText) {
+    const headerLabel = document.createElement('span');
+    headerLabel.className = 'pg-rich-text-editor__header-note';
+    headerLabel.textContent = noteText;
+    header.append(headerLabel);
+  }
 
   const input = document.createElement('div');
   input.className = 'pg-rich-text-editor__input pg-scrollbar';
@@ -295,7 +303,7 @@ export function createRichTextEditor({
   if (code) views.push(mountEditorModeSwitch({ host: modeHost, controls, editorId: input.id, sourceId: source.id }));
   if (stats) views.push(mountEditorStats({ host: statusHost, controls }));
   if (code) views.push(mountEditorActions({ element, input, source, host: statusHost, controls, serializeEditorSelection }));
-  if (!toolbar && !code) header.remove();
+  if (!toolbar && !code && !noteText) header.remove();
 
   return Object.freeze({
     element, input, source,

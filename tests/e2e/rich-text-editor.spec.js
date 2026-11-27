@@ -410,6 +410,7 @@ test('icon switch and expandable formatting share one outer border', async ({ pa
     'pg-rich-text-editor__mode-host',
     'pg-rich-text-editor__toolbar-toggle-host',
     'pg-rich-text-editor__tools-host',
+    'pg-rich-text-editor__header-note',
   ]);
   await expect(toolbar.locator('button.pg-mini-button')).toHaveCount(12);
   await expect(toolbar.locator('button svg')).toHaveCount(12);
@@ -786,4 +787,32 @@ test('format menu distinguishes checked format from mouse and keyboard focus', a
   await md.click();
   await footer.locator('.pg-menu__trigger').click();
   await expect(md).toHaveAttribute('aria-checked','true');
+});
+
+
+test('demo header note is passive, symmetric and stays on the right in either mode', async ({ page }) => {
+  const { root, htmlMode } = getEditor(page);
+  const note = root.locator('.pg-rich-text-editor__header-note');
+  await expect(note).toHaveText('UA/RU');
+  const measure = () => root.evaluate(node => {
+    const main = node.querySelector('.pg-rich-text-editor__main').getBoundingClientRect();
+    const left = node.querySelector('.pg-rich-text-editor__mode-host').getBoundingClientRect();
+    const note = node.querySelector('.pg-rich-text-editor__header-note');
+    const right = note.getBoundingClientRect();
+    return { leftInset: left.left - main.left, rightInset: main.right - right.right,
+      leftCenter: left.top + left.height / 2, rightCenter: right.top + right.height / 2,
+      leftHeight: left.height, rightHeight: right.height, tabIndex: note.tabIndex, tag: note.tagName };
+  });
+  for (const width of [1100, 390]) {
+    await page.setViewportSize({ width, height: 850 });
+    const before = await measure();
+    expect(before.leftInset).toBeCloseTo(before.rightInset, 0);
+    expect(before.leftCenter).toBeCloseTo(before.rightCenter, 0);
+    expect(before.leftHeight).toBeCloseTo(before.rightHeight, 0);
+    expect(before.tabIndex).toBe(-1);
+    expect(before.tag).toBe('SPAN');
+  }
+  await htmlMode.click();
+  await expect(note).toBeVisible();
+  await expect(note).toHaveText('UA/RU');
 });

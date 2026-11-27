@@ -31,6 +31,22 @@
 }
 .pg-rich-text-editor__mode-host,
 .pg-rich-text-editor__toolbar-toggle-host { flex: 0 0 auto; }
+.pg-rich-text-editor__header-note {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  margin-inline-start: auto;
+  min-block-size: calc(var(--pg-compact-control-size) + var(--pg-space-1));
+  padding-inline: var(--pg-space-3);
+  border-radius: var(--pg-radius-full);
+  background: var(--pg-color-selected);
+  color: var(--pg-color-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: default;
+}
 .pg-rich-text-editor__tools-host {
   position: relative;
   z-index: 2;

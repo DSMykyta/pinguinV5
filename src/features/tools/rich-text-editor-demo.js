@@ -18,6 +18,7 @@ export function createRichTextEditorDemo() {
   const editor = createRichTextEditor({
     content: '<h2>Опис товару</h2><p>Виділіть текст і натисніть <strong>Жирний</strong> або <em>Курсив</em>, спробуйте списки й скасування змін.</p>',
     layout: 'contained',
+    headerNote: 'UA/RU',
     onNotify: (message, type) => showToast(message, { type }),
   });
   element.append(editor.element);
