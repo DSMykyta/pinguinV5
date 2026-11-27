@@ -769,3 +769,21 @@ test('format glyph rolls vertically inside a stationary switch and respects redu
   await expect(track).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 0, -17)');
   expect(await reel.boundingBox()).toEqual(geometry);
 });
+
+
+test('format menu distinguishes checked format from mouse and keyboard focus', async ({page})=>{
+  const {root}=getEditor(page);
+  const footer=root.locator('.pg-rich-text-editor__format-menu');
+  await footer.locator('.pg-menu__trigger').click();
+  await footer.getByRole('menuitemcheckbox',{name:'Markdown',exact:true}).click();
+  await footer.locator('.pg-menu__trigger').click();
+  const html=footer.getByRole('menuitemcheckbox',{name:'HTML',exact:true});
+  const md=footer.getByRole('menuitemcheckbox',{name:'Markdown',exact:true});
+  await page.mouse.move(1,1);
+  await expect(html).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
+  await expect(html).toHaveAttribute('aria-checked','false');
+  await expect(md).toHaveAttribute('aria-checked','true');
+  await md.click();
+  await footer.locator('.pg-menu__trigger').click();
+  await expect(md).toHaveAttribute('aria-checked','true');
+});

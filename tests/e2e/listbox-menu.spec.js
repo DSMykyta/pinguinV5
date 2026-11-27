@@ -90,3 +90,24 @@ test('Select and Combobox are independent from Listbox and Menu collections', as
   };
   expect(all).toEqual({native:1,combo:1,multi:3,actions:3});
 });
+
+
+test('pointer-opened menu does not paint its automatically focused first item as hovered', async ({page})=>{
+  const menu=page.locator('.pg-tools-menu-demo .pg-menu').first();
+  const trigger=menu.locator('.pg-menu__trigger');
+  const first=menu.getByRole('menuitem',{name:'Редагувати'});
+  const second=menu.getByRole('menuitem',{name:'Дублювати'});
+  await trigger.click();
+  await expect(first).toBeFocused();
+  await page.mouse.move(1,1);
+  await expect(first).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
+  await second.hover();
+  await expect(second).not.toHaveCSS('background-color','rgba(0, 0, 0, 0)');
+  await expect(first).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
+  await page.mouse.move(1,1);
+  await page.keyboard.press('ArrowDown');
+  await expect(second).toBeFocused();
+  await expect(second).not.toHaveCSS('background-color','rgba(0, 0, 0, 0)');
+  await page.keyboard.press('Escape');
+  await expect(trigger).toBeFocused();
+});

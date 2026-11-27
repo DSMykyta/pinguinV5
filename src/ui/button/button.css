@@ -494,7 +494,7 @@
   font-weight: 400;
   text-align: start;
 }
-.pg-button--list-item:is(:hover, :focus, :focus-visible):not(:disabled) {
+.pg-button--list-item:is(:hover, :focus-visible):not(:disabled) {
   background: var(--pg-color-accent-soft);
   color: var(--pg-color-accent);
   outline: 0;

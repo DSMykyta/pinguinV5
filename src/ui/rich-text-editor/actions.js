@@ -101,7 +101,7 @@ export function mountEditorActions({ element, input, source, host, controls, ser
   const footer = createMenu({
     label: 'Формат документа', align: 'end',
     items: formats.map(f => ({ ...f, type: 'check', checked: f.value === controls.getFormat() })), 
-    onSelect(value) { restore(saved); controls.setFormat(value); },
+    onSelect(value) { restore(saved); controls.setFormat(value); sync(); },
   });
   footer.element.classList.add('pg-rich-text-editor__format-menu');
   footer.trigger.classList.replace('pg-button--outline', 'pg-button--quiet');

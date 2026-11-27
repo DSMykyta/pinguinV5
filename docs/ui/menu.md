@@ -36,3 +36,8 @@ createMenu({
 Критерії: open on hover, stable traversal between panels, mouse switch, touch click, keyboard hierarchy, close outside, Escape, long labels, viewport flip, nested items, independent existing row action menus, popup scrolling, cleanup. Браузерні тести потрібні перед production-висновком.
 
 Джерела: [WAI-ARIA Menu and Menubar](https://www.w3.org/WAI/ARIA/apg/patterns/menubar/), [Radix Dropdown Menu SubTrigger/SubContent](https://www.radix-ui.com/primitives/docs/components/dropdown-menu), [MDN Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API).
+
+
+## Фокус і наведення
+
+Автоматичний фокус першого пункту під час відкриття зберігається для клавіатурної навігації. Спільний `pg-button--list-item` підсвічується лише через `:hover` або `:focus-visible`, а не через будь-який `:focus`. Після відкриття мишею пункт без наведення не виглядає активним. Клавіатурний фокус залишається видимим. Галочка відображає checked-стан незалежно від фокусу та hover.
