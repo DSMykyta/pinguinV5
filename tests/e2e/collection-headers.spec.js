@@ -23,19 +23,30 @@ test.beforeEach(async ({ page }) => {
   await page.getByRole('tab', { name: 'Макети даних' }).click();
 });
 
-test('sort indicators precede labels in both regular and filterable columns', async ({ page }) => {
+test('shared sort indicators follow labels and text aligns with data', async ({ page }) => {
   for (const key of ['name', 'products', 'country', 'status']) {
     const control = header(page, key).locator('.pg-collection-view__sort');
     const parts = control.locator(':scope > *');
-    await expect(parts.nth(0)).toHaveClass('pg-collection-view__sort-mark');
-    await expect(parts.nth(1)).toHaveClass('pg-collection-view__column-name');
+    await expect(control).toHaveClass(/pg-button--sort/);
+    await expect(parts.nth(0)).toHaveClass(/pg-collection-view__column-name/);
+    await expect(parts.nth(1)).toHaveClass(/pg-collection-view__sort-mark/);
     const positions = await control.evaluate(node => {
       const marker = node.querySelector('.pg-collection-view__sort-mark').getBoundingClientRect();
       const label = node.querySelector('.pg-collection-view__column-name').getBoundingClientRect();
-      return { markerRight: marker.right, labelLeft: label.left };
+      const th = node.closest('th');
+      const cell = th.closest('table').querySelector('tbody td[data-pg-column="' + th.dataset.pgColumn + '"]');
+      const data = cell.querySelector('.pg-collection-view__cell-content') ?? cell;
+      const r = data.getBoundingClientRect();
+      return { markerLeft: marker.left, labelRight: label.right, labelLeft: label.left,
+        dataLeft: r.left, dataRight: r.right, end: th.dataset.pgAlign === 'end' };
     });
-    expect(positions.markerRight).toBeLessThanOrEqual(positions.labelLeft);
+    expect(positions.markerLeft).toBeGreaterThanOrEqual(positions.labelRight - 1);
+    expect(Math.abs(positions.end ? positions.labelRight - positions.dataRight :
+      positions.labelLeft - positions.dataLeft)).toBeLessThanOrEqual(1);
   }
+  const trigger = header(page, 'country').getByRole('button', { name: /^Фільтр:/ });
+  await expect(trigger).toHaveClass(/pg-icon-button--micro/);
+  await expect(trigger).toHaveCSS('width', '24px');
 });
 
 test('idle headers are quiet; hover, focus and active sorting keep stable widths', async ({ page }) => {
@@ -47,7 +58,7 @@ test('idle headers are quiet; hover, focus and active sorting keep stable widths
   const marker = header(page, 'products').locator('.pg-collection-view__sort-mark');
   await page.mouse.move(1, 1);
   await expect(marker).toHaveCSS('opacity', '0');
-  await header(page, 'products').hover();
+  await header(page, 'products').locator('.pg-collection-view__sort').hover();
   await expect(marker).toHaveCSS('opacity', '1');
   await header(page, 'products').getByRole('button').click();
   await page.getByRole('searchbox', { name: 'Шукати у таблиці брендів' }).focus();

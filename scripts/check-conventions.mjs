@@ -118,7 +118,7 @@ async function checkCss(path, label) {
       'pg-button--pill', 'pg-button--page', 'pg-button--step',
       'pg-button--tool', 'pg-button--list-item', 'pg-button--nav-item', 'pg-button--chip-remove',
       'pg-button--chip-more', 'pg-button--plain', 'pg-button--quiet',
-      'pg-button--square', 'pg-button--group',
+      'pg-button--square', 'pg-button--group', 'pg-button--sort', 'pg-icon-button--micro',
     ]);
     const inSelectors = new Set(
       [...css.matchAll(/\.((?:pg-button|pg-icon-button)(?:--[a-z0-9-]+)?|pg-mini-button)(?=[\s.#:[{,])/g)]

@@ -10,7 +10,7 @@
  */
 
 import { createIcon } from '../../ui/icon/icon.js';
-import { createIconButton, withButtonLoading } from '../../ui/button/button.js';
+import { createIconButton, createSortButton, withButtonLoading } from '../../ui/button/button.js';
 
 export function createButtonDemo() {
   const element = document.createElement('section');
@@ -73,7 +73,13 @@ export function createButtonDemo() {
   loading.addEventListener('click', () => { void demonstrate(loading); });
   compact.addEventListener('click', () => { void demonstrate(compact); });
 
-  row.append(left, right, loading, compact);
+  const sort = createSortButton({ label: 'Сортування', onSort: direction => {
+    sort.setDirection(direction);
+    status.textContent = direction === 'asc' ? 'За зростанням' : 'За спаданням';
+  } });
+  const micro = createIconButton({ label: 'Компактна дія', icon: 'sliders', variant: 'micro',
+    onClick: () => { status.textContent = 'Компактна дія'; } });
+  row.append(left, right, loading, compact, sort.element, micro);
   element.append(title, hint, row, status);
   return {
     element,

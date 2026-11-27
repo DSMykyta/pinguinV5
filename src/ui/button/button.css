@@ -600,6 +600,57 @@
 }
 .pg-button--plain:focus-visible { outline-offset: 3px; }
 
+/*
+ * ╔════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — SORT BUTTON                                                        ║
+ * ╠════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ТИП: .pg-button--sort                                                             ║
+ * ║ ПРИЗНАЧЕННЯ: Text action with a trailing direction indicator.                      ║
+ * ║ НАВІЩО: Preserve the text alignment while revealing sort state.                    ║
+ * ║ ДЕ: Collection headers and other sortable labels.                                 ║
+ * ║ ГЕОМЕТРІЯ: 32px minimum target, 12px icon, 4px gap.                               ║
+ * ║ СТАНИ: Hover/focus reveal; active direction stays visible; no accent fill.         ║
+ * ║ МЕЖА: The consumer owns actual sorting and semantic container state.               ║
+ * ╚════════════════════════════════════════════════════════════════════════════════════╝
+ */
+.pg-button--sort {
+  position: relative;
+  justify-content: flex-start;
+  min-block-size: var(--pg-compact-control-size);
+  padding: 0;
+  gap: 4px;
+  border: 0;
+  border-radius: var(--pg-radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+}
+.pg-button--sort[data-pg-align='end'] { justify-content: flex-end; }
+.pg-button__sort-label { min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; }
+.pg-button__sort-mark {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 12px;
+  color: var(--pg-color-text-muted);
+  opacity: 0;
+  transition: opacity var(--pg-motion-effects-fast-duration) var(--pg-motion-effects-ease);
+}
+.pg-button__sort-mark > .pg-icon { inline-size: 12px; block-size: 12px; }
+.pg-button--sort[data-pg-align='end'] .pg-button__sort-mark {
+  position: absolute;
+  inset-inline-end: -16px;
+}
+.pg-button--sort:is(:hover, :focus-visible, [data-pg-sort-direction='asc'], [data-pg-sort-direction='desc']) .pg-button__sort-mark {
+  opacity: 1;
+}
+@media (hover:none), (pointer:coarse) {
+  .pg-button__sort-mark { opacity: 1; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .pg-button__sort-mark { transition: none; }
+}
+
 /* Quiet actions may inherit inverse-surface colors from their host (Toast). */
 /*
  * ╔═══════════════════════════════════════════════════════════════════════════════════════════════════════╗
@@ -759,6 +810,55 @@
   .pg-mini-button,
   .pg-mini-button > .pg-icon { transition: none; }
   .pg-mini-button:active:not(:disabled) { transform: none; }
+}
+
+/*
+ * ╔════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — MICRO ICON BUTTON                                                  ║
+ * ╠════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ТИП: .pg-icon-button--micro                                                       ║
+ * ║ ПРИЗНАЧЕННЯ: Small contextual icon action in dense inline UI.                     ║
+ * ║ НАВІЩО: Secondary actions stay quieter than standard mini controls.                ║
+ * ║ ДЕ: Column filters and dense contextual toolbars.                                 ║
+ * ║ ГЕОМЕТРІЯ: 24px circle, 12px icon; 32px target for coarse pointers.                ║
+ * ║ СТАНИ: Neutral hover/open/focus, shared semantic tone, disabled.                    ║
+ * ║ МЕЖА: Do not replace ordinary mini, corner or checkbox geometry.                  ║
+ * ╚════════════════════════════════════════════════════════════════════════════════════╝
+ */
+.pg-icon-button--micro {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 24px;
+  inline-size: 24px;
+  min-inline-size: 24px;
+  block-size: 24px;
+  min-block-size: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--pg-radius-full);
+  background: transparent;
+  color: var(--pg-color-text-muted);
+  box-shadow: none;
+  transition: background-color var(--pg-motion-effects-fast-duration) var(--pg-motion-effects-ease),
+    color var(--pg-motion-effects-fast-duration) var(--pg-motion-effects-ease);
+}
+.pg-icon-button--micro > .pg-icon { inline-size: 12px; block-size: 12px; }
+.pg-icon-button--micro:not(:disabled):is(:hover, :focus-visible, [aria-expanded='true']) {
+  background: var(--pg-color-hover);
+  color: var(--pg-color-icon);
+  box-shadow: none;
+}
+@media (pointer:coarse) {
+  .pg-icon-button--micro {
+    flex-basis: var(--pg-compact-control-size);
+    inline-size: var(--pg-compact-control-size);
+    min-inline-size: var(--pg-compact-control-size);
+    block-size: var(--pg-compact-control-size);
+    min-block-size: var(--pg-compact-control-size);
+  }
+}
+@media (prefers-reduced-motion:reduce) {
+  .pg-icon-button--micro { transition: none; }
 }
 
 /*

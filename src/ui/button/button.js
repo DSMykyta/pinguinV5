@@ -113,12 +113,13 @@ export function setButtonColor(button, { tone, appearance } = {}) {
  * The callback is attached once and belongs to the component's owner.
  */
 export function createIconButton({ label, icon, action, onClick, variant = 'default', tone, appearance, tooltip = true } = {}) {
-  if (!['default', 'mini', 'corner'].includes(variant)) throw new TypeError('Unknown IconButton variant');
+  if (!['default', 'mini', 'corner', 'micro'].includes(variant)) throw new TypeError('Unknown IconButton variant');
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'pg-icon-button';
   if (variant === 'mini') button.classList.add('pg-mini-button');
   if (variant === 'corner') button.classList.add('pg-icon-button--corner');
+  if (variant === 'micro') button.classList.add('pg-icon-button--micro');
   button.setAttribute('aria-label', label);
   if (tooltip) {
     button.dataset.pgTooltip = label;
@@ -131,4 +132,34 @@ export function createIconButton({ label, icon, action, onClick, variant = 'defa
   button.append(createIcon(icon));
   if (typeof onClick === 'function') button.addEventListener('click', onClick);
   return button;
+}
+
+/** Shared text-and-direction button. The caller remains the owner of sorting. */
+export function createSortButton({ label, onSort, align = 'start' } = {}) {
+  if (typeof label !== 'string' || !label.trim()) throw new TypeError('Sort button needs a label');
+  if (!['start', 'end'].includes(align)) throw new TypeError('Invalid sort button alignment');
+  const element = document.createElement('button');
+  element.type = 'button';
+  element.className = 'pg-button pg-button--sort';
+  element.dataset.pgAlign = align;
+  const text = document.createElement('span');
+  text.className = 'pg-button__sort-label';
+  text.textContent = label;
+  const marker = document.createElement('span');
+  marker.className = 'pg-button__sort-mark';
+  marker.setAttribute('aria-hidden', 'true');
+  element.append(text, marker);
+  let direction;
+  function setDirection(next = null) {
+    if (![null, 'asc', 'desc'].includes(next)) throw new TypeError('Invalid sort direction');
+    if (direction === next) return;
+    direction = next;
+    element.dataset.pgSortDirection = next ?? 'none';
+    element.setAttribute('aria-label', 'Сортувати ' + label + ' ' +
+      (next === 'asc' ? 'за спаданням' : 'за зростанням'));
+    marker.replaceChildren(createIcon(next === 'asc' ? 'arrow-up' : next === 'desc' ? 'arrow-down' : 'swap-vert'));
+  }
+  element.addEventListener('click', () => onSort?.(direction === 'asc' ? 'desc' : 'asc'));
+  setDirection(null);
+  return Object.freeze({ element, labelElement: text, marker, setDirection });
 }

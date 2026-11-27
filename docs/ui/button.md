@@ -78,3 +78,7 @@ Playwright: однакова геометрія 32×32px mini і спільно�
 - **Незмінний Section Navigator:** `stroke-dashoffset` його SVG кільця — точний **визначений прогрес жесту** біля краю робочої області, отже до нового кнопкового loading його не прив'язувати; навігацію й радіус кільця не чіпати.
 
 **Тестування:** `tests/e2e/material-loading.spec.js`: форма всередині, жодного border-orbit, колір primary/outline/dark, стабільна геометрія й DOM, повторні кліки та клавіатура, aria й відновлення, reduced-motion. Цей документ не засвідчує проходження браузерних тестів без фактичного запуску.
+
+## Sort Button та Micro IconButton (2026-11-27)
+
+`createSortButton({label,onSort,align})` → `{element,labelElement,marker,setDirection}`. Напрямок `null|asc|desc` передає власник даних, callback отримує наступний напрямок. Кнопка містить текст і 12px trailing arrow; нейтральний індикатор видно на hover/focus або при активному напрямку. `align:'end'` виносить стрілку в правий gutter 16px, який повинен надати контейнер. `createIconButton({variant:'micro'})` — 24px коло та 12px іконка, 32px hit target для coarse pointer. Жодної локальної копії CSS. Обидва варіанти доступні у спільному демо кнопок.

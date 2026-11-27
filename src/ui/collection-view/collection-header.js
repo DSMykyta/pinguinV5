@@ -9,8 +9,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════════╝
  */
 
-import { createIconButton, setButtonColor } from '../button/button.js';
-import { createIcon } from '../icon/icon.js';
+import { createIconButton, createSortButton, setButtonColor } from '../button/button.js';
 import { createInput } from '../input/input.js';
 import { createCheckbox } from '../checkbox/checkbox.js';
 import { positionPopup } from '../position/position-popup.js';
@@ -24,24 +23,19 @@ export function createCollectionHeader({ column, th, getOptions, getFilter, onFi
   element.className = 'pg-collection-view__column-header';
   const controller = new AbortController();
   const { signal } = controller;
-  const name = document.createElement('span');
-  name.className = 'pg-collection-view__column-name';
+  let sortButton = null;
+  const sortControl = column.sortable !== false ? createSortButton({
+    label: column.label, align: column.align === 'end' ? 'end' : 'start',
+    onSort: direction => { close(); onSort(direction); },
+  }) : null;
+  const name = sortControl?.labelElement ?? document.createElement('span');
+  name.classList.add('pg-collection-view__column-name');
   name.textContent = column.label;
   name.dataset.pgTooltip = column.label;
-  let sortButton = null, marker = null, direction = null;
-  if (column.sortable !== false) {
-    sortButton = document.createElement('button');
-    sortButton.type = 'button';
-    sortButton.className = 'pg-collection-view__sort pg-button pg-button--plain';
-    marker = document.createElement('span');
-    marker.className = 'pg-collection-view__sort-mark';
-    marker.setAttribute('aria-hidden', 'true');
-    // Keep the sort indicator before the label in every column, filtered or not.
-    sortButton.append(marker, name);
-    sortButton.addEventListener('click', () => {
-      close();
-      onSort(direction === 'asc' ? 'desc' : 'asc');
-    }, { signal });
+  if (sortControl) {
+    sortButton = sortControl.element;
+    sortButton.classList.add('pg-collection-view__sort');
+    sortControl.marker.classList.add('pg-collection-view__sort-mark');
     element.append(sortButton);
   } else element.append(name);
 
@@ -176,9 +170,8 @@ export function createCollectionHeader({ column, th, getOptions, getFilter, onFi
     th.dataset.pgFilterable = 'true';
     const id = 'pg-column-filter-' + (++sequence);
     trigger = createIconButton({ label: 'Фільтр: ' + column.label,
-      icon: 'sliders', variant: 'mini', action: 'column-filter', tooltip: false });
+      icon: 'sliders', variant: 'micro', action: 'column-filter', tooltip: false });
     trigger.classList.add('pg-collection-view__filter-trigger');
-    trigger.dataset.pgContextual = 'true';
     trigger.setAttribute('aria-haspopup', 'dialog');
     trigger.setAttribute('aria-expanded', 'false');
     trigger.setAttribute('aria-controls', id);
@@ -257,18 +250,11 @@ export function createCollectionHeader({ column, th, getOptions, getFilter, onFi
   }
   return Object.freeze({ element, close,
     sync(sort, filtered) {
-      direction = sort?.key === column.key ? sort.direction : null;
+      const direction = sort?.key === column.key ? sort.direction : null;
       if (direction) th.setAttribute('aria-sort', direction === 'asc' ? 'ascending' : 'descending');
       else th.removeAttribute('aria-sort');
       th.dataset.pgFiltered = String(filtered);
-      if (sortButton) {
-        sortButton.setAttribute('aria-label', 'Сортувати ' + column.label + ' ' +
-          (direction === 'asc' ? 'за спаданням' : 'за зростанням'));
-        const icon = direction === 'asc' ? 'arrow-up' : direction === 'desc' ? 'arrow-down' : 'swap-vert';
-        if (marker.dataset.pgIcon !== icon) {
-          marker.replaceChildren(createIcon(icon)); marker.dataset.pgIcon = icon;
-        }
-      }
+      sortControl?.setDirection(direction);
       if (trigger) {
         setButtonColor(trigger, filtered ? { tone: 'main', appearance: 'soft' } : {});
         trigger.setAttribute('aria-label', 'Фільтр: ' + column.label + (filtered ? ' — застосовано' : ''));

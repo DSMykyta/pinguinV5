@@ -28,7 +28,8 @@
 | `pg-input__clear` | Input/Search | `createIconButton({variant:'mini'})` | Саме поле має власний lifecycle |
 | `pg-tag-field__remove` | Tag Field | `pg-button--chip-remove` | Малі дії біля тегів; keyboard/undo належать Tag Field |
 | `pg-listbox__trigger` | Listbox | Спільна `pg-field__control` / Field | **Button за семантикою**, але візуально **поле**, не дія |
-| `pg-collection-view__sort` | Заголовки таблиці | Text-ghost button в межах sortable header | Сортує, не повинен створювати власний button-skin |
+| `pg-button--sort` / `pg-collection-view__sort` | Заголовки таблиці, Button Demo | `createSortButton()` — спільна текстова кнопка з trailing direction | 12px стрілка, 4px gap; стан і напрямок, без акцентної плашки |
+| `pg-icon-button--micro` | Фільтри колонок, Button Demo | `createIconButton({variant:'micro'})` | 24px target, 12px icon; 32px на coarse pointer; нейтральний hover/open, shared tone |
 | `pg-tabs__tab` | Shell Tabs | Спільний компонент Tabs з нативною tab-семантикою | Відмінний control, не довільна кнопка |
 | `pg-segment-switch__label` | Table/Tiles, Editor/HTML | Label + нативний radio, **не** button | Єдина plate-анімація, не стилізовані кнопки |
 | `pg-select__control`, `pg-combobox__input` | Поля | Native select / combobox, **не** action button | 56px рамка через Field |
@@ -88,3 +89,7 @@
 - Стан очікування дії Dialog тепер делеговано `setButtonLoading` натиснутої спільної кнопки. Прихований discard існує тільки для діалогів із guard.
 - Класи `pg-dialog__button--primary`, `--secondary`, `--destructive` більше не використовуються: skin належить `pg-button--*`.
 - Два набори фіктивних кнопок у робочій зоні замінено використанням реальних колекційних дій; автономний test-only Confirm вилучено.
+
+## 2026-11-27 — погоджені Sort та Micro
+
+Додано за прямою вимогою: спеціалізований Sort Button перенесено з CollectionView до глобального Button, а Micro IconButton — окремий компактний глобальний варіант. Обидва внесено до `scripts/check-conventions.mjs`. Mini 32px та checkbox залишаються без змін. Сортування і фільтрація даних залишаються в CollectionView.
