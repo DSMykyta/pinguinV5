@@ -39,7 +39,7 @@ export function createFocusCarouselDemo() {
     image.loading = 'lazy';
     return image;
   });
-  const carousel = createFocusCarousel({ items, label: 'Фокусна карусель: фотографії', pauseOnHover: false });
+  const carousel = createFocusCarousel({ items, label: 'Фокусна карусель: фотографії', pauseOnHover: true });
   const autoplay = createSwitch({
     label: 'Автопрокрутка',
     checked: false,

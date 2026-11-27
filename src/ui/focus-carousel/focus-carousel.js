@@ -69,13 +69,25 @@ export function createFocusCarousel({ items = [], label = 'Карусель', au
     autoplayTimer = null;
   }
 
+  function canAutoplay() {
+    const focused = doc.activeElement;
+    // Clicking or dragging can focus the scrollport itself. This mouse focus
+    // must not leave rotation paused after pointerleave. Keyboard focus and
+    // focused interactive descendants still pause for accessibility.
+    const focusPaused = focused === element
+      ? element.matches(':focus-visible')
+      : element.contains(focused);
+    return !destroyed && autoEnabled && visible && !(pauseOnHover && hovering) &&
+      !drag && !touching && settleFrame === null && pendingIndex === null &&
+      !reduced.matches && !doc.hidden && !focusPaused && slides.length > 1;
+  }
+
   function scheduleAutoplay() {
     clearAutoplay();
-    if (destroyed || !autoEnabled || !visible || (pauseOnHover && hovering) || drag || touching ||
-        settleFrame !== null || pendingIndex !== null || reduced.matches || doc.hidden ||
-        element.contains(doc.activeElement) || slides.length < 2) return;
+    if (!canAutoplay()) return;
     autoplayTimer = view.setTimeout(() => {
       autoplayTimer = null;
+      if (!canAutoplay()) return;
       if (!canLoop()) {
         const index = nearest();
         if (index === slides.length - 1) autoDirection = -1;
@@ -268,6 +280,7 @@ export function createFocusCarousel({ items = [], label = 'Карусель', au
 
   element.addEventListener('keydown', event => {
     if (event.target !== element || !slides.length || event.altKey || event.ctrlKey || event.metaKey) return;
+    if (element.matches(':focus-visible')) clearAutoplay();
     const rtl = view.getComputedStyle(element).direction === 'rtl';
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
       event.preventDefault();
@@ -302,13 +315,18 @@ export function createFocusCarousel({ items = [], label = 'Карусель', au
   element.addEventListener('pointerup', endDrag, options);
   element.addEventListener('pointercancel', endDrag, options);
   element.addEventListener('lostpointercapture', endDrag, options);
-  element.addEventListener('pointerenter', () => { hovering = true; if (pauseOnHover) clearAutoplay(); }, options);
-  element.addEventListener('pointerleave', () => {
+  element.addEventListener('pointerenter', event => {
+    if (event.pointerType === 'touch') return;
+    hovering = true;
+    if (pauseOnHover) clearAutoplay();
+  }, options);
+  element.addEventListener('pointerleave', event => {
+    if (event.pointerType === 'touch') return;
     hovering = false;
     if (drag && !drag.moved) endDrag();
     scheduleAutoplay();
   }, options);
-  element.addEventListener('focusin', clearAutoplay, options);
+  element.addEventListener('focusin', scheduleAutoplay, options);
   element.addEventListener('focusout', () => view.queueMicrotask(scheduleAutoplay), options);
   element.addEventListener('wheel', event => {
     if (!slides.length || drag || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey ||
@@ -361,8 +379,13 @@ export function createFocusCarousel({ items = [], label = 'Карусель', au
   }, options);
   const visibility = new view.IntersectionObserver(entries => {
     visible = entries[0].isIntersecting;
-    if (visible) alignPending();
-    else clearAutoplay();
+    if (visible) {
+      hovering = element.matches(':hover');
+      alignPending();
+    } else {
+      hovering = false;
+      clearAutoplay();
+    }
   }, { threshold: 0.01 });
   visibility.observe(element);
   view.addEventListener('blur', () => endDrag(), options);

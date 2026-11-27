@@ -98,9 +98,34 @@ test('loop wraps in both directions and autoplay advances across the boundary', 
   await autoplay.check();
   const box = await track.boundingBox();
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.waitForTimeout(3800);
+  await centered(track, 4);
+  await page.mouse.move(1, 1);
   await centered(track, 0);
   await autoplay.uncheck();
   await loop.uncheck();
   await expect(track.locator('[data-pg-clone]')).toHaveCount(0);
   await centered(track, 0);
+});
+
+test('autoplay pauses on hover and resumes after mouse focus leaves the scrollport', async ({ page }) => {
+  const track = await openCarousel(page);
+  const autoplay = page.getByRole('switch', { name: 'Автопрокрутка' });
+  await autoplay.check();
+  await track.scrollIntoViewIfNeeded();
+  const box = await track.boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await centered(track, 0);
+  await page.waitForTimeout(3900);
+  await centered(track, 0);
+  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.move(1, 1);
+  await centered(track, 1);
+  await expect(autoplay).toBeChecked();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.waitForTimeout(3900);
+  await centered(track, 1);
+  await page.mouse.move(1, 1);
+  await centered(track, 2);
+  await autoplay.uncheck();
 });
