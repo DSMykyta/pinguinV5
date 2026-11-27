@@ -175,7 +175,7 @@ test('frost backdrop uses static theme washes and grain, never live blur', async
     expect(style.transition).toBe('0s');
     expect(style.size).toContain('64px 64px');
     expect(await modal.evaluate(node => getComputedStyle(node, '::backdrop').backgroundColor))
-      .toBe(theme === 'light' ? 'rgba(220, 229, 236, 0.79)' : 'rgba(27, 33, 40, 0.8)');
+      .toBe(theme === 'light' ? 'rgba(21, 27, 33, 0.76)' : 'rgba(17, 22, 27, 0.82)');
   }
   await expect(page.locator('.pg-dialog__blur-margins')).toHaveCount(0);
   await page.keyboard.press('Escape');

@@ -159,6 +159,8 @@
 
 ### src/ui/dialog — Модалки, підтвердження, lifecycle, overlay
 
+[Статичне темне матове скло в обох темах](dialog.md#pseudo-frosted-glass--2026-11-27): спільний backdrop та decision overlay, два статичні градієнти, локальне зерно, кольори у `src/styles/tokens.css`, без live blur.
+
 - `src/ui/dialog/dialog.css`
 - `src/ui/dialog/dialog.js`
 - `src/ui/dialog/frost-grain.svg`
