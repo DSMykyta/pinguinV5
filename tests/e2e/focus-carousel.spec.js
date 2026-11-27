@@ -129,3 +129,18 @@ test('autoplay pauses on hover and resumes after mouse focus leaves the scrollpo
   await centered(track, 2);
   await autoplay.uncheck();
 });
+
+test('keyboard focus ring stays inside the clipped carousel viewport', async ({ page }) => {
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    const track = await openCarousel(page);
+    await track.focus();
+    await page.keyboard.press('ArrowRight');
+    await centered(track, 1);
+    await expect(track).toHaveCSS('outline-style', 'solid');
+    await expect(track).toHaveCSS('outline-width', '2px');
+    await expect(track).toHaveCSS('outline-offset', '-2px');
+    await expect(track).toHaveCSS('border-top-left-radius', '16px');
+    await expect(track).toHaveCSS('scroll-snap-type', 'x mandatory');
+  }
+});

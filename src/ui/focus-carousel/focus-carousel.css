@@ -29,7 +29,8 @@
 .pg-focus-carousel::-webkit-scrollbar { display: none; }
 .pg-focus-carousel:focus-visible {
   outline: 2px solid var(--pg-color-focus);
-  outline-offset: 2px;
+  /* Same inset focus ring as Section Navigator: safe inside clipped workspaces. */
+  outline-offset: -2px;
 }
 .pg-focus-carousel::before,
 .pg-focus-carousel::after {
