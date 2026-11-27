@@ -1,0 +1,65 @@
+/*
+ * ╔════════════════════════════════════════════════════════════════════════════════════╗
+ * ║ PINGUIN NEXT — FOCUS CAROUSEL
+ * ╠════════════════════════════════════════════════════════════════════════════════════╣
+ * ║ ПРИЗНАЧЕННЯ: Scroll snap та безперервний фокус карток.
+ * ║ ЗАЛЕЖНОСТІ: DOM, CSS і спільні токени.
+ * ║ ПУБЛІЧНИЙ API: pg-focus-carousel.
+ * ║ ПРИНЦИП: Незалежний екземпляр, без глобального стану.
+ * ╚════════════════════════════════════════════════════════════════════════════════════╝
+ */
+
+.pg-focus-carousel {
+  --pg-carousel-gap: var(--pg-space-2);
+  display: flex;
+  gap: var(--pg-carousel-gap);
+  min-inline-size: 0;
+  inline-size: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 0;
+  scrollbar-width: none;
+  border-radius: var(--pg-radius-lg);
+  cursor: grab;
+}
+.pg-focus-carousel::-webkit-scrollbar { display: none; }
+.pg-focus-carousel:focus-visible {
+  outline: 2px solid var(--pg-color-focus);
+  outline-offset: 2px;
+}
+.pg-focus-carousel::before,
+.pg-focus-carousel::after {
+  content: '';
+  flex: 0 0 calc(20% - var(--pg-carousel-gap));
+}
+.pg-focus-carousel__slide {
+  flex: 0 0 60%;
+  min-inline-size: 0;
+  scroll-snap-align: center;
+}
+.pg-focus-carousel__surface {
+  transform: scale(var(--pg-carousel-scale, 1));
+  opacity: var(--pg-carousel-opacity, 1);
+  transform-origin: center;
+}
+.pg-focus-carousel[data-pg-state='dragging'] {
+  scroll-snap-type: none;
+  cursor: grabbing;
+  user-select: none;
+}
+@keyframes pg-carousel-focus {
+  0%, 100% { transform: scale(.85); opacity: .7; }
+  30%, 70% { transform: scale(1); opacity: 1; }
+}
+@supports (animation-timeline: --pg-carousel-view) and (view-timeline: --pg-carousel-view inline 0px) {
+  .pg-focus-carousel__slide { view-timeline: --pg-carousel-view inline 0px; }
+  .pg-focus-carousel__surface {
+    animation: pg-carousel-focus 1ms linear both;
+    animation-timeline: --pg-carousel-view;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pg-focus-carousel__surface { animation: none; transform: none; opacity: 1; }
+}

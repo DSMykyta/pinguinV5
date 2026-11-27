@@ -34,6 +34,8 @@ const folderPattern = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 // own CSS files, never in the global Shell stylesheet.
 const cssOwnerByPrefix = new Map([
   ['pg-page', 'src/ui/page/page.css'],
+  ['pg-focus-carousel', 'src/ui/focus-carousel/focus-carousel.css'],
+  ['pg-tools-focus-carousel-demo', 'src/features/tools/focus-carousel-demo.css'],
   ['pg-holographic-foil', 'src/ui/holographic-foil/holographic-foil.css'],
   ['pg-tools-holographic-foil-demo', 'src/features/tools/holographic-foil-demo.css'],
   ['pg-search', 'src/shell/search/search.css'],

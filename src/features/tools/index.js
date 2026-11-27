@@ -27,6 +27,8 @@ import { createDataViewsDemo } from './data-views-demo.js';
 import { createMediaLibraryDemo } from './media-library-demo.js';
 import { createSectionNavigatorDemo } from './section-navigator-demo.js';
 import { createHolographicFoilDemo } from './holographic-foil-demo.js';
+import { createFocusCarouselDemo } from './focus-carousel-demo.js';
+import './focus-carousel-demo.css';
 import './holographic-foil-demo.css';
 import './toast-demo.css';
 import './wave-progress-demo.css';
@@ -123,7 +125,8 @@ export function mount(host, { setAsideContext, setSearchEntries, setSearchContex
   const navigationDemo = createSectionNavigatorDemo();
   const effectsPage = createPageView({ title: 'Ефекти' });
   const foilDemo = createHolographicFoilDemo();
-  effectsPage.body.append(foilDemo.element);
+  const carouselDemo = createFocusCarouselDemo();
+  effectsPage.body.append(foilDemo.element, carouselDemo.element);
   const pageByTab = new Map([
     ['tables', tablePage],
     ['data-views', dataViewsDemo.element],
@@ -194,6 +197,7 @@ export function mount(host, { setAsideContext, setSearchEntries, setSearchContex
     richTextEditorDemo.destroy();
     navigationDemo.destroy();
     foilDemo.destroy();
+    carouselDemo.destroy();
     fieldDemo.destroy();
     advancedDemo.destroy();
     listboxDemo.destroy();

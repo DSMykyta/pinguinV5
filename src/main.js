@@ -28,6 +28,7 @@ import './ui/toolbar/toolbar.css';
 import './ui/dialog/dialog.css';
 import './ui/cloud-gradient/cloud-gradient.css';
 import './ui/holographic-foil/holographic-foil.css';
+import './ui/focus-carousel/focus-carousel.css';
 import './ui/workspace-layout/workspace-layout.css';
 import './ui/section-navigator/section-navigator.css';
 import './ui/field/field.css';

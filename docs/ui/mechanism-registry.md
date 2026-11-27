@@ -36,6 +36,8 @@
 - `src/features/tools/dialog-demo.js`
 - `src/features/tools/field-demo.css`
 - `src/features/tools/field-demo.js`
+- `src/features/tools/focus-carousel-demo.css`
+- `src/features/tools/focus-carousel-demo.js`
 - `src/features/tools/holographic-foil-demo.css`
 - `src/features/tools/holographic-foil-demo.js`
 - `src/features/tools/image-field-demo.css`
@@ -154,6 +156,11 @@
 - `src/ui/field/field.css`
 - `src/ui/field/field.js`
 - `src/ui/field/support.js`
+
+### src/ui/focus-carousel — Горизонтальний scroll snap та фокус від позиції
+
+- `src/ui/focus-carousel/focus-carousel.css`
+- `src/ui/focus-carousel/focus-carousel.js`
 
 ### src/ui/form-dialog — Форма в Dialog
 
@@ -338,6 +345,7 @@
 ## Спільні контракти
 
 - [Motion Physics](motion.md) — spatial/effects; [семантичні кольори](semantic-colors.md), [реєстр кнопок](button-inventory.md), [спільний UI](overview.md), [legacy-шарми](../legacy-behavior-research.md).
+- [Focus Carousel](focus-carousel.md) — фокус від положення в scrollport, незалежний від Section Navigator.
 - [Holographic Foil](holographic-foil.md) — окремий оптичний матеріал, не дублює CloudGradient або PhotoCharm.
 
 ## Припарковані механізми (не імпортувати)
